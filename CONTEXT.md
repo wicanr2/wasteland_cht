@@ -48,9 +48,9 @@
 | 項目 | 狀態 |
 |---|---|
 | 解包映像實跑驗證 | **未做**。要在 DOSBox 跑起來與原版對照，才能把「解包等同原版」升為已確認 |
-| 資料格式 | 全部未解：`game1`／`game2`／`allpics*`／`allhtds*`／`wla.bin`／`transtbl`／`curs`／`colorf.fnt` |
-| 文字編碼 | 未解。`wl.exe` 有兩串疑似編碼表（`0x1DD98`、`0x1C01B`），是下一個入口 |
-| 說明書整理 | 未開始（四份：軟體世界中文版 33 張掃描、英文 `manual.txt`、`paragraphs.txt`、社群攻略） |
+| 資料格式 | 已解：`wla.bin`（overlay 程式碼）、`title.pic`（XOR 串流）、`colorf.fnt`（172 字 × 32 bytes）、`GAME1`／`GAME2` 的定址方式。未解：`GAME1`／`GAME2` 各資源的內容、`allpics*`、`allhtds*`、`transtbl`、`curs`、`masks.wlf`、`ic0_9.wlf`、`end.cpa` |
+| 劇情文字 | 位置未證實。`wl.exe` 內的介面文字是明文 ASCII；劇情文字合理位置是 `GAME1`／`GAME2`，編碼未知 |
+| 說明書整理 | 英文手冊與段落書完成；軟體世界中文說明書（33 張掃描）轉錄進行中；社群攻略未開始 |
 | Go 引擎 | **未開始，且依規定不得開始**，要等規格 READY |
 
 ## 3. 文件索引
@@ -89,6 +89,8 @@
 |---|---|---|
 | `wl.exe` 裡 `Packed file is corrupt#` 的 `#` 是錯誤訊息的一部分 | IDA 把後續資料一起顯示成字串了 | `#`＝`0x23`＝35，是第一組 relocation 的 count（`docs/re/02` §3） |
 | 檔名表沒有任何程式碼引用（xref 與立即數掃描都是 0） | 立即數掃描器沒遮罩符號擴展，`0x91C5` 被讀成 `0xFFFF...91C5`，算出的位址不存在 | 檔名全部由 `mov dx, <位移>` 直接引用，修正後 `seg002` 有 50 個字串對上引用點（`docs/re/03` §7） |
+| `GAME1` 等六個檔名也沒有引用（修正掃描器後仍是 0） | 只查了「位址以立即數出現」這一種形式 | 檔名位址是資源表 `+6` 欄位的資料值，開啟路徑是 `sub_11445`（`docs/re/05` §6） |
+| ` etraoishlnd`、`bcdefghijklmdenopq` 是文字解碼的頻率表 | 憑字串長相猜的，沒有追引用點 | 後者是 `sub_166D3` 逐字印到畫面上的內容；文字編碼另有其處（`docs/re/06` §3） |
 
 ## 7. Worklist
 
