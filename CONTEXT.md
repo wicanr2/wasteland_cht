@@ -52,8 +52,9 @@
 |---|---|
 | 解包映像實跑驗證 | **未做**。要在 DOSBox 跑起來與原版對照，才能把「解包等同原版」升為已確認 |
 | 資料格式 | 已解：`wla.bin`（overlay 程式碼）、`title.pic`（XOR 串流）、`colorf.fnt`（172 字 × 32 bytes）、`GAME1`／`GAME2` 的定址方式。未解：`GAME1`／`GAME2` 各資源的內容、`allpics*`、`allhtds*`、`transtbl`、`curs`、`masks.wlf`、`ic0_9.wlf`、`end.cpa` |
-| 劇情文字 | MSQ 解密後仍只有 4 個區塊含大量英文單字；多數區塊沒有可讀文字，可能是地圖與數值表，也可能還有第二層編碼。**未證實，不要當結論** |
-| MSQ 內部結構 | 未解——目前主線。要分辨哪些區塊是地圖、文字、數值表 |
+
+| MSQ 內部結構 | 地圖層已解（前 2048 bytes ＝ 64×64 4-bit tile，42/42 自相關驗證）；`+0x800` 起的記錄表未解 |
+| 劇情敘述文字 | **還沒找到**。MSQ 區塊裡只有名稱字串（明文）。待查：`ALLHTDS1`／`ALLHTDS2`、8 個無 MSQ 區塊的資源編號 |
 | 說明書整理 | 英文手冊、段落書、軟體世界中文說明書都完成；社群攻略未開始 |
 | Go 引擎 | **未開始，且依規定不得開始**，要等規格 READY |
 
@@ -70,6 +71,7 @@
 | [`docs/re/06-resource-directory.md`](docs/re/06-resource-directory.md) | `GAME1`／`GAME2` 的資源目錄與位移表、資源 magic、文字輸出層 |
 | [`docs/re/07-msq-blocks.md`](docs/re/07-msq-blocks.md) | 42 個 MSQ 區塊的完整清單、數量的三重驗證、內容是加密／壓縮的 |
 | [`docs/re/08-msq-encryption.md`](docs/re/08-msq-encryption.md) | MSQ 加密演算法與 42/42 驗證、區塊佈局、長度表 |
+| [`docs/re/09-msq-map-structure.md`](docs/re/09-msq-map-structure.md) | 前 2048 bytes 是 64×64 地圖（自相關驗證）、名稱字串是明文、存檔兩份輪替 |
 | [`docs/manual-cht/`](docs/manual-cht/) | 軟體世界 1990 中文說明書全 60 頁節轉錄 ＋ 當年譯名表 |
 | [`docs/manual/`](docs/manual/) | 官方英文手冊全文 markdown |
 | [`docs/paragraphs/`](docs/paragraphs/) | 段落書 162 段全文與索引，含防拷結構標註 |
@@ -104,9 +106,10 @@
 
 **下一步（按順序）**
 
-1. **解 MSQ 區塊的內部結構**（主線）：42 塊已可完整解密，下一步是分辨每一塊是什麼
-   （地圖／文字／數值表），並解釋為何多數區塊看不到可讀文字。
-2. 建資源編號 → 資產類型的對照。
+1. **找劇情敘述文字**（主線）：MSQ 區塊裡只有名稱表，敘述文字不在那。
+   先分析 `ALLHTDS1`／`ALLHTDS2`，再查那 8 個沒有 MSQ 區塊的資源編號。
+2. 解 MSQ `+0x800` 起的記錄表：固定位移掃描無效（欄位用基址暫存器存取），
+   要從使用端往回追。
 3. 解 `ds:722Fh` 的字元碼重映射（`docs/re/04` §5），中文化前必須先解。
 4. 逐一解 overlay 其餘 21 個 slot，特別是 `0x1029B`（881 bytes）。
 5. 追資源表 idx 7（無檔名，疑似存檔區）在硬碟模式下怎麼存取。
