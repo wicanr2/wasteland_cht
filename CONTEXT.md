@@ -66,6 +66,8 @@
 | 文件 | 內容 |
 |---|---|
 | [`CLAUDE.md`](./CLAUDE.md) | 專案規範：三道閘門、IDA 鐵則、文件與中文化政策、環境硬規則 |
+| [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md) | **RE 完成度檢查表**：remake 需要的每一項知識、狀態與入口 |
+| [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 81）。讀任何 `sub_XXXXX` 前先查 |
 | [`docs/re/01-binary-identity.md`](docs/re/01-binary-identity.md) | 20 檔 SHA-256、`wl.exe` 的 MZ header、第一份資料庫與「不可用作證據」的結論 |
 | [`docs/re/02-exepack-unpack.md`](docs/re/02-exepack-unpack.md) | EXEPACK 格式、解包器、relocation 起點的坑、解包後基準資料庫 |
 | [`docs/re/03-boot-and-asset-loading.md`](docs/re/03-boot-and-asset-loading.md) | 開機序列、`info` 安裝資訊、檔名表、七個開機素材的載入位址、`TITLE.PIC` XOR 解碼 |
@@ -110,10 +112,17 @@
 
 ## 7. Worklist
 
-**下一步（按順序）**
+**RE 完成度**：資料格式層大致打通，遊戲規則層幾乎全空。
+641 個函式裡人寫的筆記只涵蓋 81 個。完整缺口見
+[`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md)。
 
-1. **找「顯示段落編號」的程式碼**：找到就能把「原版沒有長篇敘述文字」從強證據升為已確認。
-2. 追遊戲內短訊息的來源：`ds:29FAEh` 的 ` etraoishlnd` 有兩個引用點（`0x1B7BF`、`0x1BAB7`）沒追過。
+**下一步（依「對 remake 的阻擋程度」排序）**
+
+1. **亂數產生器（D7）** —— 沒有它，任何規則都無法對拍驗證，優先度最高。
+2. **字元碼重映射（A15）** —— 擋住中文化的字型工作。
+3. **地圖記錄表（A6）** —— 擋住移動、事件觸發、技能檢定一整片。
+4. **存檔與角色結構（C2／C3）** —— 擋住所有規則的驗證。
+5. 段落編號顯示（E3）、短訊息來源（E4，入口 `0x1B7BF`／`0x1BAB7`）。
 2. 解 MSQ `+0x800` 起的記錄表：固定位移掃描無效（欄位用基址暫存器存取），
    要從使用端往回追。
 3. 解 `ds:722Fh` 的字元碼重映射（`docs/re/04` §5），中文化前必須先解。
