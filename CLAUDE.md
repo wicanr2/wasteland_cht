@@ -269,6 +269,7 @@ internal/、cmd/   Go 引擎
 
 ## 素材位置
 
+- GitHub repo：https://github.com/wicanr2/wasteland_cht （目前 private）
 - 原版遊戲：`./Wasteland_1988.zip`
 - 軟體世界中文說明書：`./112-荒野遊俠.rar`
 - 方法論參考專案：`~/cht/daemon_winter/`（`CLAUDE.md`、`CONTEXT.md`、`AGENTS.md`）
