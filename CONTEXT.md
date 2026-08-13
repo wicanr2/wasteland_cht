@@ -36,7 +36,9 @@
 | 檔案 I/O | open／read／close 三個包裝函式與「請插入磁片」重試迴圈已解 |
 | `TITLE.PIC` 解碼 | XOR 自參考串流（`out[n] = in[n] XOR out[n-0x90]`），長度算術完全吻合 |
 | RE 工具 | `export_file_io.py`（中斷掃描＋字串引用）、`export_function.py`（函式完整倒出）、`apply_overlay.py` |
-| 資源目錄 | `GAME1`／`GAME2` 的定址三張表全解（目錄 `0x28CE9`、位移表 A `0x28A9A`／B `0x28AEA`），資源自帶 2 bytes 長度（`docs/re/06`） |
+| 資源目錄 | `GAME1`／`GAME2` 的定址三張表全解（目錄 `0x28CE9`、位移表 A `0x28A9A`／B `0x28AEA`）（`docs/re/06`） |
+| MSQ 區塊 | 兩個資料檔切開：`game1` 20 塊全部 `msq0`、`game2` 22 塊全部 `msq1`；數量與目錄索引三重吻合（`docs/re/07`） |
+| 中文說明書 | 全 60 頁節轉錄完成，含 IBM 版補充說明書與約 200 條當年譯名（`docs/manual-cht/`） |
 | 文字輸出 | `sub_1786E` 印字串（`ds:4680h`）→ overlay slot 19 畫字元；`wl.exe` 內介面文字是明文 ASCII |
 | `wla.bin` overlay | 26 個 slot 的 API 表、EGA mode 0Dh、列位址表、畫字元（字型 172 字 × 32 bytes、8×8、4 平面）、清除矩形（`docs/re/04`） |
 | 儲存層 | 雙模式（硬碟 DOS 檔案／磁片 `int 25h` 絕對磁區）與分流旗標；資源表 8 筆全解，六個檔名的引用點就在表的 `+6` 欄位（`docs/re/05`） |
@@ -49,8 +51,8 @@
 |---|---|
 | 解包映像實跑驗證 | **未做**。要在 DOSBox 跑起來與原版對照，才能把「解包等同原版」升為已確認 |
 | 資料格式 | 已解：`wla.bin`（overlay 程式碼）、`title.pic`（XOR 串流）、`colorf.fnt`（172 字 × 32 bytes）、`GAME1`／`GAME2` 的定址方式。未解：`GAME1`／`GAME2` 各資源的內容、`allpics*`、`allhtds*`、`transtbl`、`curs`、`masks.wlf`、`ic0_9.wlf`、`end.cpa` |
-| 劇情文字 | 位置未證實。`wl.exe` 內的介面文字是明文 ASCII；劇情文字合理位置是 `GAME1`／`GAME2`，編碼未知 |
-| 說明書整理 | 英文手冊與段落書完成；軟體世界中文說明書（33 張掃描）轉錄進行中；社群攻略未開始 |
+| 劇情文字 | 確定不在明文狀態。42 個 MSQ 區塊全部高熵（用滿 256 種 byte 值），內容經加密或壓縮，演算法未解——這是目前的主線 |
+| 說明書整理 | 英文手冊、段落書、軟體世界中文說明書都完成；社群攻略未開始 |
 | Go 引擎 | **未開始，且依規定不得開始**，要等規格 READY |
 
 ## 3. 文件索引
@@ -63,7 +65,9 @@
 | [`docs/re/03-boot-and-asset-loading.md`](docs/re/03-boot-and-asset-loading.md) | 開機序列、`info` 安裝資訊、檔名表、七個開機素材的載入位址、`TITLE.PIC` XOR 解碼 |
 | [`docs/re/04-overlay-wla-bin.md`](docs/re/04-overlay-wla-bin.md) | `wla.bin` overlay 機制、26 個 slot 的 API 表、繪圖層三支 |
 | [`docs/re/05-storage-layer.md`](docs/re/05-storage-layer.md) | 雙模式儲存、資源表結構、六個資料檔的開啟路徑 |
-| [`docs/re/06-resource-directory.md`](docs/re/06-resource-directory.md) | `GAME1`／`GAME2` 的資源目錄與位移表、資源 header、文字輸出層 |
+| [`docs/re/06-resource-directory.md`](docs/re/06-resource-directory.md) | `GAME1`／`GAME2` 的資源目錄與位移表、資源 magic、文字輸出層 |
+| [`docs/re/07-msq-blocks.md`](docs/re/07-msq-blocks.md) | 42 個 MSQ 區塊的完整清單、數量的三重驗證、內容是加密／壓縮的 |
+| [`docs/manual-cht/`](docs/manual-cht/) | 軟體世界 1990 中文說明書全 60 頁節轉錄 ＋ 當年譯名表 |
 | [`docs/manual/`](docs/manual/) | 官方英文手冊全文 markdown |
 | [`docs/paragraphs/`](docs/paragraphs/) | 段落書 162 段全文與索引，含防拷結構標註 |
 | `docs/re/generated/ida94/` | 工具匯出的清冊（JSON ＋ markdown），不含人的推論 |
@@ -91,14 +95,15 @@
 | 檔名表沒有任何程式碼引用（xref 與立即數掃描都是 0） | 立即數掃描器沒遮罩符號擴展，`0x91C5` 被讀成 `0xFFFF...91C5`，算出的位址不存在 | 檔名全部由 `mov dx, <位移>` 直接引用，修正後 `seg002` 有 50 個字串對上引用點（`docs/re/03` §7） |
 | `GAME1` 等六個檔名也沒有引用（修正掃描器後仍是 0） | 只查了「位址以立即數出現」這一種形式 | 檔名位址是資源表 `+6` 欄位的資料值，開啟路徑是 `sub_11445`（`docs/re/05` §6） |
 | ` etraoishlnd`、`bcdefghijklmdenopq` 是文字解碼的頻率表 | 憑字串長相猜的，沒有追引用點 | 後者是 `sub_166D3` 逐字印到畫面上的內容；文字編碼另有其處（`docs/re/06` §3） |
+| MSQ 資源的前 2 bytes 是長度 | 把 `mov cx, [bx]` 當成「取剛讀進來的 header」，其實 `ds:46B0h` 是別處設好的緩衝區位址 | 那 4 bytes 是 magic `msq0`／`msq1`；長度來源仍未解（`docs/re/07` §7） |
 
 ## 7. Worklist
 
 **下一步（按順序）**
 
-1. 建資源編號 → 資產類型的對照：資源目錄與兩張位移表已解（`docs/re/06`），
-   下一步是找出每個編號對應什麼（地圖／文字／圖），這是通往劇情文字的主線。
-2. 用位移表把 `GAME1`／`GAME2` 實際切開，逐個資源看內容與 header。
+1. **解 MSQ 區塊的解密／解壓演算法**（主線）。入口：`sub_11A10` 回來之後的處理，
+   以及呼叫端 `sub_184E8`／`sub_18744`／`sub_1B7FE`。不得套用社群流傳的公式，要從機器碼讀。
+2. 建資源編號 → 資產類型的對照（哪一塊是地圖、哪一塊是文字）。
 3. 解 `ds:722Fh` 的字元碼重映射（`docs/re/04` §5），中文化前必須先解。
 4. 逐一解 overlay 其餘 21 個 slot，特別是 `0x1029B`（881 bytes）。
 5. 追資源表 idx 7（無檔名，疑似存檔區）在硬碟模式下怎麼存取。

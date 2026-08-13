@@ -1,0 +1,1048 @@
+{
+  "inputs": {
+    "exe_sha256": "b5eb39f094e0274165eab5e1584e78ff5b54c7228d8db273573d2bd951ea31a0",
+    "game1_sha256": "44521eef76fab492d38c0c0bcb171be3f06a4063ce1e0f49175f0b7370a7841d",
+    "game2_sha256": "6de4df6dd1af0a0210c2d6e282ecd1327f2acc7440c955f65045fd6e8a135c47",
+    "game1_size": 159429,
+    "game2_size": 172235
+  },
+  "table_a_entries": 20,
+  "table_b_entries": 22,
+  "directory_entries": 50,
+  "directory": [
+    {
+      "resource_id": 0,
+      "raw": "0x80",
+      "disk_bits": "0x80",
+      "table_index": 0,
+      "table": "A",
+      "in_range": true
+    },
+    {
+      "resource_id": 1,
+      "raw": "0x81",
+      "disk_bits": "0x80",
+      "table_index": 1,
+      "table": "A",
+      "in_range": true
+    },
+    {
+      "resource_id": 2,
+      "raw": "0x82",
+      "disk_bits": "0x80",
+      "table_index": 2,
+      "table": "A",
+      "in_range": true
+    },
+    {
+      "resource_id": 3,
+      "raw": "0x83",
+      "disk_bits": "0x80",
+      "table_index": 3,
+      "table": "A",
+      "in_range": true
+    },
+    {
+      "resource_id": 4,
+      "raw": "0x84",
+      "disk_bits": "0x80",
+      "table_index": 4,
+      "table": "A",
+      "in_range": true
+    },
+    {
+      "resource_id": 5,
+      "raw": "0x85",
+      "disk_bits": "0x80",
+      "table_index": 5,
+      "table": "A",
+      "in_range": true
+    },
+    {
+      "resource_id": 6,
+      "raw": "0x86",
+      "disk_bits": "0x80",
+      "table_index": 6,
+      "table": "A",
+      "in_range": true
+    },
+    {
+      "resource_id": 7,
+      "raw": "0x40",
+      "disk_bits": "0x40",
+      "table_index": 0,
+      "table": "B",
+      "in_range": true
+    },
+    {
+      "resource_id": 8,
+      "raw": "0x87",
+      "disk_bits": "0x80",
+      "table_index": 7,
+      "table": "A",
+      "in_range": true
+    },
+    {
+      "resource_id": 9,
+      "raw": "0x88",
+      "disk_bits": "0x80",
+      "table_index": 8,
+      "table": "A",
+      "in_range": true
+    },
+    {
+      "resource_id": 10,
+      "raw": "0x89",
+      "disk_bits": "0x80",
+      "table_index": 9,
+      "table": "A",
+      "in_range": true
+    },
+    {
+      "resource_id": 11,
+      "raw": "0x41",
+      "disk_bits": "0x40",
+      "table_index": 1,
+      "table": "B",
+      "in_range": true
+    },
+    {
+      "resource_id": 12,
+      "raw": "0x42",
+      "disk_bits": "0x40",
+      "table_index": 2,
+      "table": "B",
+      "in_range": true
+    },
+    {
+      "resource_id": 13,
+      "raw": "0x43",
+      "disk_bits": "0x40",
+      "table_index": 3,
+      "table": "B",
+      "in_range": true
+    },
+    {
+      "resource_id": 14,
+      "raw": "0x0E",
+      "disk_bits": "0x00",
+      "table_index": 14,
+      "table": null,
+      "in_range": null
+    },
+    {
+      "resource_id": 15,
+      "raw": "0x44",
+      "disk_bits": "0x40",
+      "table_index": 4,
+      "table": "B",
+      "in_range": true
+    },
+    {
+      "resource_id": 16,
+      "raw": "0x45",
+      "disk_bits": "0x40",
+      "table_index": 5,
+      "table": "B",
+      "in_range": true
+    },
+    {
+      "resource_id": 17,
+      "raw": "0x46",
+      "disk_bits": "0x40",
+      "table_index": 6,
+      "table": "B",
+      "in_range": true
+    },
+    {
+      "resource_id": 18,
+      "raw": "0x47",
+      "disk_bits": "0x40",
+      "table_index": 7,
+      "table": "B",
+      "in_range": true
+    },
+    {
+      "resource_id": 19,
+      "raw": "0x48",
+      "disk_bits": "0x40",
+      "table_index": 8,
+      "table": "B",
+      "in_range": true
+    },
+    {
+      "resource_id": 20,
+      "raw": "0x49",
+      "disk_bits": "0x40",
+      "table_index": 9,
+      "table": "B",
+      "in_range": true
+    },
+    {
+      "resource_id": 21,
+      "raw": "0x4A",
+      "disk_bits": "0x40",
+      "table_index": 10,
+      "table": "B",
+      "in_range": true
+    },
+    {
+      "resource_id": 22,
+      "raw": "0x4B",
+      "disk_bits": "0x40",
+      "table_index": 11,
+      "table": "B",
+      "in_range": true
+    },
+    {
+      "resource_id": 23,
+      "raw": "0x4C",
+      "disk_bits": "0x40",
+      "table_index": 12,
+      "table": "B",
+      "in_range": true
+    },
+    {
+      "resource_id": 24,
+      "raw": "0x4D",
+      "disk_bits": "0x40",
+      "table_index": 13,
+      "table": "B",
+      "in_range": true
+    },
+    {
+      "resource_id": 25,
+      "raw": "0x4E",
+      "disk_bits": "0x40",
+      "table_index": 14,
+      "table": "B",
+      "in_range": true
+    },
+    {
+      "resource_id": 26,
+      "raw": "0x8A",
+      "disk_bits": "0x80",
+      "table_index": 10,
+      "table": "A",
+      "in_range": true
+    },
+    {
+      "resource_id": 27,
+      "raw": "0x8B",
+      "disk_bits": "0x80",
+      "table_index": 11,
+      "table": "A",
+      "in_range": true
+    },
+    {
+      "resource_id": 28,
+      "raw": "0x8C",
+      "disk_bits": "0x80",
+      "table_index": 12,
+      "table": "A",
+      "in_range": true
+    },
+    {
+      "resource_id": 29,
+      "raw": "0x8D",
+      "disk_bits": "0x80",
+      "table_index": 13,
+      "table": "A",
+      "in_range": true
+    },
+    {
+      "resource_id": 30,
+      "raw": "0x1E",
+      "disk_bits": "0x00",
+      "table_index": 30,
+      "table": null,
+      "in_range": null
+    },
+    {
+      "resource_id": 31,
+      "raw": "0x8E",
+      "disk_bits": "0x80",
+      "table_index": 14,
+      "table": "A",
+      "in_range": true
+    },
+    {
+      "resource_id": 32,
+      "raw": "0x8F",
+      "disk_bits": "0x80",
+      "table_index": 15,
+      "table": "A",
+      "in_range": true
+    },
+    {
+      "resource_id": 33,
+      "raw": "0x90",
+      "disk_bits": "0x80",
+      "table_index": 16,
+      "table": "A",
+      "in_range": true
+    },
+    {
+      "resource_id": 34,
+      "raw": "0x91",
+      "disk_bits": "0x80",
+      "table_index": 17,
+      "table": "A",
+      "in_range": true
+    },
+    {
+      "resource_id": 35,
+      "raw": "0x4F",
+      "disk_bits": "0x40",
+      "table_index": 15,
+      "table": "B",
+      "in_range": true
+    },
+    {
+      "resource_id": 36,
+      "raw": "0x50",
+      "disk_bits": "0x40",
+      "table_index": 16,
+      "table": "B",
+      "in_range": true
+    },
+    {
+      "resource_id": 37,
+      "raw": "0x25",
+      "disk_bits": "0x00",
+      "table_index": 37,
+      "table": null,
+      "in_range": null
+    },
+    {
+      "resource_id": 38,
+      "raw": "0x51",
+      "disk_bits": "0x40",
+      "table_index": 17,
+      "table": "B",
+      "in_range": true
+    },
+    {
+      "resource_id": 39,
+      "raw": "0x52",
+      "disk_bits": "0x40",
+      "table_index": 18,
+      "table": "B",
+      "in_range": true
+    },
+    {
+      "resource_id": 40,
+      "raw": "0x53",
+      "disk_bits": "0x40",
+      "table_index": 19,
+      "table": "B",
+      "in_range": true
+    },
+    {
+      "resource_id": 41,
+      "raw": "0x54",
+      "disk_bits": "0x40",
+      "table_index": 20,
+      "table": "B",
+      "in_range": true
+    },
+    {
+      "resource_id": 42,
+      "raw": "0x55",
+      "disk_bits": "0x40",
+      "table_index": 21,
+      "table": "B",
+      "in_range": true
+    },
+    {
+      "resource_id": 43,
+      "raw": "0x92",
+      "disk_bits": "0x80",
+      "table_index": 18,
+      "table": "A",
+      "in_range": true
+    },
+    {
+      "resource_id": 44,
+      "raw": "0x2C",
+      "disk_bits": "0x00",
+      "table_index": 44,
+      "table": null,
+      "in_range": null
+    },
+    {
+      "resource_id": 45,
+      "raw": "0x2D",
+      "disk_bits": "0x00",
+      "table_index": 45,
+      "table": null,
+      "in_range": null
+    },
+    {
+      "resource_id": 46,
+      "raw": "0x2E",
+      "disk_bits": "0x00",
+      "table_index": 46,
+      "table": null,
+      "in_range": null
+    },
+    {
+      "resource_id": 47,
+      "raw": "0x2F",
+      "disk_bits": "0x00",
+      "table_index": 47,
+      "table": null,
+      "in_range": null
+    },
+    {
+      "resource_id": 48,
+      "raw": "0x30",
+      "disk_bits": "0x00",
+      "table_index": 48,
+      "table": null,
+      "in_range": null
+    },
+    {
+      "resource_id": 49,
+      "raw": "0x93",
+      "disk_bits": "0x80",
+      "table_index": 19,
+      "table": "A",
+      "in_range": true
+    }
+  ],
+  "game1_resources": [
+    {
+      "file": "game1",
+      "index": 0,
+      "offset": 0,
+      "offset_hex": "0x0",
+      "span_length": 10958,
+      "magic": "msq0",
+      "magic_hex": "6d737130",
+      "body": {
+        "head_hex": "bff0f4d536177051b293fcdd3e1f7859",
+        "printable_ratio": 0.376,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.012
+      }
+    },
+    {
+      "file": "game1",
+      "index": 1,
+      "offset": 10958,
+      "offset_hex": "0x2ACE",
+      "span_length": 5739,
+      "magic": "msq0",
+      "magic_hex": "6d737130",
+      "body": {
+        "head_hex": "36ad31107352bd8deecf28087b5aa584",
+        "printable_ratio": 0.376,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.017
+      }
+    },
+    {
+      "file": "game1",
+      "index": 2,
+      "offset": 16697,
+      "offset_hex": "0x4139",
+      "span_length": 9600,
+      "magic": "msq0",
+      "magic_hex": "6d737130",
+      "body": {
+        "head_hex": "68db08694aab94f5c727107152b39cfd",
+        "printable_ratio": 0.375,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.024
+      }
+    },
+    {
+      "file": "game1",
+      "index": 3,
+      "offset": 26297,
+      "offset_hex": "0x66B9",
+      "span_length": 10097,
+      "magic": "msq0",
+      "magic_hex": "6d737130",
+      "body": {
+        "head_hex": "1248e1c2230c6d4eaf88e9ca2b147556",
+        "printable_ratio": 0.381,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.023
+      }
+    },
+    {
+      "file": "game1",
+      "index": 4,
+      "offset": 36394,
+      "offset_hex": "0x8E2A",
+      "span_length": 8188,
+      "magic": "msq0",
+      "magic_hex": "6d737130",
+      "body": {
+        "head_hex": "1c2582e3cc2d0e6f48a98aebd5351677",
+        "printable_ratio": 0.37,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.017
+      }
+    },
+    {
+      "file": "game1",
+      "index": 5,
+      "offset": 44582,
+      "offset_hex": "0xAE26",
+      "span_length": 4530,
+      "magic": "msq0",
+      "magic_hex": "6d737130",
+      "body": {
+        "head_hex": "f6703d1e7f58b99afbe4c526076041a2",
+        "printable_ratio": 0.37,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.017
+      }
+    },
+    {
+      "file": "game1",
+      "index": 6,
+      "offset": 49112,
+      "offset_hex": "0xBFD8",
+      "span_length": 10140,
+      "magic": "msq0",
+      "magic_hex": "6d737130",
+      "body": {
+        "head_hex": "19f557b091f2d33c1d7e5fb899fadbc4",
+        "printable_ratio": 0.389,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.019
+      }
+    },
+    {
+      "file": "game1",
+      "index": 7,
+      "offset": 59252,
+      "offset_hex": "0xE774",
+      "span_length": 7270,
+      "magic": "msq0",
+      "magic_hex": "6d737130",
+      "body": {
+        "head_hex": "9eebdf3e19785bba85e4c726016043a2",
+        "printable_ratio": 0.378,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.019
+      }
+    },
+    {
+      "file": "game1",
+      "index": 8,
+      "offset": 66522,
+      "offset_hex": "0x103DA",
+      "span_length": 6933,
+      "magic": "msq0",
+      "magic_hex": "6d737130",
+      "body": {
+        "head_hex": "4d40b697f0d132137c5dbe9ff8d93a1b",
+        "printable_ratio": 0.38,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.018
+      }
+    },
+    {
+      "file": "game1",
+      "index": 9,
+      "offset": 73455,
+      "offset_hex": "0x11EEF",
+      "span_length": 9748,
+      "magic": "msq0",
+      "magic_hex": "6d737130",
+      "body": {
+        "head_hex": "4d48bf8ee9c82b0a157546a780e1c223",
+        "printable_ratio": 0.373,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.02
+      }
+    },
+    {
+      "file": "game1",
+      "index": 10,
+      "offset": 83203,
+      "offset_hex": "0x14503",
+      "span_length": 10507,
+      "magic": "msq0",
+      "magic_hex": "6d737130",
+      "body": {
+        "head_hex": "f20850b392fddc3f1e7958bb9ae5c427",
+        "printable_ratio": 0.368,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.009
+      }
+    },
+    {
+      "file": "game1",
+      "index": 11,
+      "offset": 93710,
+      "offset_hex": "0x16E0E",
+      "span_length": 6888,
+      "magic": "msq0",
+      "magic_hex": "6d737130",
+      "body": {
+        "head_hex": "b1f9f3dc3d1e7f58b99afbe4c5260760",
+        "printable_ratio": 0.374,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.019
+      }
+    },
+    {
+      "file": "game1",
+      "index": 12,
+      "offset": 100598,
+      "offset_hex": "0x188F6",
+      "span_length": 5225,
+      "magic": "msq0",
+      "magic_hex": "6d737130",
+      "body": {
+        "head_hex": "ca8cfdde3f18795abba485e6c7200162",
+        "printable_ratio": 0.373,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.017
+      }
+    },
+    {
+      "file": "game1",
+      "index": 13,
+      "offset": 105823,
+      "offset_hex": "0x19D5F",
+      "span_length": 4238,
+      "magic": "msq0",
+      "magic_hex": "6d737130",
+      "body": {
+        "head_hex": "836159ba9b84e5c627006142a38cedce",
+        "printable_ratio": 0.382,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.016
+      }
+    },
+    {
+      "file": "game1",
+      "index": 14,
+      "offset": 110061,
+      "offset_hex": "0x1ADED",
+      "span_length": 5437,
+      "magic": "msq0",
+      "magic_hex": "6d737130",
+      "body": {
+        "head_hex": "6c06d132137c5dbe9ff8d93a1b046546",
+        "printable_ratio": 0.38,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.019
+      }
+    },
+    {
+      "file": "game1",
+      "index": 15,
+      "offset": 115498,
+      "offset_hex": "0x1C32A",
+      "span_length": 6896,
+      "magic": "msq0",
+      "magic_hex": "6d737130",
+      "body": {
+        "head_hex": "81f9c32c0d6e4fa889eacb34157657b0",
+        "printable_ratio": 0.376,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.019
+      }
+    },
+    {
+      "file": "game1",
+      "index": 16,
+      "offset": 122394,
+      "offset_hex": "0x1DE1A",
+      "span_length": 9372,
+      "magic": "msq0",
+      "magic_hex": "6d737130",
+      "body": {
+        "head_hex": "8685b899fadbc425066740a182f2dd2d",
+        "printable_ratio": 0.385,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.016
+      }
+    },
+    {
+      "file": "game1",
+      "index": 17,
+      "offset": 131766,
+      "offset_hex": "0x202B6",
+      "span_length": 8125,
+      "magic": "msq0",
+      "magic_hex": "6d737130",
+      "body": {
+        "head_hex": "06922f08694aab94f5d637107152b39c",
+        "printable_ratio": 0.369,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.022
+      }
+    },
+    {
+      "file": "game1",
+      "index": 18,
+      "offset": 139891,
+      "offset_hex": "0x22273",
+      "span_length": 5788,
+      "magic": "msq0",
+      "magic_hex": "6d737130",
+      "body": {
+        "head_hex": "1508a687e0c122036c4dae8fe8c92a0b",
+        "printable_ratio": 0.373,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.016
+      }
+    },
+    {
+      "file": "game1",
+      "index": 19,
+      "offset": 145679,
+      "offset_hex": "0x2390F",
+      "span_length": 13750,
+      "magic": "msq0",
+      "magic_hex": "6d737130",
+      "body": {
+        "head_hex": "ce2be50f98f9da3b24056647a081e2c3",
+        "printable_ratio": 0.31,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.196
+      }
+    }
+  ],
+  "game2_resources": [
+    {
+      "file": "game2",
+      "index": 0,
+      "offset": 0,
+      "offset_hex": "0x0",
+      "span_length": 4320,
+      "magic": "msq1",
+      "magic_hex": "6d737131",
+      "body": {
+        "head_hex": "f7c08cedce2f08694bba94f5d6371071",
+        "printable_ratio": 0.386,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.016
+      }
+    },
+    {
+      "file": "game2",
+      "index": 1,
+      "offset": 4320,
+      "offset_hex": "0x10E0",
+      "span_length": 5278,
+      "magic": "msq1",
+      "magic_hex": "6d737131",
+      "body": {
+        "head_hex": "836951b293fcdd3e1f7859ba9b84e5c6",
+        "printable_ratio": 0.365,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.019
+      }
+    },
+    {
+      "file": "game2",
+      "index": 2,
+      "offset": 9598,
+      "offset_hex": "0x257E",
+      "span_length": 12357,
+      "magic": "msq1",
+      "magic_hex": "6d737131",
+      "body": {
+        "head_hex": "973d006342ad8cefce29086b4a55b497",
+        "printable_ratio": 0.376,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.009
+      }
+    },
+    {
+      "file": "game2",
+      "index": 3,
+      "offset": 21955,
+      "offset_hex": "0x55C3",
+      "span_length": 7805,
+      "magic": "msq1",
+      "magic_hex": "6d737131",
+      "body": {
+        "head_hex": "3c9d1a7b6445a687e0c122036c4dae8f",
+        "printable_ratio": 0.39,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.016
+      }
+    },
+    {
+      "file": "game2",
+      "index": 4,
+      "offset": 29760,
+      "offset_hex": "0x7440",
+      "span_length": 5407,
+      "magic": "msq1",
+      "magic_hex": "6d737131",
+      "body": {
+        "head_hex": "922a036c4dae8fe8c92a0b7455b697f0",
+        "printable_ratio": 0.375,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.019
+      }
+    },
+    {
+      "file": "game2",
+      "index": 5,
+      "offset": 35167,
+      "offset_hex": "0x895F",
+      "span_length": 5685,
+      "magic": "msq1",
+      "magic_hex": "6d737131",
+      "body": {
+        "head_hex": "733ee7c621006342ad8cefce29086b4a",
+        "printable_ratio": 0.368,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.02
+      }
+    },
+    {
+      "file": "game2",
+      "index": 6,
+      "offset": 40852,
+      "offset_hex": "0x9F94",
+      "span_length": 5941,
+      "magic": "msq1",
+      "magic_hex": "6d737131",
+      "body": {
+        "head_hex": "31fd0750b192f3db3d1e7f58be9afbe4",
+        "printable_ratio": 0.376,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.027
+      }
+    },
+    {
+      "file": "game2",
+      "index": 7,
+      "offset": 46793,
+      "offset_hex": "0xB6C9",
+      "span_length": 4952,
+      "magic": "msq1",
+      "magic_hex": "6d737131",
+      "body": {
+        "head_hex": "35c648a88aebd435167750b192f3dc3d",
+        "printable_ratio": 0.37,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.02
+      }
+    },
+    {
+      "file": "game2",
+      "index": 8,
+      "offset": 51745,
+      "offset_hex": "0xCA21",
+      "span_length": 6261,
+      "magic": "msq1",
+      "magic_hex": "6d737131",
+      "body": {
+        "head_hex": "5014ffd8391a7b6445a687e0c122036c",
+        "printable_ratio": 0.375,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.013
+      }
+    },
+    {
+      "file": "game2",
+      "index": 9,
+      "offset": 58006,
+      "offset_hex": "0xE296",
+      "span_length": 8895,
+      "magic": "msq1",
+      "magic_hex": "6d737131",
+      "body": {
+        "head_hex": "5219f0d132137c5dbe9ff8d93a1b0465",
+        "printable_ratio": 0.38,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.016
+      }
+    },
+    {
+      "file": "game2",
+      "index": 10,
+      "offset": 66901,
+      "offset_hex": "0x10555",
+      "span_length": 6034,
+      "magic": "msq1",
+      "magic_hex": "6d737131",
+      "body": {
+        "head_hex": "40ba41a283fccd2e0f6849aa8bf4d526",
+        "printable_ratio": 0.371,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.015
+      }
+    },
+    {
+      "file": "game2",
+      "index": 11,
+      "offset": 72935,
+      "offset_hex": "0x11CE7",
+      "span_length": 11143,
+      "magic": "msq1",
+      "magic_hex": "6d737131",
+      "body": {
+        "head_hex": "a815066740a182e3cc2d0e6f48a98aeb",
+        "printable_ratio": 0.36,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.016
+      }
+    },
+    {
+      "file": "game2",
+      "index": 12,
+      "offset": 84078,
+      "offset_hex": "0x1486E",
+      "span_length": 10196,
+      "magic": "msq1",
+      "magic_hex": "6d737131",
+      "body": {
+        "head_hex": "1e96331cc6e50423f9da3b24056647a0",
+        "printable_ratio": 0.366,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.022
+      }
+    },
+    {
+      "file": "game2",
+      "index": 13,
+      "offset": 94274,
+      "offset_hex": "0x17042",
+      "span_length": 7784,
+      "magic": "msq1",
+      "magic_hex": "6d737131",
+      "body": {
+        "head_hex": "7477b899fadbc425066740a192e3cc2d",
+        "printable_ratio": 0.38,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.02
+      }
+    },
+    {
+      "file": "game2",
+      "index": 14,
+      "offset": 102058,
+      "offset_hex": "0x18EAA",
+      "span_length": 7692,
+      "magic": "msq1",
+      "magic_hex": "6d737131",
+      "body": {
+        "head_hex": "d684e8ca2b147556b790f1d2331c7d5e",
+        "printable_ratio": 0.381,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.023
+      }
+    },
+    {
+      "file": "game2",
+      "index": 15,
+      "offset": 109750,
+      "offset_hex": "0x1ACB6",
+      "span_length": 8918,
+      "magic": "msq1",
+      "magic_hex": "6d737131",
+      "body": {
+        "head_hex": "e4623d1e7f58b98beae4c526076141a2",
+        "printable_ratio": 0.375,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.019
+      }
+    },
+    {
+      "file": "game2",
+      "index": 16,
+      "offset": 118668,
+      "offset_hex": "0x1CF8C",
+      "span_length": 8488,
+      "magic": "msq1",
+      "magic_hex": "6d737131",
+      "body": {
+        "head_hex": "51aa40a182e3cc2d1e90b7a98aebd435",
+        "printable_ratio": 0.38,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.016
+      }
+    },
+    {
+      "file": "game2",
+      "index": 17,
+      "offset": 127156,
+      "offset_hex": "0x1F0B4",
+      "span_length": 10019,
+      "magic": "msq1",
+      "magic_hex": "6d737131",
+      "body": {
+        "head_hex": "6f03d730117253bc9dfedf38197a5b44",
+        "printable_ratio": 0.377,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.02
+      }
+    },
+    {
+      "file": "game2",
+      "index": 18,
+      "offset": 137175,
+      "offset_hex": "0x217D7",
+      "span_length": 5528,
+      "magic": "msq1",
+      "magic_hex": "6d737131",
+      "body": {
+        "head_hex": "88427152b39cfdde3f18795abba485e6",
+        "printable_ratio": 0.371,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.02
+      }
+    },
+    {
+      "file": "game2",
+      "index": 19,
+      "offset": 142703,
+      "offset_hex": "0x22D6F",
+      "span_length": 9051,
+      "magic": "msq1",
+      "magic_hex": "6d737131",
+      "body": {
+        "head_hex": "d44c230c6c5faf88e9ca2b147556b780",
+        "printable_ratio": 0.375,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.028
+      }
+    },
+    {
+      "file": "game2",
+      "index": 20,
+      "offset": 151754,
+      "offset_hex": "0x250CA",
+      "span_length": 9007,
+      "magic": "msq1",
+      "magic_hex": "6d737131",
+      "body": {
+        "head_hex": "b2cac32c0d6e4fa889eacb34157657b0",
+        "printable_ratio": 0.38,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.019
+      }
+    },
+    {
+      "file": "game2",
+      "index": 21,
+      "offset": 160761,
+      "offset_hex": "0x273F9",
+      "span_length": 11474,
+      "magic": "msq1",
+      "magic_hex": "6d737131",
+      "body": {
+        "head_hex": "e6dd80e1c2230c6d4eaf88e9ca2b1475",
+        "printable_ratio": 0.299,
+        "distinct_bytes": 256,
+        "zero_ratio": 0.237
+      }
+    }
+  ]
+}
