@@ -82,11 +82,18 @@ class Tree:
         self.build(bits, right, separator)
 
 
-def decompress(data: bytes, separator: bool = True) -> tuple[bytes, dict]:
+def decompress(
+    data: bytes, separator: bool = True, verify_magic: bool = True
+) -> tuple[bytes, dict]:
+    """verify_magic=False 對應 `sub_11AE8` 的 AL=0 路徑。
+
+    MSQ 區塊的尾段用的就是那條路徑：一樣有 8 bytes header，但第 5–7 bytes
+    不是 `msq`，原版在 AL=0 時直接跳過驗證（`0x11B11`）。
+    """
     out_size = struct.unpack_from("<I", data, 0)[0]
     magic = data[4:7]
     disk = data[7]
-    if magic != b"msq":
+    if verify_magic and magic != b"msq":
         raise ValueError(f"magic 不是 msq：{magic!r}")
 
     bits = Bits(data, 8)
@@ -173,4 +180,5 @@ def main() -> None:
     print("兩種讀法都失敗：", last)
 
 
-main()
+if __name__ == "__main__":
+    main()
