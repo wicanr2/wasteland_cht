@@ -93,6 +93,14 @@ WL_IDA_TARGET=/abs/path/other.exe tools/ida.sh build   # 換分析目標
 
 - **headless 的 `print` 不進 stdout**：結果一律寫檔，並且**驗證輸出檔存在且非空**——
   `exit 0` 不代表腳本真的產出了東西（`tools/ida.sh run` 已內建這道檢查）。
+- **⚠ `get_operand_value()` 會把 16-bit 立即數符號擴展**：`0x91C5` 回傳
+  `0xFFFFFFFFFFFF91C5`。拿去算位址會一筆都對不上，而**症狀是安靜的零命中**，
+  和「真的沒人引用」長得一模一樣。16-bit 專案一律 `& 0xFFFF`（`docs/re/03` §7）。
+- **任何過濾閾值都會製造假零**：ASCII 掃描的最短長度設 4，就會漏掉 `CURS`、`info`
+  這種四字元檔名。下「沒有」的結論前先確認過濾器本身沒有洞。
+- **偶發：資料庫載入異常會讓 `retrieve_input_file_sha256()` 回 `None`**，
+  batch log 裡的 root filename 會是亂碼。**重跑就好，不要因此把雜湊驗證拿掉**——
+  先用另一支已知可用的腳本跑同一份 `.i64` 做正對照，確認是偶發還是資料庫壞了。
 - **IDA 9.4 有 API 改名**：`ida_idaapi.get_kernel_version` 已不存在，
   `getseg`／`get_segm_name`／`get_segm_class` 會噴 DeprecationWarning。
   遇到 `AttributeError` 先確認 9.4 的新名稱，不要假設舊教學還成立。

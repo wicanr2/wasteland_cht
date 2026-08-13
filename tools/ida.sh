@@ -50,14 +50,16 @@ case "$cmd" in
     ;;
 
   run)
-    script="${1:?用法：tools/ida.sh run <tools/ida/xxx.py> <輸出路徑>}"
-    out="${2:?用法：tools/ida.sh run <tools/ida/xxx.py> <輸出路徑>}"
+    script="${1:?用法：tools/ida.sh run <tools/ida/xxx.py> <輸出路徑> [腳本參數…]}"
+    out="${2:?用法：tools/ida.sh run <tools/ida/xxx.py> <輸出路徑> [腳本參數…]}"
+    shift 2
+    extra="$*"
     [ -f "$ANALYSIS/$DB_NAME" ] || { echo "還沒建資料庫，先跑 tools/ida.sh build" >&2; exit 1; }
     outdir="$(cd "$(dirname "$out")" 2>/dev/null && pwd || { mkdir -p "$(dirname "$out")" && cd "$(dirname "$out")" && pwd; })"
     outfile="$(basename "$out")"
     docker_run "$outdir" "
       cp /workspace/workplace/analysis/ida94/$DB_NAME /tmp/$DB_NAME &&
-      idat -A -L/output/$outfile.ida.log -S'/workspace/${script#"$ROOT"/} /output/$outfile' /tmp/$DB_NAME
+      idat -A -L/output/$outfile.ida.log -S'/workspace/${script#"$ROOT"/} /output/$outfile $extra' /tmp/$DB_NAME
       rc=\$?
       chown \"\$OUTPUT_UID:\$OUTPUT_GID\" /output/* 2>/dev/null || true
       [ -s /output/$outfile ] || { echo '輸出檔不存在或為空——腳本沒有真的跑完' >&2; exit 1; }

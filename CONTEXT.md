@@ -31,6 +31,11 @@
 | 打包器識別 | `wl.exe` 是 Microsoft EXEPACK（`docs/re/02`） |
 | 解包器 | `tools/unpack_exepack.py`，169,312 bytes 映像還原成功，36 筆 relocation 重建 |
 | 基準資料庫 | 打包版（不可用作證據）與解包版（614 函式）各一份，清冊已匯出 |
+| 開機序列 | `start` 全解：`info` 兩 bytes 的安裝資訊、七個開機載入的素材與各自的目標位址與長度（`docs/re/03`） |
+| 檔名表 | 13 筆全部定位（`0x25FAD`–`0x26028`），引用點逐一對上 |
+| 檔案 I/O | open／read／close 三個包裝函式與「請插入磁片」重試迴圈已解 |
+| `TITLE.PIC` 解碼 | XOR 自參考串流（`out[n] = in[n] XOR out[n-0x90]`），長度算術完全吻合 |
+| RE 工具 | `export_file_io.py`（中斷掃描＋字串引用）、`export_function.py`（函式完整倒出） |
 
 ### 進行中／未開始
 
@@ -71,15 +76,18 @@
 | 斷言 | 為什麼錯 | 正確答案 |
 |---|---|---|
 | `wl.exe` 裡 `Packed file is corrupt#` 的 `#` 是錯誤訊息的一部分 | IDA 把後續資料一起顯示成字串了 | `#`＝`0x23`＝35，是第一組 relocation 的 count（`docs/re/02` §3） |
+| 檔名表沒有任何程式碼引用（xref 與立即數掃描都是 0） | 立即數掃描器沒遮罩符號擴展，`0x91C5` 被讀成 `0xFFFF...91C5`，算出的位址不存在 | 檔名全部由 `mov dx, <位移>` 直接引用，修正後 `seg002` 有 50 個字串對上引用點（`docs/re/03` §7） |
 
 ## 7. Worklist
 
 **下一步（按順序）**
 
-1. 在 DOSBox 跑解包版與原版對照，驗證解包正確性（`docs/re/02` §5 的待辦）。
-2. 產函式索引 `docs/re/00-function-index.md`（讀任何 `sub_xxx` 前要先查）。
-3. 從資料檔名表的引用點入手，解 `game1`／`game2` 的載入路徑與檔案結構。
-4. 追那兩串疑似編碼表，解遊戲文字的存放與編碼方式。
-5. 說明書四份整理（可與逆向並行，不受閘門限制）。
+1. `wla.bin` 的 overlay 程式碼：它載到 `CS:0000`，要單獨建一份資料庫分析。
+2. 追 `GAME1`／`GAME2`／`ALLPICS*`／`ALLHTDS*`／`END.CPA` 的載入點（開機時沒載）。
+3. 追 `int 25h`／`26h` 的絕對磁區路徑在硬碟安裝下是否執行（分流點可能是 `ds:A414h`／`ds:A415h`）。
+4. 在 DOSBox 跑解包版與原版對照，驗證解包正確性（`docs/re/02` §5 的待辦）。
+5. 產函式索引 `docs/re/00-function-index.md`（讀任何 `sub_xxx` 前要先查）。
+6. 追那幾串疑似編碼表（`0x29FAE` ` etraoishlnd`、`0x2AB13` `tiashurdlycwpmg".`），解文字編碼。
+7. 說明書四份整理（進行中，兩個 subagent 在做，不受閘門限制）。
 
 **不得開始**：`internal/` 下的任何 Go 引擎程式碼，直到對應規格標 READY。
