@@ -1,0 +1,4276 @@
+{
+  "summary": {
+    "dataset": "msq-block-layout",
+    "block_count": 42,
+    "first_section_at_header_end": 41,
+    "pointer_array_ok": {
+      "3": 40,
+      "5": 39,
+      "15": 25,
+      "16": 2,
+      "17": 2
+    },
+    "pointer_array_present": {
+      "3": 42,
+      "5": 42,
+      "15": 39,
+      "16": 37,
+      "17": 25
+    }
+  },
+  "section_type_to_header_offset": {
+    "0": "+0x06",
+    "1": "+0x08",
+    "2": "+0x0A",
+    "3": "+0x0C",
+    "4": "+0x0E",
+    "5": "+0x10",
+    "6": "+0x12",
+    "7": "+0x14",
+    "8": "+0x16",
+    "9": "+0x18",
+    "10": "+0x1A",
+    "11": "+0x1C",
+    "12": "+0x1E",
+    "15": "+0x24",
+    "16": "+0x26",
+    "17": "+0x28"
+  },
+  "blocks": [
+    {
+      "resource_id": 0,
+      "file": "game1",
+      "body_length": 10952,
+      "map_size": "0x1800",
+      "map_cells": 12288,
+      "header_at": "0x1800",
+      "first_section": "0x185C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x185C",
+          "end": "0x1864",
+          "size": 8
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x1864",
+          "end": "0x1944",
+          "size": 224
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x1944",
+          "end": "0x1953",
+          "size": 15,
+          "record_count": 3,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x1944",
+          "end": "0x1953",
+          "size": 15
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x1953",
+          "end": "0x198E",
+          "size": 59,
+          "record_count": 6,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x1953",
+          "end": "0x198E",
+          "size": 59
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x198E",
+          "end": "0x1998",
+          "size": 10
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x198E",
+          "end": "0x1998",
+          "size": 10
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x1998",
+          "end": "0x1ACE",
+          "size": 310
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x1ACE",
+          "end": "0x1AD6",
+          "size": 8
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x1AD6",
+          "end": "0x1B3E",
+          "size": 104
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x1B3E",
+          "end": "0x1BCA",
+          "size": 140,
+          "record_count": 10,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x1BCA",
+          "end": "0x2AC8",
+          "size": 3838,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 1,
+      "file": "game1",
+      "body_length": 5733,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x072F",
+          "size": 211
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x072F",
+          "end": "0x0792",
+          "size": 99
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x0792",
+          "end": "0x07AE",
+          "size": 28,
+          "record_count": 2,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x07AE",
+          "end": "0x07B3",
+          "size": 5
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x07B3",
+          "end": "0x07BD",
+          "size": 10,
+          "record_count": 1,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x07BD",
+          "end": "0x07FB",
+          "size": 62
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x07FB",
+          "end": "0x0851",
+          "size": 86
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x0851",
+          "end": "0x0AD9",
+          "size": 648
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0851",
+          "end": "0x0AD9",
+          "size": 648
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0AD9",
+          "end": "0x0AE3",
+          "size": 10
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0AE3",
+          "end": "0x0B53",
+          "size": 112
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0AE3",
+          "end": "0x0B53",
+          "size": 112,
+          "record_count": 8,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x0B53",
+          "end": "0x1665",
+          "size": 2834,
+          "pointer_array": false
+        },
+        "17": {
+          "header_offset": "+0x28",
+          "start": "0x0B53",
+          "end": "0x1665",
+          "size": 2834,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 2,
+      "file": "game1",
+      "body_length": 9594,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x0772",
+          "size": 278
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x0772",
+          "end": "0x097F",
+          "size": 525
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x097F",
+          "end": "0x09D3",
+          "size": 84,
+          "record_count": 6,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x09D3",
+          "end": "0x09EF",
+          "size": 28
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x09EF",
+          "end": "0x0A34",
+          "size": 69,
+          "record_count": 7,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0A34",
+          "end": "0x0B1B",
+          "size": 231
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x0B1B",
+          "end": "0x0B31",
+          "size": 22
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0B1B",
+          "end": "0x0B31",
+          "size": 22
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0B31",
+          "end": "0x0B55",
+          "size": 36
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0B55",
+          "end": "0x0C96",
+          "size": 321
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0C96",
+          "end": "0x0CDC",
+          "size": 70,
+          "record_count": 5,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "17": {
+          "header_offset": "+0x28",
+          "start": "0x0CDC",
+          "end": "0x257A",
+          "size": 6302,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 3,
+      "file": "game1",
+      "body_length": 10091,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x078A",
+          "size": 302
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x078A",
+          "end": "0x0A86",
+          "size": 764
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x0A86",
+          "end": "0x0B6E",
+          "size": 232,
+          "record_count": 17,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x0B6E",
+          "end": "0x0B9E",
+          "size": 48
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x0B9E",
+          "end": "0x0C73",
+          "size": 213,
+          "record_count": 22,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x0C73",
+          "end": "0x0C82",
+          "size": 15
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0C84",
+          "end": "0x0CBD",
+          "size": 57
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0CBD",
+          "end": "0x0CE1",
+          "size": 36
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0CE1",
+          "end": "0x0D07",
+          "size": 38
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0D07",
+          "end": "0x276B",
+          "size": 6756
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x0C82",
+          "end": "0x0C84",
+          "size": 2,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 4,
+      "file": "game1",
+      "body_length": 8182,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x06CF",
+          "size": 115
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x06CF",
+          "end": "0x08F5",
+          "size": 550
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x08F5",
+          "end": "0x0B89",
+          "size": 660,
+          "record_count": 48,
+          "empty_slots": 1,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x0B89",
+          "end": "0x0BB0",
+          "size": 39
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x0BB0",
+          "end": "0x0D5A",
+          "size": 426,
+          "record_count": 43,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x0D5A",
+          "end": "0x0D92",
+          "size": 56
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0D9A",
+          "end": "0x0DF4",
+          "size": 90
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0DF4",
+          "end": "0x0E18",
+          "size": 36
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0E18",
+          "end": "0x0E2A",
+          "size": 18
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0E2A",
+          "end": "0x0F29",
+          "size": 255
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0F29",
+          "end": "0x1FF6",
+          "size": 4301,
+          "pointer_array": false
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x0D92",
+          "end": "0x0D9A",
+          "size": 8,
+          "pointer_array": false
+        },
+        "17": {
+          "header_offset": "+0x28",
+          "start": "0x0F29",
+          "end": "0x1FF6",
+          "size": 4301,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 5,
+      "file": "game1",
+      "body_length": 4524,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x06A0",
+          "size": 68
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x06A0",
+          "end": "0x0802",
+          "size": 354
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x0802",
+          "end": "0x0809",
+          "size": 7,
+          "record_count": 1,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x0802",
+          "end": "0x0809",
+          "size": 7
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x0802",
+          "end": "0x0809",
+          "size": 7,
+          "record_count": 1,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x0884",
+          "end": "0x089C",
+          "size": 24
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0802",
+          "end": "0x0809",
+          "size": 7
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x0802",
+          "end": "0x0809",
+          "size": 7
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0802",
+          "end": "0x0809",
+          "size": 7
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0809",
+          "end": "0x0821",
+          "size": 24
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0821",
+          "end": "0x0884",
+          "size": 99
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0884",
+          "end": "0x089C",
+          "size": 24,
+          "record_count": 4,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x089C",
+          "end": "0x089E",
+          "size": 2,
+          "pointer_array": false
+        },
+        "17": {
+          "header_offset": "+0x28",
+          "start": "0x089E",
+          "end": "0x11AC",
+          "size": 2318,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 6,
+      "file": "game1",
+      "body_length": 10134,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x06F8",
+          "size": 156
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x06F8",
+          "end": "0x0A05",
+          "size": 781
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x0A05",
+          "end": "0x0C0B",
+          "size": 518,
+          "record_count": 37,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x0C0B",
+          "end": "0x0C30",
+          "size": 37
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x0C30",
+          "end": "0x0D48",
+          "size": 280,
+          "record_count": 30,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x0D48",
+          "end": "0x0D57",
+          "size": 15
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0D5B",
+          "end": "0x0D8F",
+          "size": 52
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0D8F",
+          "end": "0x0DDC",
+          "size": 77
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0DDC",
+          "end": "0x0DF8",
+          "size": 28
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0DF8",
+          "end": "0x0F87",
+          "size": 399
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x118D",
+          "end": "0x2796",
+          "size": 5641,
+          "record_count": 4,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x0D57",
+          "end": "0x0D5B",
+          "size": 4,
+          "pointer_array": false
+        },
+        "17": {
+          "header_offset": "+0x28",
+          "start": "0x0F87",
+          "end": "0x118D",
+          "size": 518,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 7,
+      "file": "game2",
+      "body_length": 4314,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x0670",
+          "size": 20
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x0670",
+          "end": "0x0731",
+          "size": 193
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x0731",
+          "end": "0x0769",
+          "size": 56,
+          "record_count": 4,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x0769",
+          "end": "0x076E",
+          "size": 5
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x076E",
+          "end": "0x07BA",
+          "size": 76,
+          "record_count": 10,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x07BA",
+          "end": "0x07CF",
+          "size": 21
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x07CF",
+          "end": "0x07DE",
+          "size": 15
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x07DE",
+          "end": "0x0803",
+          "size": 37
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x07DE",
+          "end": "0x0803",
+          "size": 37
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0803",
+          "end": "0x080F",
+          "size": 12
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x080F",
+          "end": "0x10DA",
+          "size": 2251
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x080F",
+          "end": "0x10DA",
+          "size": 2251,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 8,
+      "file": "game1",
+      "body_length": 7264,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x06DC",
+          "size": 128
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x06DC",
+          "end": "0x07CF",
+          "size": 243
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x07CF",
+          "end": "0x0841",
+          "size": 114,
+          "record_count": 9,
+          "empty_slots": 1,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x0841",
+          "end": "0x0855",
+          "size": 20
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x0855",
+          "end": "0x08CA",
+          "size": 117,
+          "pointer_array": false
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x08CA",
+          "end": "0x0928",
+          "size": 94
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0928",
+          "end": "0x0997",
+          "size": 111
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x0997",
+          "end": "0x09E2",
+          "size": 75
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0997",
+          "end": "0x09E2",
+          "size": 75
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x09E2",
+          "end": "0x0A12",
+          "size": 48
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0A12",
+          "end": "0x0A83",
+          "size": 113
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0A83",
+          "end": "0x0AC9",
+          "size": 70,
+          "record_count": 5,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x0AC9",
+          "end": "0x1C60",
+          "size": 4503,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 9,
+      "file": "game1",
+      "body_length": 6927,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x070E",
+          "size": 178
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x070E",
+          "end": "0x07C3",
+          "size": 181
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x07C3",
+          "end": "0x08CD",
+          "size": 266,
+          "record_count": 19,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x08CD",
+          "end": "0x08E1",
+          "size": 20
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x08E1",
+          "end": "0x0906",
+          "size": 37,
+          "record_count": 7,
+          "empty_slots": 3,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x0906",
+          "end": "0x0928",
+          "size": 34
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x092A",
+          "end": "0x0953",
+          "size": 41
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x0953",
+          "end": "0x0980",
+          "size": 45
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0953",
+          "end": "0x0980",
+          "size": 45
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0980",
+          "end": "0x09A8",
+          "size": 40
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x09A8",
+          "end": "0x0A95",
+          "size": 237
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0A95",
+          "end": "0x1B0F",
+          "size": 4218,
+          "record_count": 5,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x0928",
+          "end": "0x092A",
+          "size": 2,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 10,
+      "file": "game1",
+      "body_length": 9742,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x0780",
+          "size": 292
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x0780",
+          "end": "0x08E8",
+          "size": 360
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x08E8",
+          "end": "0x09A0",
+          "size": 184,
+          "record_count": 14,
+          "empty_slots": 1,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x09A0",
+          "end": "0x09B4",
+          "size": 20
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x09B4",
+          "end": "0x0A57",
+          "size": 163,
+          "record_count": 19,
+          "empty_slots": 1,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x0B5B",
+          "end": "0x0B8A",
+          "size": 47
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0B8C",
+          "end": "0x0BF1",
+          "size": 101
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x0BF1",
+          "end": "0x0C33",
+          "size": 66
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0BF1",
+          "end": "0x0C33",
+          "size": 66
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0C33",
+          "end": "0x0C6B",
+          "size": 56
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0C6B",
+          "end": "0x0F64",
+          "size": 761
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0F64",
+          "end": "0x260E",
+          "size": 5802,
+          "pointer_array": false
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x0B8A",
+          "end": "0x0B8C",
+          "size": 2,
+          "pointer_array": false
+        },
+        "17": {
+          "header_offset": "+0x28",
+          "start": "0x0A57",
+          "end": "0x0B5B",
+          "size": 260,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 11,
+      "file": "game2",
+      "body_length": 5272,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x06AC",
+          "size": 80
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x06AC",
+          "end": "0x07E5",
+          "size": 313
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x07E5",
+          "end": "0x07EC",
+          "size": 7,
+          "record_count": 1,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x07E5",
+          "end": "0x07EC",
+          "size": 7
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x07E5",
+          "end": "0x07EC",
+          "size": 7,
+          "record_count": 1,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x0810",
+          "end": "0x083A",
+          "size": 42
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x07E5",
+          "end": "0x07EC",
+          "size": 7
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x07E5",
+          "end": "0x07EC",
+          "size": 7
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x07E5",
+          "end": "0x07EC",
+          "size": 7
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x07EC",
+          "end": "0x0810",
+          "size": 36
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0810",
+          "end": "0x083A",
+          "size": 42
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0810",
+          "end": "0x083A",
+          "size": 42,
+          "record_count": 7,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x083A",
+          "end": "0x083C",
+          "size": 2,
+          "pointer_array": false
+        },
+        "17": {
+          "header_offset": "+0x28",
+          "start": "0x083C",
+          "end": "0x1498",
+          "size": 3164,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 12,
+      "file": "game2",
+      "body_length": 12351,
+      "map_size": "0x1800",
+      "map_cells": 12288,
+      "header_at": "0x1800",
+      "first_section": "0x185C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x185C",
+          "end": "0x1909",
+          "size": 173
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x1909",
+          "end": "0x1967",
+          "size": 94
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x1967",
+          "end": "0x1A8F",
+          "size": 296,
+          "pointer_array": false
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x1A8F",
+          "end": "0x1A94",
+          "size": 5
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x1A94",
+          "end": "0x1B07",
+          "size": 115,
+          "record_count": 12,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x1B07",
+          "end": "0x1B5A",
+          "size": 83
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x1B5C",
+          "end": "0x1DA7",
+          "size": 587
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x1B5C",
+          "end": "0x1DA7",
+          "size": 587
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x1B5C",
+          "end": "0x1DA7",
+          "size": 587
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x1DA7",
+          "end": "0x1DC1",
+          "size": 26
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x1DC1",
+          "end": "0x1DD4",
+          "size": 19
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x1DD4",
+          "end": "0x303F",
+          "size": 4715,
+          "record_count": 5,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x1B5A",
+          "end": "0x1B5C",
+          "size": 2,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 13,
+      "file": "game2",
+      "body_length": 7799,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x0A6C",
+      "first_section_is_header_end": false,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x0A6C",
+          "end": "0x0B35",
+          "size": 201
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x0B35",
+          "end": "0x0C7D",
+          "size": 328
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x0C7D",
+          "end": "0x0C8C",
+          "size": 15,
+          "record_count": 3,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x0C7D",
+          "end": "0x0C8C",
+          "size": 15
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x0C8C",
+          "end": "0x0D3D",
+          "size": 177,
+          "record_count": 21,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x0D3D",
+          "end": "0x0DF2",
+          "size": 181
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0DF8",
+          "end": "0x0EA6",
+          "size": 174
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x0EA6",
+          "end": "0x0EF8",
+          "size": 82
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0EA6",
+          "end": "0x0EF8",
+          "size": 82
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0EF8",
+          "end": "0x0F2E",
+          "size": 54
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0F2E",
+          "end": "0x0FEA",
+          "size": 188
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0FEA",
+          "end": "0x1E77",
+          "size": 3725,
+          "pointer_array": false
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x0DF2",
+          "end": "0x0DF8",
+          "size": 6,
+          "pointer_array": false
+        },
+        "17": {
+          "header_offset": "+0x28",
+          "start": "0x0FEA",
+          "end": "0x1E77",
+          "size": 3725,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 15,
+      "file": "game2",
+      "body_length": 5401,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x068F",
+          "size": 51
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x068F",
+          "end": "0x07D5",
+          "size": 326
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x07D5",
+          "end": "0x07FF",
+          "size": 42,
+          "record_count": 3,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x07FF",
+          "end": "0x0813",
+          "size": 20
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x0813",
+          "end": "0x0831",
+          "size": 30,
+          "record_count": 4,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x0831",
+          "end": "0x0846",
+          "size": 21
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0846",
+          "end": "0x0882",
+          "size": 60
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x0882",
+          "end": "0x08AD",
+          "size": 43
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0882",
+          "end": "0x08AD",
+          "size": 43
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x08AD",
+          "end": "0x08B9",
+          "size": 12
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x08B9",
+          "end": "0x092F",
+          "size": 118
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x092F",
+          "end": "0x1519",
+          "size": 3050,
+          "pointer_array": false
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x092F",
+          "end": "0x1519",
+          "size": 3050,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 16,
+      "file": "game2",
+      "body_length": 5679,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x0665",
+          "size": 9
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x0665",
+          "end": "0x0749",
+          "size": 228
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x0749",
+          "end": "0x0861",
+          "size": 280,
+          "record_count": 20,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x0861",
+          "end": "0x0875",
+          "size": 20
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x0875",
+          "end": "0x08C7",
+          "size": 82,
+          "record_count": 10,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x08C7",
+          "end": "0x0915",
+          "size": 78
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x08C7",
+          "end": "0x0915",
+          "size": 78
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x08C7",
+          "end": "0x0915",
+          "size": 78
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x08C7",
+          "end": "0x0915",
+          "size": 78
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0915",
+          "end": "0x0925",
+          "size": 16
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0925",
+          "end": "0x09A2",
+          "size": 125
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x09A2",
+          "end": "0x162F",
+          "size": 3213,
+          "record_count": 3,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x08C7",
+          "end": "0x0915",
+          "size": 78,
+          "record_count": 12,
+          "empty_slots": 2,
+          "pointer_array": true
+        },
+        "17": {
+          "header_offset": "+0x28",
+          "start": "0x08C7",
+          "end": "0x0915",
+          "size": 78,
+          "record_count": 12,
+          "empty_slots": 2,
+          "pointer_array": true
+        }
+      }
+    },
+    {
+      "resource_id": 17,
+      "file": "game2",
+      "body_length": 5935,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x069F",
+          "size": 67
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x069F",
+          "end": "0x078D",
+          "size": 238
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x078D",
+          "end": "0x07C9",
+          "size": 60,
+          "pointer_array": false
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x07C9",
+          "end": "0x07E6",
+          "size": 29
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x07E6",
+          "end": "0x07F6",
+          "size": 16,
+          "record_count": 2,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x07F6",
+          "end": "0x081C",
+          "size": 38
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x07F6",
+          "end": "0x081C",
+          "size": 38
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x081C",
+          "end": "0x08A6",
+          "size": 138
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x081C",
+          "end": "0x08A6",
+          "size": 138
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x08A6",
+          "end": "0x08BE",
+          "size": 24
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x08BE",
+          "end": "0x0943",
+          "size": 133
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0943",
+          "end": "0x096D",
+          "size": 42,
+          "record_count": 3,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x096D",
+          "end": "0x172F",
+          "size": 3522,
+          "pointer_array": false
+        },
+        "17": {
+          "header_offset": "+0x28",
+          "start": "0x096D",
+          "end": "0x172F",
+          "size": 3522,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 18,
+      "file": "game2",
+      "body_length": 4946,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x0680",
+          "size": 36
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x0680",
+          "end": "0x0771",
+          "size": 241
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x0771",
+          "end": "0x07C5",
+          "size": 84,
+          "record_count": 6,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x07C5",
+          "end": "0x07DA",
+          "size": 21
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x07DA",
+          "end": "0x0807",
+          "size": 45,
+          "record_count": 9,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x07DA",
+          "end": "0x0807",
+          "size": 45
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0809",
+          "end": "0x0839",
+          "size": 48
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0839",
+          "end": "0x087F",
+          "size": 70
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x087F",
+          "end": "0x0893",
+          "size": 20
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0893",
+          "end": "0x0A01",
+          "size": 366
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0A01",
+          "end": "0x1352",
+          "size": 2385,
+          "record_count": 8,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x0807",
+          "end": "0x0809",
+          "size": 2,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 19,
+      "file": "game2",
+      "body_length": 6255,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x066F",
+          "size": 19
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x066F",
+          "end": "0x0810",
+          "size": 417
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x0810",
+          "end": "0x089E",
+          "size": 142,
+          "record_count": 11,
+          "empty_slots": 1,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x089E",
+          "end": "0x08B7",
+          "size": 25
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x08B7",
+          "end": "0x08C4",
+          "size": 13,
+          "record_count": 1,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x08C4",
+          "end": "0x08E2",
+          "size": 30
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x08EE",
+          "end": "0x0929",
+          "size": 59
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x0929",
+          "end": "0x0938",
+          "size": 15
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0938",
+          "end": "0x094D",
+          "size": 21
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x094D",
+          "end": "0x0969",
+          "size": 28
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0969",
+          "end": "0x0A4A",
+          "size": 225
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0A4A",
+          "end": "0x0B70",
+          "size": 294,
+          "record_count": 21,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x08E2",
+          "end": "0x08EE",
+          "size": 12,
+          "pointer_array": false
+        },
+        "17": {
+          "header_offset": "+0x28",
+          "start": "0x0B70",
+          "end": "0x186F",
+          "size": 3327,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 20,
+      "file": "game2",
+      "body_length": 8889,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x06EF",
+          "size": 147
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x06EF",
+          "end": "0x0AA8",
+          "size": 953
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x0AA8",
+          "end": "0x0BC0",
+          "size": 280,
+          "record_count": 20,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x0BC0",
+          "end": "0x0BEB",
+          "size": 43
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x0BEB",
+          "end": "0x0C13",
+          "size": 40,
+          "record_count": 9,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x0BEB",
+          "end": "0x0C13",
+          "size": 40
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0C23",
+          "end": "0x0C87",
+          "size": 100
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x0C87",
+          "end": "0x0C96",
+          "size": 15
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0C96",
+          "end": "0x0D76",
+          "size": 224
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0D76",
+          "end": "0x0D92",
+          "size": 28
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0D92",
+          "end": "0x107A",
+          "size": 744
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x107A",
+          "end": "0x10CE",
+          "size": 84,
+          "record_count": 6,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x0C13",
+          "end": "0x0C23",
+          "size": 16,
+          "pointer_array": false
+        },
+        "17": {
+          "header_offset": "+0x28",
+          "start": "0x10CE",
+          "end": "0x22B9",
+          "size": 4587,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 21,
+      "file": "game2",
+      "body_length": 6028,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x06F3",
+          "size": 151
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x06F3",
+          "end": "0x0786",
+          "size": 147
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x0786",
+          "end": "0x07BE",
+          "size": 56,
+          "record_count": 4,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x07BE",
+          "end": "0x07CD",
+          "size": 15
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x07CD",
+          "end": "0x07FA",
+          "size": 45,
+          "record_count": 5,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x07FA",
+          "end": "0x0888",
+          "size": 142
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x088A",
+          "end": "0x08FF",
+          "size": 117
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x08FF",
+          "end": "0x09A6",
+          "size": 167
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x09A6",
+          "end": "0x09AE",
+          "size": 8
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x09AE",
+          "end": "0x09DE",
+          "size": 48
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x09DE",
+          "end": "0x0A4E",
+          "size": 112,
+          "record_count": 8,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x0888",
+          "end": "0x088A",
+          "size": 2,
+          "pointer_array": false
+        },
+        "17": {
+          "header_offset": "+0x28",
+          "start": "0x0A4E",
+          "end": "0x178C",
+          "size": 3390,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 22,
+      "file": "game2",
+      "body_length": 11137,
+      "map_size": "0x1800",
+      "map_cells": 12288,
+      "header_at": "0x1800",
+      "first_section": "0x185C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x185C",
+          "end": "0x1886",
+          "size": 42
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x1886",
+          "end": "0x19FA",
+          "size": 372
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x19FA",
+          "end": "0x1A5E",
+          "size": 100,
+          "record_count": 8,
+          "empty_slots": 1,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x1A5E",
+          "end": "0x1A79",
+          "size": 27
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x1A79",
+          "end": "0x1A92",
+          "size": 25,
+          "pointer_array": false
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x1A92",
+          "end": "0x1A9B",
+          "size": 9
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x1AA1",
+          "end": "0x1B0C",
+          "size": 107
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x1AA1",
+          "end": "0x1B0C",
+          "size": 107
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x1B0C",
+          "end": "0x1BBF",
+          "size": 179
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x1BBF",
+          "end": "0x1BE7",
+          "size": 40
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x1BE7",
+          "end": "0x1CEA",
+          "size": 259
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x1CEA",
+          "end": "0x2B81",
+          "size": 3735,
+          "record_count": 4,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x1A9B",
+          "end": "0x1AA1",
+          "size": 6,
+          "pointer_array": false
+        },
+        "17": {
+          "header_offset": "+0x28",
+          "start": "0x1AA1",
+          "end": "0x1B0C",
+          "size": 107,
+          "record_count": 9,
+          "empty_slots": 0,
+          "pointer_array": true
+        }
+      }
+    },
+    {
+      "resource_id": 23,
+      "file": "game2",
+      "body_length": 10190,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x06EC",
+          "size": 144
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x06EC",
+          "end": "0x08BE",
+          "size": 466
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x08BE",
+          "end": "0x092E",
+          "size": 112,
+          "record_count": 8,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x092E",
+          "end": "0x0960",
+          "size": 50
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x0960",
+          "end": "0x097E",
+          "size": 30,
+          "record_count": 4,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x097E",
+          "end": "0x0990",
+          "size": 18
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0992",
+          "end": "0x09F4",
+          "size": 98
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x09F4",
+          "end": "0x0ADB",
+          "size": 231
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x09F4",
+          "end": "0x0ADB",
+          "size": 231
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0ADB",
+          "end": "0x0B2C",
+          "size": 81
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0B2C",
+          "end": "0x0E23",
+          "size": 759
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0E23",
+          "end": "0x27CE",
+          "size": 6571,
+          "pointer_array": false
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x0990",
+          "end": "0x0992",
+          "size": 2,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 24,
+      "file": "game2",
+      "body_length": 7778,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x0694",
+          "size": 56
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x0694",
+          "end": "0x0870",
+          "size": 476
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x0870",
+          "end": "0x09A4",
+          "size": 308,
+          "record_count": 22,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x09A4",
+          "end": "0x09CC",
+          "size": 40
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x09D4",
+          "end": "0x0A3E",
+          "size": 106,
+          "record_count": 14,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x09CC",
+          "end": "0x09D2",
+          "size": 6
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0A3E",
+          "end": "0x0A50",
+          "size": 18
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x0A3E",
+          "end": "0x0A50",
+          "size": 18
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0A50",
+          "end": "0x0AD6",
+          "size": 134
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0AD6",
+          "end": "0x0AEE",
+          "size": 24
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0AEE",
+          "end": "0x0CCA",
+          "size": 476
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0CCA",
+          "end": "0x1E62",
+          "size": 4504,
+          "record_count": 6,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x09D2",
+          "end": "0x09D4",
+          "size": 2,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 25,
+      "file": "game2",
+      "body_length": 7686,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x073B",
+          "size": 223
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x073B",
+          "end": "0x088F",
+          "size": 340
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x088F",
+          "end": "0x09B5",
+          "size": 294,
+          "record_count": 21,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x09B5",
+          "end": "0x09C4",
+          "size": 15
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x09C4",
+          "end": "0x0A31",
+          "size": 109,
+          "record_count": 15,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x0BA1",
+          "end": "0x0BAC",
+          "size": 11
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0A31",
+          "end": "0x0AF4",
+          "size": 195
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x0AF4",
+          "end": "0x0B40",
+          "size": 76
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0AF4",
+          "end": "0x0B40",
+          "size": 76
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0B40",
+          "end": "0x0B5C",
+          "size": 28
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0B5C",
+          "end": "0x0BA1",
+          "size": 69
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0BB0",
+          "end": "0x1E06",
+          "size": 4694,
+          "record_count": 6,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x0BAC",
+          "end": "0x0BB0",
+          "size": 4,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 26,
+      "file": "game1",
+      "body_length": 10501,
+      "map_size": "0x1800",
+      "map_cells": 12288,
+      "header_at": "0x1800",
+      "first_section": "0x185C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x185C",
+          "end": "0x187D",
+          "size": 33
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x187D",
+          "end": "0x18BD",
+          "size": 64
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x18BD",
+          "end": "0x18DA",
+          "size": 29,
+          "record_count": 5,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x18BD",
+          "end": "0x18DA",
+          "size": 29
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x18DA",
+          "end": "0x1954",
+          "size": 122,
+          "record_count": 8,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x18DA",
+          "end": "0x1954",
+          "size": 122
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x1954",
+          "end": "0x1968",
+          "size": 20
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x1968",
+          "end": "0x1972",
+          "size": 10
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x1972",
+          "end": "0x1A33",
+          "size": 193
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x1A33",
+          "end": "0x1A3F",
+          "size": 12
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x1A3F",
+          "end": "0x1A87",
+          "size": 72
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x1A87",
+          "end": "0x1AF7",
+          "size": 112,
+          "record_count": 8,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x1AF7",
+          "end": "0x1AFB",
+          "size": 4,
+          "pointer_array": false
+        },
+        "17": {
+          "header_offset": "+0x28",
+          "start": "0x1AFB",
+          "end": "0x2905",
+          "size": 3594,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 27,
+      "file": "game1",
+      "body_length": 6882,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x06BE",
+          "size": 98
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x06BE",
+          "end": "0x07C2",
+          "size": 260
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x07C2",
+          "end": "0x07FC",
+          "size": 58,
+          "record_count": 5,
+          "empty_slots": 1,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x07FC",
+          "end": "0x0851",
+          "size": 85
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x0851",
+          "end": "0x0886",
+          "size": 53,
+          "record_count": 6,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x0886",
+          "end": "0x0893",
+          "size": 13
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0899",
+          "end": "0x08DA",
+          "size": 65
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x08DA",
+          "end": "0x0933",
+          "size": 89
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0933",
+          "end": "0x094F",
+          "size": 28
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x094F",
+          "end": "0x0B91",
+          "size": 578
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0B91",
+          "end": "0x0BE5",
+          "size": 84,
+          "record_count": 6,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x0893",
+          "end": "0x0899",
+          "size": 6,
+          "pointer_array": false
+        },
+        "17": {
+          "header_offset": "+0x28",
+          "start": "0x0BE5",
+          "end": "0x1AE2",
+          "size": 3837,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 28,
+      "file": "game1",
+      "body_length": 5219,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x066A",
+          "size": 14
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x066A",
+          "end": "0x0729",
+          "size": 191
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x0729",
+          "end": "0x0887",
+          "size": 350,
+          "record_count": 25,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x0887",
+          "end": "0x08A1",
+          "size": 26
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x08A1",
+          "end": "0x0948",
+          "size": 167,
+          "record_count": 15,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x0948",
+          "end": "0x095A",
+          "size": 18
+        },
+        "7": {
+          "header_offset": "+0x14",
+          "start": "0x0948",
+          "end": "0x095A",
+          "size": 18
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0948",
+          "end": "0x095A",
+          "size": 18
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x095A",
+          "end": "0x096F",
+          "size": 21
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x095A",
+          "end": "0x096F",
+          "size": 21
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x096F",
+          "end": "0x09A3",
+          "size": 52
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x09A3",
+          "end": "0x0A74",
+          "size": 209
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0A74",
+          "end": "0x1463",
+          "size": 2543,
+          "pointer_array": false
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x0948",
+          "end": "0x095A",
+          "size": 18,
+          "record_count": 2,
+          "empty_slots": 0,
+          "pointer_array": true
+        }
+      }
+    },
+    {
+      "resource_id": 29,
+      "file": "game1",
+      "body_length": 4232,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x0690",
+          "size": 52
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x0690",
+          "end": "0x06F9",
+          "size": 105
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x06F9",
+          "end": "0x07F5",
+          "size": 252,
+          "record_count": 18,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x07F5",
+          "end": "0x07FA",
+          "size": 5
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x07FA",
+          "end": "0x0839",
+          "size": 63,
+          "record_count": 9,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x0839",
+          "end": "0x084E",
+          "size": 21
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0839",
+          "end": "0x084E",
+          "size": 21
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x0839",
+          "end": "0x084E",
+          "size": 21
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0839",
+          "end": "0x084E",
+          "size": 21
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x084E",
+          "end": "0x085E",
+          "size": 16
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x085E",
+          "end": "0x0871",
+          "size": 19
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0871",
+          "end": "0x1088",
+          "size": 2071,
+          "record_count": 6,
+          "empty_slots": 0,
+          "pointer_array": true
+        }
+      }
+    },
+    {
+      "resource_id": 31,
+      "file": "game1",
+      "body_length": 5431,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x06B4",
+          "size": 88
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x06B4",
+          "end": "0x0775",
+          "size": 193
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x0775",
+          "end": "0x0783",
+          "size": 14,
+          "record_count": 1,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x0783",
+          "end": "0x0797",
+          "size": 20
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x0797",
+          "end": "0x07D5",
+          "size": 62,
+          "record_count": 6,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x089D",
+          "end": "0x08A7",
+          "size": 10
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x07D5",
+          "end": "0x07DA",
+          "size": 5
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x07D5",
+          "end": "0x07DA",
+          "size": 5
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x07DA",
+          "end": "0x080C",
+          "size": 50
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x080C",
+          "end": "0x0824",
+          "size": 24
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0824",
+          "end": "0x0865",
+          "size": 65
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0865",
+          "end": "0x089D",
+          "size": 56,
+          "record_count": 4,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x08A7",
+          "end": "0x08A9",
+          "size": 2,
+          "pointer_array": false
+        },
+        "17": {
+          "header_offset": "+0x28",
+          "start": "0x08A9",
+          "end": "0x1537",
+          "size": 3214,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 32,
+      "file": "game1",
+      "body_length": 6890,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x0694",
+          "size": 56
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x0694",
+          "end": "0x0861",
+          "size": 461
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x0861",
+          "end": "0x0907",
+          "size": 166,
+          "record_count": 17,
+          "empty_slots": 6,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x0907",
+          "end": "0x0921",
+          "size": 26
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x0921",
+          "end": "0x09BC",
+          "size": 155,
+          "record_count": 20,
+          "empty_slots": 4,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x09BC",
+          "end": "0x0A88",
+          "size": 204
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0A8E",
+          "end": "0x0ABD",
+          "size": 47
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x0ABD",
+          "end": "0x0AF0",
+          "size": 51
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0ABD",
+          "end": "0x0AF0",
+          "size": 51
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0AF0",
+          "end": "0x0B34",
+          "size": 68
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0B34",
+          "end": "0x0BC5",
+          "size": 145
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0BC5",
+          "end": "0x0BEF",
+          "size": 42,
+          "record_count": 3,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x0A88",
+          "end": "0x0A8E",
+          "size": 6,
+          "pointer_array": false
+        },
+        "17": {
+          "header_offset": "+0x28",
+          "start": "0x0BEF",
+          "end": "0x1AEA",
+          "size": 3835,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 33,
+      "file": "game1",
+      "body_length": 9366,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x06CA",
+          "size": 110
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x06CA",
+          "end": "0x086A",
+          "size": 416
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x086A",
+          "end": "0x0878",
+          "size": 14,
+          "record_count": 1,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x0878",
+          "end": "0x08E7",
+          "size": 111
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x08E7",
+          "end": "0x0928",
+          "size": 65,
+          "record_count": 9,
+          "empty_slots": 1,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x0928",
+          "end": "0x0A13",
+          "size": 235
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0A19",
+          "end": "0x0A5E",
+          "size": 69
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x0A5E",
+          "end": "0x0A92",
+          "size": 52
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0A5E",
+          "end": "0x0A92",
+          "size": 52
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0A92",
+          "end": "0x0B0E",
+          "size": 124
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0B0E",
+          "end": "0x0F5B",
+          "size": 1101
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0F5B",
+          "end": "0x2496",
+          "size": 5435,
+          "record_count": 3,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x0A13",
+          "end": "0x0A19",
+          "size": 6,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 34,
+      "file": "game1",
+      "body_length": 8119,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x06F9",
+          "size": 157
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x06F9",
+          "end": "0x0801",
+          "size": 264
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x0801",
+          "end": "0x09C3",
+          "size": 450,
+          "record_count": 33,
+          "empty_slots": 1,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x09C3",
+          "end": "0x09E7",
+          "size": 36
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x09E7",
+          "end": "0x0A26",
+          "size": 63,
+          "record_count": 7,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x0A26",
+          "end": "0x0A9B",
+          "size": 117
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0A26",
+          "end": "0x0A9B",
+          "size": 117
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x0A9B",
+          "end": "0x0ACF",
+          "size": 52
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0A9B",
+          "end": "0x0ACF",
+          "size": 52
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0ACF",
+          "end": "0x0AEF",
+          "size": 32
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0AEF",
+          "end": "0x0C49",
+          "size": 346
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0C49",
+          "end": "0x1FB7",
+          "size": 4974,
+          "pointer_array": false
+        },
+        "17": {
+          "header_offset": "+0x28",
+          "start": "0x0C49",
+          "end": "0x1FB7",
+          "size": 4974,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 35,
+      "file": "game2",
+      "body_length": 8912,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x06AB",
+          "size": 79
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x06AB",
+          "end": "0x090E",
+          "size": 611
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x090E",
+          "end": "0x0A18",
+          "size": 266,
+          "record_count": 19,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x0A18",
+          "end": "0x0A40",
+          "size": 40
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x0A40",
+          "end": "0x0AB2",
+          "size": 114,
+          "record_count": 14,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x0AB2",
+          "end": "0x0AD2",
+          "size": 32
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0AD6",
+          "end": "0x0B0A",
+          "size": 52
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x0AD6",
+          "end": "0x0B0A",
+          "size": 52
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0AD6",
+          "end": "0x0B0A",
+          "size": 52
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0B0A",
+          "end": "0x0B4D",
+          "size": 67
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0B4D",
+          "end": "0x0BE7",
+          "size": 154
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0BE7",
+          "end": "0x22D0",
+          "size": 5865,
+          "pointer_array": false
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x0AD2",
+          "end": "0x0AD6",
+          "size": 4,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 36,
+      "file": "game2",
+      "body_length": 8482,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x06AD",
+          "size": 81
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x06AD",
+          "end": "0x088A",
+          "size": 477
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x088A",
+          "end": "0x09A2",
+          "size": 280,
+          "record_count": 20,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x09A2",
+          "end": "0x0A09",
+          "size": 103
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x0A09",
+          "end": "0x0AFB",
+          "size": 242,
+          "record_count": 24,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x0AFB",
+          "end": "0x0B2B",
+          "size": 48
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0B2D",
+          "end": "0x0B67",
+          "size": 58
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x0B2D",
+          "end": "0x0B67",
+          "size": 58
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0B2D",
+          "end": "0x0B67",
+          "size": 58
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0B67",
+          "end": "0x0B79",
+          "size": 18
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0B79",
+          "end": "0x0B92",
+          "size": 25
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0B92",
+          "end": "0x2122",
+          "size": 5520,
+          "pointer_array": false
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x0B2B",
+          "end": "0x0B2D",
+          "size": 2,
+          "pointer_array": false
+        },
+        "17": {
+          "header_offset": "+0x28",
+          "start": "0x0B92",
+          "end": "0x2122",
+          "size": 5520,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 38,
+      "file": "game2",
+      "body_length": 10013,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x070C",
+          "size": 176
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x070C",
+          "end": "0x08E7",
+          "size": 475
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x08E7",
+          "end": "0x0AD1",
+          "size": 490,
+          "record_count": 35,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x0AD1",
+          "end": "0x0AFD",
+          "size": 44
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x0AFD",
+          "end": "0x0B61",
+          "size": 100,
+          "record_count": 10,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x0B61",
+          "end": "0x0BB0",
+          "size": 79
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0BB2",
+          "end": "0x0BF3",
+          "size": 65
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x0BF3",
+          "end": "0x0C02",
+          "size": 15
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0C02",
+          "end": "0x0C50",
+          "size": 78
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0C50",
+          "end": "0x0C7C",
+          "size": 44
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0C7C",
+          "end": "0x1110",
+          "size": 1172
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x0BB0",
+          "end": "0x0BB2",
+          "size": 2,
+          "pointer_array": false
+        },
+        "17": {
+          "header_offset": "+0x28",
+          "start": "0x1110",
+          "end": "0x271D",
+          "size": 5645,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 39,
+      "file": "game2",
+      "body_length": 5522,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x0699",
+          "size": 61
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x0699",
+          "end": "0x0732",
+          "size": 153
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x0732",
+          "end": "0x0804",
+          "size": 210,
+          "record_count": 15,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x0804",
+          "end": "0x0823",
+          "size": 31
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x0823",
+          "end": "0x0846",
+          "size": 35,
+          "record_count": 4,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x0846",
+          "end": "0x0851",
+          "size": 11
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0855",
+          "end": "0x08B1",
+          "size": 92
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x08B1",
+          "end": "0x08EE",
+          "size": 61
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x08B1",
+          "end": "0x08EE",
+          "size": 61
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x08EE",
+          "end": "0x0912",
+          "size": 36
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0912",
+          "end": "0x0A53",
+          "size": 321
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0A53",
+          "end": "0x1592",
+          "size": 2879,
+          "pointer_array": false
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x0851",
+          "end": "0x0855",
+          "size": 4,
+          "pointer_array": false
+        },
+        "17": {
+          "header_offset": "+0x28",
+          "start": "0x0A53",
+          "end": "0x1592",
+          "size": 2879,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 40,
+      "file": "game2",
+      "body_length": 9045,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x06DD",
+          "size": 129
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x06DD",
+          "end": "0x07F4",
+          "size": 279
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x07F4",
+          "end": "0x0919",
+          "size": 293,
+          "record_count": 27,
+          "empty_slots": 7,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x0919",
+          "end": "0x0942",
+          "size": 41
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x0942",
+          "end": "0x0A2A",
+          "size": 232,
+          "pointer_array": false
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x0A2A",
+          "end": "0x0A71",
+          "size": 71
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0A75",
+          "end": "0x0B06",
+          "size": 145
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x0B06",
+          "end": "0x0B37",
+          "size": 49
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0B06",
+          "end": "0x0B37",
+          "size": 49
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0B37",
+          "end": "0x0B50",
+          "size": 25
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0B50",
+          "end": "0x0C6F",
+          "size": 287
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0C6F",
+          "end": "0x2355",
+          "size": 5862,
+          "pointer_array": false
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x0A71",
+          "end": "0x0A75",
+          "size": 4,
+          "pointer_array": false
+        },
+        "17": {
+          "header_offset": "+0x28",
+          "start": "0x0C6F",
+          "end": "0x2355",
+          "size": 5862,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 41,
+      "file": "game2",
+      "body_length": 9001,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x0699",
+          "size": 61
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x0699",
+          "end": "0x09C6",
+          "size": 813
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x09C6",
+          "end": "0x0BCE",
+          "size": 520,
+          "record_count": 38,
+          "empty_slots": 1,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x0BCE",
+          "end": "0x0C00",
+          "size": 50
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x0C00",
+          "end": "0x0DCA",
+          "size": 458,
+          "record_count": 47,
+          "empty_slots": 1,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x0DCA",
+          "end": "0x0E1D",
+          "size": 83
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0E21",
+          "end": "0x0E5F",
+          "size": 62
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0E5F",
+          "end": "0x0EB2",
+          "size": 83
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0EB2",
+          "end": "0x0EBE",
+          "size": 12
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0EBE",
+          "end": "0x2329",
+          "size": 5227
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x0E1D",
+          "end": "0x0E21",
+          "size": 4,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 42,
+      "file": "game2",
+      "body_length": 6088,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x0664",
+          "size": 8
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x0664",
+          "end": "0x07A6",
+          "size": 322
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x07A6",
+          "end": "0x0808",
+          "size": 98,
+          "record_count": 7,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x0808",
+          "end": "0x082B",
+          "size": 35
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x082B",
+          "end": "0x089F",
+          "size": 116,
+          "record_count": 12,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x089F",
+          "end": "0x08DE",
+          "size": 63
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x089F",
+          "end": "0x08DE",
+          "size": 63
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x08DE",
+          "end": "0x095B",
+          "size": 125
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x095B",
+          "end": "0x096F",
+          "size": 20
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x096F",
+          "end": "0x098D",
+          "size": 30
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x098D",
+          "end": "0x17C8",
+          "size": 3643,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 43,
+      "file": "game1",
+      "body_length": 5782,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x0679",
+          "size": 29
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x0679",
+          "end": "0x0816",
+          "size": 413
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x0816",
+          "end": "0x0924",
+          "size": 270,
+          "record_count": 21,
+          "empty_slots": 2,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x0924",
+          "end": "0x0954",
+          "size": 48
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x0954",
+          "end": "0x0A0C",
+          "size": 184,
+          "record_count": 20,
+          "empty_slots": 2,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x0A0C",
+          "end": "0x0A24",
+          "size": 24
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0A2A",
+          "end": "0x0A41",
+          "size": 23
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x0A2A",
+          "end": "0x0A41",
+          "size": 23
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0A2A",
+          "end": "0x0A41",
+          "size": 23
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0A41",
+          "end": "0x0A51",
+          "size": 16
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0A51",
+          "end": "0x0A8C",
+          "size": 59
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0A8C",
+          "end": "0x0AE0",
+          "size": 84,
+          "record_count": 6,
+          "empty_slots": 0,
+          "pointer_array": true
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x0A24",
+          "end": "0x0A2A",
+          "size": 6,
+          "pointer_array": false
+        },
+        "17": {
+          "header_offset": "+0x28",
+          "start": "0x0AE0",
+          "end": "0x1696",
+          "size": 2998,
+          "pointer_array": false
+        }
+      }
+    },
+    {
+      "resource_id": 49,
+      "file": "game1",
+      "body_length": 6832,
+      "map_size": "0x0600",
+      "map_cells": 3072,
+      "header_at": "0x0600",
+      "first_section": "0x065C",
+      "first_section_is_header_end": true,
+      "sections": {
+        "1": {
+          "header_offset": "+0x08",
+          "start": "0x065C",
+          "end": "0x06A4",
+          "size": 72
+        },
+        "2": {
+          "header_offset": "+0x0A",
+          "start": "0x06A4",
+          "end": "0x07DD",
+          "size": 313
+        },
+        "3": {
+          "header_offset": "+0x0C",
+          "start": "0x07DD",
+          "end": "0x0925",
+          "size": 328,
+          "record_count": 26,
+          "empty_slots": 3,
+          "pointer_array": true
+        },
+        "4": {
+          "header_offset": "+0x0E",
+          "start": "0x0925",
+          "end": "0x094D",
+          "size": 40
+        },
+        "5": {
+          "header_offset": "+0x10",
+          "start": "0x094D",
+          "end": "0x0A03",
+          "size": 182,
+          "record_count": 21,
+          "empty_slots": 3,
+          "pointer_array": true
+        },
+        "6": {
+          "header_offset": "+0x12",
+          "start": "0x0A03",
+          "end": "0x0A1F",
+          "size": 28
+        },
+        "8": {
+          "header_offset": "+0x16",
+          "start": "0x0A27",
+          "end": "0x0A58",
+          "size": 49
+        },
+        "9": {
+          "header_offset": "+0x18",
+          "start": "0x0A58",
+          "end": "0x0A69",
+          "size": 17
+        },
+        "10": {
+          "header_offset": "+0x1A",
+          "start": "0x0A58",
+          "end": "0x0A69",
+          "size": 17
+        },
+        "11": {
+          "header_offset": "+0x1C",
+          "start": "0x0A69",
+          "end": "0x0A89",
+          "size": 32
+        },
+        "12": {
+          "header_offset": "+0x1E",
+          "start": "0x0A89",
+          "end": "0x0BB6",
+          "size": 301
+        },
+        "15": {
+          "header_offset": "+0x24",
+          "start": "0x0BB6",
+          "end": "0x1AB0",
+          "size": 3834,
+          "pointer_array": false
+        },
+        "16": {
+          "header_offset": "+0x26",
+          "start": "0x0A1F",
+          "end": "0x0A27",
+          "size": 8,
+          "pointer_array": false
+        },
+        "17": {
+          "header_offset": "+0x28",
+          "start": "0x0BB6",
+          "end": "0x1AB0",
+          "size": 3834,
+          "pointer_array": false
+        }
+      }
+    }
+  ]
+}
