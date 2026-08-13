@@ -54,8 +54,8 @@
 | 資料格式 | 已解：`wla.bin`（overlay 程式碼）、`title.pic`（XOR 串流）、`colorf.fnt`（172 字 × 32 bytes）、`GAME1`／`GAME2` 的定址方式。未解：`GAME1`／`GAME2` 各資源的內容、`allpics*`、`allhtds*`、`transtbl`、`curs`、`masks.wlf`、`ic0_9.wlf`、`end.cpa` |
 
 | MSQ 內部結構 | 地圖層已解（前 2048 bytes ＝ 64×64 4-bit tile，42/42 自相關驗證）；`+0x800` 起的記錄表未解 |
-| 劇情敘述文字 | **還沒找到**。最可能在 `ALLHTDS1`／`ALLHTDS2` 解壓之後——那兩個檔是 Huffman 壓縮的（`docs/re/10`） |
-| 壓縮 | Huffman 樹的建構已解（前序編碼、節點 5 bytes）；**解碼主迴圈未讀**，解壓器尚未實作 |
+| 劇情敘述文字 | **還沒找到**。`ALLHTDS`／`ALLPICS` 解開後都是圖形資料。下一個入口是 MSQ 區塊內的 Huffman 段（`sub_1841F` 解出 4,096 bytes 到 `ds:3448h`），位置未知 |
+| **Huffman 解壓** | **已實作並驗證**（`tools/huffman.py`）：`allhtds1/2`、`allpics1/2`、`end.cpa` 共 173 個子區塊全部解出，長度精確吻合、檔案 100% 用完（`docs/re/11`） |
 | 載入器分工 | 已解：`DL`＝0 ALLPICS、1 GAME／存檔、2 ALLHTDS、6 END.CPA，各有位移表 |
 | 說明書整理 | 英文手冊、段落書、軟體世界中文說明書都完成；社群攻略未開始 |
 | Go 引擎 | **未開始，且依規定不得開始**，要等規格 READY |
@@ -75,6 +75,7 @@
 | [`docs/re/08-msq-encryption.md`](docs/re/08-msq-encryption.md) | MSQ 加密演算法與 42/42 驗證、區塊佈局、長度表 |
 | [`docs/re/09-msq-map-structure.md`](docs/re/09-msq-map-structure.md) | 前 2048 bytes 是 64×64 地圖（自相關驗證）、名稱字串是明文、存檔兩份輪替 |
 | [`docs/re/10-huffman-compression.md`](docs/re/10-huffman-compression.md) | 第二層 Huffman：容器格式、位元讀取器、樹的前序編碼、各資源的載入器對照 |
+| [`docs/re/11-huffman-decoder.md`](docs/re/11-huffman-decoder.md) | 解碼器實作與驗證、子區塊串接規則、四個資料檔全部解開 |
 | [`docs/manual-cht/`](docs/manual-cht/) | 軟體世界 1990 中文說明書全 60 頁節轉錄 ＋ 當年譯名表 |
 | [`docs/manual/`](docs/manual/) | 官方英文手冊全文 markdown |
 | [`docs/paragraphs/`](docs/paragraphs/) | 段落書 162 段全文與索引，含防拷結構標註 |
@@ -109,9 +110,9 @@
 
 **下一步（按順序）**
 
-1. **實作 Huffman 解碼器**（主線）：樹的建構已解，還缺解碼主迴圈
-   （`sub_11C54`／`sub_11C90`／`sub_11CA4` 與建完樹之後的流程）。
-   解開 `ALLHTDS1` 就能知道劇情敘述文字在不在裡面。
+1. **找 MSQ 區塊內 Huffman 段的位置**（主線）：`sub_1841F` 在 XOR 解密後又解壓出
+   4,096 bytes 到 `ds:3448h`。要先讀懂 `sub_118D2`（緩衝補充）才能釐清硬碟模式的資料流。
+   這是目前找劇情文字最明確的入口。
 2. 解 MSQ `+0x800` 起的記錄表：固定位移掃描無效（欄位用基址暫存器存取），
    要從使用端往回追。
 3. 解 `ds:722Fh` 的字元碼重映射（`docs/re/04` §5），中文化前必須先解。
