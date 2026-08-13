@@ -1,0 +1,1978 @@
+{
+  "dataset": "record-field-map",
+  "input_sha256": "cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118",
+  "bases": [
+    "4661",
+    "4665",
+    "46ae",
+    "46b5",
+    "46b7",
+    "46c6",
+    "46c8"
+  ],
+  "unresolved_accesses": {
+    "46c6": 18,
+    "46b5": 127,
+    "46b7": 14,
+    "46c8": 33,
+    "46ae": 24,
+    "4661": 5
+  },
+  "fields": {
+    "4661": {
+      "+0x00": {
+        "access_count": 1,
+        "functions": [
+          "0x1718B"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x171B2",
+            "function": "0x1718B",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
+      }
+    },
+    "4665": {
+      "+0x00": {
+        "access_count": 8,
+        "functions": [
+          "0x12AAB",
+          "0x15A18",
+          "0x17B5C",
+          "0x18D8E",
+          "0x1C1CC",
+          "0x1CA8D",
+          "0x1CA98"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x12AB7",
+            "function": "0x12AAB",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x15A1E",
+            "function": "0x15A18",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x17B62",
+            "function": "0x17B5C",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x18D9A",
+            "function": "0x18D8E",
+            "disasm": "or      al, [bx+di]"
+          },
+          {
+            "ida_address": "0x18DA8",
+            "function": "0x18D8E",
+            "disasm": "cmp     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1C1EE",
+            "function": "0x1C1CC",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1CA93",
+            "function": "0x1CA8D",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1CA9E",
+            "function": "0x1CA98",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x01": {
+        "access_count": 5,
+        "functions": [
+          "0x12AAB",
+          "0x15A18",
+          "0x17B5C",
+          "0x18146",
+          "0x1C1CC"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x12AB1",
+            "function": "0x12AAB",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x15A25",
+            "function": "0x15A18",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x17B69",
+            "function": "0x17B5C",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x18168",
+            "function": "0x18146",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1C1F9",
+            "function": "0x1C1CC",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x02": {
+        "access_count": 6,
+        "functions": [
+          "0x12ABA",
+          "0x1BF5F",
+          "0x1C073",
+          "0x1C140"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x12AC0",
+            "function": "0x12ABA",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1BFE1",
+            "function": "0x1BF5F",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1BFE9",
+            "function": "0x1BF5F",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1C0F3",
+            "function": "0x1C073",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1C0F7",
+            "function": "0x1C073",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1C154",
+            "function": "0x1C140",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x03": {
+        "access_count": 4,
+        "functions": [
+          "0x12A76",
+          "0x157D6",
+          "0x199F1",
+          "0x19A58"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x12A7F",
+            "function": "0x12A76",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1582B",
+            "function": "0x157D6",
+            "disasm": "cmp     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x199F7",
+            "function": "0x199F1",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x19A05",
+            "function": "0x19A58",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x04": {
+        "access_count": 5,
+        "functions": [
+          "0x12A8D",
+          "0x138C1",
+          "0x16890",
+          "0x196DB",
+          "0x19A0F"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x12A98",
+            "function": "0x12A8D",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x138DD",
+            "function": "0x138C1",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x16961",
+            "function": "0x16890",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1970E",
+            "function": "0x196DB",
+            "disasm": "or      al, [bx+di]"
+          },
+          {
+            "ida_address": "0x19A1A",
+            "function": "0x19A0F",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x05": {
+        "access_count": 2,
+        "functions": [
+          "0x12A76",
+          "0x1830E"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x12A85",
+            "function": "0x12A76",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x18317",
+            "function": "0x1830E",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x06": {
+        "access_count": 2,
+        "functions": [
+          "0x12A9D",
+          "0x14664"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x12AA8",
+            "function": "0x12A9D",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x147E2",
+            "function": "0x14664",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x07": {
+        "access_count": 2,
+        "functions": [
+          "0x15CA4",
+          "0x19202"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x15CAD",
+            "function": "0x15CA4",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1921F",
+            "function": "0x19202",
+            "disasm": "cmp     al, [bx+di]"
+          }
+        ]
+      }
+    },
+    "46ae": {
+      "+0x00": {
+        "access_count": 4,
+        "functions": [
+          "0x142E2",
+          "0x16890",
+          "0x16AD5",
+          "0x16B17"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x142E8",
+            "function": "0x142E2",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x168F1",
+            "function": "0x16890",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x16AE2",
+            "function": "0x16AD5",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x16B1D",
+            "function": "0x16B17",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x01": {
+        "access_count": 4,
+        "functions": [
+          "0x15CE0",
+          "0x16716",
+          "0x16890",
+          "0x18024"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x15CFB",
+            "function": "0x15CE0",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1672C",
+            "function": "0x16716",
+            "disasm": "mov     ah, [bx+di]"
+          },
+          {
+            "ida_address": "0x168FB",
+            "function": "0x16890",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x18077",
+            "function": "0x18024",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x03": {
+        "access_count": 3,
+        "functions": [
+          "0x142ED",
+          "0x16890"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x142FD",
+            "function": "0x142ED",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x168B3",
+            "function": "0x16890",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x16976",
+            "function": "0x16890",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
+      },
+      "+0x04": {
+        "access_count": 1,
+        "functions": [
+          "0x16890"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x1696F",
+            "function": "0x16890",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
+      },
+      "+0x05": {
+        "access_count": 1,
+        "functions": [
+          "0x16890"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x168B7",
+            "function": "0x16890",
+            "disasm": "or      al, [bx+di]"
+          }
+        ]
+      },
+      "+0x07": {
+        "access_count": 1,
+        "functions": [
+          "0x16890"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x168BB",
+            "function": "0x16890",
+            "disasm": "or      al, [bx+di]"
+          }
+        ]
+      },
+      "+0x08": {
+        "access_count": 2,
+        "functions": [
+          "0x14193",
+          "0x142D7"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x141A2",
+            "function": "0x14193",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x142DD",
+            "function": "0x142D7",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x09": {
+        "access_count": 2,
+        "functions": [
+          "0x14193"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x141B9",
+            "function": "0x14193",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x141E3",
+            "function": "0x14193",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x0A": {
+        "access_count": 1,
+        "functions": [
+          "0x14193"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x141C8",
+            "function": "0x14193",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      }
+    },
+    "46b5": {
+      "+0x00": {
+        "access_count": 3,
+        "functions": [
+          "0x1718B",
+          "0x1C6C9",
+          "0x1CA14"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x171AC",
+            "function": "0x1718B",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1C816",
+            "function": "0x1C6C9",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1CA85",
+            "function": "0x1CA14",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x05": {
+        "access_count": 3,
+        "functions": [
+          "0x138C1"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x138F4",
+            "function": "0x138C1",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x138FF",
+            "function": "0x138C1",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x13919",
+            "function": "0x138C1",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
+      },
+      "+0x0D": {
+        "access_count": 1,
+        "functions": [
+          "0x1CA14"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x1CA1A",
+            "function": "0x1CA14",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x0E": {
+        "access_count": 2,
+        "functions": [
+          "0x15705",
+          "0x1C6C9"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x1571C",
+            "function": "0x15705",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1C76D",
+            "function": "0x1C6C9",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
+      },
+      "+0x0F": {
+        "access_count": 7,
+        "functions": [
+          "0x13427",
+          "0x19ACD",
+          "0x1BD37",
+          "0x1C5B0",
+          "0x1C6C9"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x13430",
+            "function": "0x13427",
+            "disasm": "add     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x19B0D",
+            "function": "0x19ACD",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1BD61",
+            "function": "0x1BD37",
+            "disasm": "cmp     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1C5E3",
+            "function": "0x1C5B0",
+            "disasm": "cmp     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1C78F",
+            "function": "0x1C6C9",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1C8AB",
+            "function": "0x1C6C9",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1C8EC",
+            "function": "0x1C6C9",
+            "disasm": "cmp     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x13": {
+        "access_count": 1,
+        "functions": [
+          "0x134B2"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x13505",
+            "function": "0x134B2",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x14": {
+        "access_count": 1,
+        "functions": [
+          "0x19202"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x192FF",
+            "function": "0x19202",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x15": {
+        "access_count": 6,
+        "functions": [
+          "0x17B15",
+          "0x17B3E",
+          "0x19895",
+          "0x19A9C"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x17B20",
+            "function": "0x17B15",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x17B26",
+            "function": "0x17B15",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x17B44",
+            "function": "0x17B3E",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1989B",
+            "function": "0x19895",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x198A1",
+            "function": "0x19895",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x19AA2",
+            "function": "0x19A9C",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x16": {
+        "access_count": 6,
+        "functions": [
+          "0x17B15",
+          "0x17B3E",
+          "0x19895",
+          "0x19A9C"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x17B2A",
+            "function": "0x17B15",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x17B30",
+            "function": "0x17B15",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x17B4C",
+            "function": "0x17B3E",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x198A5",
+            "function": "0x19895",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x198AB",
+            "function": "0x19895",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x19AA9",
+            "function": "0x19A9C",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x17": {
+        "access_count": 6,
+        "functions": [
+          "0x17B15",
+          "0x17B3E",
+          "0x19895",
+          "0x19A9C"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x17B34",
+            "function": "0x17B15",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x17B3A",
+            "function": "0x17B15",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x17B54",
+            "function": "0x17B3E",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x198AF",
+            "function": "0x19895",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x198B7",
+            "function": "0x19895",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x19AB0",
+            "function": "0x19A9C",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x18": {
+        "access_count": 4,
+        "functions": [
+          "0x19362",
+          "0x19614",
+          "0x1B170",
+          "0x1C6C9"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x19378",
+            "function": "0x19362",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x19634",
+            "function": "0x19614",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1B2C1",
+            "function": "0x1B170",
+            "disasm": "mov     bl, [bx+di]"
+          },
+          {
+            "ida_address": "0x1C851",
+            "function": "0x1C6C9",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
+      },
+      "+0x19": {
+        "access_count": 3,
+        "functions": [
+          "0x19362",
+          "0x1B170",
+          "0x1C6C9"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x1938A",
+            "function": "0x19362",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1B2DE",
+            "function": "0x1B170",
+            "disasm": "mov     bl, [bx+di]"
+          },
+          {
+            "ida_address": "0x1C884",
+            "function": "0x1C6C9",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
+      },
+      "+0x1A": {
+        "access_count": 4,
+        "functions": [
+          "0x157D6",
+          "0x1708B",
+          "0x1949E",
+          "0x1BA72"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x15855",
+            "function": "0x157D6",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x170B6",
+            "function": "0x1708B",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x194D5",
+            "function": "0x1949E",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1BAE7",
+            "function": "0x1BA72",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
+      },
+      "+0x1B": {
+        "access_count": 10,
+        "functions": [
+          "0x12440",
+          "0x1708B",
+          "0x19506",
+          "0x19A41",
+          "0x1B170",
+          "0x1BA72",
+          "0x1BB32",
+          "0x1C6C9"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x124C7",
+            "function": "0x12440",
+            "disasm": "cmp     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1711A",
+            "function": "0x1708B",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x19565",
+            "function": "0x19506",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x19A47",
+            "function": "0x19A41",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1B259",
+            "function": "0x1B170",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1BAAF",
+            "function": "0x1BA72",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1BAE1",
+            "function": "0x1BA72",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1BB38",
+            "function": "0x1BB32",
+            "disasm": "add     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1BB3A",
+            "function": "0x1BB32",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1C781",
+            "function": "0x1C6C9",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
+      },
+      "+0x1C": {
+        "access_count": 8,
+        "functions": [
+          "0x12440",
+          "0x1708B",
+          "0x19506",
+          "0x19A41",
+          "0x1B170",
+          "0x1BA72",
+          "0x1BB32"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x124BC",
+            "function": "0x12440",
+            "disasm": "cmp     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x17114",
+            "function": "0x1708B",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1955F",
+            "function": "0x19506",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x19A55",
+            "function": "0x19A41",
+            "disasm": "cmp     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1B253",
+            "function": "0x1B170",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1BAA9",
+            "function": "0x1BA72",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1BB3E",
+            "function": "0x1BB32",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1BB42",
+            "function": "0x1BB32",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
+      },
+      "+0x1D": {
+        "access_count": 24,
+        "functions": [
+          "0x12440",
+          "0x13C58",
+          "0x14F9D",
+          "0x157D6",
+          "0x1592C",
+          "0x15D30",
+          "0x1708B",
+          "0x172AE",
+          "0x172BB",
+          "0x19A1D",
+          "0x19A41",
+          "0x19CE9",
+          "0x1B170",
+          "0x1C6C9"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x1246A",
+            "function": "0x12440",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1248F",
+            "function": "0x12440",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x124C3",
+            "function": "0x12440",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x12505",
+            "function": "0x12440",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x13DC5",
+            "function": "0x13C58",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x13DF3",
+            "function": "0x13C58",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x13DF7",
+            "function": "0x13C58",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x14FB9",
+            "function": "0x14F9D",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x157FD",
+            "function": "0x157D6",
+            "disasm": "or      al, [bx+di]"
+          },
+          {
+            "ida_address": "0x15900",
+            "function": "0x157D6",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x15932",
+            "function": "0x1592C",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x15D59",
+            "function": "0x15D30",
+            "disasm": "or      al, [bx+di]"
+          },
+          {
+            "ida_address": "0x17137",
+            "function": "0x1708B",
+            "disasm": "or      al, [bx+di]"
+          },
+          {
+            "ida_address": "0x17158",
+            "function": "0x1708B",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x172B8",
+            "function": "0x172AE",
+            "disasm": "or      al, [bx+di]"
+          },
+          {
+            "ida_address": "0x172CC",
+            "function": "0x172BB",
+            "disasm": "or      al, [bx+di]"
+          },
+          {
+            "ida_address": "0x19A29",
+            "function": "0x19A1D",
+            "disasm": "or      al, [bx+di]"
+          },
+          {
+            "ida_address": "0x19A2D",
+            "function": "0x19A1D",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x19A4B",
+            "function": "0x19A41",
+            "disasm": "cmp     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x19CF1",
+            "function": "0x19CE9",
+            "disasm": "mov     cx, [bx+di]"
+          },
+          {
+            "ida_address": "0x19CF5",
+            "function": "0x19CE9",
+            "disasm": "mov     [bx+di], cx"
+          },
+          {
+            "ida_address": "0x1B27C",
+            "function": "0x1B170",
+            "disasm": "or      al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1B280",
+            "function": "0x1B170",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1C785",
+            "function": "0x1C6C9",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
+      },
+      "+0x1E": {
+        "access_count": 19,
+        "functions": [
+          "0x12440",
+          "0x13C58",
+          "0x14F9D",
+          "0x157D6",
+          "0x1592C",
+          "0x15D30",
+          "0x1708B",
+          "0x172AE",
+          "0x172BB",
+          "0x19A1D",
+          "0x19A41",
+          "0x1B170"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x12462",
+            "function": "0x12440",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x12494",
+            "function": "0x12440",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x124A1",
+            "function": "0x12440",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x124B8",
+            "function": "0x12440",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x12509",
+            "function": "0x12440",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x13DEA",
+            "function": "0x13C58",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x13DEF",
+            "function": "0x13C58",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x14FB3",
+            "function": "0x14F9D",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x157F5",
+            "function": "0x157D6",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x158F8",
+            "function": "0x157D6",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x15936",
+            "function": "0x1592C",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x15D51",
+            "function": "0x15D30",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1712F",
+            "function": "0x1708B",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x17152",
+            "function": "0x1708B",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x172B4",
+            "function": "0x172AE",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x172C4",
+            "function": "0x172BB",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x19A25",
+            "function": "0x19A1D",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x19A51",
+            "function": "0x19A41",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1B272",
+            "function": "0x1B170",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x1F": {
+        "access_count": 9,
+        "functions": [
+          "0x12D84",
+          "0x1708B",
+          "0x19394",
+          "0x1949E",
+          "0x194E8",
+          "0x196C9"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x13492",
+            "function": "0x12D84",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x134AF",
+            "function": "0x12D84",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x170CA",
+            "function": "0x1708B",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x19400",
+            "function": "0x19394",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1942C",
+            "function": "0x19394",
+            "disasm": "cmp     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x194A7",
+            "function": "0x1949E",
+            "disasm": "cmp     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x194E5",
+            "function": "0x1949E",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x194EE",
+            "function": "0x194E8",
+            "disasm": "cmp     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x196CF",
+            "function": "0x196C9",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x80": {
+        "access_count": 6,
+        "functions": [
+          "0x13AE4",
+          "0x198CD",
+          "0x1997B",
+          "0x1BDFF",
+          "0x1C6C9"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x13B3C",
+            "function": "0x13AE4",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x198D3",
+            "function": "0x198CD",
+            "disasm": "cmp     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x19994",
+            "function": "0x1997B",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1BE05",
+            "function": "0x1BDFF",
+            "disasm": "cmp     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1C89C",
+            "function": "0x1C6C9",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1C91C",
+            "function": "0x1C6C9",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x83": {
+        "access_count": 1,
+        "functions": [
+          "0x198CD"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x198EB",
+            "function": "0x198CD",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0xBB": {
+        "access_count": 2,
+        "functions": [
+          "0x198F0"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x19911",
+            "function": "0x198F0",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x19959",
+            "function": "0x198F0",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
+      },
+      "+0xBD": {
+        "access_count": 1,
+        "functions": [
+          "0x1968C"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x19695",
+            "function": "0x1968C",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0xF8": {
+        "access_count": 1,
+        "functions": [
+          "0x19394"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x19417",
+            "function": "0x19394",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
+      }
+    },
+    "46b7": {
+      "+0x01": {
+        "access_count": 2,
+        "functions": [
+          "0x171E3",
+          "0x17277"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x171EE",
+            "function": "0x171E3",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1727D",
+            "function": "0x17277",
+            "disasm": "cmp     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x07": {
+        "access_count": 2,
+        "functions": [
+          "0x172D4"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x1733F",
+            "function": "0x172D4",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x17349",
+            "function": "0x172D4",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
+      },
+      "+0x08": {
+        "access_count": 5,
+        "functions": [
+          "0x15DAF",
+          "0x16149",
+          "0x16185",
+          "0x16428",
+          "0x16840"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x15DDF",
+            "function": "0x15DAF",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x16163",
+            "function": "0x16149",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1618E",
+            "function": "0x16185",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x16447",
+            "function": "0x16428",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x16861",
+            "function": "0x16840",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x09": {
+        "access_count": 5,
+        "functions": [
+          "0x15DAF",
+          "0x16149",
+          "0x16185",
+          "0x16428",
+          "0x16840"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x15DE9",
+            "function": "0x15DAF",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x16171",
+            "function": "0x16149",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x16195",
+            "function": "0x16185",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1644E",
+            "function": "0x16428",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1686B",
+            "function": "0x16840",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x0A": {
+        "access_count": 6,
+        "functions": [
+          "0x12CFE",
+          "0x15DAF",
+          "0x16149",
+          "0x16185",
+          "0x16428",
+          "0x16840"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x12D0F",
+            "function": "0x12CFE",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x15DD5",
+            "function": "0x15DAF",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1617F",
+            "function": "0x16149",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1619C",
+            "function": "0x16185",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1643D",
+            "function": "0x16428",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x16857",
+            "function": "0x16840",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x0B": {
+        "access_count": 2,
+        "functions": [
+          "0x16018"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x16038",
+            "function": "0x16018",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1606D",
+            "function": "0x16018",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
+      },
+      "+0x0D": {
+        "access_count": 2,
+        "functions": [
+          "0x1619F",
+          "0x1B7EC"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x161AA",
+            "function": "0x1619F",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1B7F7",
+            "function": "0x1B7EC",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
+      }
+    },
+    "46c6": {
+      "+0x00": {
+        "access_count": 3,
+        "functions": [
+          "0x122E9",
+          "0x14664"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x12336",
+            "function": "0x122E9",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x147A3",
+            "function": "0x14664",
+            "disasm": "cmp     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1484A",
+            "function": "0x14664",
+            "disasm": "cmp     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x01": {
+        "access_count": 2,
+        "functions": [
+          "0x14664",
+          "0x149F7"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x1482A",
+            "function": "0x14664",
+            "disasm": "cmp     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x14A3F",
+            "function": "0x149F7",
+            "disasm": "cmp     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x02": {
+        "access_count": 1,
+        "functions": [
+          "0x14480"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x145AB",
+            "function": "0x14480",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x09": {
+        "access_count": 6,
+        "functions": [
+          "0x129E9",
+          "0x12AC5",
+          "0x14BF0",
+          "0x15C08",
+          "0x15C27"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x129EF",
+            "function": "0x129E9",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x12ACB",
+            "function": "0x12AC5",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x14C5B",
+            "function": "0x14BF0",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x15C0E",
+            "function": "0x15C08",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x15C2D",
+            "function": "0x15C27",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x15C33",
+            "function": "0x15C27",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
+      },
+      "+0x0A": {
+        "access_count": 1,
+        "functions": [
+          "0x135C6"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x13631",
+            "function": "0x135C6",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      }
+    },
+    "46c8": {
+      "+0x00": {
+        "access_count": 16,
+        "functions": [
+          "0x11F76",
+          "0x122E9",
+          "0x13580",
+          "0x136C7",
+          "0x13762",
+          "0x13787",
+          "0x14480",
+          "0x14664",
+          "0x14B36",
+          "0x14BF0",
+          "0x14F67",
+          "0x15036",
+          "0x1567F"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x11FC5",
+            "function": "0x11F76",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x122F9",
+            "function": "0x122E9",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x13597",
+            "function": "0x13580",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x136F4",
+            "function": "0x136C7",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x13779",
+            "function": "0x13762",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1378D",
+            "function": "0x13787",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1452E",
+            "function": "0x14480",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x149B2",
+            "function": "0x14664",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x149C4",
+            "function": "0x14664",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x14B58",
+            "function": "0x14B36",
+            "disasm": "cmp     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x14C23",
+            "function": "0x14BF0",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x14D4A",
+            "function": "0x14BF0",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x14F6D",
+            "function": "0x14F67",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x15077",
+            "function": "0x15036",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x150D4",
+            "function": "0x15036",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x15697",
+            "function": "0x1567F",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x01": {
+        "access_count": 12,
+        "functions": [
+          "0x122E9",
+          "0x136C7",
+          "0x13762",
+          "0x13787",
+          "0x14480",
+          "0x14664",
+          "0x14B36",
+          "0x14BF0",
+          "0x14F67",
+          "0x15036",
+          "0x1567F"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x12306",
+            "function": "0x122E9",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x136FE",
+            "function": "0x136C7",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1377F",
+            "function": "0x13762",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x13793",
+            "function": "0x13787",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x14538",
+            "function": "0x14480",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x149CA",
+            "function": "0x14664",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x14B64",
+            "function": "0x14B36",
+            "disasm": "cmp     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x14D51",
+            "function": "0x14BF0",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x14F74",
+            "function": "0x14F67",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1508C",
+            "function": "0x15036",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x150CE",
+            "function": "0x15036",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1569D",
+            "function": "0x1567F",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x02": {
+        "access_count": 5,
+        "functions": [
+          "0x122E9",
+          "0x13580",
+          "0x14480",
+          "0x14664",
+          "0x14B36"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x122EF",
+            "function": "0x122E9",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1359F",
+            "function": "0x13580",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x14542",
+            "function": "0x14480",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x149BA",
+            "function": "0x14664",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x14B70",
+            "function": "0x14B36",
+            "disasm": "cmp     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x03": {
+        "access_count": 7,
+        "functions": [
+          "0x126D7",
+          "0x136C7",
+          "0x14480",
+          "0x14BF0"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x12708",
+            "function": "0x126D7",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x13707",
+            "function": "0x136C7",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x14555",
+            "function": "0x14480",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x145B6",
+            "function": "0x14480",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x14CB5",
+            "function": "0x14BF0",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x14D04",
+            "function": "0x14BF0",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x14E2E",
+            "function": "0x14BF0",
+            "disasm": "cmp     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x12": {
+        "access_count": 1,
+        "functions": [
+          "0x157AD"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x157BF",
+            "function": "0x157AD",
+            "disasm": "or      al, [bx+di]"
+          }
+        ]
+      },
+      "+0x13": {
+        "access_count": 1,
+        "functions": [
+          "0x157AD"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x157BB",
+            "function": "0x157AD",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x14": {
+        "access_count": 1,
+        "functions": [
+          "0x1372B"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x1374D",
+            "function": "0x1372B",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
+      }
+    }
+  }
+}

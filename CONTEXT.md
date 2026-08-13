@@ -44,6 +44,7 @@
 | 文字輸出 | `sub_1786E` 印字串（`ds:4680h`）→ 每字元處理器可切換（`ds:B265h`）；`wl.exe` 內介面文字是明文 ASCII |
 | `wla.bin` overlay | 26 個 slot 的 API 表、EGA mode 0Dh、列位址表、畫字元（字型 172 字 × 32 bytes、8×8、4 平面）、清除矩形（`docs/re/04`） |
 | **亂數產生器** | **已解**：`sub_18E6B` 是 `ds:465Ch`–`4660h` 五個位元組的進位鏈，映像初值全零、全檔沒有種子設定，熵來自鍵盤輪詢次數。擲骰層四支（d6／dN／累加 Nd6／2d6 同點續擲）全部讀完並以模型驗證（`docs/re/13`、`tools/rng.py`） |
+| **角色記錄** | **定址已確認**：記錄 ＝ `0x7131 ＋ 角色編號 × 256`，每筆 256 bytes，經隊伍槽表兩層間接。名字、金錢（24-bit）、MAXCON／CON、兩個 30 槽陣列、傷勢門檻（−11／−20／−30／−40）都已定位（`docs/re/15`） |
 | 逐指令基準 | 整個 CODE 區倒成 JSON（20,177 條指令、827 個全域、4,932 筆直接定址存取），後續形狀比對改在離線做（`tools/ida/export_listing.py`、`export_memops.py`） |
 | 儲存層 | 雙模式（硬碟 DOS 檔案／磁片 `int 25h` 絕對磁區）與分流旗標；資源表 8 筆全解，六個檔名的引用點就在表的 `+6` 欄位（`docs/re/05`） |
 | 英文手冊 | 全文轉 markdown，7 章 646 行（`docs/manual/`） |
@@ -70,7 +71,7 @@
 |---|---|
 | [`CLAUDE.md`](./CLAUDE.md) | 專案規範：三道閘門、IDA 鐵則、文件與中文化政策、環境硬規則 |
 | [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md) | **RE 完成度檢查表**：remake 需要的每一項知識、狀態與入口 |
-| [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 119）。讀任何 `sub_XXXXX` 前先查 |
+| [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 140）。讀任何 `sub_XXXXX` 前先查 |
 | [`docs/re/01-binary-identity.md`](docs/re/01-binary-identity.md) | 20 檔 SHA-256、`wl.exe` 的 MZ header、第一份資料庫與「不可用作證據」的結論 |
 | [`docs/re/02-exepack-unpack.md`](docs/re/02-exepack-unpack.md) | EXEPACK 格式、解包器、relocation 起點的坑、解包後基準資料庫 |
 | [`docs/re/03-boot-and-asset-loading.md`](docs/re/03-boot-and-asset-loading.md) | 開機序列、`info` 安裝資訊、檔名表、七個開機素材的載入位址、`TITLE.PIC` XOR 解碼 |
@@ -85,6 +86,7 @@
 | [`docs/re/12-msq-tail-and-text-model.md`](docs/re/12-msq-tail-and-text-model.md) | 兩張長度表的差別＝尾段、尾段是無 magic 的 Huffman、**遊戲檔案裡沒有長篇敘述文字** |
 | [`docs/re/13-rng.md`](docs/re/13-rng.md) | 亂數產生器與擲骰層：進位鏈演算法、狀態初值、拒絕取樣、四支包裝函式、參考模型與驗證 |
 | [`docs/re/14-fonts-and-text-encoding.md`](docs/re/14-fonts-and-text-encoding.md) | 兩套字型與兩套索引、`ds:722Fh` 是選色不是重映射、18 個文字控制碼、選單系統 |
+| [`docs/re/15-character-record.md`](docs/re/15-character-record.md) | 角色記錄的兩層定址、欄位表、傷勢等級與門檻、名片行的欄位座標 |
 | [`docs/manual-cht/`](docs/manual-cht/) | 軟體世界 1990 中文說明書全 60 頁節轉錄 ＋ 當年譯名表 |
 | [`docs/manual/`](docs/manual/) | 官方英文手冊全文 markdown |
 | [`docs/paragraphs/`](docs/paragraphs/) | 段落書 162 段全文與索引，含防拷結構標註 |
@@ -121,7 +123,7 @@
 ## 7. Worklist
 
 **RE 完成度**：資料格式層與文字層大致打通，遊戲規則層剛開出第一個缺口（擲骰）。
-641 個函式裡人寫的筆記涵蓋 119 個。完整缺口見
+641 個函式裡人寫的筆記涵蓋 140 個。完整缺口見
 [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md)。
 
 **下一步（依「對 remake 的阻擋程度」排序）**
@@ -129,8 +131,9 @@
 1. **地圖記錄表（A6）** —— MSQ `+0x800` 起。固定位移掃描無效（欄位用基址暫存器
    存取），要從使用端往回追；`tools/ida/export_listing.py` 的逐指令 JSON
    可以直接篩「用同一個基底暫存器的存取」。
-2. **存檔與角色結構（C2／C3）** —— 定址層已知（`sub_17208`、`sub_19614`、
-   `sub_137F4`），從欄位位移往回追語意。
+2. **存檔內部欄位（C2）** —— 角色記錄定址與大半欄位已解（`docs/re/15`），
+   還缺 `+0x80` 與 `+0xBD` 兩個 30 槽陣列哪個是物品、哪個是技能，
+   以及位移用算的那 127 處存取。
 3. **規則判定（D1／D3）** —— 擲骰層已解，改讀 `sub_18E41`（24 個呼叫端）、
    `sub_19C84`（11）、`sub_19D86`（3）的呼叫端，每個呼叫端就是一條規則。
 4. 畫面版面（B6）：游標與欄位計數變數已知，中文化重排版面要用。
