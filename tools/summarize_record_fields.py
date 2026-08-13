@@ -42,9 +42,23 @@ def main() -> None:
     bases = {b.lower() for b in (sys.argv[2:] or DEFAULT_BASES)}
 
     functions = listing["functions"]
+
+    # IDA 沒建成函式的程式碼佔全檔約兩成，而且正是記錄存取最密集的地方。
+    # 這些指令沒有函式可以分組，就以 `retn` 為界切成偽區塊，
+    # 標成 `blk_<起始位址>`，免得整批被跳過（那會是安靜的漏報）。
     by_func: dict[str, list[dict]] = {}
+    pseudo: str | None = None
     for insn in listing["instructions"]:
-        by_func.setdefault(insn["func"], []).append(insn)
+        func = insn["func"]
+        if func is None:
+            if pseudo is None:
+                pseudo = f"blk_{insn['ea']}"
+            by_func.setdefault(pseudo, []).append(insn)
+            if insn["mnem"] in ("retn", "retf"):
+                pseudo = None
+            continue
+        pseudo = None
+        by_func.setdefault(func, []).append(insn)
 
     fields: dict[str, dict[int, list[dict]]] = {}
     unresolved: dict[str, int] = {}

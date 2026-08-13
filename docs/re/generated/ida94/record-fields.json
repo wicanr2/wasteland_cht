@@ -11,24 +11,114 @@
     "46c8"
   ],
   "unresolved_accesses": {
-    "46c6": 18,
-    "46b5": 127,
-    "46b7": 14,
-    "46c8": 33,
-    "46ae": 24,
-    "4661": 5
+    "46b5": 186,
+    "46c6": 19,
+    "46b7": 27,
+    "46c8": 44,
+    "46ae": 32,
+    "4661": 6
   },
   "fields": {
     "4661": {
       "+0x00": {
-        "access_count": 1,
+        "access_count": 3,
         "functions": [
-          "0x1718B"
+          "0x1718B",
+          "blk_0x1A54B",
+          "blk_0x1AC03"
         ],
         "sites": [
           {
             "ida_address": "0x171B2",
             "function": "0x1718B",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1A56F",
+            "function": "blk_0x1A54B",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1AC72",
+            "function": "blk_0x1AC03",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x15": {
+        "access_count": 1,
+        "functions": [
+          "blk_0x1A54B"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x1A594",
+            "function": "blk_0x1A54B",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
+      },
+      "+0x16": {
+        "access_count": 1,
+        "functions": [
+          "blk_0x1A54B"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x1A598",
+            "function": "blk_0x1A54B",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
+      },
+      "+0x17": {
+        "access_count": 1,
+        "functions": [
+          "blk_0x1A54B"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x1A59C",
+            "function": "blk_0x1A54B",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
+      },
+      "+0x1A": {
+        "access_count": 1,
+        "functions": [
+          "blk_0x1A54B"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x1A58C",
+            "function": "blk_0x1A54B",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
+      },
+      "+0x1F": {
+        "access_count": 1,
+        "functions": [
+          "blk_0x1A54B"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x1A588",
+            "function": "blk_0x1A54B",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
+      },
+      "+0xBD": {
+        "access_count": 1,
+        "functions": [
+          "blk_0x1A54B"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x1A57D",
+            "function": "blk_0x1A54B",
             "disasm": "mov     [bx+di], al"
           }
         ]
@@ -127,12 +217,13 @@
         ]
       },
       "+0x02": {
-        "access_count": 6,
+        "access_count": 7,
         "functions": [
           "0x12ABA",
           "0x1BF5F",
           "0x1C073",
-          "0x1C140"
+          "0x1C140",
+          "blk_0x1C188"
         ],
         "sites": [
           {
@@ -163,6 +254,11 @@
           {
             "ida_address": "0x1C154",
             "function": "0x1C140",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1C194",
+            "function": "blk_0x1C188",
             "disasm": "mov     al, [bx+di]"
           }
         ]
@@ -295,14 +391,32 @@
     },
     "46ae": {
       "+0x00": {
-        "access_count": 4,
+        "access_count": 8,
         "functions": [
           "0x142E2",
           "0x16890",
           "0x16AD5",
-          "0x16B17"
+          "0x16B17",
+          "blk_0x12BD0",
+          "blk_0x132B7",
+          "blk_0x16A10"
         ],
         "sites": [
+          {
+            "ida_address": "0x12BD6",
+            "function": "blk_0x12BD0",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x12C76",
+            "function": "blk_0x12BD0",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x132EF",
+            "function": "blk_0x132B7",
+            "disasm": "mov     al, [bx+di]"
+          },
           {
             "ida_address": "0x142E8",
             "function": "0x142E2",
@@ -312,6 +426,11 @@
             "ida_address": "0x168F1",
             "function": "0x16890",
             "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x16A64",
+            "function": "blk_0x16A10",
+            "disasm": "mov     al, [bx+di]"
           },
           {
             "ida_address": "0x16AE2",
@@ -326,14 +445,29 @@
         ]
       },
       "+0x01": {
-        "access_count": 4,
+        "access_count": 14,
         "functions": [
           "0x15CE0",
           "0x16716",
           "0x16890",
-          "0x18024"
+          "0x18024",
+          "blk_0x14419",
+          "blk_0x16A90",
+          "blk_0x1A470",
+          "blk_0x1A4F4",
+          "blk_0x1A526",
+          "blk_0x1A699",
+          "blk_0x1A879",
+          "blk_0x1AB0E",
+          "blk_0x1AC03",
+          "blk_0x1AD14"
         ],
         "sites": [
+          {
+            "ida_address": "0x1443C",
+            "function": "blk_0x14419",
+            "disasm": "mov     al, [bx+di]"
+          },
           {
             "ida_address": "0x15CFB",
             "function": "0x15CE0",
@@ -350,17 +484,178 @@
             "disasm": "mov     [bx+di], al"
           },
           {
+            "ida_address": "0x16AA2",
+            "function": "blk_0x16A90",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
             "ida_address": "0x18077",
             "function": "0x18024",
             "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A4EA",
+            "function": "blk_0x1A470",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1A511",
+            "function": "blk_0x1A4F4",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1A547",
+            "function": "blk_0x1A526",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1A6F1",
+            "function": "blk_0x1A699",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1A8AB",
+            "function": "blk_0x1A879",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1AB6D",
+            "function": "blk_0x1AB0E",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1ACEC",
+            "function": "blk_0x1AC03",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1AD5F",
+            "function": "blk_0x1AD14",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
+      },
+      "+0x02": {
+        "access_count": 14,
+        "functions": [
+          "blk_0x16A90",
+          "blk_0x1A470",
+          "blk_0x1A4F4",
+          "blk_0x1A526",
+          "blk_0x1A611",
+          "blk_0x1A699",
+          "blk_0x1A6F5",
+          "blk_0x1A738",
+          "blk_0x1A879",
+          "blk_0x1AABF",
+          "blk_0x1AB0E",
+          "blk_0x1AB7B",
+          "blk_0x1AC03",
+          "blk_0x1AD14"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x16AAC",
+            "function": "blk_0x16A90",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A4E5",
+            "function": "blk_0x1A470",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1A50C",
+            "function": "blk_0x1A4F4",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1A542",
+            "function": "blk_0x1A526",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1A653",
+            "function": "blk_0x1A611",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1A6EC",
+            "function": "blk_0x1A699",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1A71E",
+            "function": "blk_0x1A6F5",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1A75A",
+            "function": "blk_0x1A738",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1A8A6",
+            "function": "blk_0x1A879",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1AAEC",
+            "function": "blk_0x1AABF",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1AB77",
+            "function": "blk_0x1AB0E",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1ABA8",
+            "function": "blk_0x1AB7B",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1ACE7",
+            "function": "blk_0x1AC03",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1AD5A",
+            "function": "blk_0x1AD14",
+            "disasm": "mov     [bx+di], al"
           }
         ]
       },
       "+0x03": {
-        "access_count": 3,
+        "access_count": 34,
         "functions": [
           "0x142ED",
-          "0x16890"
+          "0x16890",
+          "blk_0x16A10",
+          "blk_0x16A90",
+          "blk_0x1A2C0",
+          "blk_0x1A515",
+          "blk_0x1A526",
+          "blk_0x1A54B",
+          "blk_0x1A5C3",
+          "blk_0x1A611",
+          "blk_0x1A6F5",
+          "blk_0x1A738",
+          "blk_0x1A773",
+          "blk_0x1A795",
+          "blk_0x1A7B6",
+          "blk_0x1A8D2",
+          "blk_0x1A9DD",
+          "blk_0x1AA12",
+          "blk_0x1AA3F",
+          "blk_0x1AABF",
+          "blk_0x1AB7B",
+          "blk_0x1ABCA",
+          "blk_0x1AC03",
+          "blk_0x1AD14",
+          "blk_0x1BBA0",
+          "blk_0x1BE50",
+          "blk_0x1C260"
         ],
         "sites": [
           {
@@ -377,53 +672,428 @@
             "ida_address": "0x16976",
             "function": "0x16890",
             "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x16A5C",
+            "function": "blk_0x16A10",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x16AC5",
+            "function": "blk_0x16A90",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A2CD",
+            "function": "blk_0x1A2C0",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A51B",
+            "function": "blk_0x1A515",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A539",
+            "function": "blk_0x1A526",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A556",
+            "function": "blk_0x1A54B",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A5C9",
+            "function": "blk_0x1A5C3",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A617",
+            "function": "blk_0x1A611",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A66D",
+            "function": "blk_0x1A611",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1A6FB",
+            "function": "blk_0x1A6F5",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A725",
+            "function": "blk_0x1A6F5",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1A73E",
+            "function": "blk_0x1A738",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A761",
+            "function": "blk_0x1A738",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1A77F",
+            "function": "blk_0x1A773",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A7A0",
+            "function": "blk_0x1A795",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A7C4",
+            "function": "blk_0x1A7B6",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A8E0",
+            "function": "blk_0x1A8D2",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A9E7",
+            "function": "blk_0x1A9DD",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1AA20",
+            "function": "blk_0x1AA12",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1AA4D",
+            "function": "blk_0x1AA3F",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1AA70",
+            "function": "blk_0x1AA3F",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1AAC5",
+            "function": "blk_0x1AABF",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1AAF7",
+            "function": "blk_0x1AABF",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1AB81",
+            "function": "blk_0x1AB7B",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1ABB3",
+            "function": "blk_0x1AB7B",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1ABD8",
+            "function": "blk_0x1ABCA",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1AC09",
+            "function": "blk_0x1AC03",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1AD51",
+            "function": "blk_0x1AD14",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1BBCF",
+            "function": "blk_0x1BBA0",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1BEA7",
+            "function": "blk_0x1BE50",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1C29F",
+            "function": "blk_0x1C260",
+            "disasm": "mov     al, [bx+di]"
           }
         ]
       },
       "+0x04": {
-        "access_count": 1,
+        "access_count": 17,
         "functions": [
-          "0x16890"
+          "0x16890",
+          "blk_0x1A515",
+          "blk_0x1A526",
+          "blk_0x1A5C3",
+          "blk_0x1A611",
+          "blk_0x1A6F5",
+          "blk_0x1A738",
+          "blk_0x1AA3F",
+          "blk_0x1AABF",
+          "blk_0x1AB7B",
+          "blk_0x1AD14",
+          "blk_0x1BBA0",
+          "blk_0x1BE50",
+          "blk_0x1C2CE"
         ],
         "sites": [
           {
             "ida_address": "0x1696F",
             "function": "0x16890",
             "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1A51F",
+            "function": "blk_0x1A515",
+            "disasm": "mov     cl, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A53E",
+            "function": "blk_0x1A526",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A5D0",
+            "function": "blk_0x1A5C3",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A61E",
+            "function": "blk_0x1A611",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A702",
+            "function": "blk_0x1A6F5",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A72C",
+            "function": "blk_0x1A6F5",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1A767",
+            "function": "blk_0x1A738",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1AA58",
+            "function": "blk_0x1AA3F",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1AAD0",
+            "function": "blk_0x1AABF",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1AB02",
+            "function": "blk_0x1AABF",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1AB8C",
+            "function": "blk_0x1AB7B",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1ABBE",
+            "function": "blk_0x1AB7B",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1AD56",
+            "function": "blk_0x1AD14",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1BBB0",
+            "function": "blk_0x1BBA0",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1BEAE",
+            "function": "blk_0x1BE50",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1C380",
+            "function": "blk_0x1C2CE",
+            "disasm": "mov     al, [bx+di]"
           }
         ]
       },
       "+0x05": {
-        "access_count": 1,
+        "access_count": 8,
         "functions": [
-          "0x16890"
+          "0x16890",
+          "blk_0x1A470",
+          "blk_0x1A4F4",
+          "blk_0x1A611",
+          "blk_0x1A699",
+          "blk_0x1A879",
+          "blk_0x1BE50",
+          "blk_0x1C2CE"
         ],
         "sites": [
           {
             "ida_address": "0x168B7",
             "function": "0x16890",
             "disasm": "or      al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A4DC",
+            "function": "blk_0x1A470",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A503",
+            "function": "blk_0x1A4F4",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A67F",
+            "function": "blk_0x1A611",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1A6E3",
+            "function": "blk_0x1A699",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A89D",
+            "function": "blk_0x1A879",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1BEB5",
+            "function": "blk_0x1BE50",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1C32E",
+            "function": "blk_0x1C2CE",
+            "disasm": "mov     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x06": {
+        "access_count": 9,
+        "functions": [
+          "blk_0x1A470",
+          "blk_0x1A4F4",
+          "blk_0x1A611",
+          "blk_0x1A699",
+          "blk_0x1A879",
+          "blk_0x1AC03",
+          "blk_0x1BE50",
+          "blk_0x1C2CE"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x1A4E1",
+            "function": "blk_0x1A470",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A508",
+            "function": "blk_0x1A4F4",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A68D",
+            "function": "blk_0x1A611",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1A6E8",
+            "function": "blk_0x1A699",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A8A2",
+            "function": "blk_0x1A879",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1ACDE",
+            "function": "blk_0x1AC03",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1BE56",
+            "function": "blk_0x1BE50",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1BEA0",
+            "function": "blk_0x1BE50",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1C437",
+            "function": "blk_0x1C2CE",
+            "disasm": "mov     al, [bx+di]"
           }
         ]
       },
       "+0x07": {
-        "access_count": 1,
+        "access_count": 5,
         "functions": [
-          "0x16890"
+          "0x16890",
+          "blk_0x1A879",
+          "blk_0x1AC03",
+          "blk_0x1BE50",
+          "blk_0x1C260"
         ],
         "sites": [
           {
             "ida_address": "0x168BB",
             "function": "0x16890",
             "disasm": "or      al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A87F",
+            "function": "blk_0x1A879",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1ACE3",
+            "function": "blk_0x1AC03",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1BE6E",
+            "function": "blk_0x1BE50",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1C270",
+            "function": "blk_0x1C260",
+            "disasm": "mov     al, [bx+di]"
           }
         ]
       },
       "+0x08": {
-        "access_count": 2,
+        "access_count": 3,
         "functions": [
           "0x14193",
-          "0x142D7"
+          "0x142D7",
+          "blk_0x1A879"
         ],
         "sites": [
           {
@@ -435,13 +1105,23 @@
             "ida_address": "0x142DD",
             "function": "0x142D7",
             "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A889",
+            "function": "blk_0x1A879",
+            "disasm": "mov     al, [bx+di]"
           }
         ]
       },
       "+0x09": {
-        "access_count": 2,
+        "access_count": 7,
         "functions": [
-          "0x14193"
+          "0x14193",
+          "blk_0x1A9DD",
+          "blk_0x1AA12",
+          "blk_0x1AA3F",
+          "blk_0x1AA8E",
+          "blk_0x1ABCA"
         ],
         "sites": [
           {
@@ -453,6 +1133,31 @@
             "ida_address": "0x141E3",
             "function": "0x14193",
             "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A9FF",
+            "function": "blk_0x1A9DD",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1AA31",
+            "function": "blk_0x1AA12",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1AA7B",
+            "function": "blk_0x1AA3F",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1AAA8",
+            "function": "blk_0x1AA8E",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1ABF0",
+            "function": "blk_0x1ABCA",
+            "disasm": "mov     [bx+di], al"
           }
         ]
       },
@@ -468,21 +1173,52 @@
             "disasm": "mov     al, [bx+di]"
           }
         ]
+      },
+      "+0x0B": {
+        "access_count": 1,
+        "functions": [
+          "blk_0x1A5C3"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x1A601",
+            "function": "blk_0x1A5C3",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
       }
     },
     "46b5": {
       "+0x00": {
-        "access_count": 3,
+        "access_count": 6,
         "functions": [
           "0x1718B",
           "0x1C6C9",
-          "0x1CA14"
+          "0x1CA14",
+          "blk_0x132B7",
+          "blk_0x1A54B",
+          "blk_0x1AC03"
         ],
         "sites": [
+          {
+            "ida_address": "0x132F5",
+            "function": "blk_0x132B7",
+            "disasm": "mov     [bx+di], al"
+          },
           {
             "ida_address": "0x171AC",
             "function": "0x1718B",
             "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A569",
+            "function": "blk_0x1A54B",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1AC78",
+            "function": "blk_0x1AC03",
+            "disasm": "mov     [bx+di], al"
           },
           {
             "ida_address": "0x1C816",
@@ -552,13 +1288,15 @@
         ]
       },
       "+0x0F": {
-        "access_count": 7,
+        "access_count": 9,
         "functions": [
           "0x13427",
           "0x19ACD",
           "0x1BD37",
           "0x1C5B0",
-          "0x1C6C9"
+          "0x1C6C9",
+          "blk_0x1BD91",
+          "blk_0x1C61F"
         ],
         "sites": [
           {
@@ -577,8 +1315,18 @@
             "disasm": "cmp     al, [bx+di]"
           },
           {
+            "ida_address": "0x1BDA3",
+            "function": "blk_0x1BD91",
+            "disasm": "cmp     al, [bx+di]"
+          },
+          {
             "ida_address": "0x1C5E3",
             "function": "0x1C5B0",
+            "disasm": "cmp     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1C62E",
+            "function": "blk_0x1C61F",
             "disasm": "cmp     al, [bx+di]"
           },
           {
@@ -595,6 +1343,19 @@
             "ida_address": "0x1C8EC",
             "function": "0x1C6C9",
             "disasm": "cmp     al, [bx+di]"
+          }
+        ]
+      },
+      "+0x11": {
+        "access_count": 1,
+        "functions": [
+          "blk_0x1AD70"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x1AE8B",
+            "function": "blk_0x1AD70",
+            "disasm": "mov     al, [bx+di]"
           }
         ]
       },
@@ -748,12 +1509,13 @@
         ]
       },
       "+0x18": {
-        "access_count": 4,
+        "access_count": 6,
         "functions": [
           "0x19362",
           "0x19614",
           "0x1B170",
-          "0x1C6C9"
+          "0x1C6C9",
+          "blk_0x1A8AF"
         ],
         "sites": [
           {
@@ -765,6 +1527,16 @@
             "ida_address": "0x19634",
             "function": "0x19614",
             "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A8BD",
+            "function": "blk_0x1A8AF",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A8C1",
+            "function": "blk_0x1A8AF",
+            "disasm": "mov     [bx+di], al"
           },
           {
             "ida_address": "0x1B2C1",
@@ -835,7 +1607,7 @@
         ]
       },
       "+0x1B": {
-        "access_count": 10,
+        "access_count": 11,
         "functions": [
           "0x12440",
           "0x1708B",
@@ -844,7 +1616,8 @@
           "0x1B170",
           "0x1BA72",
           "0x1BB32",
-          "0x1C6C9"
+          "0x1C6C9",
+          "blk_0x1C2CE"
         ],
         "sites": [
           {
@@ -893,6 +1666,11 @@
             "disasm": "mov     [bx+di], al"
           },
           {
+            "ida_address": "0x1C3A0",
+            "function": "blk_0x1C2CE",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
             "ida_address": "0x1C781",
             "function": "0x1C6C9",
             "disasm": "mov     [bx+di], al"
@@ -900,7 +1678,7 @@
         ]
       },
       "+0x1C": {
-        "access_count": 8,
+        "access_count": 9,
         "functions": [
           "0x12440",
           "0x1708B",
@@ -908,7 +1686,8 @@
           "0x19A41",
           "0x1B170",
           "0x1BA72",
-          "0x1BB32"
+          "0x1BB32",
+          "blk_0x1C2CE"
         ],
         "sites": [
           {
@@ -950,11 +1729,16 @@
             "ida_address": "0x1BB42",
             "function": "0x1BB32",
             "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1C3A9",
+            "function": "blk_0x1C2CE",
+            "disasm": "mov     al, [bx+di]"
           }
         ]
       },
       "+0x1D": {
-        "access_count": 24,
+        "access_count": 29,
         "functions": [
           "0x12440",
           "0x13C58",
@@ -969,7 +1753,11 @@
           "0x19A41",
           "0x19CE9",
           "0x1B170",
-          "0x1C6C9"
+          "0x1C6C9",
+          "blk_0x15E7F",
+          "blk_0x1A699",
+          "blk_0x1B4F0",
+          "blk_0x1C2CE"
         ],
         "sites": [
           {
@@ -1033,6 +1821,11 @@
             "disasm": "or      al, [bx+di]"
           },
           {
+            "ida_address": "0x15F5B",
+            "function": "blk_0x15E7F",
+            "disasm": "or      al, [bx+di]"
+          },
+          {
             "ida_address": "0x17137",
             "function": "0x1708B",
             "disasm": "or      al, [bx+di]"
@@ -1078,6 +1871,16 @@
             "disasm": "mov     [bx+di], cx"
           },
           {
+            "ida_address": "0x1A6BA",
+            "function": "blk_0x1A699",
+            "disasm": "mov     ax, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A6C0",
+            "function": "blk_0x1A699",
+            "disasm": "mov     [bx+di], ax"
+          },
+          {
             "ida_address": "0x1B27C",
             "function": "0x1B170",
             "disasm": "or      al, [bx+di]"
@@ -1088,6 +1891,16 @@
             "disasm": "mov     al, [bx+di]"
           },
           {
+            "ida_address": "0x1B5B8",
+            "function": "blk_0x1B4F0",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1C3A4",
+            "function": "blk_0x1C2CE",
+            "disasm": "sub     al, [bx+di]"
+          },
+          {
             "ida_address": "0x1C785",
             "function": "0x1C6C9",
             "disasm": "mov     [bx+di], al"
@@ -1095,7 +1908,7 @@
         ]
       },
       "+0x1E": {
-        "access_count": 19,
+        "access_count": 22,
         "functions": [
           "0x12440",
           "0x13C58",
@@ -1108,7 +1921,10 @@
           "0x172BB",
           "0x19A1D",
           "0x19A41",
-          "0x1B170"
+          "0x1B170",
+          "blk_0x15E7F",
+          "blk_0x1B4F0",
+          "blk_0x1C2CE"
         ],
         "sites": [
           {
@@ -1172,6 +1988,11 @@
             "disasm": "mov     al, [bx+di]"
           },
           {
+            "ida_address": "0x15F4C",
+            "function": "blk_0x15E7F",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
             "ida_address": "0x1712F",
             "function": "0x1708B",
             "disasm": "mov     al, [bx+di]"
@@ -1205,18 +2026,30 @@
             "ida_address": "0x1B272",
             "function": "0x1B170",
             "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1B5BC",
+            "function": "blk_0x1B4F0",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x1C3AD",
+            "function": "blk_0x1C2CE",
+            "disasm": "sbb     al, [bx+di]"
           }
         ]
       },
       "+0x1F": {
-        "access_count": 9,
+        "access_count": 11,
         "functions": [
           "0x12D84",
           "0x1708B",
           "0x19394",
           "0x1949E",
           "0x194E8",
-          "0x196C9"
+          "0x196C9",
+          "blk_0x195C6",
+          "blk_0x1C01B"
         ],
         "sites": [
           {
@@ -1260,9 +2093,19 @@
             "disasm": "cmp     al, [bx+di]"
           },
           {
+            "ida_address": "0x195F4",
+            "function": "blk_0x195C6",
+            "disasm": "cmp     al, [bx+di]"
+          },
+          {
             "ida_address": "0x196CF",
             "function": "0x196C9",
             "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1C061",
+            "function": "blk_0x1C01B",
+            "disasm": "cmp     al, [bx+di]"
           }
         ]
       },
@@ -1387,11 +2230,17 @@
         ]
       },
       "+0x07": {
-        "access_count": 2,
+        "access_count": 3,
         "functions": [
-          "0x172D4"
+          "0x172D4",
+          "blk_0x12AE9"
         ],
         "sites": [
+          {
+            "ida_address": "0x12AEF",
+            "function": "blk_0x12AE9",
+            "disasm": "mov     al, [bx+di]"
+          },
           {
             "ida_address": "0x1733F",
             "function": "0x172D4",
@@ -1405,13 +2254,16 @@
         ]
       },
       "+0x08": {
-        "access_count": 5,
+        "access_count": 8,
         "functions": [
           "0x15DAF",
           "0x16149",
           "0x16185",
           "0x16428",
-          "0x16840"
+          "0x16840",
+          "blk_0x1A33E",
+          "blk_0x1A470",
+          "blk_0x1B4F0"
         ],
         "sites": [
           {
@@ -1438,17 +2290,35 @@
             "ida_address": "0x16861",
             "function": "0x16840",
             "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A399",
+            "function": "blk_0x1A33E",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A4AD",
+            "function": "blk_0x1A470",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1B6F3",
+            "function": "blk_0x1B4F0",
+            "disasm": "mov     al, [bx+di]"
           }
         ]
       },
       "+0x09": {
-        "access_count": 5,
+        "access_count": 8,
         "functions": [
           "0x15DAF",
           "0x16149",
           "0x16185",
           "0x16428",
-          "0x16840"
+          "0x16840",
+          "blk_0x1A33E",
+          "blk_0x1A470",
+          "blk_0x1B4F0"
         ],
         "sites": [
           {
@@ -1475,18 +2345,36 @@
             "ida_address": "0x1686B",
             "function": "0x16840",
             "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A3A7",
+            "function": "blk_0x1A33E",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A4B7",
+            "function": "blk_0x1A470",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1B701",
+            "function": "blk_0x1B4F0",
+            "disasm": "mov     al, [bx+di]"
           }
         ]
       },
       "+0x0A": {
-        "access_count": 6,
+        "access_count": 10,
         "functions": [
           "0x12CFE",
           "0x15DAF",
           "0x16149",
           "0x16185",
           "0x16428",
-          "0x16840"
+          "0x16840",
+          "blk_0x1A33E",
+          "blk_0x1A470",
+          "blk_0x1B4F0"
         ],
         "sites": [
           {
@@ -1518,13 +2406,34 @@
             "ida_address": "0x16857",
             "function": "0x16840",
             "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A3B5",
+            "function": "blk_0x1A33E",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1A485",
+            "function": "blk_0x1A470",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1B588",
+            "function": "blk_0x1B4F0",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1B70F",
+            "function": "blk_0x1B4F0",
+            "disasm": "mov     al, [bx+di]"
           }
         ]
       },
       "+0x0B": {
-        "access_count": 2,
+        "access_count": 4,
         "functions": [
-          "0x16018"
+          "0x16018",
+          "blk_0x16A10"
         ],
         "sites": [
           {
@@ -1536,19 +2445,58 @@
             "ida_address": "0x1606D",
             "function": "0x16018",
             "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x16A34",
+            "function": "blk_0x16A10",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x16A3C",
+            "function": "blk_0x16A10",
+            "disasm": "mov     [bx+di], al"
+          }
+        ]
+      },
+      "+0x0C": {
+        "access_count": 2,
+        "functions": [
+          "blk_0x16A10"
+        ],
+        "sites": [
+          {
+            "ida_address": "0x16A40",
+            "function": "blk_0x16A10",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x16A48",
+            "function": "blk_0x16A10",
+            "disasm": "mov     [bx+di], al"
           }
         ]
       },
       "+0x0D": {
-        "access_count": 2,
+        "access_count": 4,
         "functions": [
           "0x1619F",
-          "0x1B7EC"
+          "0x1B7EC",
+          "blk_0x16A10"
         ],
         "sites": [
           {
             "ida_address": "0x161AA",
             "function": "0x1619F",
+            "disasm": "mov     [bx+di], al"
+          },
+          {
+            "ida_address": "0x16A4C",
+            "function": "blk_0x16A10",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x16A54",
+            "function": "blk_0x16A10",
             "disasm": "mov     [bx+di], al"
           },
           {
@@ -1674,7 +2622,7 @@
     },
     "46c8": {
       "+0x00": {
-        "access_count": 16,
+        "access_count": 18,
         "functions": [
           "0x11F76",
           "0x122E9",
@@ -1688,7 +2636,9 @@
           "0x14BF0",
           "0x14F67",
           "0x15036",
-          "0x1567F"
+          "0x1567F",
+          "blk_0x1278C",
+          "blk_0x1AD70"
         ],
         "sites": [
           {
@@ -1699,6 +2649,11 @@
           {
             "ida_address": "0x122F9",
             "function": "0x122E9",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1279E",
+            "function": "blk_0x1278C",
             "disasm": "mov     al, [bx+di]"
           },
           {
@@ -1770,11 +2725,16 @@
             "ida_address": "0x15697",
             "function": "0x1567F",
             "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1AD9A",
+            "function": "blk_0x1AD70",
+            "disasm": "mov     al, [bx+di]"
           }
         ]
       },
       "+0x01": {
-        "access_count": 12,
+        "access_count": 13,
         "functions": [
           "0x122E9",
           "0x136C7",
@@ -1786,7 +2746,8 @@
           "0x14BF0",
           "0x14F67",
           "0x15036",
-          "0x1567F"
+          "0x1567F",
+          "blk_0x1AD70"
         ],
         "sites": [
           {
@@ -1848,6 +2809,11 @@
             "ida_address": "0x1569D",
             "function": "0x1567F",
             "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x1ADAB",
+            "function": "blk_0x1AD70",
+            "disasm": "mov     al, [bx+di]"
           }
         ]
       },
@@ -1889,17 +2855,23 @@
         ]
       },
       "+0x03": {
-        "access_count": 7,
+        "access_count": 8,
         "functions": [
           "0x126D7",
           "0x136C7",
           "0x14480",
-          "0x14BF0"
+          "0x14BF0",
+          "blk_0x1278C"
         ],
         "sites": [
           {
             "ida_address": "0x12708",
             "function": "0x126D7",
+            "disasm": "mov     al, [bx+di]"
+          },
+          {
+            "ida_address": "0x127A6",
+            "function": "blk_0x1278C",
             "disasm": "mov     al, [bx+di]"
           },
           {
@@ -1935,11 +2907,17 @@
         ]
       },
       "+0x12": {
-        "access_count": 1,
+        "access_count": 2,
         "functions": [
-          "0x157AD"
+          "0x157AD",
+          "blk_0x132B7"
         ],
         "sites": [
+          {
+            "ida_address": "0x133B5",
+            "function": "blk_0x132B7",
+            "disasm": "mov     [bx+di], al"
+          },
           {
             "ida_address": "0x157BF",
             "function": "0x157AD",
@@ -1948,11 +2926,17 @@
         ]
       },
       "+0x13": {
-        "access_count": 1,
+        "access_count": 2,
         "functions": [
-          "0x157AD"
+          "0x157AD",
+          "blk_0x132B7"
         ],
         "sites": [
+          {
+            "ida_address": "0x133B1",
+            "function": "blk_0x132B7",
+            "disasm": "mov     [bx+di], al"
+          },
           {
             "ida_address": "0x157BB",
             "function": "0x157AD",
