@@ -38,6 +38,7 @@
 | RE 工具 | `export_file_io.py`（中斷掃描＋字串引用）、`export_function.py`（函式完整倒出）、`apply_overlay.py` |
 | 資源目錄 | `GAME1`／`GAME2` 的定址三張表全解（目錄 `0x28CE9`、位移表 A `0x28A9A`／B `0x28AEA`）（`docs/re/06`） |
 | MSQ 區塊 | 兩個資料檔切開：`game1` 20 塊全部 `msq0`、`game2` 22 塊全部 `msq1`；數量與目錄索引三重吻合（`docs/re/07`） |
+| **MSQ 加密** | **已解**：`key = lo(checksum) XOR hi(checksum)`，逐 byte XOR 後 `key += 0x1F`。42/42 通過原版自己的 checksum 驗證，解密後出現 `Titanium`／`Vanadium`／`REDHAWK` 等遊戲文字（`docs/re/08`） |
 | 中文說明書 | 全 60 頁節轉錄完成，含 IBM 版補充說明書與約 200 條當年譯名（`docs/manual-cht/`） |
 | 文字輸出 | `sub_1786E` 印字串（`ds:4680h`）→ overlay slot 19 畫字元；`wl.exe` 內介面文字是明文 ASCII |
 | `wla.bin` overlay | 26 個 slot 的 API 表、EGA mode 0Dh、列位址表、畫字元（字型 172 字 × 32 bytes、8×8、4 平面）、清除矩形（`docs/re/04`） |
@@ -51,7 +52,8 @@
 |---|---|
 | 解包映像實跑驗證 | **未做**。要在 DOSBox 跑起來與原版對照，才能把「解包等同原版」升為已確認 |
 | 資料格式 | 已解：`wla.bin`（overlay 程式碼）、`title.pic`（XOR 串流）、`colorf.fnt`（172 字 × 32 bytes）、`GAME1`／`GAME2` 的定址方式。未解：`GAME1`／`GAME2` 各資源的內容、`allpics*`、`allhtds*`、`transtbl`、`curs`、`masks.wlf`、`ic0_9.wlf`、`end.cpa` |
-| 劇情文字 | 確定不在明文狀態。42 個 MSQ 區塊全部高熵（用滿 256 種 byte 值），內容經加密或壓縮，演算法未解——這是目前的主線 |
+| 劇情文字 | MSQ 解密後仍只有 4 個區塊含大量英文單字；多數區塊沒有可讀文字，可能是地圖與數值表，也可能還有第二層編碼。**未證實，不要當結論** |
+| MSQ 內部結構 | 未解——目前主線。要分辨哪些區塊是地圖、文字、數值表 |
 | 說明書整理 | 英文手冊、段落書、軟體世界中文說明書都完成；社群攻略未開始 |
 | Go 引擎 | **未開始，且依規定不得開始**，要等規格 READY |
 
@@ -67,6 +69,7 @@
 | [`docs/re/05-storage-layer.md`](docs/re/05-storage-layer.md) | 雙模式儲存、資源表結構、六個資料檔的開啟路徑 |
 | [`docs/re/06-resource-directory.md`](docs/re/06-resource-directory.md) | `GAME1`／`GAME2` 的資源目錄與位移表、資源 magic、文字輸出層 |
 | [`docs/re/07-msq-blocks.md`](docs/re/07-msq-blocks.md) | 42 個 MSQ 區塊的完整清單、數量的三重驗證、內容是加密／壓縮的 |
+| [`docs/re/08-msq-encryption.md`](docs/re/08-msq-encryption.md) | MSQ 加密演算法與 42/42 驗證、區塊佈局、長度表 |
 | [`docs/manual-cht/`](docs/manual-cht/) | 軟體世界 1990 中文說明書全 60 頁節轉錄 ＋ 當年譯名表 |
 | [`docs/manual/`](docs/manual/) | 官方英文手冊全文 markdown |
 | [`docs/paragraphs/`](docs/paragraphs/) | 段落書 162 段全文與索引，含防拷結構標註 |
@@ -101,9 +104,9 @@
 
 **下一步（按順序）**
 
-1. **解 MSQ 區塊的解密／解壓演算法**（主線）。入口：`sub_11A10` 回來之後的處理，
-   以及呼叫端 `sub_184E8`／`sub_18744`／`sub_1B7FE`。不得套用社群流傳的公式，要從機器碼讀。
-2. 建資源編號 → 資產類型的對照（哪一塊是地圖、哪一塊是文字）。
+1. **解 MSQ 區塊的內部結構**（主線）：42 塊已可完整解密，下一步是分辨每一塊是什麼
+   （地圖／文字／數值表），並解釋為何多數區塊看不到可讀文字。
+2. 建資源編號 → 資產類型的對照。
 3. 解 `ds:722Fh` 的字元碼重映射（`docs/re/04` §5），中文化前必須先解。
 4. 逐一解 overlay 其餘 21 個 slot，特別是 `0x1029B`（881 bytes）。
 5. 追資源表 idx 7（無檔名，疑似存檔區）在硬碟模式下怎麼存取。
