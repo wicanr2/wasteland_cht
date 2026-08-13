@@ -1,0 +1,5164 @@
+{
+  "dataset": "DS000-inventory",
+  "input_file": "target.exe",
+  "input_sha256": "098aef9b4fe4fea3b8d0d134f82fe11a6dac608839ebd175e168cf0271b93b4f",
+  "input_size": 62549,
+  "processor": "metapc",
+  "segments": [
+    {
+      "name": "seg000",
+      "class": "CODE",
+      "start_ea": "0x10000",
+      "end_ea": "0x1F0C0",
+      "size": 61632,
+      "bitness_bits": 16
+    },
+    {
+      "name": "seg001",
+      "class": "CODE",
+      "start_ea": "0x1F0C0",
+      "end_ea": "0x39700",
+      "size": 108096,
+      "bitness_bits": 16
+    },
+    {
+      "name": "seg002",
+      "class": "STACK",
+      "start_ea": "0x39700",
+      "end_ea": "0x39780",
+      "size": 128,
+      "bitness_bits": 16
+    }
+  ],
+  "entries": [
+    {
+      "ordinal": 127186,
+      "ida_address": "0x1F0D2",
+      "segment": "seg001",
+      "segment_offset": "0x12",
+      "name": "start"
+    }
+  ],
+  "functions": [
+    {
+      "ida_address": "0x102E8",
+      "segment": "seg000",
+      "segment_offset": "0x2E8",
+      "original_name": "sub_102E8",
+      "size": 21,
+      "caller_count": 3,
+      "callers": [
+        "0x10285",
+        "0x102B0",
+        "0x10308"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x102FD",
+      "segment": "seg000",
+      "segment_offset": "0x2FD",
+      "original_name": "sub_102FD",
+      "size": 24,
+      "caller_count": 5,
+      "callers": [
+        "0x10297",
+        "0x102A0",
+        "0x102A9",
+        "0x102C2",
+        "0x102CB"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1037E",
+      "segment": "seg000",
+      "segment_offset": "0x37E",
+      "original_name": "sub_1037E",
+      "size": 30,
+      "caller_count": 2,
+      "callers": [
+        "0x1747B",
+        "0x17605"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1046D",
+      "segment": "seg000",
+      "segment_offset": "0x46D",
+      "original_name": "sub_1046D",
+      "size": 99,
+      "caller_count": 2,
+      "callers": [
+        "0x1749F",
+        "0x1762C"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x10581",
+      "segment": "seg000",
+      "segment_offset": "0x581",
+      "original_name": "sub_10581",
+      "size": 199,
+      "caller_count": 1,
+      "callers": [
+        "0x1097D"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x10648",
+      "segment": "seg000",
+      "segment_offset": "0x648",
+      "original_name": "sub_10648",
+      "size": 132,
+      "caller_count": 4,
+      "callers": [
+        "0x105C1",
+        "0x1070F",
+        "0x10722",
+        "0x108CF"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x106CC",
+      "segment": "seg000",
+      "segment_offset": "0x6CC",
+      "original_name": "sub_106CC",
+      "size": 292,
+      "caller_count": 2,
+      "callers": [
+        "0x109D8",
+        "0x109DF"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x107F0",
+      "segment": "seg000",
+      "segment_offset": "0x7F0",
+      "original_name": "sub_107F0",
+      "size": 12,
+      "caller_count": 1,
+      "callers": [
+        "0x10788"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x107FC",
+      "segment": "seg000",
+      "segment_offset": "0x7FC",
+      "original_name": "sub_107FC",
+      "size": 99,
+      "caller_count": 4,
+      "callers": [
+        "0x107F7",
+        "0x1750F",
+        "0x17678",
+        "0x1778E"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1086E",
+      "segment": "seg000",
+      "segment_offset": "0x86E",
+      "original_name": "sub_1086E",
+      "size": 214,
+      "caller_count": 8,
+      "callers": [
+        "0x10AA3",
+        "0x10AE9",
+        "0x10B02",
+        "0x10B14",
+        "0x10B1B",
+        "0x10B97",
+        "0x10BB7",
+        "0x10C1B"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x10944",
+      "segment": "seg000",
+      "segment_offset": "0x944",
+      "original_name": "sub_10944",
+      "size": 50,
+      "caller_count": 1,
+      "callers": [
+        "0x10926"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x10A95",
+      "segment": "seg000",
+      "segment_offset": "0xA95",
+      "original_name": "sub_10A95",
+      "size": 39,
+      "caller_count": 3,
+      "callers": [
+        "0x174F2",
+        "0x17503",
+        "0x1750C"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x10ABC",
+      "segment": "seg000",
+      "segment_offset": "0xABC",
+      "original_name": "sub_10ABC",
+      "size": 60,
+      "caller_count": 5,
+      "callers": [
+        "0x10ABA",
+        "0x174BE",
+        "0x174DA",
+        "0x174E6",
+        "0x17656"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x10BC4",
+      "segment": "seg000",
+      "segment_offset": "0xBC4",
+      "original_name": "sub_10BC4",
+      "size": 44,
+      "caller_count": 3,
+      "callers": [
+        "0x10AE2",
+        "0x10BDD",
+        "0x10BE4"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x10BF0",
+      "segment": "seg000",
+      "segment_offset": "0xBF0",
+      "original_name": "sub_10BF0",
+      "size": 7,
+      "caller_count": 3,
+      "callers": [
+        "0x10BC5",
+        "0x10BE0",
+        "0x10C31"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x10C2C",
+      "segment": "seg000",
+      "segment_offset": "0xC2C",
+      "original_name": "sub_10C2C",
+      "size": 20,
+      "caller_count": 1,
+      "callers": [
+        "0x10BE8"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x10C40",
+      "segment": "seg000",
+      "segment_offset": "0xC40",
+      "original_name": "sub_10C40",
+      "size": 35,
+      "caller_count": 2,
+      "callers": [
+        "0x10BCA",
+        "0x10BCF"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1121E",
+      "segment": "seg000",
+      "segment_offset": "0x121E",
+      "original_name": "sub_1121E",
+      "size": 101,
+      "caller_count": 2,
+      "callers": [
+        "0x11116",
+        "0x116B9"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x11283",
+      "segment": "seg000",
+      "segment_offset": "0x1283",
+      "original_name": "sub_11283",
+      "size": 101,
+      "caller_count": 1,
+      "callers": [
+        "0x1122D"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x114D0",
+      "segment": "seg000",
+      "segment_offset": "0x14D0",
+      "original_name": "nullsub_6",
+      "size": 1,
+      "caller_count": 1,
+      "callers": [
+        "0x114DB"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x114D1",
+      "segment": "seg000",
+      "segment_offset": "0x14D1",
+      "original_name": "sub_114D1",
+      "size": 19,
+      "caller_count": 0,
+      "callers": [],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x114E4",
+      "segment": "seg000",
+      "segment_offset": "0x14E4",
+      "original_name": "sub_114E4",
+      "size": 7,
+      "caller_count": 0,
+      "callers": [],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1156D",
+      "segment": "seg000",
+      "segment_offset": "0x156D",
+      "original_name": "sub_1156D",
+      "size": 65,
+      "caller_count": 1,
+      "callers": [
+        "0x15A49"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x11671",
+      "segment": "seg000",
+      "segment_offset": "0x1671",
+      "original_name": "sub_11671",
+      "size": 3,
+      "caller_count": 0,
+      "callers": [],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x11674",
+      "segment": "seg000",
+      "segment_offset": "0x1674",
+      "original_name": "sub_11674",
+      "size": 69,
+      "caller_count": 2,
+      "callers": [
+        "0x11671",
+        "0x16F3C"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x116B9",
+      "segment": "seg000",
+      "segment_offset": "0x16B9",
+      "original_name": "sub_116B9",
+      "size": 9,
+      "caller_count": 2,
+      "callers": [
+        "0x11680",
+        "0x116B6"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x116CE",
+      "segment": "seg000",
+      "segment_offset": "0x16CE",
+      "original_name": "sub_116CE",
+      "size": 15,
+      "caller_count": 1,
+      "callers": [
+        "0x11139"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x11936",
+      "segment": "seg000",
+      "segment_offset": "0x1936",
+      "original_name": "sub_11936",
+      "size": 19,
+      "caller_count": 1,
+      "callers": [
+        "0x14B13"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1196F",
+      "segment": "seg000",
+      "segment_offset": "0x196F",
+      "original_name": "sub_1196F",
+      "size": 100,
+      "caller_count": 3,
+      "callers": [
+        "0x1196A",
+        "0x1196D",
+        "0x12646"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x119D3",
+      "segment": "seg000",
+      "segment_offset": "0x19D3",
+      "original_name": "sub_119D3",
+      "size": 54,
+      "caller_count": 2,
+      "callers": [
+        "0x11988",
+        "0x11A09"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x11A24",
+      "segment": "seg000",
+      "segment_offset": "0x1A24",
+      "original_name": "sub_11A24",
+      "size": 12,
+      "caller_count": 1,
+      "callers": [
+        "0x1355C"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x11A30",
+      "segment": "seg000",
+      "segment_offset": "0x1A30",
+      "original_name": "sub_11A30",
+      "size": 5,
+      "caller_count": 1,
+      "callers": [
+        "0x119FC"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x11A35",
+      "segment": "seg000",
+      "segment_offset": "0x1A35",
+      "original_name": "sub_11A35",
+      "size": 9,
+      "caller_count": 1,
+      "callers": [
+        "0x1198F"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x11A4B",
+      "segment": "seg000",
+      "segment_offset": "0x1A4B",
+      "original_name": "sub_11A4B",
+      "size": 13,
+      "caller_count": 1,
+      "callers": [
+        "0x125D1"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x123A2",
+      "segment": "seg000",
+      "segment_offset": "0x23A2",
+      "original_name": "sub_123A2",
+      "size": 8,
+      "caller_count": 1,
+      "callers": [
+        "0x123AD"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x123AA",
+      "segment": "seg000",
+      "segment_offset": "0x23AA",
+      "original_name": "sub_123AA",
+      "size": 3,
+      "caller_count": 2,
+      "callers": [
+        "0x123A8",
+        "0x14B7C"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x125CA",
+      "segment": "seg000",
+      "segment_offset": "0x25CA",
+      "original_name": "sub_125CA",
+      "size": 13,
+      "caller_count": 2,
+      "callers": [
+        "0x125C7",
+        "0x13531"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x12631",
+      "segment": "seg000",
+      "segment_offset": "0x2631",
+      "original_name": "sub_12631",
+      "size": 26,
+      "caller_count": 1,
+      "callers": [
+        "0x11261"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x12700",
+      "segment": "seg000",
+      "segment_offset": "0x2700",
+      "original_name": "sub_12700",
+      "size": 5,
+      "caller_count": 1,
+      "callers": [
+        "0x134D0"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x12721",
+      "segment": "seg000",
+      "segment_offset": "0x2721",
+      "original_name": "sub_12721",
+      "size": 51,
+      "caller_count": 1,
+      "callers": [
+        "0x112C7"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1276D",
+      "segment": "seg000",
+      "segment_offset": "0x276D",
+      "original_name": "sub_1276D",
+      "size": 13,
+      "caller_count": 4,
+      "callers": [
+        "0x1348E",
+        "0x13ABE",
+        "0x13B2A",
+        "0x13B3F"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1277A",
+      "segment": "seg000",
+      "segment_offset": "0x277A",
+      "original_name": "sub_1277A",
+      "size": 17,
+      "caller_count": 3,
+      "callers": [
+        "0x125CE",
+        "0x12758",
+        "0x127C2"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1278E",
+      "segment": "seg000",
+      "segment_offset": "0x278E",
+      "original_name": "sub_1278E",
+      "size": 32,
+      "caller_count": 2,
+      "callers": [
+        "0x1122A",
+        "0x1278B"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x127F1",
+      "segment": "seg000",
+      "segment_offset": "0x27F1",
+      "original_name": "sub_127F1",
+      "size": 13,
+      "caller_count": 1,
+      "callers": [
+        "0x127EF"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x12812",
+      "segment": "seg000",
+      "segment_offset": "0x2812",
+      "original_name": "sub_12812",
+      "size": 36,
+      "caller_count": 0,
+      "callers": [],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x12836",
+      "segment": "seg000",
+      "segment_offset": "0x2836",
+      "original_name": "sub_12836",
+      "size": 17,
+      "caller_count": 1,
+      "callers": [
+        "0x125C2"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x12847",
+      "segment": "seg000",
+      "segment_offset": "0x2847",
+      "original_name": "sub_12847",
+      "size": 20,
+      "caller_count": 1,
+      "callers": [
+        "0x1282F"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1285B",
+      "segment": "seg000",
+      "segment_offset": "0x285B",
+      "original_name": "sub_1285B",
+      "size": 73,
+      "caller_count": 2,
+      "callers": [
+        "0x110BD",
+        "0x12858"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x128A4",
+      "segment": "seg000",
+      "segment_offset": "0x28A4",
+      "original_name": "sub_128A4",
+      "size": 6,
+      "caller_count": 3,
+      "callers": [
+        "0x12872",
+        "0x1287E",
+        "0x12892"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x129F0",
+      "segment": "seg000",
+      "segment_offset": "0x29F0",
+      "original_name": "sub_129F0",
+      "size": 8,
+      "caller_count": 1,
+      "callers": [
+        "0x11220"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x12DF2",
+      "segment": "seg000",
+      "segment_offset": "0x2DF2",
+      "original_name": "sub_12DF2",
+      "size": 12,
+      "caller_count": 2,
+      "callers": [
+        "0x12DF0",
+        "0x1541B"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x12DFE",
+      "segment": "seg000",
+      "segment_offset": "0x2DFE",
+      "original_name": "sub_12DFE",
+      "size": 6,
+      "caller_count": 0,
+      "callers": [],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x12FD5",
+      "segment": "seg000",
+      "segment_offset": "0x2FD5",
+      "original_name": "sub_12FD5",
+      "size": 7,
+      "caller_count": 1,
+      "callers": [
+        "0x15355"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x12FDC",
+      "segment": "seg000",
+      "segment_offset": "0x2FDC",
+      "original_name": "sub_12FDC",
+      "size": 33,
+      "caller_count": 2,
+      "callers": [
+        "0x12FD8",
+        "0x15350"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1305C",
+      "segment": "seg000",
+      "segment_offset": "0x305C",
+      "original_name": "sub_1305C",
+      "size": 73,
+      "caller_count": 0,
+      "callers": [],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x130F4",
+      "segment": "seg000",
+      "segment_offset": "0x30F4",
+      "original_name": "sub_130F4",
+      "size": 5,
+      "caller_count": 1,
+      "callers": [
+        "0x12FD5"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x130F9",
+      "segment": "seg000",
+      "segment_offset": "0x30F9",
+      "original_name": "sub_130F9",
+      "size": 5,
+      "caller_count": 1,
+      "callers": [
+        "0x12DFB"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x130FE",
+      "segment": "seg000",
+      "segment_offset": "0x30FE",
+      "original_name": "sub_130FE",
+      "size": 11,
+      "caller_count": 3,
+      "callers": [
+        "0x1302C",
+        "0x13071",
+        "0x130B8"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x13109",
+      "segment": "seg000",
+      "segment_offset": "0x3109",
+      "original_name": "sub_13109",
+      "size": 9,
+      "caller_count": 2,
+      "callers": [
+        "0x13095",
+        "0x130DB"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x13112",
+      "segment": "seg000",
+      "segment_offset": "0x3112",
+      "original_name": "sub_13112",
+      "size": 103,
+      "caller_count": 1,
+      "callers": [
+        "0x1321D"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x13179",
+      "segment": "seg000",
+      "segment_offset": "0x3179",
+      "original_name": "sub_13179",
+      "size": 156,
+      "caller_count": 1,
+      "callers": [
+        "0x1316D"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x13215",
+      "segment": "seg000",
+      "segment_offset": "0x3215",
+      "original_name": "sub_13215",
+      "size": 27,
+      "caller_count": 0,
+      "callers": [],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x13230",
+      "segment": "seg000",
+      "segment_offset": "0x3230",
+      "original_name": "sub_13230",
+      "size": 38,
+      "caller_count": 1,
+      "callers": [
+        "0x12FDC"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x13256",
+      "segment": "seg000",
+      "segment_offset": "0x3256",
+      "original_name": "sub_13256",
+      "size": 11,
+      "caller_count": 1,
+      "callers": [
+        "0x13118"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x13261",
+      "segment": "seg000",
+      "segment_offset": "0x3261",
+      "original_name": "sub_13261",
+      "size": 11,
+      "caller_count": 3,
+      "callers": [
+        "0x12DED",
+        "0x12FFD",
+        "0x131B6"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x13293",
+      "segment": "seg000",
+      "segment_offset": "0x3293",
+      "original_name": "sub_13293",
+      "size": 22,
+      "caller_count": 1,
+      "callers": [
+        "0x13159"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x132CA",
+      "segment": "seg000",
+      "segment_offset": "0x32CA",
+      "original_name": "sub_132CA",
+      "size": 184,
+      "caller_count": 1,
+      "callers": [
+        "0x112E1"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x135BB",
+      "segment": "seg000",
+      "segment_offset": "0x35BB",
+      "original_name": "sub_135BB",
+      "size": 23,
+      "caller_count": 2,
+      "callers": [
+        "0x135B9",
+        "0x15338"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x135D2",
+      "segment": "seg000",
+      "segment_offset": "0x35D2",
+      "original_name": "sub_135D2",
+      "size": 6,
+      "caller_count": 2,
+      "callers": [
+        "0x13484",
+        "0x13566"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x13AAF",
+      "segment": "seg000",
+      "segment_offset": "0x3AAF",
+      "original_name": "sub_13AAF",
+      "size": 93,
+      "caller_count": 1,
+      "callers": [
+        "0x1347F"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x13B15",
+      "segment": "seg000",
+      "segment_offset": "0x3B15",
+      "original_name": "sub_13B15",
+      "size": 17,
+      "caller_count": 2,
+      "callers": [
+        "0x135D5",
+        "0x13B3C"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x14755",
+      "segment": "seg000",
+      "segment_offset": "0x4755",
+      "original_name": "sub_14755",
+      "size": 312,
+      "caller_count": 1,
+      "callers": [
+        "0x131C9"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1488D",
+      "segment": "seg000",
+      "segment_offset": "0x488D",
+      "original_name": "sub_1488D",
+      "size": 13,
+      "caller_count": 2,
+      "callers": [
+        "0x14842",
+        "0x14888"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1489A",
+      "segment": "seg000",
+      "segment_offset": "0x489A",
+      "original_name": "sub_1489A",
+      "size": 17,
+      "caller_count": 2,
+      "callers": [
+        "0x14769",
+        "0x14771"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x149E5",
+      "segment": "seg000",
+      "segment_offset": "0x49E5",
+      "original_name": "sub_149E5",
+      "size": 25,
+      "caller_count": 1,
+      "callers": [
+        "0x14827"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x14AFD",
+      "segment": "seg000",
+      "segment_offset": "0x4AFD",
+      "original_name": "sub_14AFD",
+      "size": 15,
+      "caller_count": 0,
+      "callers": [],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x14B5F",
+      "segment": "seg000",
+      "segment_offset": "0x4B5F",
+      "original_name": "sub_14B5F",
+      "size": 5,
+      "caller_count": 2,
+      "callers": [
+        "0x1486A",
+        "0x14B5C"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x14BCF",
+      "segment": "seg000",
+      "segment_offset": "0x4BCF",
+      "original_name": "sub_14BCF",
+      "size": 16,
+      "caller_count": 3,
+      "callers": [
+        "0x14B22",
+        "0x14B3F",
+        "0x14B55"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x14BED",
+      "segment": "seg000",
+      "segment_offset": "0x4BED",
+      "original_name": "sub_14BED",
+      "size": 10,
+      "caller_count": 1,
+      "callers": [
+        "0x14B46"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x14C02",
+      "segment": "seg000",
+      "segment_offset": "0x4C02",
+      "original_name": "sub_14C02",
+      "size": 3,
+      "caller_count": 1,
+      "callers": [
+        "0x110B6"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x14C37",
+      "segment": "seg000",
+      "segment_offset": "0x4C37",
+      "original_name": "sub_14C37",
+      "size": 9,
+      "caller_count": 1,
+      "callers": [
+        "0x1542B"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x14D03",
+      "segment": "seg000",
+      "segment_offset": "0x4D03",
+      "original_name": "sub_14D03",
+      "size": 995,
+      "caller_count": 1,
+      "callers": [
+        "0x15A24"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x150E6",
+      "segment": "seg000",
+      "segment_offset": "0x50E6",
+      "original_name": "sub_150E6",
+      "size": 26,
+      "caller_count": 2,
+      "callers": [
+        "0x14FBD",
+        "0x150B1"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15100",
+      "segment": "seg000",
+      "segment_offset": "0x5100",
+      "original_name": "sub_15100",
+      "size": 18,
+      "caller_count": 1,
+      "callers": [
+        "0x14DD0"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1515C",
+      "segment": "seg000",
+      "segment_offset": "0x515C",
+      "original_name": "sub_1515C",
+      "size": 196,
+      "caller_count": 1,
+      "callers": [
+        "0x102D7"
+      ],
+      "is_library": false,
+      "no_return": true
+    },
+    {
+      "ida_address": "0x15220",
+      "segment": "seg000",
+      "segment_offset": "0x5220",
+      "original_name": "sub_15220",
+      "size": 8,
+      "caller_count": 6,
+      "callers": [
+        "0x15198",
+        "0x151A5",
+        "0x151B2",
+        "0x151BF",
+        "0x151E0",
+        "0x151FC"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15228",
+      "segment": "seg000",
+      "segment_offset": "0x5228",
+      "original_name": "sub_15228",
+      "size": 18,
+      "caller_count": 7,
+      "callers": [
+        "0x151A2",
+        "0x151AF",
+        "0x151BC",
+        "0x151DD",
+        "0x151F9",
+        "0x1521A",
+        "0x15237"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1523A",
+      "segment": "seg000",
+      "segment_offset": "0x523A",
+      "original_name": "sub_1523A",
+      "size": 43,
+      "caller_count": 2,
+      "callers": [
+        "0x1522E",
+        "0x15262"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15265",
+      "segment": "seg000",
+      "segment_offset": "0x5265",
+      "original_name": "sub_15265",
+      "size": 35,
+      "caller_count": 1,
+      "callers": [
+        "0x15160"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x152DE",
+      "segment": "seg000",
+      "segment_offset": "0x52DE",
+      "original_name": "sub_152DE",
+      "size": 11,
+      "caller_count": 15,
+      "callers": [
+        "0x1519D",
+        "0x151AA",
+        "0x151B7",
+        "0x151C4",
+        "0x151CE",
+        "0x151D8",
+        "0x151E5",
+        "0x151EA",
+        "0x151EF",
+        "0x151F4",
+        "0x15201",
+        "0x15206",
+        "0x1520B",
+        "0x15210",
+        "0x15215"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x152E9",
+      "segment": "seg000",
+      "segment_offset": "0x52E9",
+      "original_name": "sub_152E9",
+      "size": 7,
+      "caller_count": 1,
+      "callers": [
+        "0x152E3"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15307",
+      "segment": "seg000",
+      "segment_offset": "0x5307",
+      "original_name": "sub_15307",
+      "size": 20,
+      "caller_count": 1,
+      "callers": [
+        "0x16893"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1531E",
+      "segment": "seg000",
+      "segment_offset": "0x531E",
+      "original_name": "sub_1531E",
+      "size": 47,
+      "caller_count": 2,
+      "callers": [
+        "0x1531B",
+        "0x15A21"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1534D",
+      "segment": "seg000",
+      "segment_offset": "0x534D",
+      "original_name": "sub_1534D",
+      "size": 26,
+      "caller_count": 1,
+      "callers": [
+        "0x1530F"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15367",
+      "segment": "seg000",
+      "segment_offset": "0x5367",
+      "original_name": "sub_15367",
+      "size": 23,
+      "caller_count": 1,
+      "callers": [
+        "0x1535A"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1537F",
+      "segment": "seg000",
+      "segment_offset": "0x537F",
+      "original_name": "sub_1537F",
+      "size": 118,
+      "caller_count": 1,
+      "callers": [
+        "0x1533F"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x153F5",
+      "segment": "seg000",
+      "segment_offset": "0x53F5",
+      "original_name": "sub_153F5",
+      "size": 57,
+      "caller_count": 0,
+      "callers": [],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1542E",
+      "segment": "seg000",
+      "segment_offset": "0x542E",
+      "original_name": "sub_1542E",
+      "size": 9,
+      "caller_count": 8,
+      "callers": [
+        "0x15400",
+        "0x15416",
+        "0x15418",
+        "0x1541E",
+        "0x15420",
+        "0x15426",
+        "0x15428",
+        "0x1542B"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1543F",
+      "segment": "seg000",
+      "segment_offset": "0x543F",
+      "original_name": "sub_1543F",
+      "size": 30,
+      "caller_count": 2,
+      "callers": [
+        "0x153FD",
+        "0x1543B"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15570",
+      "segment": "seg000",
+      "segment_offset": "0x5570",
+      "original_name": "sub_15570",
+      "size": 45,
+      "caller_count": 1,
+      "callers": [
+        "0x155FA"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x155CC",
+      "segment": "seg000",
+      "segment_offset": "0x55CC",
+      "original_name": "sub_155CC",
+      "size": 94,
+      "caller_count": 1,
+      "callers": [
+        "0x15328"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1562A",
+      "segment": "seg000",
+      "segment_offset": "0x562A",
+      "original_name": "sub_1562A",
+      "size": 67,
+      "caller_count": 1,
+      "callers": [
+        "0x15624"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1566D",
+      "segment": "seg000",
+      "segment_offset": "0x566D",
+      "original_name": "sub_1566D",
+      "size": 70,
+      "caller_count": 2,
+      "callers": [
+        "0x15315",
+        "0x15342"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15725",
+      "segment": "seg000",
+      "segment_offset": "0x5725",
+      "original_name": "sub_15725",
+      "size": 105,
+      "caller_count": 1,
+      "callers": [
+        "0x1532B"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1578E",
+      "segment": "seg000",
+      "segment_offset": "0x578E",
+      "original_name": "sub_1578E",
+      "size": 9,
+      "caller_count": 2,
+      "callers": [
+        "0x1575D",
+        "0x1576F"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x157D7",
+      "segment": "seg000",
+      "segment_offset": "0x57D7",
+      "original_name": "sub_157D7",
+      "size": 16,
+      "caller_count": 2,
+      "callers": [
+        "0x157CA",
+        "0x157D5"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x158FE",
+      "segment": "seg000",
+      "segment_offset": "0x58FE",
+      "original_name": "nullsub_2",
+      "size": 1,
+      "caller_count": 1,
+      "callers": [
+        "0x15C5E"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15905",
+      "segment": "seg000",
+      "segment_offset": "0x5905",
+      "original_name": "sub_15905",
+      "size": 14,
+      "caller_count": 1,
+      "callers": [
+        "0x1597F"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15913",
+      "segment": "seg000",
+      "segment_offset": "0x5913",
+      "original_name": "sub_15913",
+      "size": 19,
+      "caller_count": 1,
+      "callers": [
+        "0x15312"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15926",
+      "segment": "seg000",
+      "segment_offset": "0x5926",
+      "original_name": "sub_15926",
+      "size": 28,
+      "caller_count": 1,
+      "callers": [
+        "0x153AA"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15942",
+      "segment": "seg000",
+      "segment_offset": "0x5942",
+      "original_name": "sub_15942",
+      "size": 13,
+      "caller_count": 2,
+      "callers": [
+        "0x1536A",
+        "0x1567A"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15969",
+      "segment": "seg000",
+      "segment_offset": "0x5969",
+      "original_name": "sub_15969",
+      "size": 178,
+      "caller_count": 1,
+      "callers": [
+        "0x112C2"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15A1B",
+      "segment": "seg000",
+      "segment_offset": "0x5A1B",
+      "original_name": "sub_15A1B",
+      "size": 14,
+      "caller_count": 2,
+      "callers": [
+        "0x159DF",
+        "0x15A19"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15A2C",
+      "segment": "seg000",
+      "segment_offset": "0x5A2C",
+      "original_name": "sub_15A2C",
+      "size": 63,
+      "caller_count": 2,
+      "callers": [
+        "0x15423",
+        "0x15A29"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15A6B",
+      "segment": "seg000",
+      "segment_offset": "0x5A6B",
+      "original_name": "sub_15A6B",
+      "size": 13,
+      "caller_count": 2,
+      "callers": [
+        "0x15975",
+        "0x15A3E"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15BD0",
+      "segment": "seg000",
+      "segment_offset": "0x5BD0",
+      "original_name": "sub_15BD0",
+      "size": 25,
+      "caller_count": 1,
+      "callers": [
+        "0x191B0"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15C06",
+      "segment": "seg000",
+      "segment_offset": "0x5C06",
+      "original_name": "sub_15C06",
+      "size": 6,
+      "caller_count": 1,
+      "callers": [
+        "0x15A46"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15C0C",
+      "segment": "seg000",
+      "segment_offset": "0x5C0C",
+      "original_name": "sub_15C0C",
+      "size": 7,
+      "caller_count": 1,
+      "callers": [
+        "0x15C06"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15C13",
+      "segment": "seg000",
+      "segment_offset": "0x5C13",
+      "original_name": "sub_15C13",
+      "size": 3,
+      "caller_count": 10,
+      "callers": [
+        "0x14799",
+        "0x14802",
+        "0x14807",
+        "0x14815",
+        "0x14876",
+        "0x1487B",
+        "0x149FB",
+        "0x14B61",
+        "0x14B66",
+        "0x15C0F"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15C31",
+      "segment": "seg000",
+      "segment_offset": "0x5C31",
+      "original_name": "sub_15C31",
+      "size": 8,
+      "caller_count": 1,
+      "callers": [
+        "0x15C2F"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15C4C",
+      "segment": "seg000",
+      "segment_offset": "0x5C4C",
+      "original_name": "sub_15C4C",
+      "size": 21,
+      "caller_count": 2,
+      "callers": [
+        "0x115B0",
+        "0x15C4A"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15C7C",
+      "segment": "seg000",
+      "segment_offset": "0x5C7C",
+      "original_name": "sub_15C7C",
+      "size": 4,
+      "caller_count": 2,
+      "callers": [
+        "0x15D1C",
+        "0x15DB1"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15C93",
+      "segment": "seg000",
+      "segment_offset": "0x5C93",
+      "original_name": "sub_15C93",
+      "size": 109,
+      "caller_count": 1,
+      "callers": [
+        "0x15C91"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15D00",
+      "segment": "seg000",
+      "segment_offset": "0x5D00",
+      "original_name": "sub_15D00",
+      "size": 143,
+      "caller_count": 1,
+      "callers": [
+        "0x15CFB"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15D8F",
+      "segment": "seg000",
+      "segment_offset": "0x5D8F",
+      "original_name": "sub_15D8F",
+      "size": 103,
+      "caller_count": 2,
+      "callers": [
+        "0x15CE3",
+        "0x15D6A"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15DF6",
+      "segment": "seg000",
+      "segment_offset": "0x5DF6",
+      "original_name": "sub_15DF6",
+      "size": 19,
+      "caller_count": 2,
+      "callers": [
+        "0x15D00",
+        "0x15D9B"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15E53",
+      "segment": "seg000",
+      "segment_offset": "0x5E53",
+      "original_name": "sub_15E53",
+      "size": 25,
+      "caller_count": 1,
+      "callers": [
+        "0x18896"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15E82",
+      "segment": "seg000",
+      "segment_offset": "0x5E82",
+      "original_name": "sub_15E82",
+      "size": 22,
+      "caller_count": 1,
+      "callers": [
+        "0x11258"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15EBA",
+      "segment": "seg000",
+      "segment_offset": "0x5EBA",
+      "original_name": "sub_15EBA",
+      "size": 37,
+      "caller_count": 1,
+      "callers": [
+        "0x161F3"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15EDF",
+      "segment": "seg000",
+      "segment_offset": "0x5EDF",
+      "original_name": "sub_15EDF",
+      "size": 148,
+      "caller_count": 2,
+      "callers": [
+        "0x119F9",
+        "0x15EDC"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15F78",
+      "segment": "seg000",
+      "segment_offset": "0x5F78",
+      "original_name": "sub_15F78",
+      "size": 93,
+      "caller_count": 1,
+      "callers": [
+        "0x15F66"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x15FD5",
+      "segment": "seg000",
+      "segment_offset": "0x5FD5",
+      "original_name": "sub_15FD5",
+      "size": 256,
+      "caller_count": 1,
+      "callers": [
+        "0x15FCC"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x160D5",
+      "segment": "seg000",
+      "segment_offset": "0x60D5",
+      "original_name": "sub_160D5",
+      "size": 46,
+      "caller_count": 0,
+      "callers": [],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16103",
+      "segment": "seg000",
+      "segment_offset": "0x6103",
+      "original_name": "sub_16103",
+      "size": 15,
+      "caller_count": 1,
+      "callers": [
+        "0x15FF2"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16130",
+      "segment": "seg000",
+      "segment_offset": "0x6130",
+      "original_name": "sub_16130",
+      "size": 4,
+      "caller_count": 2,
+      "callers": [
+        "0x1611E",
+        "0x1612D"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16144",
+      "segment": "seg000",
+      "segment_offset": "0x6144",
+      "original_name": "sub_16144",
+      "size": 14,
+      "caller_count": 1,
+      "callers": [
+        "0x150B8"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16152",
+      "segment": "seg000",
+      "segment_offset": "0x6152",
+      "original_name": "sub_16152",
+      "size": 13,
+      "caller_count": 4,
+      "callers": [
+        "0x1612D",
+        "0x161A5",
+        "0x161BA",
+        "0x16280"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1615F",
+      "segment": "seg000",
+      "segment_offset": "0x615F",
+      "original_name": "sub_1615F",
+      "size": 6,
+      "caller_count": 5,
+      "callers": [
+        "0x1538B",
+        "0x153F2",
+        "0x157A5",
+        "0x157DA",
+        "0x1615C"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16169",
+      "segment": "seg000",
+      "segment_offset": "0x6169",
+      "original_name": "sub_16169",
+      "size": 48,
+      "caller_count": 7,
+      "callers": [
+        "0x14D28",
+        "0x14D2D",
+        "0x14D96",
+        "0x14F80",
+        "0x14FAA",
+        "0x150AE",
+        "0x15100"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1619A",
+      "segment": "seg000",
+      "segment_offset": "0x619A",
+      "original_name": "sub_1619A",
+      "size": 39,
+      "caller_count": 0,
+      "callers": [],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x161C1",
+      "segment": "seg000",
+      "segment_offset": "0x61C1",
+      "original_name": "sub_161C1",
+      "size": 21,
+      "caller_count": 1,
+      "callers": [
+        "0x161AB"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x161E9",
+      "segment": "seg000",
+      "segment_offset": "0x61E9",
+      "original_name": "sub_161E9",
+      "size": 15,
+      "caller_count": 1,
+      "callers": [
+        "0x161E5"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1620B",
+      "segment": "seg000",
+      "segment_offset": "0x620B",
+      "original_name": "sub_1620B",
+      "size": 13,
+      "caller_count": 0,
+      "callers": [],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16218",
+      "segment": "seg000",
+      "segment_offset": "0x6218",
+      "original_name": "sub_16218",
+      "size": 6,
+      "caller_count": 1,
+      "callers": [
+        "0x16216"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16258",
+      "segment": "seg000",
+      "segment_offset": "0x6258",
+      "original_name": "sub_16258",
+      "size": 73,
+      "caller_count": 1,
+      "callers": [
+        "0x110DA"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x162D4",
+      "segment": "seg000",
+      "segment_offset": "0x62D4",
+      "original_name": "sub_162D4",
+      "size": 11,
+      "caller_count": 0,
+      "callers": [],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x162F7",
+      "segment": "seg000",
+      "segment_offset": "0x62F7",
+      "original_name": "sub_162F7",
+      "size": 36,
+      "caller_count": 2,
+      "callers": [
+        "0x19143",
+        "0x19178"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16395",
+      "segment": "seg000",
+      "segment_offset": "0x6395",
+      "original_name": "sub_16395",
+      "size": 5,
+      "caller_count": 5,
+      "callers": [
+        "0x16392",
+        "0x16474",
+        "0x1654C",
+        "0x1656D",
+        "0x16588"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1639A",
+      "segment": "seg000",
+      "segment_offset": "0x639A",
+      "original_name": "sub_1639A",
+      "size": 102,
+      "caller_count": 4,
+      "callers": [
+        "0x1646C",
+        "0x16545",
+        "0x16552",
+        "0x16570"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1647C",
+      "segment": "seg000",
+      "segment_offset": "0x647C",
+      "original_name": "sub_1647C",
+      "size": 29,
+      "caller_count": 3,
+      "callers": [
+        "0x163A0",
+        "0x164E3",
+        "0x1650E"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16499",
+      "segment": "seg000",
+      "segment_offset": "0x6499",
+      "original_name": "sub_16499",
+      "size": 14,
+      "caller_count": 2,
+      "callers": [
+        "0x16497",
+        "0x1915A"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x164AD",
+      "segment": "seg000",
+      "segment_offset": "0x64AD",
+      "original_name": "sub_164AD",
+      "size": 16,
+      "caller_count": 3,
+      "callers": [
+        "0x1631B",
+        "0x16404",
+        "0x1647C"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x164CD",
+      "segment": "seg000",
+      "segment_offset": "0x64CD",
+      "original_name": "sub_164CD",
+      "size": 255,
+      "caller_count": 2,
+      "callers": [
+        "0x1524D",
+        "0x164CB"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x165DC",
+      "segment": "seg000",
+      "segment_offset": "0x65DC",
+      "original_name": "sub_165DC",
+      "size": 3,
+      "caller_count": 0,
+      "callers": [],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x165E4",
+      "segment": "seg000",
+      "segment_offset": "0x65E4",
+      "original_name": "sub_165E4",
+      "size": 2,
+      "caller_count": 2,
+      "callers": [
+        "0x16D49",
+        "0x16D65"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x165E6",
+      "segment": "seg000",
+      "segment_offset": "0x65E6",
+      "original_name": "sub_165E6",
+      "size": 5,
+      "caller_count": 4,
+      "callers": [
+        "0x15FE7",
+        "0x16006",
+        "0x1603D",
+        "0x165E4"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x165F9",
+      "segment": "seg000",
+      "segment_offset": "0x65F9",
+      "original_name": "sub_165F9",
+      "size": 15,
+      "caller_count": 1,
+      "callers": [
+        "0x16613"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1660F",
+      "segment": "seg000",
+      "segment_offset": "0x660F",
+      "original_name": "sub_1660F",
+      "size": 27,
+      "caller_count": 2,
+      "callers": [
+        "0x16066",
+        "0x160A4"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16636",
+      "segment": "seg000",
+      "segment_offset": "0x6636",
+      "original_name": "sub_16636",
+      "size": 12,
+      "caller_count": 2,
+      "callers": [
+        "0x11277",
+        "0x16633"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16642",
+      "segment": "seg000",
+      "segment_offset": "0x6642",
+      "original_name": "sub_16642",
+      "size": 10,
+      "caller_count": 4,
+      "callers": [
+        "0x1662D",
+        "0x16633",
+        "0x16639",
+        "0x1663F"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1664C",
+      "segment": "seg000",
+      "segment_offset": "0x664C",
+      "original_name": "sub_1664C",
+      "size": 58,
+      "caller_count": 2,
+      "callers": [
+        "0x16646",
+        "0x1664A"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1677C",
+      "segment": "seg000",
+      "segment_offset": "0x677C",
+      "original_name": "sub_1677C",
+      "size": 5,
+      "caller_count": 2,
+      "callers": [
+        "0x166B7",
+        "0x166BD"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16781",
+      "segment": "seg000",
+      "segment_offset": "0x6781",
+      "original_name": "sub_16781",
+      "size": 2,
+      "caller_count": 2,
+      "callers": [
+        "0x166B4",
+        "0x166C0"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16783",
+      "segment": "seg000",
+      "segment_offset": "0x6783",
+      "original_name": "sub_16783",
+      "size": 3,
+      "caller_count": 2,
+      "callers": [
+        "0x16781",
+        "0x19019"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16786",
+      "segment": "seg000",
+      "segment_offset": "0x6786",
+      "original_name": "sub_16786",
+      "size": 15,
+      "caller_count": 3,
+      "callers": [
+        "0x166BA",
+        "0x1672B",
+        "0x16776"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1679A",
+      "segment": "seg000",
+      "segment_offset": "0x679A",
+      "original_name": "sub_1679A",
+      "size": 7,
+      "caller_count": 1,
+      "callers": [
+        "0x167AB"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x167A1",
+      "segment": "seg000",
+      "segment_offset": "0x67A1",
+      "original_name": "sub_167A1",
+      "size": 7,
+      "caller_count": 10,
+      "callers": [
+        "0x15FDB",
+        "0x167B4",
+        "0x168CA",
+        "0x18450",
+        "0x18465",
+        "0x1846D",
+        "0x18480",
+        "0x18489",
+        "0x1849D",
+        "0x184A6"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x167B7",
+      "segment": "seg000",
+      "segment_offset": "0x67B7",
+      "original_name": "sub_167B7",
+      "size": 40,
+      "caller_count": 3,
+      "callers": [
+        "0x152DF",
+        "0x167AE",
+        "0x167B4"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x167DF",
+      "segment": "seg000",
+      "segment_offset": "0x67DF",
+      "original_name": "sub_167DF",
+      "size": 4,
+      "caller_count": 4,
+      "callers": [
+        "0x1667E",
+        "0x16797",
+        "0x167C9",
+        "0x167F3"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x167E6",
+      "segment": "seg000",
+      "segment_offset": "0x67E6",
+      "original_name": "sub_167E6",
+      "size": 6,
+      "caller_count": 3,
+      "callers": [
+        "0x167E3",
+        "0x168D5",
+        "0x16A1F"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x167EC",
+      "segment": "seg000",
+      "segment_offset": "0x67EC",
+      "original_name": "sub_167EC",
+      "size": 16,
+      "caller_count": 3,
+      "callers": [
+        "0x1126C",
+        "0x167E9",
+        "0x167F6"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1680A",
+      "segment": "seg000",
+      "segment_offset": "0x680A",
+      "original_name": "sub_1680A",
+      "size": 68,
+      "caller_count": 10,
+      "callers": [
+        "0x1033D",
+        "0x1036C",
+        "0x10393",
+        "0x103BF",
+        "0x10469",
+        "0x1047B",
+        "0x1048C",
+        "0x10859",
+        "0x10970",
+        "0x119D0"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16858",
+      "segment": "seg000",
+      "segment_offset": "0x6858",
+      "original_name": "sub_16858",
+      "size": 11,
+      "caller_count": 0,
+      "callers": [],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x168A2",
+      "segment": "seg000",
+      "segment_offset": "0x68A2",
+      "original_name": "sub_168A2",
+      "size": 88,
+      "caller_count": 2,
+      "callers": [
+        "0x12DE8",
+        "0x1689E"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x168FA",
+      "segment": "seg000",
+      "segment_offset": "0x68FA",
+      "original_name": "sub_168FA",
+      "size": 20,
+      "caller_count": 3,
+      "callers": [
+        "0x168A7",
+        "0x1698D",
+        "0x169A3"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1690E",
+      "segment": "seg000",
+      "segment_offset": "0x690E",
+      "original_name": "sub_1690E",
+      "size": 106,
+      "caller_count": 2,
+      "callers": [
+        "0x1531E",
+        "0x1690A"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x169CE",
+      "segment": "seg000",
+      "segment_offset": "0x69CE",
+      "original_name": "sub_169CE",
+      "size": 30,
+      "caller_count": 1,
+      "callers": [
+        "0x169C9"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x169EC",
+      "segment": "seg000",
+      "segment_offset": "0x69EC",
+      "original_name": "sub_169EC",
+      "size": 9,
+      "caller_count": 1,
+      "callers": [
+        "0x167B7"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x169F6",
+      "segment": "seg000",
+      "segment_offset": "0x69F6",
+      "original_name": "sub_169F6",
+      "size": 5,
+      "caller_count": 1,
+      "callers": [
+        "0x188F8"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x169FB",
+      "segment": "seg000",
+      "segment_offset": "0x69FB",
+      "original_name": "sub_169FB",
+      "size": 5,
+      "caller_count": 2,
+      "callers": [
+        "0x169F7",
+        "0x184F2"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16A18",
+      "segment": "seg000",
+      "segment_offset": "0x6A18",
+      "original_name": "sub_16A18",
+      "size": 10,
+      "caller_count": 1,
+      "callers": [
+        "0x14B0C"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16A28",
+      "segment": "seg000",
+      "segment_offset": "0x6A28",
+      "original_name": "sub_16A28",
+      "size": 11,
+      "caller_count": 1,
+      "callers": [
+        "0x18598"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16A3A",
+      "segment": "seg000",
+      "segment_offset": "0x6A3A",
+      "original_name": "sub_16A3A",
+      "size": 30,
+      "caller_count": 1,
+      "callers": [
+        "0x160CF"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16ABD",
+      "segment": "seg000",
+      "segment_offset": "0x6ABD",
+      "original_name": "sub_16ABD",
+      "size": 16,
+      "caller_count": 1,
+      "callers": [
+        "0x16ABB"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16AD2",
+      "segment": "seg000",
+      "segment_offset": "0x6AD2",
+      "original_name": "sub_16AD2",
+      "size": 51,
+      "caller_count": 3,
+      "callers": [
+        "0x167EC",
+        "0x16840",
+        "0x16ACE"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16B05",
+      "segment": "seg000",
+      "segment_offset": "0x6B05",
+      "original_name": "sub_16B05",
+      "size": 64,
+      "caller_count": 2,
+      "callers": [
+        "0x16AD2",
+        "0x16ADE"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16B77",
+      "segment": "seg000",
+      "segment_offset": "0x6B77",
+      "original_name": "sub_16B77",
+      "size": 41,
+      "caller_count": 3,
+      "callers": [
+        "0x1540A",
+        "0x15670",
+        "0x15760"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16BA5",
+      "segment": "seg000",
+      "segment_offset": "0x6BA5",
+      "original_name": "sub_16BA5",
+      "size": 8,
+      "caller_count": 3,
+      "callers": [
+        "0x16BA0",
+        "0x16D4F",
+        "0x16D6B"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16BAE",
+      "segment": "seg000",
+      "segment_offset": "0x6BAE",
+      "original_name": "sub_16BAE",
+      "size": 63,
+      "caller_count": 2,
+      "callers": [
+        "0x16C2B",
+        "0x16CA2"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16BFC",
+      "segment": "seg000",
+      "segment_offset": "0x6BFC",
+      "original_name": "sub_16BFC",
+      "size": 12,
+      "caller_count": 2,
+      "callers": [
+        "0x11A1A",
+        "0x16BFA"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16C08",
+      "segment": "seg000",
+      "segment_offset": "0x6C08",
+      "original_name": "sub_16C08",
+      "size": 6,
+      "caller_count": 2,
+      "callers": [
+        "0x1594A",
+        "0x16C04"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16C0E",
+      "segment": "seg000",
+      "segment_offset": "0x6C0E",
+      "original_name": "sub_16C0E",
+      "size": 25,
+      "caller_count": 1,
+      "callers": [
+        "0x16C60"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16C27",
+      "segment": "seg000",
+      "segment_offset": "0x6C27",
+      "original_name": "sub_16C27",
+      "size": 4,
+      "caller_count": 2,
+      "callers": [
+        "0x16C22",
+        "0x1700F"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16C70",
+      "segment": "seg000",
+      "segment_offset": "0x6C70",
+      "original_name": "sub_16C70",
+      "size": 14,
+      "caller_count": 2,
+      "callers": [
+        "0x16C4D",
+        "0x16C7E"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16C7E",
+      "segment": "seg000",
+      "segment_offset": "0x6C7E",
+      "original_name": "sub_16C7E",
+      "size": 5,
+      "caller_count": 2,
+      "callers": [
+        "0x12FF6",
+        "0x16C51"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16C83",
+      "segment": "seg000",
+      "segment_offset": "0x6C83",
+      "original_name": "sub_16C83",
+      "size": 9,
+      "caller_count": 2,
+      "callers": [
+        "0x16C5D",
+        "0x16C6A"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16CB6",
+      "segment": "seg000",
+      "segment_offset": "0x6CB6",
+      "original_name": "sub_16CB6",
+      "size": 65,
+      "caller_count": 1,
+      "callers": [
+        "0x16C9B"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16D12",
+      "segment": "seg000",
+      "segment_offset": "0x6D12",
+      "original_name": "sub_16D12",
+      "size": 12,
+      "caller_count": 4,
+      "callers": [
+        "0x15325",
+        "0x1566D",
+        "0x1568B",
+        "0x1569C"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16D1E",
+      "segment": "seg000",
+      "segment_offset": "0x6D1E",
+      "original_name": "sub_16D1E",
+      "size": 15,
+      "caller_count": 6,
+      "callers": [
+        "0x1534D",
+        "0x15367",
+        "0x15378",
+        "0x15677",
+        "0x1594F",
+        "0x16D1C"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16D34",
+      "segment": "seg000",
+      "segment_offset": "0x6D34",
+      "original_name": "sub_16D34",
+      "size": 3,
+      "caller_count": 2,
+      "callers": [
+        "0x159D1",
+        "0x15A08"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16D48",
+      "segment": "seg000",
+      "segment_offset": "0x6D48",
+      "original_name": "sub_16D48",
+      "size": 444,
+      "caller_count": 1,
+      "callers": [
+        "0x15345"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16F04",
+      "segment": "seg000",
+      "segment_offset": "0x6F04",
+      "original_name": "sub_16F04",
+      "size": 38,
+      "caller_count": 2,
+      "callers": [
+        "0x16FC7",
+        "0x16FE5"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16F45",
+      "segment": "seg000",
+      "segment_offset": "0x6F45",
+      "original_name": "sub_16F45",
+      "size": 27,
+      "caller_count": 2,
+      "callers": [
+        "0x153C5",
+        "0x1569F"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x16F7B",
+      "segment": "seg000",
+      "segment_offset": "0x6F7B",
+      "original_name": "sub_16F7B",
+      "size": 144,
+      "caller_count": 4,
+      "callers": [
+        "0x1558F",
+        "0x155BE",
+        "0x15772",
+        "0x16F78"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1700B",
+      "segment": "seg000",
+      "segment_offset": "0x700B",
+      "original_name": "sub_1700B",
+      "size": 15,
+      "caller_count": 2,
+      "callers": [
+        "0x16F87",
+        "0x16FAA"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1701A",
+      "segment": "seg000",
+      "segment_offset": "0x701A",
+      "original_name": "sub_1701A",
+      "size": 9,
+      "caller_count": 7,
+      "callers": [
+        "0x16F75",
+        "0x16F8A",
+        "0x16FC4",
+        "0x16FD5",
+        "0x16FE2",
+        "0x16FF4",
+        "0x1700C"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1706F",
+      "segment": "seg000",
+      "segment_offset": "0x706F",
+      "original_name": "sub_1706F",
+      "size": 17,
+      "caller_count": 1,
+      "callers": [
+        "0x1309B"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1718B",
+      "segment": "seg000",
+      "segment_offset": "0x718B",
+      "original_name": "sub_1718B",
+      "size": 55,
+      "caller_count": 1,
+      "callers": [
+        "0x130EA"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17248",
+      "segment": "seg000",
+      "segment_offset": "0x7248",
+      "original_name": "sub_17248",
+      "size": 12,
+      "caller_count": 1,
+      "callers": [
+        "0x1723F"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x172A4",
+      "segment": "seg000",
+      "segment_offset": "0x72A4",
+      "original_name": "sub_172A4",
+      "size": 70,
+      "caller_count": 1,
+      "callers": [
+        "0x15A1E"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17421",
+      "segment": "seg000",
+      "segment_offset": "0x7421",
+      "original_name": "sub_17421",
+      "size": 252,
+      "caller_count": 2,
+      "callers": [
+        "0x17FE9",
+        "0x1803B"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x175EF",
+      "segment": "seg000",
+      "segment_offset": "0x75EF",
+      "original_name": "sub_175EF",
+      "size": 142,
+      "caller_count": 1,
+      "callers": [
+        "0x172DB"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1771F",
+      "segment": "seg000",
+      "segment_offset": "0x771F",
+      "original_name": "sub_1771F",
+      "size": 27,
+      "caller_count": 1,
+      "callers": [
+        "0x191CF"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17785",
+      "segment": "seg000",
+      "segment_offset": "0x7785",
+      "original_name": "sub_17785",
+      "size": 14,
+      "caller_count": 2,
+      "callers": [
+        "0x19094",
+        "0x190DC"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17799",
+      "segment": "seg000",
+      "segment_offset": "0x7799",
+      "original_name": "sub_17799",
+      "size": 99,
+      "caller_count": 2,
+      "callers": [
+        "0x17E4C",
+        "0x17E71"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x177FC",
+      "segment": "seg000",
+      "segment_offset": "0x77FC",
+      "original_name": "sub_177FC",
+      "size": 23,
+      "caller_count": 2,
+      "callers": [
+        "0x1025C",
+        "0x177FA"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17861",
+      "segment": "seg000",
+      "segment_offset": "0x7861",
+      "original_name": "sub_17861",
+      "size": 136,
+      "caller_count": 1,
+      "callers": [
+        "0x177A3"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x178E9",
+      "segment": "seg000",
+      "segment_offset": "0x78E9",
+      "original_name": "nullsub_4",
+      "size": 1,
+      "caller_count": 2,
+      "callers": [
+        "0x17870",
+        "0x17F15"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x178EA",
+      "segment": "seg000",
+      "segment_offset": "0x78EA",
+      "original_name": "sub_178EA",
+      "size": 31,
+      "caller_count": 2,
+      "callers": [
+        "0x17E3F",
+        "0x17F50"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17909",
+      "segment": "seg000",
+      "segment_offset": "0x7909",
+      "original_name": "sub_17909",
+      "size": 13,
+      "caller_count": 2,
+      "callers": [
+        "0x15195",
+        "0x17907"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1794D",
+      "segment": "seg000",
+      "segment_offset": "0x794D",
+      "original_name": "sub_1794D",
+      "size": 59,
+      "caller_count": 1,
+      "callers": [
+        "0x104B6"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17988",
+      "segment": "seg000",
+      "segment_offset": "0x7988",
+      "original_name": "sub_17988",
+      "size": 117,
+      "caller_count": 2,
+      "callers": [
+        "0x17970",
+        "0x17978"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x179FD",
+      "segment": "seg000",
+      "segment_offset": "0x79FD",
+      "original_name": "sub_179FD",
+      "size": 87,
+      "caller_count": 3,
+      "callers": [
+        "0x179B8",
+        "0x17F80",
+        "0x17F92"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17A54",
+      "segment": "seg000",
+      "segment_offset": "0x7A54",
+      "original_name": "sub_17A54",
+      "size": 33,
+      "caller_count": 1,
+      "callers": [
+        "0x179D1"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17A75",
+      "segment": "seg000",
+      "segment_offset": "0x7A75",
+      "original_name": "sub_17A75",
+      "size": 16,
+      "caller_count": 1,
+      "callers": [
+        "0x179C6"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17A85",
+      "segment": "seg000",
+      "segment_offset": "0x7A85",
+      "original_name": "sub_17A85",
+      "size": 20,
+      "caller_count": 1,
+      "callers": [
+        "0x17B45"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17A99",
+      "segment": "seg000",
+      "segment_offset": "0x7A99",
+      "original_name": "sub_17A99",
+      "size": 11,
+      "caller_count": 2,
+      "callers": [
+        "0x17804",
+        "0x17853"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17AA4",
+      "segment": "seg000",
+      "segment_offset": "0x7AA4",
+      "original_name": "sub_17AA4",
+      "size": 148,
+      "caller_count": 2,
+      "callers": [
+        "0x179AD",
+        "0x17A9F"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17C5A",
+      "segment": "seg000",
+      "segment_offset": "0x7C5A",
+      "original_name": "sub_17C5A",
+      "size": 4,
+      "caller_count": 2,
+      "callers": [
+        "0x18439",
+        "0x186A3"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17C5F",
+      "segment": "seg000",
+      "segment_offset": "0x7C5F",
+      "original_name": "nullsub_5",
+      "size": 1,
+      "caller_count": 3,
+      "callers": [
+        "0x17C5E",
+        "0x184A9",
+        "0x186DB"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17C6A",
+      "segment": "seg000",
+      "segment_offset": "0x7C6A",
+      "original_name": "sub_17C6A",
+      "size": 5,
+      "caller_count": 2,
+      "callers": [
+        "0x167BA",
+        "0x167E9"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17C6F",
+      "segment": "seg000",
+      "segment_offset": "0x7C6F",
+      "original_name": "sub_17C6F",
+      "size": 16,
+      "caller_count": 2,
+      "callers": [
+        "0x167F8",
+        "0x17C6A"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17CB1",
+      "segment": "seg000",
+      "segment_offset": "0x7CB1",
+      "original_name": "sub_17CB1",
+      "size": 13,
+      "caller_count": 2,
+      "callers": [
+        "0x18C83",
+        "0x18CA0"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17CC1",
+      "segment": "seg000",
+      "segment_offset": "0x7CC1",
+      "original_name": "sub_17CC1",
+      "size": 43,
+      "caller_count": 0,
+      "callers": [],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17CF7",
+      "segment": "seg000",
+      "segment_offset": "0x7CF7",
+      "original_name": "sub_17CF7",
+      "size": 5,
+      "caller_count": 1,
+      "callers": [
+        "0x17CEF"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17D04",
+      "segment": "seg000",
+      "segment_offset": "0x7D04",
+      "original_name": "sub_17D04",
+      "size": 3,
+      "caller_count": 3,
+      "callers": [
+        "0x132D4",
+        "0x132FB",
+        "0x17D02"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17D8B",
+      "segment": "seg000",
+      "segment_offset": "0x7D8B",
+      "original_name": "sub_17D8B",
+      "size": 25,
+      "caller_count": 3,
+      "callers": [
+        "0x18BB5",
+        "0x18BBB",
+        "0x18CBC"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17DA7",
+      "segment": "seg000",
+      "segment_offset": "0x7DA7",
+      "original_name": "sub_17DA7",
+      "size": 1,
+      "caller_count": 1,
+      "callers": [
+        "0x143AF"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17DB5",
+      "segment": "seg000",
+      "segment_offset": "0x7DB5",
+      "original_name": "sub_17DB5",
+      "size": 5,
+      "caller_count": 1,
+      "callers": [
+        "0x19157"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17DBA",
+      "segment": "seg000",
+      "segment_offset": "0x7DBA",
+      "original_name": "sub_17DBA",
+      "size": 15,
+      "caller_count": 5,
+      "callers": [
+        "0x134EB",
+        "0x1350A",
+        "0x13590",
+        "0x1359E",
+        "0x17DB7"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17DD4",
+      "segment": "seg000",
+      "segment_offset": "0x7DD4",
+      "original_name": "sub_17DD4",
+      "size": 6,
+      "caller_count": 1,
+      "callers": [
+        "0x11908"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17DDA",
+      "segment": "seg000",
+      "segment_offset": "0x7DDA",
+      "original_name": "sub_17DDA",
+      "size": 4,
+      "caller_count": 2,
+      "callers": [
+        "0x1617B",
+        "0x17DD9"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17E2C",
+      "segment": "seg000",
+      "segment_offset": "0x7E2C",
+      "original_name": "sub_17E2C",
+      "size": 6,
+      "caller_count": 1,
+      "callers": [
+        "0x1049B"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17E3C",
+      "segment": "seg000",
+      "segment_offset": "0x7E3C",
+      "original_name": "sub_17E3C",
+      "size": 6,
+      "caller_count": 2,
+      "callers": [
+        "0x166DC",
+        "0x17E39"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17E57",
+      "segment": "seg000",
+      "segment_offset": "0x7E57",
+      "original_name": "sub_17E57",
+      "size": 208,
+      "caller_count": 2,
+      "callers": [
+        "0x1524A",
+        "0x17E55"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17F29",
+      "segment": "seg000",
+      "segment_offset": "0x7F29",
+      "original_name": "sub_17F29",
+      "size": 20,
+      "caller_count": 4,
+      "callers": [
+        "0x17F24",
+        "0x17F27",
+        "0x18D49",
+        "0x18DD3"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17F5D",
+      "segment": "seg000",
+      "segment_offset": "0x7F5D",
+      "original_name": "sub_17F5D",
+      "size": 19,
+      "caller_count": 2,
+      "callers": [
+        "0x190A7",
+        "0x190EF"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17F70",
+      "segment": "seg000",
+      "segment_offset": "0x7F70",
+      "original_name": "nullsub_3",
+      "size": 1,
+      "caller_count": 5,
+      "callers": [
+        "0x17F42",
+        "0x17F57",
+        "0x17F6E",
+        "0x17F78",
+        "0x17F8A"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17F71",
+      "segment": "seg000",
+      "segment_offset": "0x7F71",
+      "original_name": "sub_17F71",
+      "size": 18,
+      "caller_count": 1,
+      "callers": [
+        "0x17F63"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17FB6",
+      "segment": "seg000",
+      "segment_offset": "0x7FB6",
+      "original_name": "sub_17FB6",
+      "size": 6,
+      "caller_count": 2,
+      "callers": [
+        "0x17FB4",
+        "0x186A6"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17FC2",
+      "segment": "seg000",
+      "segment_offset": "0x7FC2",
+      "original_name": "sub_17FC2",
+      "size": 4,
+      "caller_count": 1,
+      "callers": [
+        "0x17FBF"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17FCD",
+      "segment": "seg000",
+      "segment_offset": "0x7FCD",
+      "original_name": "sub_17FCD",
+      "size": 13,
+      "caller_count": 1,
+      "callers": [
+        "0x15FA1"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x17FDA",
+      "segment": "seg000",
+      "segment_offset": "0x7FDA",
+      "original_name": "sub_17FDA",
+      "size": 5,
+      "caller_count": 2,
+      "callers": [
+        "0x155CC",
+        "0x17FD9"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18031",
+      "segment": "seg000",
+      "segment_offset": "0x8031",
+      "original_name": "sub_18031",
+      "size": 30,
+      "caller_count": 3,
+      "callers": [
+        "0x17E3C",
+        "0x1802C",
+        "0x18052"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18295",
+      "segment": "seg000",
+      "segment_offset": "0x8295",
+      "original_name": "sub_18295",
+      "size": 50,
+      "caller_count": 0,
+      "callers": [],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18439",
+      "segment": "seg000",
+      "segment_offset": "0x8439",
+      "original_name": "sub_18439",
+      "size": 115,
+      "caller_count": 1,
+      "callers": [
+        "0x1829D"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x184AC",
+      "segment": "seg000",
+      "segment_offset": "0x84AC",
+      "original_name": "sub_184AC",
+      "size": 9,
+      "caller_count": 2,
+      "callers": [
+        "0x18457",
+        "0x1846A"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x184EC",
+      "segment": "seg000",
+      "segment_offset": "0x84EC",
+      "original_name": "sub_184EC",
+      "size": 11,
+      "caller_count": 1,
+      "callers": [
+        "0x16B77"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18550",
+      "segment": "seg000",
+      "segment_offset": "0x8550",
+      "original_name": "sub_18550",
+      "size": 14,
+      "caller_count": 1,
+      "callers": [
+        "0x16D94"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1855E",
+      "segment": "seg000",
+      "segment_offset": "0x855E",
+      "original_name": "sub_1855E",
+      "size": 15,
+      "caller_count": 2,
+      "callers": [
+        "0x15F88",
+        "0x1855B"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1856E",
+      "segment": "seg000",
+      "segment_offset": "0x856E",
+      "original_name": "sub_1856E",
+      "size": 79,
+      "caller_count": 2,
+      "callers": [
+        "0x160DD",
+        "0x160ED"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x185BE",
+      "segment": "seg000",
+      "segment_offset": "0x85BE",
+      "original_name": "sub_185BE",
+      "size": 10,
+      "caller_count": 1,
+      "callers": [
+        "0x110D7"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x185C8",
+      "segment": "seg000",
+      "segment_offset": "0x85C8",
+      "original_name": "sub_185C8",
+      "size": 23,
+      "caller_count": 2,
+      "callers": [
+        "0x16D99",
+        "0x185C4"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x185E5",
+      "segment": "seg000",
+      "segment_offset": "0x85E5",
+      "original_name": "sub_185E5",
+      "size": 18,
+      "caller_count": 1,
+      "callers": [
+        "0x1862C"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x185F7",
+      "segment": "seg000",
+      "segment_offset": "0x85F7",
+      "original_name": "sub_185F7",
+      "size": 5,
+      "caller_count": 1,
+      "callers": [
+        "0x185DF"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x185FC",
+      "segment": "seg000",
+      "segment_offset": "0x85FC",
+      "original_name": "sub_185FC",
+      "size": 18,
+      "caller_count": 2,
+      "callers": [
+        "0x1602F",
+        "0x185E5"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18613",
+      "segment": "seg000",
+      "segment_offset": "0x8613",
+      "original_name": "sub_18613",
+      "size": 42,
+      "caller_count": 2,
+      "callers": [
+        "0x14C05",
+        "0x160AF"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1863D",
+      "segment": "seg000",
+      "segment_offset": "0x863D",
+      "original_name": "sub_1863D",
+      "size": 17,
+      "caller_count": 1,
+      "callers": [
+        "0x1863B"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1864F",
+      "segment": "seg000",
+      "segment_offset": "0x864F",
+      "original_name": "sub_1864F",
+      "size": 4,
+      "caller_count": 1,
+      "callers": [
+        "0x1286C"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18674",
+      "segment": "seg000",
+      "segment_offset": "0x8674",
+      "original_name": "nullsub_7",
+      "size": 1,
+      "caller_count": 1,
+      "callers": [
+        "0x15A41"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1869F",
+      "segment": "seg000",
+      "segment_offset": "0x869F",
+      "original_name": "sub_1869F",
+      "size": 1,
+      "caller_count": 0,
+      "callers": [],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x186A0",
+      "segment": "seg000",
+      "segment_offset": "0x86A0",
+      "original_name": "sub_186A0",
+      "size": 3,
+      "caller_count": 2,
+      "callers": [
+        "0x1351B",
+        "0x1869F"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x186A9",
+      "segment": "seg000",
+      "segment_offset": "0x86A9",
+      "original_name": "sub_186A9",
+      "size": 56,
+      "caller_count": 2,
+      "callers": [
+        "0x17FF1",
+        "0x186A6"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x186E1",
+      "segment": "seg000",
+      "segment_offset": "0x86E1",
+      "original_name": "sub_186E1",
+      "size": 13,
+      "caller_count": 1,
+      "callers": [
+        "0x186D8"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18712",
+      "segment": "seg000",
+      "segment_offset": "0x8712",
+      "original_name": "sub_18712",
+      "size": 51,
+      "caller_count": 2,
+      "callers": [
+        "0x15621",
+        "0x1870D"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18745",
+      "segment": "seg000",
+      "segment_offset": "0x8745",
+      "original_name": "sub_18745",
+      "size": 116,
+      "caller_count": 1,
+      "callers": [
+        "0x186BF"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x187B9",
+      "segment": "seg000",
+      "segment_offset": "0x87B9",
+      "original_name": "sub_187B9",
+      "size": 15,
+      "caller_count": 3,
+      "callers": [
+        "0x18776",
+        "0x187B0",
+        "0x187C5"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18807",
+      "segment": "seg000",
+      "segment_offset": "0x8807",
+      "original_name": "sub_18807",
+      "size": 17,
+      "caller_count": 2,
+      "callers": [
+        "0x170B8",
+        "0x17242"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1884C",
+      "segment": "seg000",
+      "segment_offset": "0x884C",
+      "original_name": "sub_1884C",
+      "size": 98,
+      "caller_count": 1,
+      "callers": [
+        "0x18848"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x188AE",
+      "segment": "seg000",
+      "segment_offset": "0x88AE",
+      "original_name": "sub_188AE",
+      "size": 60,
+      "caller_count": 2,
+      "callers": [
+        "0x18828",
+        "0x18868"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1890C",
+      "segment": "seg000",
+      "segment_offset": "0x890C",
+      "original_name": "sub_1890C",
+      "size": 24,
+      "caller_count": 1,
+      "callers": [
+        "0x188A5"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1893B",
+      "segment": "seg000",
+      "segment_offset": "0x893B",
+      "original_name": "sub_1893B",
+      "size": 21,
+      "caller_count": 1,
+      "callers": [
+        "0x16032"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18967",
+      "segment": "seg000",
+      "segment_offset": "0x8967",
+      "original_name": "sub_18967",
+      "size": 13,
+      "caller_count": 1,
+      "callers": [
+        "0x16087"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18977",
+      "segment": "seg000",
+      "segment_offset": "0x8977",
+      "original_name": "sub_18977",
+      "size": 20,
+      "caller_count": 2,
+      "callers": [
+        "0x12814",
+        "0x12853"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x189CF",
+      "segment": "seg000",
+      "segment_offset": "0x89CF",
+      "original_name": "sub_189CF",
+      "size": 8,
+      "caller_count": 1,
+      "callers": [
+        "0x184A0"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x189D7",
+      "segment": "seg000",
+      "segment_offset": "0x89D7",
+      "original_name": "sub_189D7",
+      "size": 18,
+      "caller_count": 2,
+      "callers": [
+        "0x1304F",
+        "0x189D5"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x189E9",
+      "segment": "seg000",
+      "segment_offset": "0x89E9",
+      "original_name": "sub_189E9",
+      "size": 13,
+      "caller_count": 1,
+      "callers": [
+        "0x18629"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x189F6",
+      "segment": "seg000",
+      "segment_offset": "0x89F6",
+      "original_name": "sub_189F6",
+      "size": 5,
+      "caller_count": 1,
+      "callers": [
+        "0x1889C"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x189FB",
+      "segment": "seg000",
+      "segment_offset": "0x89FB",
+      "original_name": "sub_189FB",
+      "size": 5,
+      "caller_count": 1,
+      "callers": [
+        "0x18608"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18A6D",
+      "segment": "seg000",
+      "segment_offset": "0x8A6D",
+      "original_name": "sub_18A6D",
+      "size": 21,
+      "caller_count": 1,
+      "callers": [
+        "0x191B3"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18B01",
+      "segment": "seg000",
+      "segment_offset": "0x8B01",
+      "original_name": "sub_18B01",
+      "size": 23,
+      "caller_count": 0,
+      "callers": [],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18B1C",
+      "segment": "seg000",
+      "segment_offset": "0x8B1C",
+      "original_name": "sub_18B1C",
+      "size": 8,
+      "caller_count": 2,
+      "callers": [
+        "0x18B1A",
+        "0x18B54"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18B26",
+      "segment": "seg000",
+      "segment_offset": "0x8B26",
+      "original_name": "sub_18B26",
+      "size": 2,
+      "caller_count": 2,
+      "callers": [
+        "0x17083",
+        "0x18B24"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18B28",
+      "segment": "seg000",
+      "segment_offset": "0x8B28",
+      "original_name": "sub_18B28",
+      "size": 8,
+      "caller_count": 2,
+      "callers": [
+        "0x18B26",
+        "0x18B7C"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18B3E",
+      "segment": "seg000",
+      "segment_offset": "0x8B3E",
+      "original_name": "sub_18B3E",
+      "size": 26,
+      "caller_count": 5,
+      "callers": [
+        "0x17093",
+        "0x170B2",
+        "0x170BE",
+        "0x1718C",
+        "0x1719B"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18B5F",
+      "segment": "seg000",
+      "segment_offset": "0x8B5F",
+      "original_name": "sub_18B5F",
+      "size": 10,
+      "caller_count": 0,
+      "callers": [],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18B69",
+      "segment": "seg000",
+      "segment_offset": "0x8B69",
+      "original_name": "sub_18B69",
+      "size": 23,
+      "caller_count": 1,
+      "callers": [
+        "0x18B67"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18BA3",
+      "segment": "seg000",
+      "segment_offset": "0x8BA3",
+      "original_name": "sub_18BA3",
+      "size": 4,
+      "caller_count": 1,
+      "callers": [
+        "0x1719E"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18BBE",
+      "segment": "seg000",
+      "segment_offset": "0x8BBE",
+      "original_name": "sub_18BBE",
+      "size": 26,
+      "caller_count": 2,
+      "callers": [
+        "0x17086",
+        "0x18BBB"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18BDF",
+      "segment": "seg000",
+      "segment_offset": "0x8BDF",
+      "original_name": "sub_18BDF",
+      "size": 2,
+      "caller_count": 1,
+      "callers": [
+        "0x18BDC"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18BE5",
+      "segment": "seg000",
+      "segment_offset": "0x8BE5",
+      "original_name": "sub_18BE5",
+      "size": 19,
+      "caller_count": 2,
+      "callers": [
+        "0x14783",
+        "0x18BE3"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18C06",
+      "segment": "seg000",
+      "segment_offset": "0x8C06",
+      "original_name": "sub_18C06",
+      "size": 15,
+      "caller_count": 3,
+      "callers": [
+        "0x170BB",
+        "0x17245",
+        "0x18C04"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18C15",
+      "segment": "seg000",
+      "segment_offset": "0x8C15",
+      "original_name": "sub_18C15",
+      "size": 21,
+      "caller_count": 1,
+      "callers": [
+        "0x18C2E"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18C4A",
+      "segment": "seg000",
+      "segment_offset": "0x8C4A",
+      "original_name": "sub_18C4A",
+      "size": 17,
+      "caller_count": 2,
+      "callers": [
+        "0x14831",
+        "0x18C48"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18C65",
+      "segment": "seg000",
+      "segment_offset": "0x8C65",
+      "original_name": "sub_18C65",
+      "size": 20,
+      "caller_count": 2,
+      "callers": [
+        "0x15309",
+        "0x18C61"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18C79",
+      "segment": "seg000",
+      "segment_offset": "0x8C79",
+      "original_name": "sub_18C79",
+      "size": 16,
+      "caller_count": 1,
+      "callers": [
+        "0x16035"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18C89",
+      "segment": "seg000",
+      "segment_offset": "0x8C89",
+      "original_name": "sub_18C89",
+      "size": 41,
+      "caller_count": 2,
+      "callers": [
+        "0x16F8D",
+        "0x18C86"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18CB5",
+      "segment": "seg000",
+      "segment_offset": "0x8CB5",
+      "original_name": "sub_18CB5",
+      "size": 7,
+      "caller_count": 3,
+      "callers": [
+        "0x1281C",
+        "0x12858",
+        "0x18CB2"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18CC6",
+      "segment": "seg000",
+      "segment_offset": "0x8CC6",
+      "original_name": "sub_18CC6",
+      "size": 24,
+      "caller_count": 2,
+      "callers": [
+        "0x134C5",
+        "0x18CC3"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18CE7",
+      "segment": "seg000",
+      "segment_offset": "0x8CE7",
+      "original_name": "sub_18CE7",
+      "size": 104,
+      "caller_count": 2,
+      "callers": [
+        "0x112A7",
+        "0x147BF"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18D55",
+      "segment": "seg000",
+      "segment_offset": "0x8D55",
+      "original_name": "sub_18D55",
+      "size": 6,
+      "caller_count": 0,
+      "callers": [],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18D73",
+      "segment": "seg000",
+      "segment_offset": "0x8D73",
+      "original_name": "sub_18D73",
+      "size": 1,
+      "caller_count": 2,
+      "callers": [
+        "0x166A2",
+        "0x16789"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18D74",
+      "segment": "seg000",
+      "segment_offset": "0x8D74",
+      "original_name": "nullsub_1",
+      "size": 1,
+      "caller_count": 3,
+      "callers": [
+        "0x1604C",
+        "0x160C5",
+        "0x18D73"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18D7A",
+      "segment": "seg000",
+      "segment_offset": "0x8D7A",
+      "original_name": "sub_18D7A",
+      "size": 14,
+      "caller_count": 3,
+      "callers": [
+        "0x15FEF",
+        "0x16069",
+        "0x160D2"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18DD9",
+      "segment": "seg000",
+      "segment_offset": "0x8DD9",
+      "original_name": "sub_18DD9",
+      "size": 4,
+      "caller_count": 2,
+      "callers": [
+        "0x18D3A",
+        "0x18DC8"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18E0B",
+      "segment": "seg000",
+      "segment_offset": "0x8E0B",
+      "original_name": "sub_18E0B",
+      "size": 44,
+      "caller_count": 2,
+      "callers": [
+        "0x1537B",
+        "0x15457"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18E37",
+      "segment": "seg000",
+      "segment_offset": "0x8E37",
+      "original_name": "sub_18E37",
+      "size": 224,
+      "caller_count": 1,
+      "callers": [
+        "0x18E28"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18F2B",
+      "segment": "seg000",
+      "segment_offset": "0x8F2B",
+      "original_name": "sub_18F2B",
+      "size": 4,
+      "caller_count": 2,
+      "callers": [
+        "0x17735",
+        "0x18F29"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18F2F",
+      "segment": "seg000",
+      "segment_offset": "0x8F2F",
+      "original_name": "sub_18F2F",
+      "size": 53,
+      "caller_count": 2,
+      "callers": [
+        "0x18D26",
+        "0x18DB6"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18F6A",
+      "segment": "seg000",
+      "segment_offset": "0x8F6A",
+      "original_name": "sub_18F6A",
+      "size": 51,
+      "caller_count": 2,
+      "callers": [
+        "0x18D10",
+        "0x18DA0"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18FA3",
+      "segment": "seg000",
+      "segment_offset": "0x8FA3",
+      "original_name": "sub_18FA3",
+      "size": 71,
+      "caller_count": 2,
+      "callers": [
+        "0x18D1B",
+        "0x18DAB"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x18FEA",
+      "segment": "seg000",
+      "segment_offset": "0x8FEA",
+      "original_name": "sub_18FEA",
+      "size": 40,
+      "caller_count": 1,
+      "callers": [
+        "0x18E2F"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x19114",
+      "segment": "seg000",
+      "segment_offset": "0x9114",
+      "original_name": "sub_19114",
+      "size": 30,
+      "caller_count": 1,
+      "callers": [
+        "0x19012"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x19132",
+      "segment": "seg000",
+      "segment_offset": "0x9132",
+      "original_name": "sub_19132",
+      "size": 8,
+      "caller_count": 3,
+      "callers": [
+        "0x16902",
+        "0x169BA",
+        "0x1912C"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x191C3",
+      "segment": "seg000",
+      "segment_offset": "0x91C3",
+      "original_name": "sub_191C3",
+      "size": 12,
+      "caller_count": 2,
+      "callers": [
+        "0x153E2",
+        "0x156B0"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x191CF",
+      "segment": "seg000",
+      "segment_offset": "0x91CF",
+      "original_name": "sub_191CF",
+      "size": 6,
+      "caller_count": 1,
+      "callers": [
+        "0x191B8"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1EF2E",
+      "segment": "seg000",
+      "segment_offset": "0xEF2E",
+      "original_name": "sub_1EF2E",
+      "size": 6,
+      "caller_count": 1,
+      "callers": [
+        "0x1918E"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1EF3C",
+      "segment": "seg000",
+      "segment_offset": "0xEF3C",
+      "original_name": "sub_1EF3C",
+      "size": 7,
+      "caller_count": 1,
+      "callers": [
+        "0x172E6"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1EF52",
+      "segment": "seg000",
+      "segment_offset": "0xEF52",
+      "original_name": "sub_1EF52",
+      "size": 12,
+      "caller_count": 2,
+      "callers": [
+        "0x16940",
+        "0x1EF50"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1EF5E",
+      "segment": "seg000",
+      "segment_offset": "0xEF5E",
+      "original_name": "sub_1EF5E",
+      "size": 3,
+      "caller_count": 2,
+      "callers": [
+        "0x169DD",
+        "0x1EF5D"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1EF61",
+      "segment": "seg000",
+      "segment_offset": "0xEF61",
+      "original_name": "sub_1EF61",
+      "size": 2,
+      "caller_count": 2,
+      "callers": [
+        "0x15E90",
+        "0x1EF5F"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1EF63",
+      "segment": "seg000",
+      "segment_offset": "0xEF63",
+      "original_name": "sub_1EF63",
+      "size": 6,
+      "caller_count": 3,
+      "callers": [
+        "0x153DF",
+        "0x156AD",
+        "0x1EF61"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1EF6C",
+      "segment": "seg000",
+      "segment_offset": "0xEF6C",
+      "original_name": "sub_1EF6C",
+      "size": 6,
+      "caller_count": 14,
+      "callers": [
+        "0x1804B",
+        "0x1870A",
+        "0x18714",
+        "0x18719",
+        "0x1871E",
+        "0x1872C",
+        "0x18736",
+        "0x18773",
+        "0x1877B",
+        "0x1878A",
+        "0x18795",
+        "0x187AD",
+        "0x187B5",
+        "0x187BB"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1EF72",
+      "segment": "seg000",
+      "segment_offset": "0xEF72",
+      "original_name": "sub_1EF72",
+      "size": 3,
+      "caller_count": 16,
+      "callers": [
+        "0x17909",
+        "0x1792E",
+        "0x17939",
+        "0x17950",
+        "0x17955",
+        "0x1795D",
+        "0x17963",
+        "0x17968",
+        "0x17A2D",
+        "0x17A42",
+        "0x17A6C",
+        "0x17AF7",
+        "0x17B05",
+        "0x17B1B",
+        "0x17B27",
+        "0x1EF70"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1EF75",
+      "segment": "seg000",
+      "segment_offset": "0xEF75",
+      "original_name": "sub_1EF75",
+      "size": 6,
+      "caller_count": 26,
+      "callers": [
+        "0x16D52",
+        "0x16D5A",
+        "0x16D5F",
+        "0x16D6E",
+        "0x16D76",
+        "0x16D7B",
+        "0x16DC3",
+        "0x16DCD",
+        "0x16DE0",
+        "0x16DEA",
+        "0x16E33",
+        "0x16E38",
+        "0x16E40",
+        "0x16E45",
+        "0x16E78",
+        "0x16E7D",
+        "0x16E85",
+        "0x16E8A",
+        "0x16EAB",
+        "0x16EB0",
+        "0x16ED9",
+        "0x16EE3",
+        "0x16EF6",
+        "0x16F00",
+        "0x17CBA",
+        "0x1EF74"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1EF7B",
+      "segment": "seg000",
+      "segment_offset": "0xEF7B",
+      "original_name": "sub_1EF7B",
+      "size": 8,
+      "caller_count": 3,
+      "callers": [
+        "0x1780D",
+        "0x1785C",
+        "0x1EF79"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1EF88",
+      "segment": "seg000",
+      "segment_offset": "0xEF88",
+      "original_name": "sub_1EF88",
+      "size": 8,
+      "caller_count": 1,
+      "callers": [
+        "0x16469"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1EF90",
+      "segment": "seg000",
+      "segment_offset": "0xEF90",
+      "original_name": "sub_1EF90",
+      "size": 5,
+      "caller_count": 3,
+      "callers": [
+        "0x15650",
+        "0x1565E",
+        "0x1EF8E"
+      ],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1EF9C",
+      "segment": "seg000",
+      "segment_offset": "0xEF9C",
+      "original_name": "sub_1EF9C",
+      "size": 2,
+      "caller_count": 0,
+      "callers": [],
+      "is_library": false,
+      "no_return": false
+    },
+    {
+      "ida_address": "0x1F0D2",
+      "segment": "seg001",
+      "segment_offset": "0x12",
+      "original_name": "start",
+      "size": 38,
+      "caller_count": 1,
+      "callers": [
+        "0x1F0D1"
+      ],
+      "is_library": false,
+      "no_return": false
+    }
+  ],
+  "strings": [
+    {
+      "ida_address": "0x1BDD8",
+      "segment": "seg000",
+      "segment_offset": "0xBDD8",
+      "length": 20,
+      "text": "Scenario Disk 1 in ",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1BDEC",
+      "segment": "seg000",
+      "segment_offset": "0xBDEC",
+      "length": 20,
+      "text": "Scenario Disk 2 in ",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1BE00",
+      "segment": "seg000",
+      "segment_offset": "0xBE00",
+      "length": 17,
+      "text": "Program Disk in ",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1BE11",
+      "segment": "seg000",
+      "segment_offset": "0xBE11",
+      "length": 14,
+      "text": "Data Disk in ",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1C01B",
+      "segment": "seg000",
+      "segment_offset": "0xC01B",
+      "length": 24,
+      "text": "lcpmuhywfbv:8.91g!q6-'=",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1C280",
+      "segment": "seg000",
+      "segment_offset": "0xC280",
+      "length": 38,
+      "text": "Use Enc Order Disband View Save Radio",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1C2DA",
+      "segment": "seg000",
+      "segment_offset": "0xC2DA",
+      "length": 19,
+      "text": "bcdefghijklmdenopq",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1D9BA",
+      "segment": "seg000",
+      "segment_offset": "0xD9BA",
+      "length": 20,
+      "text": "$*2:CLU_()-29@HQYb?",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DA87",
+      "segment": "seg000",
+      "segment_offset": "0xDA87",
+      "length": 19,
+      "text": "CREATE DELETE PLAY",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DC01",
+      "segment": "seg000",
+      "segment_offset": "0xDC01",
+      "length": 36,
+      "text": "\u0007Setup printer to the top of form.\r",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DC25",
+      "segment": "seg000",
+      "segment_offset": "0xDC25",
+      "length": 6,
+      "text": "\t80N\r",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DC2B",
+      "segment": "seg000",
+      "segment_offset": "0xDC2B",
+      "length": 7,
+      "text": "Name: ",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DC32",
+      "segment": "seg000",
+      "segment_offset": "0xDC32",
+      "length": 7,
+      "text": "Rank: ",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DC39",
+      "segment": "seg000",
+      "segment_offset": "0xDC39",
+      "length": 6,
+      "text": "\rST =",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DC3F",
+      "segment": "seg000",
+      "segment_offset": "0xDC3F",
+      "length": 7,
+      "text": "  IQ =",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DC46",
+      "segment": "seg000",
+      "segment_offset": "0xDC46",
+      "length": 7,
+      "text": "  LK =",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DC4D",
+      "segment": "seg000",
+      "segment_offset": "0xDC4D",
+      "length": 7,
+      "text": "  SP =",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DC54",
+      "segment": "seg000",
+      "segment_offset": "0xDC54",
+      "length": 7,
+      "text": "  AGL=",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DC5B",
+      "segment": "seg000",
+      "segment_offset": "0xDC5B",
+      "length": 7,
+      "text": "  DEX=",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DC62",
+      "segment": "seg000",
+      "segment_offset": "0xDC62",
+      "length": 7,
+      "text": "  CHR=",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DC69",
+      "segment": "seg000",
+      "segment_offset": "0xDC69",
+      "length": 7,
+      "text": "  SKP=",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DC70",
+      "segment": "seg000",
+      "segment_offset": "0xDC70",
+      "length": 7,
+      "text": "  AC =",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DC77",
+      "segment": "seg000",
+      "segment_offset": "0xDC77",
+      "length": 11,
+      "text": "\rMaxCon = ",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DC82",
+      "segment": "seg000",
+      "segment_offset": "0xDC82",
+      "length": 7,
+      "text": "Con = ",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DC89",
+      "segment": "seg000",
+      "segment_offset": "0xDC89",
+      "length": 10,
+      "text": "Money = $",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DC93",
+      "segment": "seg000",
+      "segment_offset": "0xDC93",
+      "length": 6,
+      "text": "Sex: ",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DC99",
+      "segment": "seg000",
+      "segment_offset": "0xDC99",
+      "length": 7,
+      "text": "Male  ",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DCA0",
+      "segment": "seg000",
+      "segment_offset": "0xDCA0",
+      "length": 7,
+      "text": "Female",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DCA7",
+      "segment": "seg000",
+      "segment_offset": "0xDCA7",
+      "length": 8,
+      "text": "  Nat: ",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DCB4",
+      "segment": "seg000",
+      "segment_offset": "0xDCB4",
+      "length": 8,
+      "text": "Russian",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DCBC",
+      "segment": "seg000",
+      "segment_offset": "0xDCBC",
+      "length": 8,
+      "text": "Mexican",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DCC4",
+      "segment": "seg000",
+      "segment_offset": "0xDCC4",
+      "length": 7,
+      "text": "Indian",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DCCB",
+      "segment": "seg000",
+      "segment_offset": "0xDCCB",
+      "length": 8,
+      "text": "Chinese",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DCD3",
+      "segment": "seg000",
+      "segment_offset": "0xDCD3",
+      "length": 19,
+      "text": "\rWeapon Equipped: ",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DCE6",
+      "segment": "seg000",
+      "segment_offset": "0xDCE6",
+      "length": 17,
+      "text": "Armor Equipped: ",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DCF7",
+      "segment": "seg000",
+      "segment_offset": "0xDCF7",
+      "length": 10,
+      "text": "\r\rItems:\r",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DD01",
+      "segment": "seg000",
+      "segment_offset": "0xDD01",
+      "length": 16,
+      "text": "\r\rLevel-Skill:\r",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DD2A",
+      "segment": "seg000",
+      "segment_offset": "0xDD2A",
+      "length": 45,
+      "text": "\r\rPrinting in progress. Press ESC to abort.\r",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1DD98",
+      "segment": "seg000",
+      "segment_offset": "0xDD98",
+      "length": 22,
+      "text": " etraoishlnd\rgcyupmb,",
+      "xref_count": 0,
+      "xrefs": []
+    },
+    {
+      "ida_address": "0x1F1D7",
+      "segment": "seg001",
+      "segment_offset": "0x117",
+      "length": 24,
+      "text": "Packed file is corrupt#",
+      "xref_count": 0,
+      "xrefs": []
+    }
+  ]
+}

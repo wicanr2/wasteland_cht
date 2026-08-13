@@ -1,0 +1,31 @@
+# 原版素材一律不入版控（玩家自備合法副本）
+*.zip
+*.rar
+workplace/
+
+# IDA 產物
+*.i64
+*.idb
+*.asm
+*.til
+*.nam
+*.id0
+*.id1
+*.id2
+
+# 字型（倚天點陣字自備，不散布）
+*.15
+*.fnt
+
+# Python
+__pycache__/
+*.pyc
+
+# 編輯器與暫存
+.DS_Store
+*.swp
+/tmp/
+
+# IDA 批次 log
+*.ida.log
+ida-batch.log
