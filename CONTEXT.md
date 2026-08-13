@@ -40,7 +40,8 @@
 | MSQ 區塊 | 兩個資料檔切開：`game1` 20 塊全部 `msq0`、`game2` 22 塊全部 `msq1`；數量與目錄索引三重吻合（`docs/re/07`） |
 | **MSQ 加密** | **已解**：`key = lo(checksum) XOR hi(checksum)`，逐 byte XOR 後 `key += 0x1F`。42/42 通過原版自己的 checksum 驗證，解密後出現 `Titanium`／`Vanadium`／`REDHAWK` 等遊戲文字（`docs/re/08`） |
 | 中文說明書 | 全 60 頁節轉錄完成，含 IBM 版補充說明書與約 200 條當年譯名（`docs/manual-cht/`） |
-| 文字輸出 | `sub_1786E` 印字串（`ds:4680h`）→ overlay slot 19 畫字元；`wl.exe` 內介面文字是明文 ASCII |
+| **字型與文字編碼** | **已解**：兩套字型、兩套索引。主文字字型**內嵌在 `wl.exe`**（`seg003:0xCA60`，128 字 × 8 bytes、單色、索引 ＝ ASCII − 0x20）；`colorf.fnt` 是彩色選單字型（兩組同形不同色的字模，`ds:722Fh` 選色，不是字元碼重映射）。18 個文字控制碼解出 14 個（`docs/re/14`） |
+| 文字輸出 | `sub_1786E` 印字串（`ds:4680h`）→ 每字元處理器可切換（`ds:B265h`）；`wl.exe` 內介面文字是明文 ASCII |
 | `wla.bin` overlay | 26 個 slot 的 API 表、EGA mode 0Dh、列位址表、畫字元（字型 172 字 × 32 bytes、8×8、4 平面）、清除矩形（`docs/re/04`） |
 | **亂數產生器** | **已解**：`sub_18E6B` 是 `ds:465Ch`–`4660h` 五個位元組的進位鏈，映像初值全零、全檔沒有種子設定，熵來自鍵盤輪詢次數。擲骰層四支（d6／dN／累加 Nd6／2d6 同點續擲）全部讀完並以模型驗證（`docs/re/13`、`tools/rng.py`） |
 | 逐指令基準 | 整個 CODE 區倒成 JSON（20,177 條指令、827 個全域、4,932 筆直接定址存取），後續形狀比對改在離線做（`tools/ida/export_listing.py`、`export_memops.py`） |
@@ -53,7 +54,7 @@
 | 項目 | 狀態 |
 |---|---|
 | 解包映像實跑驗證 | **未做**。要在 DOSBox 跑起來與原版對照，才能把「解包等同原版」升為已確認 |
-| 資料格式 | 已解：`wla.bin`（overlay 程式碼）、`title.pic`（XOR 串流）、`colorf.fnt`（172 字 × 32 bytes）、`GAME1`／`GAME2` 的定址方式。未解：`GAME1`／`GAME2` 各資源的內容、`allpics*`、`allhtds*`、`transtbl`、`curs`、`masks.wlf`、`ic0_9.wlf`、`end.cpa` |
+| 資料格式 | 已解：`wla.bin`（overlay 程式碼）、`title.pic`（XOR 串流）、`colorf.fnt`（172 字 × 32 bytes，格式與用途都已驗證）、主文字字型（內嵌）、`GAME1`／`GAME2` 的定址方式。未解：`GAME1`／`GAME2` 各資源的內容、`allpics*`、`allhtds*`、`transtbl`、`curs`、`masks.wlf`、`ic0_9.wlf`、`end.cpa` |
 
 | MSQ 內部結構 | 地圖層已解（前 2048 bytes ＝ 64×64 4-bit tile，42/42 自相關驗證）；`+0x800` 起的記錄表未解 |
 | 劇情敘述文字 | **原版遊戲檔案裡沒有**（強證據）：所有資料檔的每個 byte 都已有歸屬，執行檔內最長字串只有 50 字元。長篇敘述在紙本段落書上，遊戲只給編號（`docs/re/12`） |
@@ -69,7 +70,7 @@
 |---|---|
 | [`CLAUDE.md`](./CLAUDE.md) | 專案規範：三道閘門、IDA 鐵則、文件與中文化政策、環境硬規則 |
 | [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md) | **RE 完成度檢查表**：remake 需要的每一項知識、狀態與入口 |
-| [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 81）。讀任何 `sub_XXXXX` 前先查 |
+| [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 119）。讀任何 `sub_XXXXX` 前先查 |
 | [`docs/re/01-binary-identity.md`](docs/re/01-binary-identity.md) | 20 檔 SHA-256、`wl.exe` 的 MZ header、第一份資料庫與「不可用作證據」的結論 |
 | [`docs/re/02-exepack-unpack.md`](docs/re/02-exepack-unpack.md) | EXEPACK 格式、解包器、relocation 起點的坑、解包後基準資料庫 |
 | [`docs/re/03-boot-and-asset-loading.md`](docs/re/03-boot-and-asset-loading.md) | 開機序列、`info` 安裝資訊、檔名表、七個開機素材的載入位址、`TITLE.PIC` XOR 解碼 |
@@ -83,6 +84,7 @@
 | [`docs/re/11-huffman-decoder.md`](docs/re/11-huffman-decoder.md) | 解碼器實作與驗證、子區塊串接規則、四個資料檔全部解開 |
 | [`docs/re/12-msq-tail-and-text-model.md`](docs/re/12-msq-tail-and-text-model.md) | 兩張長度表的差別＝尾段、尾段是無 magic 的 Huffman、**遊戲檔案裡沒有長篇敘述文字** |
 | [`docs/re/13-rng.md`](docs/re/13-rng.md) | 亂數產生器與擲骰層：進位鏈演算法、狀態初值、拒絕取樣、四支包裝函式、參考模型與驗證 |
+| [`docs/re/14-fonts-and-text-encoding.md`](docs/re/14-fonts-and-text-encoding.md) | 兩套字型與兩套索引、`ds:722Fh` 是選色不是重映射、18 個文字控制碼、選單系統 |
 | [`docs/manual-cht/`](docs/manual-cht/) | 軟體世界 1990 中文說明書全 60 頁節轉錄 ＋ 當年譯名表 |
 | [`docs/manual/`](docs/manual/) | 官方英文手冊全文 markdown |
 | [`docs/paragraphs/`](docs/paragraphs/) | 段落書 162 段全文與索引，含防拷結構標註 |
@@ -111,26 +113,27 @@
 | 檔名表沒有任何程式碼引用（xref 與立即數掃描都是 0） | 立即數掃描器沒遮罩符號擴展，`0x91C5` 被讀成 `0xFFFF...91C5`，算出的位址不存在 | 檔名全部由 `mov dx, <位移>` 直接引用，修正後 `seg002` 有 50 個字串對上引用點（`docs/re/03` §7） |
 | `GAME1` 等六個檔名也沒有引用（修正掃描器後仍是 0） | 只查了「位址以立即數出現」這一種形式 | 檔名位址是資源表 `+6` 欄位的資料值，開啟路徑是 `sub_11445`（`docs/re/05` §6） |
 | ` etraoishlnd`、`bcdefghijklmdenopq` 是文字解碼的頻率表 | 憑字串長相猜的，沒有追引用點 | 後者是 `sub_166D3` 逐字印到畫面上的內容；文字編碼另有其處（`docs/re/06` §3） |
+| `ds:722Fh` 的 `+0x1C` 是字元碼重映射 | 只看到算術沒把字模畫出來 | 是**選色**：`colorf.fnt` 有兩組形狀相同、顏色不同的字模，相距 `0x1C`（`docs/re/14` §3） |
 | 用 xref 圖就能問出「誰在寫這個全域」 | 這份資料庫 4,932 筆直接定址存取裡只有 22 筆進了 xref 圖，其餘 `mov ax, ds:46B7h` 這類根本沒建 xref。零命中與「真的沒人寫」長得一樣 | 自己解碼運算元並用 IDA 的 `CF_CHGn`／`CF_USEn` 判讀寫（`tools/ida/export_memops.py`、`docs/re/13` §1） |
 | RNG 應該是移位／加法型 | 排除 `mul` 之後只憑印象推的 | 是**純加法**的進位鏈，一個移位都沒有；靠「讀寫同一全域」的形狀找到，不是靠指令（`docs/re/13` §2） |
 | MSQ 資源的前 2 bytes 是長度 | 把 `mov cx, [bx]` 當成「取剛讀進來的 header」，其實 `ds:46B0h` 是別處設好的緩衝區位址 | 那 4 bytes 是 magic `msq0`／`msq1`；長度來源仍未解（`docs/re/07` §7） |
 
 ## 7. Worklist
 
-**RE 完成度**：資料格式層大致打通，遊戲規則層剛開出第一個缺口（擲骰）。
-641 個函式裡人寫的筆記涵蓋 96 個。完整缺口見
+**RE 完成度**：資料格式層與文字層大致打通，遊戲規則層剛開出第一個缺口（擲骰）。
+641 個函式裡人寫的筆記涵蓋 119 個。完整缺口見
 [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md)。
 
 **下一步（依「對 remake 的阻擋程度」排序）**
 
-1. **字元碼重映射（A15）** —— 解 `ds:722Fh`（`docs/re/04` §5），中文化前必須先解。
-2. **地圖記錄表（A6）** —— MSQ `+0x800` 起。固定位移掃描無效（欄位用基址暫存器
+1. **地圖記錄表（A6）** —— MSQ `+0x800` 起。固定位移掃描無效（欄位用基址暫存器
    存取），要從使用端往回追；`tools/ida/export_listing.py` 的逐指令 JSON
    可以直接篩「用同一個基底暫存器的存取」。
-3. **存檔與角色結構（C2／C3）** —— 定址層已知（`sub_17208`、`sub_19614`、
+2. **存檔與角色結構（C2／C3）** —— 定址層已知（`sub_17208`、`sub_19614`、
    `sub_137F4`），從欄位位移往回追語意。
-4. **規則判定（D1／D3）** —— 擲骰層已解，改讀 `sub_18E41`（24 個呼叫端）、
+3. **規則判定（D1／D3）** —— 擲骰層已解，改讀 `sub_18E41`（24 個呼叫端）、
    `sub_19C84`（11）、`sub_19D86`（3）的呼叫端，每個呼叫端就是一條規則。
+4. 畫面版面（B6）：游標與欄位計數變數已知，中文化重排版面要用。
 5. 段落編號顯示（E3）、短訊息來源（E4，入口 `0x1B7BF`／`0x1BAB7`）。
 6. 逐一解 overlay 其餘 21 個 slot，特別是 `0x1029B`（881 bytes）。
 7. 追資源表 idx 7（無檔名，疑似存檔區）在硬碟模式下怎麼存取。
