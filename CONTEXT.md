@@ -35,7 +35,11 @@
 | 檔名表 | 13 筆全部定位（`0x25FAD`–`0x26028`），引用點逐一對上 |
 | 檔案 I/O | open／read／close 三個包裝函式與「請插入磁片」重試迴圈已解 |
 | `TITLE.PIC` 解碼 | XOR 自參考串流（`out[n] = in[n] XOR out[n-0x90]`），長度算術完全吻合 |
-| RE 工具 | `export_file_io.py`（中斷掃描＋字串引用）、`export_function.py`（函式完整倒出） |
+| RE 工具 | `export_file_io.py`（中斷掃描＋字串引用）、`export_function.py`（函式完整倒出）、`apply_overlay.py` |
+| `wla.bin` overlay | 26 個 slot 的 API 表、EGA mode 0Dh、列位址表、畫字元（字型 172 字 × 32 bytes、8×8、4 平面）、清除矩形（`docs/re/04`） |
+| 儲存層 | 雙模式（硬碟 DOS 檔案／磁片 `int 25h` 絕對磁區）與分流旗標；資源表 8 筆全解，六個檔名的引用點就在表的 `+6` 欄位（`docs/re/05`） |
+| 英文手冊 | 全文轉 markdown，7 章 646 行（`docs/manual/`） |
+| 段落書 | 162 段全部轉錄，編號連續無缺（`docs/paragraphs/`）。**三層防拷結構已辨識**：3 個陷阱段落（1／22／145）、64 段變體組（同場景不同密語）、33 段火星誘餌假劇情 |
 
 ### 進行中／未開始
 
@@ -54,6 +58,11 @@
 | [`CLAUDE.md`](./CLAUDE.md) | 專案規範：三道閘門、IDA 鐵則、文件與中文化政策、環境硬規則 |
 | [`docs/re/01-binary-identity.md`](docs/re/01-binary-identity.md) | 20 檔 SHA-256、`wl.exe` 的 MZ header、第一份資料庫與「不可用作證據」的結論 |
 | [`docs/re/02-exepack-unpack.md`](docs/re/02-exepack-unpack.md) | EXEPACK 格式、解包器、relocation 起點的坑、解包後基準資料庫 |
+| [`docs/re/03-boot-and-asset-loading.md`](docs/re/03-boot-and-asset-loading.md) | 開機序列、`info` 安裝資訊、檔名表、七個開機素材的載入位址、`TITLE.PIC` XOR 解碼 |
+| [`docs/re/04-overlay-wla-bin.md`](docs/re/04-overlay-wla-bin.md) | `wla.bin` overlay 機制、26 個 slot 的 API 表、繪圖層三支 |
+| [`docs/re/05-storage-layer.md`](docs/re/05-storage-layer.md) | 雙模式儲存、資源表結構、六個資料檔的開啟路徑 |
+| [`docs/manual/`](docs/manual/) | 官方英文手冊全文 markdown |
+| [`docs/paragraphs/`](docs/paragraphs/) | 段落書 162 段全文與索引，含防拷結構標註 |
 | `docs/re/generated/ida94/` | 工具匯出的清冊（JSON ＋ markdown），不含人的推論 |
 
 ## 4. oracle 優先序
@@ -82,12 +91,15 @@
 
 **下一步（按順序）**
 
-1. `wla.bin` 的 overlay 程式碼：它載到 `CS:0000`，要單獨建一份資料庫分析。
-2. 追 `GAME1`／`GAME2`／`ALLPICS*`／`ALLHTDS*`／`END.CPA` 的載入點（開機時沒載）。
-3. 追 `int 25h`／`26h` 的絕對磁區路徑在硬碟安裝下是否執行（分流點可能是 `ds:A414h`／`ds:A415h`）。
-4. 在 DOSBox 跑解包版與原版對照，驗證解包正確性（`docs/re/02` §5 的待辦）。
-5. 產函式索引 `docs/re/00-function-index.md`（讀任何 `sub_xxx` 前要先查）。
-6. 追那幾串疑似編碼表（`0x29FAE` ` etraoishlnd`、`0x2AB13` `tiashurdlycwpmg".`），解文字編碼。
-7. 說明書四份整理（進行中，兩個 subagent 在做，不受閘門限制）。
+1. 解 `GAME1`／`GAME2` 的內部結構：先讀載入器 `sub_183B1`／`sub_1841F`／`sub_184E8`／`sub_18744`。
+2. 追那幾串疑似編碼表（`0x29FAE` ` etraoishlnd`、`0x2AB13` `tiashurdlycwpmg".`），解文字編碼——
+   這是中文化的關鍵路徑。
+3. 解 `ds:722Fh` 的字元碼重映射（`docs/re/04` §5），中文化前必須先解。
+4. 逐一解 overlay 其餘 21 個 slot，特別是 `0x1029B`（881 bytes）。
+5. 追資源表 idx 7（無檔名，疑似存檔區）在硬碟模式下怎麼存取。
+6. 在 DOSBox 跑解包版與原版對照，驗證解包正確性（`docs/re/02` §5 的待辦）。
+7. 產函式索引 `docs/re/00-function-index.md`（讀任何 `sub_xxx` 前要先查）。
+8. 段落書的防拷結構要接進 remake 設計：變體組與火星誘餌劇情不能照抄成線性手札，
+   要等段落呼叫表解出來才知道遊戲實際會叫哪一段。
 
 **不得開始**：`internal/` 下的任何 Go 引擎程式碼，直到對應規格標 READY。
