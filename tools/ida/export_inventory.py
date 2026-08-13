@@ -29,6 +29,7 @@ import idautils
 KNOWN_INPUTS = {
     "098aef9b4fe4fea3b8d0d134f82fe11a6dac608839ebd175e168cf0271b93b4f": "wl.exe（EXEPACK 打包原版）",
     "b5eb39f094e0274165eab5e1584e78ff5b54c7228d8db273573d2bd951ea31a0": "wl.unpacked.exe（tools/unpack_exepack.py 解包）",
+    "cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118": "wl.merged.exe（解包映像＋wla.bin overlay，本專案合成）",
 }
 
 
