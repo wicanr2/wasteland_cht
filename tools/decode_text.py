@@ -64,31 +64,42 @@ class BitReader:
         return value
 
 
-def decode_run(buf: bytes, alpha_base: int, pos: int, count: int) -> list[str]:
-    """`alpha_base` 是字元對照表的絕對位置。原版沒有邊界檢查——
-    escape 後的符號最大到 0x3D，會讀到 60 bytes 之外，這裡照樣不檢查。"""
+def decode_run(
+    buf: bytes, alpha_base: int, pos: int, count: int
+) -> tuple[list[str], bool]:
+    """從 pos 解 count 個字串，回傳（解出來的字串, 是否整組都解完）。
+
+    `alpha_base` 是字元對照表的絕對位置。原版沒有邊界檢查——escape 之後的符號
+    最大到 0x3D，會讀到 60 bytes 之外，這裡照樣不檢查。
+
+    緩衝區用完時**保留已經解完的字串**（那些是真的），只回報這一組沒解完。
+    整組丟掉會連帶丟掉真字串，這是先前少算的原因。
+    """
     reader = BitReader(buf, pos)
     out = []
     for _ in range(count):
         chars: list[str] = []
         upper = False
-        while True:
-            sym = reader.symbol()
-            if sym == SHIFT_SYMBOL:
-                upper = True
-                continue
-            if sym == ESCAPE_SYMBOL:
-                sym = reader.symbol() + SHIFT_SYMBOL
-            code = buf[alpha_base + sym]
-            if code == 0:
-                break
-            ch = chr(code)
-            if upper and "a" <= ch <= "z":
-                ch = ch.upper()
-            upper = False
-            chars.append(ch)
+        try:
+            while True:
+                sym = reader.symbol()
+                if sym == SHIFT_SYMBOL:
+                    upper = True
+                    continue
+                if sym == ESCAPE_SYMBOL:
+                    sym = reader.symbol() + SHIFT_SYMBOL
+                code = buf[alpha_base + sym]
+                if code == 0:
+                    break
+                ch = chr(code)
+                if upper and "a" <= ch <= "z":
+                    ch = ch.upper()
+                upper = False
+                chars.append(ch)
+        except IndexError:
+            return out, False
         out.append("".join(chars))
-    return out
+    return out, True
 
 
 def decode_table(buf: bytes, base: int, max_groups: int = 512) -> dict:
@@ -112,31 +123,23 @@ def decode_table(buf: bytes, base: int, max_groups: int = 512) -> dict:
     strings: list[str] = []
     decoded_groups = 0
     for off in offsets:
-        try:
-            strings.extend(decode_run(buf, base, data + off, 4))
-        except IndexError:
+        part, complete = decode_run(buf, base, data + off, 4)
+        strings.extend(part)
+        if not complete:
             break
         decoded_groups += 1
 
-    # 最後一組不一定四個都有用到；控制字元佔多數的就是解過頭了。
-    def looks_like_text(s: str) -> bool:
-        if not s:
-            return True
-        printable = sum(1 for c in s if c.isprintable())
-        return printable >= len(s) * 0.5
-
-    usable = len(strings)
-    while usable > 0 and not looks_like_text(strings[usable - 1]):
-        usable -= 1
-
+    # 一組固定四個槽，**最後一組不一定四個都用到**——沒用到的槽解出來是雜訊。
+    # 字串是靠編號定址的，所以這裡把槽原樣保留，只另外報非空的條數；
+    # 不做「看起來像不像文字」的裁切（那是猜測，會把真的字串一起丟掉）。
     return {
         "alphabet": alphabet.hex(),
         "alphabet_text": alphabet.decode("latin1"),
         "declared_groups": declared,
         "group_count": len(offsets),
         "decoded_groups": decoded_groups,
-        "string_count": len(strings),
-        "usable_string_count": usable,
+        "slot_count": len(strings),
+        "non_empty_count": sum(1 for s in strings if s),
         "strings": strings,
     }
 
@@ -150,29 +153,36 @@ def main() -> None:
     header = int.from_bytes(exe[8:10], "little") * 16
 
     tables = []
-    total = 0
+    slots = 0
+    non_empty = 0
     for ds_off, who in EXE_TABLES.items():
         result = decode_table(exe, DS + ds_off - 0x10000 + header)
         result["table_ds_offset"] = f"0x{ds_off:04X}"
         result["table_linear"] = f"0x{DS + ds_off:05X}"
         result["set_by"] = who
         tables.append(result)
-        total += result["usable_string_count"]
+        slots += result["slot_count"]
+        non_empty += result["non_empty_count"]
 
     if len(sys.argv) > 2:
         Path(sys.argv[2]).write_text(
             json.dumps(
-                {"table_count": len(tables), "usable_total": total, "tables": tables},
+                {
+                    "table_count": len(tables),
+                    "slot_total": slots,
+                    "non_empty_total": non_empty,
+                    "tables": tables,
+                },
                 ensure_ascii=False,
                 indent=2,
             ),
             encoding="utf-8",
         )
-        print(f"→ {sys.argv[2]}（{len(tables)} 張表、可用字串 {total}）")
+        print(f"→ {sys.argv[2]}（{len(tables)} 張表、{slots} 個槽、{non_empty} 條非空）")
     else:
         for result in tables:
             print(f"=== {result['table_ds_offset']} {result['set_by']}")
-            for i, s in enumerate(result["strings"][: result["usable_string_count"]]):
+            for i, s in enumerate(result["strings"]):
                 if s:
                     print(f"  {i:>3} {s!r}")
 
