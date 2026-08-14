@@ -29,9 +29,10 @@
 | [`16-combat-screen.md`](16-combat-screen.md) | **READY**（已實作） | `internal/play` ✅ | 命中訊息的字串編號未確認 |
 | [`17-command-handlers.md`](17-command-handlers.md) | **READY**（已實作） | `internal/game` ✅ | 可雇用對象的算法、Use 那個 byte 的欄位配置未解 |
 | [`18-facility-loops.md`](18-facility-loops.md) | **READY**（已實作） | `internal/game` ✅ | 賣價公式、清單框架未解 |
+| [`19-paragraph-journal.md`](19-paragraph-journal.md) | **READY**（已實作） | `internal/game` ✅ | 162 段的中文翻譯還沒開始 |
 | `08-audio.md` | 未寫 | `internal/audio` | F2 位元組碼指令集與曲目資料未解 |
 
-**十七份 READY 規格涵蓋資產層、呈現層、亂數、規則層十一塊、戰鬥畫面、中文排版與翻譯管線**——
+**十八份 READY 規格涵蓋資產層、呈現層、亂數、規則層十一塊、戰鬥畫面、段落手札、中文排版與翻譯管線**——
 走一步、遊戲時鐘、體力隨時間恢復、事件分派，以及**從視野掃出遭遇、生怪、下指令、
 排行動順序到打完一場戰鬥或逃走**的整條路。
 只剩 `08`（音效）等 F2 的位元組碼指令集。
