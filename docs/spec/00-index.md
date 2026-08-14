@@ -4,7 +4,7 @@
 `CLAUDE.md` §0 的規定是「**只有標 READY 的規格可以動手寫引擎**」，
 所以這份索引同時是「`internal/` 底下哪些東西可以開始寫」的白名單。
 
-日期：2026-08-14 ｜ 逆向現況見 [`docs/re/00-remake-knowledge-gaps.md`](../re/00-remake-knowledge-gaps.md)
+日期：2026-08-15 ｜ 逆向現況見 [`docs/re/00-remake-knowledge-gaps.md`](../re/00-remake-knowledge-gaps.md)
 
 ---
 
@@ -15,14 +15,15 @@
 | [`01-assets-and-formats.md`](01-assets-and-formats.md) | **READY**（已實作） | `internal/assets` ✅ | — |
 | [`02-rng-and-dice.md`](02-rng-and-dice.md) | **READY**（已實作） | `internal/game/rng` ✅ | — |
 | [`03-screen-and-text.md`](03-screen-and-text.md) | **READY**（已實作） | `internal/textlayout` ✅、`internal/render` ✅、`internal/ui` ✅ | — |
-| `04-movement-and-clock.md` | 未寫 | `internal/game` | 事件處理函式 5／8／9 未讀（`docs/re/26` §8） |
-| `05-character-and-save.md` | 未寫 | `internal/game` | **C2 存檔欄位未解**、C4 隊伍未解 |
-| `06-combat.md` | 未寫 | `internal/game` | D1 技能數值、D5 經驗值與升級未解 |
-| `07-world-events.md` | 未寫 | `internal/game` | E2 各處理函式只到入口、E3 段落編號未解 |
+| [`04-movement-and-clock.md`](04-movement-and-clock.md) | **READY**（已實作） | `internal/game` ✅ | — |
+| `05-character-and-save.md` | 未寫（可寫） | `internal/game` | 阻擋項已清（`docs/re/30`、`31`、`35`）；剩存檔尾段 `0xA00` 未解 |
+| `06-combat.md` | 未寫（可寫） | `internal/game` | 阻擋項已清（`docs/re/20`、`31`、`32`）；剩隊伍打敵方的傷害來源未讀 |
+| `07-world-events.md` | 未寫（可寫） | `internal/game` | 阻擋項已清（`docs/re/29`、`32`、`33`、`34`）|
 | `08-audio.md` | 未寫 | `internal/audio` | F2 位元組碼指令集與曲目資料未解 |
 
-**三份 READY 規格涵蓋的是「讀得懂原版資料、畫得出畫面、擲得出骰子」**，
-也就是資產層與呈現層。遊戲規則層一條都還不能寫。
+**四份 READY 規格涵蓋資產層、呈現層、亂數，以及規則層的第一塊**——
+走一步、遊戲時鐘、體力隨時間恢復、事件分派的骨架。
+05–07 的阻擋項在 2026-08-15 這一輪逆向之後都清掉了，可以逐份寫。
 
 ## 2. 為什麼現在就能寫這三份
 
@@ -50,7 +51,8 @@
 4. internal/game/rng   ← 規格 02；**已完成**（驗收數列與分佈全過）
 5. internal/input      ← 規格 03；**已完成**（與函式庫無關的按鍵模型）
 6. internal/ui         ← 規格 03；**已完成**（Ebiten：上色 ＋ 送圖 ＋ 收鍵）
-7. 其餘                ← 等對應規格 READY
+7. internal/game       ← 規格 04；**已完成**（走一步、時鐘、體力處理、事件分派骨架）
+8. 其餘                ← 等對應規格 READY
 ```
 
 相依取得方式（2026-08-15 定案）：**唯讀掛載本機模組快取當 file proxy**，
@@ -68,8 +70,9 @@
 | `cmd/wl-shot` | 把一幀寫成 PNG，**與 DOSBox 的原版截圖對拍用** | 否 |
 | `cmd/wasteland` | 開視窗的資產檢視器 | 是 |
 
-**兩支都還不是遊戲**：規則層的規格還沒 READY，所以方向鍵只搬視窗原點，
-不判定能不能走、不推進時鐘、不擲遭遇。
+**兩支都還不是遊戲**：`internal/game` 已經會走路與推進時鐘，但還沒接到
+呈現層——`cmd/wasteland` 的方向鍵目前仍只搬視窗原點。接線等規格 07
+（事件處理）落地之後一起做，免得接了又拆。
 
 `internal/assets` 不認識 Ebiten，`internal/game` 不認識畫面（`CLAUDE.md` §4）。
 規格 01 與 03 的分界就照這條線切：**解碼回 `image.RGBA` 屬於 01，畫到畫面屬於 03**。
