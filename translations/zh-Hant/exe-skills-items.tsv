@@ -1,0 +1,130 @@
+# 表 2：技能（1–35）與物品（36–130）
+# 物品名帶單複數分段（\x0A）：字根\x0A單數字尾\x0A複數字尾。
+# 中文沒有複數，字尾留空但**分段數量必須與原文相同**（build_lang.py 會擋）。
+exe:2:1	鬥毆
+exe:2:2	攀爬
+exe:2:3	手槍
+exe:2:4	刀鬥
+exe:2:5	拳擊
+exe:2:6	步槍
+exe:2:7	游泳
+exe:2:8	擲刀
+exe:2:9	觀察
+exe:2:10	突擊步槍
+exe:2:11	反戰車武器
+exe:2:12	衝鋒槍
+exe:2:13	特技
+exe:2:14	賭博
+exe:2:15	開鎖
+exe:2:16	潛行
+exe:2:17	速射
+exe:2:18	威信
+exe:2:19	手法
+exe:2:20	爆破
+exe:2:21	偽造
+exe:2:22	解除警報
+exe:2:23	官僚
+exe:2:24	拆彈
+exe:2:25	醫護
+exe:2:26	開保險箱
+exe:2:27	密碼學
+exe:2:28	冶金
+exe:2:29	駕駛直升機
+exe:2:30	電子學
+exe:2:31	修烤麵包機
+exe:2:32	醫術
+exe:2:33	複製人技術
+exe:2:34	能量武器
+exe:2:35	生化技術
+exe:2:36	拳頭
+exe:2:37	斧\x0A\x0A\x0A
+exe:2:38	棍棒\x0A\x0A\x0A
+exe:2:39	鏈鋸\x0A\x0A\x0A
+exe:2:40	刀\x0A\x0A\x0A
+exe:2:41	質子斧\x0A\x0A\x0A
+exe:2:42	手榴彈\x0A\x0A\x0A
+exe:2:43	塑膠炸藥\x0A\x0A\x0A
+exe:2:44	TNT
+exe:2:45	絞碎機\x0A\x0A\x0A
+exe:2:46	穿甲火箭\x0A\x0A\x0A
+exe:2:47	反戰車火箭\x0A\x0A\x0A
+exe:2:48	RPG-7\x0A\x0A\x0A
+exe:2:49	M1911A1 點四五手槍\x0A\x0A\x0A
+exe:2:50	長矛\x0A\x0A\x0A
+exe:2:51	飛刀\x0A\x0A\x0A
+exe:2:52	VP91Z 九釐米手槍\x0A\x0A\x0A
+exe:2:53	火焰噴射器\x0A\x0A\x0A
+exe:2:54	M17 卡賓槍\x0A\x0A\x0A
+exe:2:55	M19 步槍\x0A\x0A\x0A
+exe:2:56	紅騎士氣槍\x0A\x0A\x0A
+exe:2:57	Mac 17 衝鋒槍\x0A\x0A\x0A
+exe:2:58	烏茲衝鋒槍 27 型\x0A\x0A\x0A
+exe:2:59	AK 97 突擊步槍\x0A\x0A\x0A
+exe:2:60	M1989A1 北約突擊步槍\x0A\x0A\x0A
+exe:2:61	雷射手槍\x0A\x0A\x0A
+exe:2:62	離子光束槍\x0A\x0A\x0A
+exe:2:63	雷射卡賓槍\x0A\x0A\x0A
+exe:2:64	雷射步槍\x0A\x0A\x0A
+exe:2:65	介子砲\x0A\x0A\x0A
+exe:2:66	點四五彈匣\x0A\x0A\x0A
+exe:2:67	7.62 公釐彈匣\x0A\x0A\x0A
+exe:2:68	九釐米彈匣\x0A\x0A\x0A
+exe:2:69	榴彈砲彈\x0A\x0A\x0A
+exe:2:70	能量電池\x0A\x0A\x0A
+exe:2:71	動力裝甲\x0A\x0A\x0A
+exe:2:72	防彈衣\x0A\x0A\x0A
+exe:2:73	凱夫勒背心\x0A\x0A\x0A
+exe:2:74	皮夾克\x0A\x0A\x0A
+exe:2:75	凱夫勒套裝\x0A\x0A\x0A
+exe:2:76	仿甲殼護甲\x0A\x0A\x0A
+exe:2:77	防輻射衣\x0A\x0A\x0A
+exe:2:78	長袍\x0A\x0A\x0A
+exe:2:79	書\x0A\x0A\x0A
+exe:2:80	水壺\x0A\x0A\x0A
+exe:2:81	撬棍\x0A\x0A\x0A
+exe:2:82	引擎\x0A\x0A\x0A
+exe:2:83	防毒面具\x0A\x0A\x0A
+exe:2:84	蓋革計數器\x0A\x0A\x0A
+exe:2:85	手鏡\x0A\x0A\x0A
+exe:2:86	水罐\x0A\x0A\x0A
+exe:2:87	地圖\x0A\x0A\x0A
+exe:2:88	火柴\x0A\x0A\x0A
+exe:2:89	鶴嘴鋤\x0A\x0A\x0A
+exe:2:90	繩索\x0A\x0A\x0A
+exe:2:91	鏟子\x0A\x0A\x0A
+exe:2:92	大鎚\x0A\x0A\x0A
+exe:2:93	蛇汁\x0A\x0A\x0A
+exe:2:94	機器人頭顱\x0A\x0A\x0A
+exe:2:95	解毒劑\x0A\x0A\x0A
+exe:2:96	芬斯特的頭顱\x0A\x0A\x0A
+exe:2:97	黑星鑰匙\x0A\x0A\x0A
+exe:2:98	血杖\x0A\x0A\x0A
+exe:2:99	血杖\x0A\x0A\x0A
+exe:2:100	壞掉的烤麵包機\x0A\x0A\x0A
+exe:2:101	化學藥劑\x0A\x0A\x0A
+exe:2:102	複製人培養液\x0A\x0A\x0A
+exe:2:103	簽帳卡\x0A\x0A\x0A
+exe:2:104	融合電池\x0A\x0A\x0A
+exe:2:105	食草蝠護符\x0A\x0A\x0A
+exe:2:109	新星鑰匙\x0A\x0A\x0A
+exe:2:110	縞瑪瑙戒指\x0A\x0A\x0A
+exe:2:111	萬能鑰匙\x0A\x0A\x0A
+exe:2:112	電漿耦合器\x0A\x0A\x0A
+exe:2:113	能量轉換器\x0A\x0A\x0A
+exe:2:114	脈衝星鑰匙\x0A\x0A\x0A
+exe:2:115	類星體鑰匙\x0A\x0A\x0A
+exe:2:116	唯讀記憶體板\x0A\x0A\x0A
+exe:2:117	十八號房鑰匙\x0A\x0A\x0A
+exe:2:118	紅寶石戒指\x0A\x0A\x0A
+exe:2:119	一號安全通行證\x0A\x0A\x0A
+exe:2:120	三號安全通行證\x0A\x0A\x0A
+exe:2:121	七號安全通行證\x0A\x0A\x0A
+exe:2:122	A 號安全通行證\x0A\x0A\x0A
+exe:2:123	B 號安全通行證\x0A\x0A\x0A
+exe:2:124	伺服馬達\x0A\x0A\x0A
+exe:2:125	音波鑰匙\x0A\x0A\x0A
+exe:2:126	烤麵包機\x0A\x0A\x0A
+exe:2:127	陶罐\x0A\x0A\x0A
+exe:2:128	水果\x0A\x0A\x0A
+exe:2:129	珠寶
+exe:2:130	現金

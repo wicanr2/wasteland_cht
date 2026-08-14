@@ -81,9 +81,21 @@ def main() -> None:
     for p in sorted(src_dir.glob("*.tsv")):
         source.update(read_tsv(p))
 
+    # ⚠ 跨檔的重複 key 會靜靜覆蓋掉一份翻譯——同一條被翻兩次而且兩份不同時，
+    # 出來的是哪一份取決於檔名排序。這種錯不會有任何症狀，所以要擋。
     zh: dict[str, str] = {}
+    owner: dict[str, str] = {}
+    dupes: list[str] = []
     for p in sorted(zh_dir.glob("*.tsv")):
-        zh.update(read_tsv(p))
+        for key, text in read_tsv(p).items():
+            if key in zh:
+                dupes.append(f"{key}：{owner[key]} 與 {p.name} 都翻了")
+                continue
+            zh[key], owner[key] = text, p.name
+    if dupes:
+        for d in dupes:
+            print("錯誤：" + d, file=sys.stderr)
+        raise SystemExit(f"{len(dupes)} 個重複的 key，沒有產生 .cat")
 
     errors: list[str] = []
     entries: list[tuple[str, bytes]] = []
