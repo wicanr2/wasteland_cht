@@ -144,29 +144,34 @@ func CommandMenu(label func(game.Command) string) []CommandOption {
 	return out
 }
 
-// MenuLines 把選單排成每行最多 width 欄的多行文字。
+// MenuLines 把選單排成**一行一個選項**，照原版的結構
+// （每個選項一段 `\x10<文字>\x0D`，docs/re/40 §4）。
 //
-// 七個選項在 640 × 400 的中文畫布下一行放不下（docs/spec/16 §4），
-// 所以這裡回傳多行而不是一整條。每個選項印成「<字母> <文字>」。
-func MenuLines(opts []CommandOption, width int) []string {
-	var lines []string
-	cur := ""
+// 每一行的第一個字元就是熱鍵——`\x10` 捕捉的是下一個字元，
+// 所以中文選項寫成「R 逃跑」時，捕捉到的仍然是 R。
+func MenuLines(opts []CommandOption) []string {
+	lines := make([]string, 0, len(opts))
 	for _, o := range opts {
-		item := fmt.Sprintf("%c %s", o.Key, o.Label)
-		switch {
-		case cur == "":
-			cur = item
-		case len(cur)+2+len(item) <= width:
-			cur += "  " + item
-		default:
-			lines = append(lines, cur)
-			cur = item
-		}
-	}
-	if cur != "" {
-		lines = append(lines, cur)
+		lines = append(lines, fmt.Sprintf("%c %s", o.Key, o.Label))
 	}
 	return lines
+}
+
+// MenuFits 回報這份選單放不放得進 rows 行 × width 格。
+//
+// ⚠ **原版自己也放不下**：標題 ＋ 空行 ＋ 七個選項要 9 行，訊息視窗只有 6 行，
+// 而原版怎麼容納還沒逆向（docs/re/40 §5）。所以這裡只回報，不自己決定
+// 捲動或分頁——那是呈現層的事，而且要等 RE 補上才知道原版怎麼做。
+func MenuFits(lines []string, width, rows int) bool {
+	if len(lines) > rows {
+		return false
+	}
+	for _, l := range lines {
+		if len([]rune(l)) > width {
+			return false
+		}
+	}
+	return true
 }
 
 // CombatScene 是一場戰鬥的畫面狀態。
@@ -209,13 +214,13 @@ func (s *CombatScene) advance(from int) {
 }
 
 // Prompt 是目前這個人的提示行（名字 ＋ 選單）。指令階段結束時回 nil。
-func (s *CombatScene) Prompt(label func(game.Command) string, width int) []string {
+func (s *CombatScene) Prompt(label func(game.Command) string) []string {
 	if s.Turn < 0 {
 		return nil
 	}
 	m := s.Battle.Party.Members[s.Turn]
-	out := []string{m.Name + ", choose:"}
-	return append(out, MenuLines(CommandMenu(label), width)...)
+	out := []string{m.Name + ", choose:", ""}
+	return append(out, MenuLines(CommandMenu(label))...)
 }
 
 // Choose 收一個按鍵。回傳這個按鍵有沒有被接受。

@@ -114,23 +114,42 @@ func TestMenuKeysMatchCommandCodes(t *testing.T) {
 	}
 }
 
-// 七個選項一行放不下時要換行，而且每個選項都還在。
-func TestMenuLinesWrap(t *testing.T) {
+// 驗收 5：一行一個選項（原版結構），每一行的第一個字元就是熱鍵。
+func TestMenuIsOnePerLine(t *testing.T) {
 	opts := CommandMenu(nil)
-	lines := MenuLines(opts, 19)
-	if len(lines) < 2 {
-		t.Fatalf("19 欄放不下七個選項，應該換行；得到 %d 行", len(lines))
-	}
-	joined := strings.Join(lines, " ")
-	for _, o := range opts {
-		if !strings.Contains(joined, o.Label) {
-			t.Errorf("換行之後掉了選項 %q", o.Label)
-		}
+	lines := MenuLines(opts)
+	if len(lines) != len(opts) {
+		t.Fatalf("應該一行一個選項，%d 個選項得到 %d 行", len(opts), len(lines))
 	}
 	for i, l := range lines {
-		if len(l) > 19 {
-			t.Errorf("第 %d 行超過 19 欄：%q", i, l)
+		if l[0] != opts[i].Key {
+			t.Errorf("第 %d 行的第一個字元是 %q，熱鍵是 %q", i, l[0], opts[i].Key)
 		}
+		if !strings.Contains(l, opts[i].Label) {
+			t.Errorf("第 %d 行掉了選項文字 %q：%q", i, opts[i].Label, l)
+		}
+	}
+
+	// 中文選項也一樣：第一個字元仍然是熱鍵（\x10 捕捉的就是它）。
+	zh := map[game.Command]string{
+		game.CmdRun: "逃跑", game.CmdUse: "使用", game.CmdHire: "雇用",
+		game.CmdEvade: "迴避", game.CmdAttack: "攻擊",
+		game.CmdWeapon: "換武器", game.CmdLoad: "裝填",
+	}
+	zhLines := MenuLines(CommandMenu(func(c game.Command) string { return zh[c] }))
+	for i, l := range zhLines {
+		if l[0] != opts[i].Key {
+			t.Errorf("中文第 %d 行的第一個字元是 %q，熱鍵應該還是 %q", i, l[0], opts[i].Key)
+		}
+	}
+
+	// 標題 ＋ 空行 ＋ 七個選項 ＝ 9 行，訊息視窗只有 6 行——要回報放不下。
+	if MenuFits(append([]string{"X, choose:", ""}, zhLines...), 38, 6) {
+		t.Error("9 行塞不進 6 行的訊息視窗，應該回報 false")
+	}
+	// 38 格一行放得下任何一個中文選項（一格一個字，docs/spec/10 §3）。
+	if !MenuFits(zhLines, 38, 7) {
+		t.Error("七行 × 38 格應該放得下")
 	}
 }
 
@@ -140,7 +159,7 @@ func TestCommandPhaseSkipsDownedMembers(t *testing.T) {
 	asked := []int{}
 	for !s.Done() {
 		asked = append(asked, s.Turn)
-		if lines := s.Prompt(nil, 38); len(lines) == 0 {
+		if lines := s.Prompt(nil); len(lines) == 0 {
 			t.Fatal("還沒問完卻拿不到提示")
 		}
 		if !s.Choose('E', true) {
