@@ -1,0 +1,70 @@
+# game2 資源 39：法蘭·布萊哥的藏身處（維加斯）
+#
+# ⚠ 玩家要輸入的密語不翻：KESTREL／PHOENIX／CLOVER／CRUMB／CRUMB SENT ME／
+# Y／N／A–D。
+#
+# 36–37 是開發團隊自嘲的彩蛋：桌上那台 IBM AT 螢幕顯示「Wasteland 2」，
+# 旁邊字條寫「你大概玩到四成」。照原樣翻，`IBM AT` 與 `Wasteland 2` 保留原文。
+blk:game2:39:1	\x0D離開藏身處。\x0D
+blk:game2:39:2	\x0D一個超大隻的守衛衝上來要你們說出暗號。\x0D
+blk:game2:39:3	KESTREL
+blk:game2:39:4	\x0D「你們以為自己在幹嘛？給我滾出去。」\x0D
+blk:game2:39:5	「暗號是什麼？」\x0D
+blk:game2:39:6	「怎麼又是你們？這次最好拿得出暗號。」\x0D
+blk:game2:39:7	\x0D「又錯了！」你們被扔到街上。\x0D
+blk:game2:39:8	\x0D這地方看起來像一間廢棄很久的軟體開發公司。\x0D
+blk:game2:39:9	\x0D這條走廊又暗又陰森。\x0D
+blk:game2:39:10	\x0D這間辦公室的牆堅固得像金庫。\x0D
+blk:game2:39:11	這個守衛看起來像是有在打類固醇。\x0D
+blk:game2:39:12	CRUMB SENT ME
+blk:game2:39:13	CRUMB
+blk:game2:39:14	「你們要見布萊哥先生嗎？」\x0D\x0D\x11\x10Y 是\x0D\x10N 否\x0D
+blk:game2:39:15	Y
+blk:game2:39:16	\x0D「那就閃邊去。」\x0D
+blk:game2:39:17	「誰叫你們來的？」\x0D
+blk:game2:39:18	\x0D「別浪費我的時間。」\x0D
+blk:game2:39:20	\x0D「請進。布萊哥先生一直在等你們。」\x0D
+blk:game2:39:21	\x0D門在你們身後關上。你看見法蘭·布萊哥坐在辦公桌前，旁邊站著兩個高大的保鑣。\x0D
+blk:game2:39:22	\x0D「他說他從沒聽過你們。」\x0D
+blk:game2:39:23	\x0D這張桌子非常大，推不動。\x0D
+blk:game2:39:24	\x0D請看第 99 段。\x0D
+blk:game2:39:25	你要：\x0D\x0D\x11\x10A) 攻擊\x0D\x10B) 問他有什麼\x0D   要你們做的\x0D\x10C) 告訴他他能為\x0D   你們做什麼\x0D\x10D) 道歉離開\x0D
+blk:game2:39:26	A
+blk:game2:39:27	B
+blk:game2:39:28	C
+blk:game2:39:29	\x0D「我不知道你們是怎麼進來的，不過你們別想活著出去。」法蘭閃身躲到桌子底下。\x0D
+blk:game2:39:30	\x0D\x0D\x0D\x0D\x0D請看第 7 段。\x0D
+blk:game2:39:31	\x0D「你們以為自己是誰，敢對我下指令？」\x0D
+blk:game2:39:32	D
+blk:game2:39:33	「你們比我想的難纏，但還不夠。」法蘭發動攻擊。\x0D
+blk:game2:39:34	你們找到一道暗門。要用嗎？\x0D\x0D\x11\x10Y 是\x0D\x10N 否\x0D
+blk:game2:39:35	小心。這傢伙是個怪物。\x0D
+blk:game2:39:36	\x0D你看見桌上有一台 IBM AT。螢幕上顯示「Wasteland 2」。你興奮得發抖。\x0D
+blk:game2:39:37	\x0D這張桌上有一張字條，寫著：「你大概玩到全部的四成。」\x0D
+blk:game2:39:38	\x0D別站到工作檯上。\x0D
+blk:game2:39:39	\x0D這個房間裡放著老舊過時的電腦設備。\x0D
+blk:game2:39:40	\x0D這條通道被封住了。\x0D
+blk:game2:39:41	\x0D咚！\x0D
+blk:game2:39:42	「你們這些遊俠永遠見不到布萊哥。」\x0D
+blk:game2:39:43	\x0D一大塊岩板擋住你們的去路。\x0D
+blk:game2:39:44	\x0D你注意到門這一側有個按鈕。你按下按鈕，門滑進了牆裡。\x0D
+blk:game2:39:45	\x0D一面被砸爛的控制板。\x0D
+blk:game2:39:46	這面被砸爛的控制板上有根拉桿還能用。要拉嗎？\x0D\x0D\x11\x10Y 是\x0D\x10N 否\x0D
+blk:game2:39:47	\x0D你一拉，拉桿就斷了，但你聽見遠處傳來隆隆聲。\x0D
+blk:game2:39:48	\x0D這道門看起來堅固得驚人。\x0D
+blk:game2:39:51	\x0D你一走進房間就被捲進一場爆炸的正中央。\x0D
+blk:game2:39:52	「你們別想活著離開這裡。」\x0D
+blk:game2:39:53	\x0D你看見法蘭·布萊哥正想從一道暗門逃走。\x0D
+blk:game2:39:54	\x0D這道門上的塗鴉寫著：「大老闆布萊哥。閒人勿進！」\x0D
+blk:game2:39:55	\x0D泡這個按摩浴缸很舒服。\x0D
+blk:game2:39:56	\x0D這裡的南牆有點奇怪。\x0D
+blk:game2:39:57	\x0D這面牆上寫著某種象形文字的塗鴉。\x0D
+blk:game2:39:58	\x0D你把訊息解讀出來，發現這其實是一道門。你在上面到處按，總算把它打開了。\x0D
+blk:game2:39:59	\x0D你完全看不出那是什麼意思。\x0D
+blk:game2:39:60	\x0D這一定是布萊哥的金庫。\x0D
+blk:game2:39:61	\x0D你出去了。\x0D
+blk:game2:39:62	\x0D這個出口是一道滑梯，沒辦法再滑回來。\x0D
+blk:game2:39:63	\x0D你在長椅上坐著休息了一會兒。\x0D
+blk:game2:39:64	\x0D「布萊哥先生現在很忙，不想被打擾。」\x0D
+blk:game2:39:65	PHOENIX
+blk:game2:39:66	CLOVER
