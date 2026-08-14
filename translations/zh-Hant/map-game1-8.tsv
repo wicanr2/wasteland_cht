@@ -1,0 +1,95 @@
+# game1 資源 8：鐵路遊牧民族的營地（列車、三個宗族的帳篷、賭場車廂）
+#
+# ⚠ 玩家要輸入的關鍵字不翻：CHAT／ENGINEER／BRAKEMAN／HOBO／ATCHISONS／
+# TOPEKANS／SANTE FE／CATERPILLAR／LADYBUG／LIZARD／VISA CARD／Y／N。
+#
+# 職稱沿用 1990 年軟體世界說明書：Engineer ＝ 工程師、Hobo ＝ 賢人
+# （他在遊戲裡是先知不是流浪漢，當年的譯法比直譯準）。Brakeman 說明書沒譯，
+# 這裡用煞車員。
+#
+# ⚠ 三個宗族名 Atchison／Topeka／Sante Fe **保留原文**——說明書當年也保留，
+# 而且它們同時是玩家要打的關鍵字（那是 AT&SF 鐵路公司的名字拆成三家）。
+blk:game1:8:1	\x0D請看第 2 段。\x0D
+blk:game1:8:2	\x0D離開遊牧民族營地。\x0D
+blk:game1:8:3	\x0D「什麼？」\x0D
+blk:game1:8:4	這是一台十塊錢的吃角子老虎。要試試手氣嗎？\x0D\x0D\x11\x10Y 是\x0D\x10N 否\x0D
+blk:game1:8:5	\x0D「別再煩我了！」\x0D
+blk:game1:8:6	\x0D進入交易車廂\x0D
+blk:game1:8:7	LADYBUG
+blk:game1:8:8	LIZARD
+blk:game1:8:9	\x0D請看第 42 段。\x0D
+blk:game1:8:10	\x0D這個流浪漢看起來像是蛇酒喝太多昏過去了。\x0D
+blk:game1:8:11	\x0D守車。\x0D
+blk:game1:8:12	\x0D流浪漢的貨車廂。\x0D
+blk:game1:8:13	\x0D請看第 17 段。\x0D
+blk:game1:8:14	\x0D空的帳篷儲藏車廂。\x0D
+blk:game1:8:15	\x0D交易車廂。\x0D
+blk:game1:8:16	\x0D賭場車廂。\x0D
+blk:game1:8:17	\x0D火車頭。\x0D
+blk:game1:8:18	\x0D工程師陰沉地看著你。「我真希望你們沒有捲進煞車員那些異想天開的計畫！我警告你，跟著他只會惹來一身麻煩！」\x0D
+blk:game1:8:19	\x0D「Sante Fe 是各族裡最窮的，但大致上是老實人。」\x0D
+blk:game1:8:21	\x0D工程師笑了。「Atchison 這一族，」他說，「值得信賴又肯做事。我自己就是 Atchison。煞車員也是，不過我懷疑他母親那邊有 Topeka 的血。」\x0D
+blk:game1:8:22	\x0D「我們有這位賢人是天大的福氣，」工程師說。「他不只帶來運氣與神靈的庇佑，還是遠近聞名的先知，很多人從老遠趕來聽他說話。可惜上一位賢人被神諭弄糊塗了，在針岩城從車上摔了下去。」\x0D
+blk:game1:8:23	\x0D工程師搖搖頭。「Topeka 一族又有錢又有勢。說自己人的壞話我很猶豫，不過那群人我一點都信不過。」\x0D
+blk:game1:8:24	\x0D煞車員在守車門口迎接你們。他謝謝你們願意赴約，並且有樣東西要你們送去石英城給碎顱者。\x0D
+blk:game1:8:25	他問你們願不願意送這封信？\x0D\x0D\x11\x10Y 是\x0D\x10N 否\x0D
+blk:game1:8:26	Y
+blk:game1:8:27	N
+blk:game1:8:28	\x0D請看第 54 段。\x0D
+blk:game1:8:29	\x0D你們一拒絕，煞車員整個人僵住。他冷冷地謝過你們花的時間，回頭走進守車，砰地把門甩上。\x0D
+blk:game1:8:30	CHAT
+blk:game1:8:31	ENGINEER
+blk:game1:8:32	\x0D工程師一臉不快。「倒楣的是，我們的煞車員是個蠢材。他偏要碰那些邪門的東西。他竟然提議用引擎代替牛來拉這列火車。這白痴遲早會給我們招來神明的震怒！」\x0D
+blk:game1:8:33	\x0D他忽然注意到你們帶著那個封好的箱子，整個人興奮起來。「你們把它帶來了！放下來讓我檢查！」\x0D
+blk:game1:8:34	\x0D請看第 86 段。\x0D
+blk:game1:8:35	CATERPILLAR
+blk:game1:8:36	\x0D那個守衛嚴厲地看著你，回說 Atchison 一族沒空閒聊。\x0D
+blk:game1:8:37	\x0D請看第 39 段。\x0D
+blk:game1:8:38	\x0D是埋伏！鐵路盜匪從藏身處衝出來，手上揮著要命的鋼撬棍！\x0D
+blk:game1:8:39	ATCHISONS
+blk:game1:8:40	\x0D「歡迎，請進來接受我們的招待！」\x0D
+blk:game1:8:41	\x0D那個守衛銳利地看了你一眼，然後示意你進帳篷。\x0D
+blk:game1:8:42	\x0D「沒錯，這是 Atchison 一族的帳篷。請進來接受我們的招待。」\x0D
+blk:game1:8:43	\x0D你發現自己站在一頂陳設華麗的帳篷裡。男人、女人、小孩和長者全都笑著向你打招呼。背後傳來守衛的聲音：「歡迎來到 Topeka 一族……蠢貨！」全族人隨即抽出藏著的武器一擁而上！\x0D
+blk:game1:8:44	\x0D請看第 43 段。\x0D
+blk:game1:8:45	\x0D進來聽道吧……嗝……見識賢人的智慧！嗝……呼嚕……賢人醉眼惺忪地朝你笑。「各位善心人，我最想做的就是跟你們談談靈性的事，可惜啊，啟發我看見異象的那瓶仙露好像喝完了！」為了證明，賢人把一瓶空的蛇酒倒了過來。\x0D
+blk:game1:8:46	\x0D賢人看起來有點沮喪。「唉，」他說，「這不是我要的那種靈感。」\x0D
+blk:game1:8:47	\x0D請看第 46 段。\x0D
+blk:game1:8:48	\x0D請看第 110 段。\x0D
+blk:game1:8:49	\x0D請看第 156 段。\x0D
+blk:game1:8:50	\x0D請看第 160 段。\x0D
+blk:game1:8:51	\x0D請看第 152 段。\x0D
+blk:game1:8:52	\x0D請看第 117 段。\x0D
+blk:game1:8:53	\x0D請看第 141 段。\x0D
+blk:game1:8:54	\x0D請看第 128 段。\x0D
+blk:game1:8:55	\x0D請看第 3 段。\x0D
+blk:game1:8:56	\x0D請看第 148 段。\x0D
+blk:game1:8:57	\x0D這株仙人掌附近好像什麼都長不出來。\x0D
+blk:game1:8:58	\x0D那個守衛沒空閒聊，建議你去浪費工程師的時間。\x0D
+blk:game1:8:59	\x0D那個守衛困惑地看著你，搔了搔頭，然後消失在帳篷裡。裡面傳出一陣激動的討論。守衛再出來時，看起來開竅了一點。\x0D
+blk:game1:8:60	\x0D「你們要找的是 Atchison 的帳篷，」他說，指向最靠近火車頭的那一頂。\x0D
+blk:game1:8:61	\x0D砰！\x0D
+blk:game1:8:62	\x0D你把松鼠惹毛了……\x0D
+blk:game1:8:63	\x0D響尾蛇不太欣賞你踩過牠們的灌木叢……\x0D
+blk:game1:8:64	\x0D夠熱了吧？\x0D
+blk:game1:8:65	HOBO
+blk:game1:8:66	TOPEKANS
+blk:game1:8:67	SANTE FE
+blk:game1:8:68	BRAKEMAN
+blk:game1:8:69	VISA CARD
+blk:game1:8:70	\x0D請看第 28 段。\x0D
+blk:game1:8:71	\x0D賢人一臉期待地看著你……\x0D
+blk:game1:8:72	守衛在帳篷入口攔下你，要你說明來意。\x0D
+blk:game1:8:73	\x0D這頂帳篷是石棉做的，看起來非常牢固。\x0D
+blk:game1:8:74	工程師笑著問有什麼可以效勞。\x0D
+blk:game1:8:75	\x07交易車廂\x0D
+blk:game1:8:76	\x0D抱歉，你的錢不夠玩。\x0D
+blk:game1:8:77	\x0D轉啊轉啊轉。停在哪裡，沒人知道。\x0D
+blk:game1:8:78	\x0D你聽見硬幣掉進吃角子老虎盤子裡的聲音。\x0D
+blk:game1:8:79	\x0D獨臂大盜又得手了！你輸了。\x0D
+blk:game1:8:80	你背後那是什麼？\x0D
+blk:game1:8:81	「喂，滾出去。」\x0D
+blk:game1:8:82	「你在看什麼？」\x0D
+blk:game1:8:83	「我是 Topeka 人。」\x0D
+blk:game1:8:84	小孩也來攻擊。\x0D
+blk:game1:8:85	一個帶著手槍的 Topeka 娃娃衝過來攻擊。\x0D
