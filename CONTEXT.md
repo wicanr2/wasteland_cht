@@ -4,7 +4,7 @@
 > 再依索引跳到需要的文件。工作紀律與硬規則在 [`CLAUDE.md`](./CLAUDE.md)。
 > **逆向結果的速查表在 [`docs/re/00-master-index.md`](docs/re/00-master-index.md)。**
 >
-> 最後更新：2026-08-14
+> 最後更新：2026-08-15
 
 ---
 
@@ -59,6 +59,7 @@
 | **戰鬥判定** | **兩條路徑都已定位**：隊伍打敵方（`0x1AF52`）與敵方打隊伍（`0x1B04C`）共用同一支累加器，判定前綴機器碼相同、只差 `jb`／`jnb`——累加的是隊伍成員的本事，方向隨攻守翻轉。傷害 ＝ 基底 ＋ Nd6，兩邊護甲都是 N 顆 d6 的吸收。**敵方 HP 在 `ds:46C8h + 編號×2`**，減到 ≤0 夾成 0；角色 CON 可為負並分五級傷勢（`docs/re/20`）|
 | **效果與傷害** | **已解**：地圖事件對角色的所有效果由記錄 `+0x08`／`+0x09` 兩個 byte 描述（哪個欄位、加或減、固定值或 Nd6），共用 `sub_141FA` 一個出口。護甲吸收 ＝ **AC 顆 d6 的和**（`docs/re/19`）|
 | **存檔** | **已解**：在 `game1`／`game2` 檔尾的一個 MSQ 資源（`0x000253C5`／`0x00028BC7`，**seek 是 32-bit 的 `cx:dx`**）。`0x800` 加密段 ＝ 8 × 256：第 0 筆是全域狀態（四組隊伍槽表、時鐘、32-bit 序號、地點名稱），第 1–7 筆是角色。**checksum ＝ 0 − Σ 明文位元組**，改寫必須重算。出廠的四個 Ranger（Hell Razor／Angela Deth／Thrasher／Snake Vargas）把角色記錄欄位表整個驗過一遍（`docs/re/30`）|
+| **經驗值與升級** | **已解**：經驗值在角色記錄 `+0x21`–`+0x23`（24-bit 累計，升級**不扣**），**升到等級 L 要 (L² − L) × 512**（1,024／3,072／6,144…）。升級把等級寫 `+0x24`、技能點 `+0x20` ＋1、播音效 4、查 `ds:D522h`（等級 → 階級編號，**50 階對到等級 1–131**，`Private` 到 `General Argent`）決定要不要印升階訊息，經驗值夠可連升。技能學習：IQ 需求 ＝ 技能資料 `+0x00 >> 3`、基礎費用 ＝ `& 7`、升到等級 L 的費用 ＝ 基礎 × 2^(L−1)（`docs/re/31`）|
 | **角色記錄** | **定址已確認**：記錄 ＝ `0x7131 ＋ 角色編號 × 256`，每筆 256 bytes，經隊伍槽表兩層間接。名字、金錢（24-bit）、七個屬性、MAXCON／CON、**技能與物品兩個 30 槽陣列（已分辨）**、傷勢門檻（−11／−20／−30／−40）都已定位（`docs/re/15`） |
 | 逐指令基準 | 整個 CODE 區倒成 JSON（20,177 條指令、827 個全域、4,932 筆直接定址存取），後續形狀比對改在離線做（`tools/ida/export_listing.py`、`export_memops.py`） |
 | 儲存層 | 雙模式（硬碟 DOS 檔案／磁片 `int 25h` 絕對磁區）與分流旗標；資源表 8 筆全解，六個檔名的引用點就在表的 `+6` 欄位（`docs/re/05`） |
@@ -92,7 +93,7 @@
 | [`CLAUDE.md`](./CLAUDE.md) | 專案規範：三道閘門、IDA 鐵則、文件與中文化政策、環境硬規則 |
 | [`docs/re/00-master-index.md`](docs/re/00-master-index.md) | **RE 總表**：位址換算、資料格式、結構佈局、位址表、關鍵函式、工具。**查已知事實先看這份** |
 | [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md) | **RE 完成度檢查表**：remake 需要的每一項知識、狀態與入口 |
-| [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 259）。讀任何 `sub_XXXXX` 前先查 |
+| [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 264）。讀任何 `sub_XXXXX` 前先查 |
 | [`docs/re/01-binary-identity.md`](docs/re/01-binary-identity.md) | 20 檔 SHA-256、`wl.exe` 的 MZ header、第一份資料庫與「不可用作證據」的結論 |
 | [`docs/re/02-exepack-unpack.md`](docs/re/02-exepack-unpack.md) | EXEPACK 格式、解包器、relocation 起點的坑、解包後基準資料庫 |
 | [`docs/re/03-boot-and-asset-loading.md`](docs/re/03-boot-and-asset-loading.md) | 開機序列、`info` 安裝資訊、檔名表、七個開機素材的載入位址、`TITLE.PIC` XOR 解碼 |
@@ -123,6 +124,7 @@
 | [`docs/re/28-text-variants.md`](docs/re/28-text-variants.md) | 文字變形：單複數／性別／三選一／數量，四個碼的骨架與選擇子來源 |
 | [`docs/re/29-map-event-handlers.md`](docs/re/29-map-event-handlers.md) | 地圖事件處理函式（寶箱／選單／訊息），以及強制分析 IDA 漏掉位址的做法 |
 | [`docs/re/30-save-layout.md`](docs/re/30-save-layout.md) | 存檔佈局、checksum 算法、隊伍槽表、四個預設 Ranger |
+| [`docs/re/31-experience-and-skills.md`](docs/re/31-experience-and-skills.md) | 升級門檻 (L² − L) × 512、階級表、技能學習與費用公式 |
 | [`docs/spec/00-index.md`](docs/spec/00-index.md) | **規格索引與閘門狀態**：哪些可以動工、其餘擋在什麼上 |
 | [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
 | [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |
@@ -173,21 +175,18 @@
 ## 7. Worklist
 
 **RE 完成度**：資料格式、文字與資產層打通（含地圖三層、圖磚與圖片），
-戰鬥／屬性／效果／商店四塊規則已解；世界互動層仍是主要缺口。
-641 個函式裡人寫的筆記涵蓋 259 個。完整缺口見
+戰鬥／屬性／效果／商店／升級與技能五塊規則已解；世界互動層仍是主要缺口。
+641 個函式裡人寫的筆記涵蓋 264 個。完整缺口見
 [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md)。
 
 **下一步（依「對 remake 的阻擋程度」排序）**
 
-1. **經驗值與升級（D5）** —— 規則層最後一塊大的，入口在
-   `YOU ARE NOT SMART ENOUGH!`／`NOT ENOUGH SKILL POINTS!` 附近（`0x1C906`、`0x1C9A1`）。
-2. **nibble 5／8／9 的事件處理函式** —— 分派已解，但那三支 IDA 沒建成程式碼
-   （`0x15280`／`0x15160`／`0x14410`），要指定位址重新分析（`docs/re/26` §8）。
+1. **每場戰鬥給多少經驗值** —— D5 剩下的一半：`sub_19BC0`（24-bit 加）的呼叫端。
    `sub_12537`／`sub_1254A`（隨時間恢復／惡化的公式）也在這一批。
-3. **段落編號顯示（E3）** —— 段落書與遊戲內文字的分工要重新釐清。
-4. **中文排版決策** —— 訊息視窗只有 6 行 × 38 個 8×8 字元，換成 16 × 15 中文
+2. **段落編號顯示（E3）** —— 段落書與遊戲內文字的分工要重新釐清。
+3. **中文排版決策** —— 訊息視窗只有 6 行 × 38 個 8×8 字元，換成 16 × 15 中文
    放不下，要連同文字控制碼一起重排（`docs/re/25` §3）。
-5. 逐一解 overlay 其餘的未解 slot（26 個裡已解 12 個）。
+4. 逐一解 overlay 其餘的未解 slot（26 個裡已解 12 個）。
 6. 追資源表 idx 7（無檔名，疑似存檔區）在硬碟模式下怎麼存取。
 7. 音效（F2）：確定是 PC 喇叭——`sub_1CC76` 寫 8253 channel 2（`out 42h`）
    再開 61h 閘。待解的是 `sub_1CD52` 那套位元組碼的指令集與曲目資料在哪。

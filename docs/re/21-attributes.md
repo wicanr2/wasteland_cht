@@ -170,7 +170,7 @@ jnb  失敗
 性別                        roll(1..2) → 決定用哪張輸入樣板（ds:DECFh／ds:DED9h）
 七個屬性                    bl 從 0x0E 跑到 0x14，每格 ＝ sub_1CAD1()
 MAXCON ＝ CON               sub_1CAD1() ＋ 18，兩者寫成同一個值
-rec[+0x24] ← 1
+rec[+0x24] ← 1              等級 ＝ 1（升級規則見 docs/re/31）
 rec[+0x20] ← rec[+0x0F]     技能點 ＝ IQ
 rec[+0x32…] ← "PRIVATE"     從 ds:DEC7h 複製到 0 為止（初始階級字串）
 ```
