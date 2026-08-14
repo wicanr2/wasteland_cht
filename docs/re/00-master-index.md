@@ -629,6 +629,8 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `tools/dump_save.py` | 解開存檔區並列出隊伍、時鐘、角色 | 否 |
 | `tools/dump_items.py` | 解開物品資料表並配上物品名／技能名 | 否 |
 | `tools/summarize_questions.py` | 42 個區塊的 nibble 8 問答 ＋ 產生「不可翻譯」守則清單 | 否 |
+| `tools/dosbox.sh` | headless DOSBox 跑原版：送鍵、截圖（`docker/dosbox/`） | 否 |
+| `tools/compare_screen.py` | 截圖與解碼器輸出**逐像素**對拍（位置用掃的，會報次佳差距） | 否 |
 | `tools/ida/export_forced.py` | 強制把 IDA 漏掉的位址分析成程式碼再倒出 | 是 |
 | `tools/rng.py` | 亂數與擲骰的參考模型（附自我測試） | 否 |
 | `tools/unpack_exepack.py`／`apply_overlay.py` | 解包／合成分析映像 | 否 |
@@ -687,6 +689,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | [`44`](44-audio.md) | 音效：計時器 ISR、四個聲部、位元組碼指令集、九首資料與呼叫端 |
 | [`45`](45-item-data-and-weapon-damage.md) | 物品資料表八個欄位、表在存檔區、武器傷害骰（`sub_15755`） |
 | [`46`](46-typed-answers-and-text-input.md) | 打字回答與密語比對、文字輸入常式、按鍵轉大寫、中文化硬約束 |
+| [`47`](47-dosbox-oracle.md) | DOSBox 參考環境；解包正確性、`TITLE.PIC` 逐像素、調色盤、隊伍名單五條斷言 |
 
 ## 9. 引用這份表時的紀律
 
