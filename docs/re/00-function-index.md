@@ -6,8 +6,8 @@
 輸入：`wl.merged.exe（解包映像＋wla.bin overlay，本專案合成）`，SHA-256 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`
 
 - 自動辨識函式：**641**
-- 已在筆記中出現：**364**
-- 尚未碰過：**277**
+- 已在筆記中出現：**368**
+- 尚未碰過：**273**
 
 ## 已分析（依呼叫端數量排序）
 
@@ -119,7 +119,7 @@
 | `0x1C213` | seg000+0xC213 | 15 | 6 | re/17-packed-text.md、re/35-status-and-healing.md、re/42-facility-loops.md |
 | `0x1C22F` | seg000+0xC22F | 36 | 6 | re/42-facility-loops.md |
 | `0x1003F` | seg000+0x3F | 3 | 5 | re/04-overlay-wla-bin.md |
-| `0x1142B` | seg000+0x142B | 13 | 5 | re/34-map-script-opcodes.md |
+| `0x1142B` | seg000+0x142B | 13 | 5 | re/34-map-script-opcodes.md、re/44-audio.md |
 | `0x129E9` | seg000+0x29E9 | 87 | 5 | re/16-msq-block-layout.md |
 | `0x14B93` | seg000+0x4B93 | 9 | 5 | re/39-encounter-scan.md |
 | `0x16619` | seg000+0x6619 | 45 | 5 | re/00-master-index.md、re/25-screen-layout.md、re/26-movement-and-triggers.md |
@@ -142,7 +142,7 @@
 | `0x19CAC` | seg000+0x9CAC | 32 | 5 | re/32-skill-checks-and-xp.md |
 | `0x1B7B7` | seg000+0xB7B7 | 3 | 5 | re/29-map-event-handlers.md |
 | `0x1BE31` | seg000+0xBE31 | 15 | 5 | re/17-packed-text.md、re/29-map-event-handlers.md、re/35-status-and-healing.md |
-| `0x1CBD3` | seg001+0x6C | 86 | 5 | re/26-movement-and-triggers.md |
+| `0x1CBD3` | seg001+0x6C | 86 | 5 | re/00-master-index.md、re/26-movement-and-triggers.md |
 | `0x1000C` | seg000+0xC | 3 | 4 | re/04-overlay-wla-bin.md |
 | `0x116AC` | seg000+0x16AC | 132 | 4 | re/03-boot-and-asset-loading.md、re/05-storage-layer.md |
 | `0x12A4C` | seg000+0x2A4C | 42 | 4 | re/16-msq-block-layout.md、re/28-text-variants.md、re/32-skill-checks-and-xp.md、re/37-enemy-records-and-hp.md |
@@ -271,7 +271,7 @@
 | `0x19812` | seg000+0x9812 | 2 | 2 | re/40-combat-screen.md |
 | `0x1997B` | seg000+0x997B | 94 | 2 | re/00-master-index.md、re/15-character-record.md |
 | `0x19A41` | seg000+0x9A41 | 23 | 2 | re/15-character-record.md |
-| `0x19A58` | seg000+0x9A58 | 68 | 2 | re/00-master-index.md、re/32-skill-checks-and-xp.md |
+| `0x19A58` | seg000+0x9A58 | 68 | 2 | re/00-master-index.md、re/32-skill-checks-and-xp.md、re/44-audio.md |
 | `0x19B67` | seg000+0x9B67 | 26 | 2 | re/31-experience-and-skills.md |
 | `0x19CFE` | seg000+0x9CFE | 16 | 2 | re/42-facility-loops.md |
 | `0x1A00A` | seg000+0xA00A | 53 | 2 | re/28-text-variants.md |
@@ -282,7 +282,7 @@
 | `0x1B0F1` | seg000+0xB0F1 | 8 | 2 | re/20-combat-resolution.md |
 | `0x1B0F9` | seg000+0xB0F9 | 15 | 2 | re/36-combat-rounds.md |
 | `0x1B108` | seg000+0xB108 | 87 | 2 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/20-combat-resolution.md、re/21-attributes.md |
-| `0x1B8A0` | seg000+0xB8A0 | 13 | 2 | re/31-experience-and-skills.md |
+| `0x1B8A0` | seg000+0xB8A0 | 13 | 2 | re/31-experience-and-skills.md、re/44-audio.md |
 | `0x1BA72` | seg000+0xBA72 | 192 | 2 | re/00-master-index.md、re/28-text-variants.md、re/31-experience-and-skills.md |
 | `0x1C1C2` | seg000+0xC1C2 | 10 | 2 | re/42-facility-loops.md |
 | `0x1C1CC` | seg000+0xC1CC | 64 | 2 | re/00-master-index.md、re/22-shop-and-items.md |
@@ -323,12 +323,14 @@
 | `0x10F12` | seg000+0xF12 | 82 | 1 | re/04-overlay-wla-bin.md、re/24-map-layers-and-tiles.md、re/25-screen-layout.md |
 | `0x10F64` | seg000+0xF64 | 67 | 1 | re/04-overlay-wla-bin.md、re/25-screen-layout.md |
 | `0x10FA7` | seg000+0xFA7 | 44 | 1 | re/04-overlay-wla-bin.md |
+| `0x11438` | seg000+0x1438 | 13 | 1 | re/44-audio.md |
 | `0x11854` | seg000+0x1854 | 111 | 1 | re/03-boot-and-asset-loading.md |
 | `0x119A8` | seg000+0x19A8 | 50 | 1 | re/03-boot-and-asset-loading.md |
 | `0x11A59` | seg000+0x1A59 | 74 | 1 | re/00-master-index.md、re/08-msq-encryption.md、re/11-huffman-decoder.md、re/16-msq-block-layout.md、re/18-block-text.md |
 | `0x11C90` | seg000+0x1C90 | 20 | 1 | re/10-huffman-compression.md |
 | `0x11F76` | seg000+0x1F76 | 279 | 1 | re/00-master-index.md、re/38-combat-commands-and-flee.md、re/40-combat-screen.md |
 | `0x12636` | seg000+0x2636 | 161 | 1 | re/38-combat-commands-and-flee.md、re/40-combat-screen.md |
+| `0x12D84` | seg000+0x2D84 | 733 | 1 | re/44-audio.md |
 | `0x13651` | seg000+0x3651 | 70 | 1 | re/37-enemy-records-and-hp.md |
 | `0x136C7` | seg000+0x36C7 | 95 | 1 | re/37-enemy-records-and-hp.md |
 | `0x1372B` | seg000+0x372B | 55 | 1 | re/37-enemy-records-and-hp.md |
@@ -348,6 +350,7 @@
 | `0x161C0` | seg000+0x61C0 | 263 | 1 | re/25-screen-layout.md |
 | `0x16390` | seg000+0x6390 | 7 | 1 | re/17-packed-text.md |
 | `0x16410` | seg000+0x6410 | 23 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/26-movement-and-triggers.md |
+| `0x1656D` | seg000+0x656D | 23 | 1 | re/44-audio.md |
 | `0x16675` | seg000+0x6675 | 94 | 1 | re/00-master-index.md、re/25-screen-layout.md |
 | `0x16AD5` | seg000+0x6AD5 | 66 | 1 | re/26-movement-and-triggers.md |
 | `0x1708B` | seg000+0x708B | 256 | 1 | re/00-master-index.md、re/15-character-record.md、re/17-packed-text.md |
@@ -371,11 +374,12 @@
 | `0x1C5B0` | seg000+0xC5B0 | 88 | 1 | re/32-skill-checks-and-xp.md、re/35-status-and-healing.md |
 | `0x1C6C9` | seg000+0xC6C9 | 789 | 1 | re/00-master-index.md、re/21-attributes.md |
 | `0x1CB30` | seg000+0xCB30 | 55 | 1 | re/27-game-clock.md |
-| `0x1CB67` | seg001+0x0 | 10 | 1 | re/00-master-index.md、re/02-exepack-unpack.md |
-| `0x1CB75` | seg001+0xE | 53 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md |
+| `0x1CB67` | seg001+0x0 | 10 | 1 | re/00-master-index.md、re/02-exepack-unpack.md、re/44-audio.md |
+| `0x1CB75` | seg001+0xE | 53 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/44-audio.md |
 | `0x1CBAA` | seg001+0x43 | 41 | 1 | re/00-remake-knowledge-gaps.md |
-| `0x1CC76` | seg001+0x10F | 83 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md |
-| `0x1CD52` | seg001+0x1EB | 194 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md |
+| `0x1CC76` | seg001+0x10F | 83 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/44-audio.md |
+| `0x1CCC9` | seg001+0x162 | 137 | 1 | re/00-master-index.md、re/44-audio.md |
+| `0x1CD52` | seg001+0x1EB | 194 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/44-audio.md |
 | `0x110B6` | seg000+0x10B6 | 648 | 0 | re/00-master-index.md、re/02-exepack-unpack.md、re/03-boot-and-asset-loading.md、re/04-overlay-wla-bin.md |
 
 ## 尚未碰過的函式（依大小排序，前 60 個）
@@ -384,7 +388,6 @@
 
 | 位址 | segment:offset | 大小 | callers |
 |---|---|---:|---:|
-| `0x12D84` | seg000+0x2D84 | 733 | 1 |
 | `0x11CD0` | seg000+0x1CD0 | 678 | 1 |
 | `0x1B170` | seg000+0xB170 | 677 | 1 |
 | `0x13C58` | seg000+0x3C58 | 443 | 2 |
@@ -397,7 +400,6 @@
 | `0x18B6B` | seg000+0x8B6B | 148 | 2 |
 | `0x135C6` | seg000+0x35C6 | 139 | 1 |
 | `0x134B2` | seg000+0x34B2 | 138 | 1 |
-| `0x1CCC9` | seg001+0x162 | 137 | 1 |
 | `0x172D4` | seg000+0x72D4 | 131 | 4 |
 | `0x19ACD` | seg000+0x9ACD | 130 | 2 |
 | `0x14E4A` | seg000+0x4E4A | 129 | 1 |
@@ -444,3 +446,5 @@
 | `0x12CFE` | seg000+0x2CFE | 58 | 4 |
 | `0x17709` | seg000+0x7709 | 58 | 2 |
 | `0x1A430` | seg000+0xA430 | 58 | 1 |
+| `0x160A8` | seg000+0x60A8 | 57 | 1 |
+| `0x1652D` | seg000+0x652D | 56 | 2 |

@@ -31,12 +31,12 @@
 | [`18-facility-loops.md`](18-facility-loops.md) | **READY**（已實作） | `internal/game` ✅ | 賣價公式、清單框架未解 |
 | [`19-paragraph-journal.md`](19-paragraph-journal.md) | **READY**（已實作） | `internal/game` ✅、`internal/play` ✅ | — |
 | [`20-mouse-input.md`](20-mouse-input.md) | **READY**（已實作） | `internal/input` ✅ | 打字型密語的比對程式碼未定位 |
-| `08-audio.md` | 未寫 | `internal/audio` | F2 位元組碼指令集與曲目資料未解 |
+| [`08-audio.md`](08-audio.md) | **READY**（已實作） | `internal/audio` ✅ | 音效 3／6／8 的觸發點未定位 |
 
-**二十份 READY 規格涵蓋資產層、呈現層、亂數、規則層十一塊、戰鬥畫面、段落手札、中文排版與翻譯管線**——
+**二十一份 READY 規格涵蓋資產層、呈現層、亂數、規則層十一塊、戰鬥畫面、段落手札、中文排版與翻譯管線**——
 走一步、遊戲時鐘、體力隨時間恢復、事件分派，以及**從視野掃出遭遇、生怪、下指令、
 排行動順序到打完一場戰鬥或逃走**的整條路。
-只剩 `08`（音效）等 F2 的位元組碼指令集。
+**規格全部 READY，沒有未寫的了。**
 
 ## 2. 為什麼這些現在就能寫
 
