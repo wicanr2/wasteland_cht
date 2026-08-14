@@ -52,6 +52,9 @@ exec docker run --rm \
   -v "$CACHE/mod:/gomod" \
   -e GOCACHE=/gocache -e GOMODCACHE=/gomod \
   -e HOME=/tmp \
+  ${WL_CJK_SAMPLE:+-e WL_CJK_SAMPLE="$WL_CJK_SAMPLE"} \
+  ${WL_DATA:+-e WL_DATA="$WL_DATA"} \
+  ${WL_ETEN:+-e WL_ETEN="$WL_ETEN"} \
   -w /src \
   --entrypoint /bin/sh \
   "$IMAGE" -c "go $* ; rc=\$? ; chown -R $(id -u):$(id -g) /gocache /gomod /src 2>/dev/null || true ; exit \$rc"
