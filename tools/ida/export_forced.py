@@ -34,6 +34,8 @@ KNOWN_SHA256 = {
     "b5eb39f0...31a0",  # 佔位：解包版的雜湊由 docs/re/01 提供
 }
 MAX_INSN = 400
+SCAN_SPAN = 1024  # 一次清掉多少 bytes 的舊項目（見 force_function 的註解）
+MIN_FUNC_SIZE = 16  # 小於這個尺寸的「函式」不採信 IDA 給的邊界
 
 
 def bail(msg: str) -> None:
@@ -48,7 +50,10 @@ def force_function(ea: int) -> dict:
     func = ida_funcs.get_func(ea)
     if func is None:
         # 先清掉可能被誤判成資料的位元組，再逐條建指令。
-        ida_bytes.del_items(ea, ida_bytes.DELIT_EXPAND, 16)
+        # ⚠ 範圍要一次開夠大：只清 16 bytes 的話，第二條指令常常還卡在
+        # 舊的資料項目裡，`create_insn` 會失敗，於是只倒得出一條指令——
+        # 症狀跟「這裡真的只有一條指令」長得一模一樣。
+        ida_bytes.del_items(ea, ida_bytes.DELIT_EXPAND, SCAN_SPAN)
         if not idc.create_insn(ea):
             info["error"] = "create_insn 失敗（這個位址不是有效的指令開頭？）"
             return info
@@ -60,9 +65,14 @@ def force_function(ea: int) -> dict:
     insns = []
     cur = ea
     end = func.end_ea if func else None
+    # ⚠ `add_func` 對這種只有跳表指到的位址常常只圈出第一條指令，
+    # 於是 `cur >= end` 立刻成立、只倒得出一行——症狀同樣像「這裡沒東西」。
+    # 邊界明顯不合理時就丟掉它，改用線性反組譯的停止條件。
+    if end is not None and end - ea < MIN_FUNC_SIZE:
+        end = None
     while len(insns) < MAX_INSN:
         if not ida_bytes.is_code(ida_bytes.get_flags(cur)):
-            ida_bytes.del_items(cur, ida_bytes.DELIT_EXPAND, 16)
+            ida_bytes.del_items(cur, ida_bytes.DELIT_EXPAND, SCAN_SPAN)
             if not idc.create_insn(cur):
                 break
         size = idc.get_item_size(cur)
@@ -75,8 +85,13 @@ def force_function(ea: int) -> dict:
             }
         )
         mnem = idc.print_insn_mnem(cur)
+        target = idc.get_operand_value(cur, 0) if mnem == "jmp" else None
         cur += size
         if mnem in ("retn", "retf", "iret"):
+            break
+        # 無條件跳到這段之外 ＝ tail call 或回主流程，當成結束；
+        # 跳回自己內部的（迴圈）繼續走。
+        if mnem == "jmp" and not (ea <= (target or 0) < cur):
             break
         if end is not None and cur >= end:
             break
