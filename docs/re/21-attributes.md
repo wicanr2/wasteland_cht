@@ -147,8 +147,8 @@ jnb  失敗
 | `sub_15705` | **Luck** 的修正值 |
 | `loc_1570A` | **Dexterity** 的修正值 |
 | `loc_15714` | **Strength** 的修正值 |
-| `sub_15755` | 未解 |
-| `sub_182FA` | 未解 |
+| `sub_15755` | 武器傷害骰（不是屬性修正，[`45`](45-item-data-and-weapon-damage.md) §4） |
+| `sub_182FA` | 裝備武器的技能等級 × 3（`docs/re/20` §4.1） |
 
 命中判定的累加器（`sub_1B108`，`docs/re/20` §3）用的是 `loc_1570F`＝**Agility**。
 

@@ -131,19 +131,70 @@ func EnemyDamage(r *rng.State, d EnemyData) int {
 	return r.SumD6(int(d.DamBase), int(d.DiceN))
 }
 
-// PartyDamage 是隊伍打敵方的傷害——**五項相加，沒有骰**（docs/re/20 §4.1）。
+// WeaponDice 是 sub_15755 算出來的骰數（docs/re/45 §4）。
 //
-// ⚠ 第一項（距離／射程，sub_15755）還沒解出來，這裡**暫代成 0**。
-// 解出來之前，隊伍的傷害會比原版低。
-func PartyDamage(c *Character, weaponSkill byte) uint16 {
-	const rangeTermUnsolved = 0 // 暫代：sub_15755 未解（docs/spec/06 §6）
+// 顆數就是武器的 Dice；反戰車武器（類別 8／9）在 `Dice ≥ x` 時變成 `2·Dice − x`，
+// 溢位飽和在 255。x 由呼叫端給：主攻擊路徑（0x1AFA3）是 0，
+// sub_15738 那條路是敵人資料 +0x04 的低 4 位。
+func WeaponDice(w ItemData, x byte) byte {
+	n := w.Dice
+	if w.Class != ClassATLight && w.Class != ClassATHeavy {
+		return n
+	}
+	if n < x {
+		return n
+	}
+	if v := int(n) + int(n-x); v <= 0xFF {
+		return byte(v)
+	}
+	return 0xFF
+}
 
-	acc := SatAdd(0, rangeTermUnsolved)
-	acc = SatAdd(acc, int(c.SkillLevel(weaponSkill))*3)
+// PartyWeaponDamage 是隊伍傷害的第一項：**0 ＋ N 顆 d6**（sub_15755）。
+//
+// ⚠ 這一項會擲骰，另外四項不會。不要為了「好算」換成期望值——
+// 26 顆 d6 的分布和 91 點固定傷害是兩回事。
+func PartyWeaponDamage(r *rng.State, w ItemData, x byte) int {
+	return r.SumD6(0, int(WeaponDice(w, x)))
+}
+
+// PartyDamage 是隊伍打敵方的傷害：**五項相加**（docs/re/20 §4.1）。
+//
+// 第一項是武器的傷害骰（會擲骰），另外四項是不擲骰的加值。
+// 技能編號來自武器資料的 Skill 欄位，不由呼叫端自己猜（docs/re/45 §3.3）。
+func PartyDamage(r *rng.State, c *Character, w ItemData, x byte) uint16 {
+	acc := SatAdd(0, PartyWeaponDamage(r, w, x))
+	acc = SatAdd(acc, int(c.SkillLevel(w.Skill))*3)
 	acc = SatAdd(acc, AttrModifier(c.Attributes[AttrDexterity]))
 	acc = SatAdd(acc, AttrModifier(c.Attributes[AttrStrength]))
 	acc = SatAdd(acc, AttrModifier(c.Attributes[AttrLuck]))
 	return acc
+}
+
+// Equip 把一件物品裝上去，照 sub_1949E：類別 15（護甲）寫護甲槽並把
+// 骰數搬進 AC，其餘寫武器槽。再選一次同一個槽 ＝ 卸下。
+func (c *Character) Equip(slot int, w ItemData) {
+	s := byte(slot)
+	if c.EquipIndex == s || c.ArmorIndex == s {
+		c.unequip(s)
+		return
+	}
+	if w.Class == ClassArmor {
+		c.AC = w.Dice
+		c.ArmorIndex = s
+		return
+	}
+	c.EquipIndex = s
+}
+
+func (c *Character) unequip(s byte) {
+	if c.ArmorIndex == s {
+		c.ArmorIndex = 0
+		c.AC = 0
+	}
+	if c.EquipIndex == s {
+		c.EquipIndex = 0
+	}
 }
 
 // Absorb 是護甲吸收：N 顆 d6 的和（兩邊機制相同，docs/re/19 §4）。

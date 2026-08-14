@@ -153,17 +153,108 @@ func TestHitChanceClamps(t *testing.T) {
 	}
 }
 
-// 隊伍傷害是五項相加，沒有骰——同樣輸入要得到同樣結果。
-func TestPartyDamageIsDeterministic(t *testing.T) {
+// 隊伍傷害是五項相加：第一項是武器的傷害骰（會擲骰），另外四項固定。
+// 用 0 顆骰的武器把隨機那一項拿掉，就驗得到剩下四項。
+func TestPartyDamageFixedTerms(t *testing.T) {
+	r := rng.New()
 	c := &Character{Skills: []Slot{{ID: 6, Value: 4}}}
 	c.Attributes[AttrDexterity] = 18 // ＋3
 	c.Attributes[AttrStrength] = 16  // ＋2
 	c.Attributes[AttrLuck] = 3       // −3
-	want := uint16(4*3 + 3 + 2 - 3)  // 距離項暫代成 0
+	w := ParseItemData([]byte{0, 0, 0, 4 << 3, 0, 6, 0, 0}) // 類別 4、技能 6、0 顆骰
+	want := uint16(4*3 + 3 + 2 - 3)
 	for i := 0; i < 100; i++ {
-		if got := PartyDamage(c, 6); got != want {
-			t.Fatalf("隊伍傷害應該固定是 %d，得到 %d", want, got)
+		if got := PartyDamage(r, c, w, 0); got != want {
+			t.Fatalf("固定四項應該是 %d，得到 %d", want, got)
 		}
+	}
+}
+
+// 武器的傷害骰：值域要落在 [N, 6N]，而且技能欄要真的被用到。
+func TestPartyDamageRollsWeaponDice(t *testing.T) {
+	r := rng.New()
+	c := &Character{}
+	// 屬性放進死區 9–13，四個固定項全部是 0，剩下的就只有骰。
+	c.Attributes[AttrDexterity], c.Attributes[AttrStrength], c.Attributes[AttrLuck] = 10, 10, 10
+	w := ParseItemData([]byte{0, 0, 0, 6 << 3, 0, 6, 5, 0}) // 5 顆 d6
+	lo, hi, sum := 999, 0, 0
+	const n = 20000
+	for i := 0; i < n; i++ {
+		v := int(PartyDamage(r, c, w, 0))
+		sum += v
+		if v < lo {
+			lo = v
+		}
+		if v > hi {
+			hi = v
+		}
+	}
+	if lo < 5 || hi > 30 {
+		t.Fatalf("5 顆 d6 的值域應該在 [5, 30]，實測 [%d, %d]", lo, hi)
+	}
+	// ⚠ 不要拿「有沒有掃到兩端」當判準：五顆全 6 的機率是 1/7776，
+	// 兩萬次也有機會漏掉，那會變成偶爾紅一次的測試。看平均。
+	if mean := float64(sum) / n; mean < 16.5 || mean > 18.5 {
+		t.Fatalf("5 顆 d6 的平均應該在 17.5 附近，實測 %.2f", mean)
+	}
+}
+
+// 反戰車武器（類別 8／9）的骰數是 2N − x，其餘類別不受 x 影響。
+func TestATWeaponDiceDoubles(t *testing.T) {
+	at := ParseItemData([]byte{0, 0, 0, 9<<3 | 1, 1, 11, 13, 0}) // RPG-7：類別 9、13 顆
+	if got := WeaponDice(at, 0); got != 26 {
+		t.Fatalf("x ＝ 0 時應該加倍成 26，得到 %d", got)
+	}
+	if got := WeaponDice(at, 5); got != 21 {
+		t.Fatalf("x ＝ 5 時應該是 2×13 − 5 ＝ 21，得到 %d", got)
+	}
+	// N < x 就用原值，不是負數也不是 0。
+	if got := WeaponDice(at, 20); got != 13 {
+		t.Fatalf("x 大於顆數時應該用原值 13，得到 %d", got)
+	}
+	// 飽和：顆數大到 2N 超過 255。
+	big := ParseItemData([]byte{0, 0, 0, 8 << 3, 0, 11, 200, 0})
+	if got := WeaponDice(big, 0); got != 0xFF {
+		t.Fatalf("2×200 應該飽和在 255，得到 %d", got)
+	}
+	// 別的類別不吃這條規則。
+	rifle := ParseItemData([]byte{0, 0, 0, 4 << 3, 0, 6, 13, 0})
+	if got := WeaponDice(rifle, 0); got != 13 {
+		t.Fatalf("非反戰車武器不該加倍，得到 %d", got)
+	}
+}
+
+// 類別是 +0x03 **右移三次**。移四次的話 RPG-7（0x49）會變成 4，
+// 看起來還「像個步槍類別」——所以要釘死這一位。
+func TestItemClassShiftsThree(t *testing.T) {
+	d := ParseItemData([]byte{0, 0, 0, 0x49, 1, 11, 13, 0})
+	if d.Class != ClassATHeavy {
+		t.Fatalf("0x49 >> 3 ＝ 9，得到 %d", d.Class)
+	}
+	if !d.Class.Ranged() || ClassMelee.Ranged() {
+		t.Fatal("ds:CD00h 的清單是 2–13：近戰不該算有射程")
+	}
+	if ClassArmor.Ranged() || ClassAmmo.Ranged() {
+		t.Fatal("護甲與彈藥不在清單裡")
+	}
+}
+
+// 護甲把骰數搬進 AC，武器不會；再選一次同一個槽是卸下（sub_1949E）。
+func TestEquipArmorSetsAC(t *testing.T) {
+	c := &Character{}
+	armor := ParseItemData([]byte{0, 0, 0, 15 << 3, 0, 0, 4, 0}) // Kevlar vest，AC 4
+	c.Equip(3, armor)
+	if c.AC != 4 || c.ArmorIndex != 3 {
+		t.Fatalf("穿上護甲後 AC ＝ %d、槽 ＝ %d", c.AC, c.ArmorIndex)
+	}
+	rifle := ParseItemData([]byte{0, 0, 0, 4 << 3, 8, 6, 5, 31})
+	c.Equip(7, rifle)
+	if c.EquipIndex != 7 || c.AC != 4 {
+		t.Fatalf("拿武器不該動到 AC：槽 ＝ %d、AC ＝ %d", c.EquipIndex, c.AC)
+	}
+	c.Equip(3, armor) // 再選一次 ＝ 脫掉
+	if c.AC != 0 || c.ArmorIndex != 0 {
+		t.Fatalf("脫掉之後 AC ＝ %d、槽 ＝ %d", c.AC, c.ArmorIndex)
 	}
 }
 

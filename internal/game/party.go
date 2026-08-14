@@ -38,8 +38,9 @@ type Character struct {
 	Money      uint32          // +0x15–+0x17，24-bit
 	Gender     byte            // +0x18
 	Nation     byte            // +0x19
-	AC         byte            // +0x1A
-	EquipIndex byte            // +0x1F
+	AC         byte            // +0x1A，＝ 裝備護甲的 Dice（docs/re/45 §3.4）
+	EquipIndex byte            // +0x1F，裝備武器的物品槽
+	ArmorIndex byte            // +0x25，裝備護甲的物品槽
 	SkillPts   byte            // +0x20
 	XP         uint32          // +0x21–+0x23，24-bit
 	Level      byte            // +0x24
