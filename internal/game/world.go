@@ -120,6 +120,7 @@ func (w *World) Step(dir Direction) (StepResult, error) {
 	w.Party.X, w.Party.Y = uint8(nx), uint8(ny)
 	w.syncView()
 	res.Moved = true
+	w.Party.PlayerStepped = true // ds:916Bh ← 方向 − 4，方向 0–3 都是非零
 
 	res.Periodic = w.Clock.Advance(w.stepTime(), w.Block.StepTick())
 	if res.Periodic {

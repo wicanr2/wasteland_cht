@@ -26,16 +26,20 @@ type CheckResult struct {
 
 // SkillCheck 做一次技能檢定。data 是技能資料表那一筆（ds:BA20h）。
 //
-// ⚠ 經驗值：原版由 ds:916Bh 決定給不給，那個開關的來源還沒追到。
-// 這裡**暫代成只要骰得成就給**，並在 docs/spec/07 §7 記為未解。
-func (c *Character) SkillCheck(r *rng.State, id byte, data SkillData, difficulty int) CheckResult {
+// awardXP 對應原版的 ds:916Bh（docs/re/32 §7.1）：**只有玩家自己走出來的那一步
+// 之後的檢定才給經驗值**，自動步（時間流逝觸發的那種）不給。
+// 它記的是「最後一次移動」而不是每次檢定各自設，所以由呼叫端把
+// Party.PlayerStepped 傳進來，不要改成 per-check。
+func (c *Character) SkillCheck(r *rng.State, id byte, data SkillData, difficulty int, awardXP bool) CheckResult {
 	var res CheckResult
 	roll := r.PairD6()
 	res.Roll = roll
 	if roll < fumble {
 		return res
 	}
-	c.AddXP(uint32(roll))
+	if awardXP {
+		c.AddXP(uint32(roll))
+	}
 
 	total := roll
 	if off := int(data.Attribute); off >= recAttributes && off < recAttributes+AttrCount {
@@ -54,7 +58,8 @@ func (c *Character) SkillCheck(r *rng.State, id byte, data SkillData, difficulty
 // AttributeCheck 做一次屬性檢定。offset 是角色記錄的位移。
 //
 // 兩個特例不擲骰：0x18（性別）比相等、0x24（等級）比大小。
-func (c *Character) AttributeCheck(r *rng.State, offset byte, difficulty int) CheckResult {
+// awardXP 的語意同 SkillCheck。
+func (c *Character) AttributeCheck(r *rng.State, offset byte, difficulty int, awardXP bool) CheckResult {
 	switch offset {
 	case recGender:
 		return CheckResult{OK: int(c.Gender) == difficulty}
@@ -68,7 +73,9 @@ func (c *Character) AttributeCheck(r *rng.State, offset byte, difficulty int) Ch
 	if roll < fumble {
 		return res
 	}
-	c.AddXP(uint32(roll))
+	if awardXP {
+		c.AddXP(uint32(roll))
+	}
 
 	total := roll
 	if int(offset) >= recAttributes && int(offset) < recAttributes+AttrCount {

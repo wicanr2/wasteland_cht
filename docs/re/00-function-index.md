@@ -79,7 +79,7 @@
 | `0x1BB5D` | seg000+0xBB5D | 15 | 9 | re/00-master-index.md、re/17-packed-text.md、re/31-experience-and-skills.md |
 | `0x125B7` | seg000+0x25B7 | 6 | 8 | re/38-combat-commands-and-flee.md |
 | `0x1393E` | seg000+0x393E | 9 | 8 | re/00-master-index.md、re/16-msq-block-layout.md、re/32-skill-checks-and-xp.md |
-| `0x1651A` | seg000+0x651A | 19 | 8 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/26-movement-and-triggers.md |
+| `0x1651A` | seg000+0x651A | 19 | 8 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/26-movement-and-triggers.md、re/32-skill-checks-and-xp.md |
 | `0x16EE8` | seg000+0x6EE8 | 56 | 8 | re/42-facility-loops.md |
 | `0x1721B` | seg000+0x721B | 52 | 8 | re/29-map-event-handlers.md、re/42-facility-loops.md、re/43-input-and-hotkeys.md |
 | `0x18350` | seg000+0x8350 | 97 | 8 | re/00-master-index.md、re/24-map-layers-and-tiles.md、re/25-screen-layout.md、re/27-game-clock.md |
@@ -354,7 +354,7 @@
 | `0x161C0` | seg000+0x61C0 | 263 | 1 | re/25-screen-layout.md |
 | `0x16390` | seg000+0x6390 | 7 | 1 | re/17-packed-text.md |
 | `0x16410` | seg000+0x6410 | 23 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/26-movement-and-triggers.md |
-| `0x1656D` | seg000+0x656D | 23 | 1 | re/44-audio.md |
+| `0x1656D` | seg000+0x656D | 23 | 1 | re/32-skill-checks-and-xp.md、re/44-audio.md |
 | `0x16675` | seg000+0x6675 | 94 | 1 | re/00-master-index.md、re/25-screen-layout.md |
 | `0x16AD5` | seg000+0x6AD5 | 66 | 1 | re/26-movement-and-triggers.md |
 | `0x1708B` | seg000+0x708B | 256 | 1 | re/00-master-index.md、re/15-character-record.md、re/17-packed-text.md |

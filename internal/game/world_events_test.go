@@ -94,7 +94,7 @@ func TestThresholdAndFumble(t *testing.T) {
 	c.Attributes[AttrLuck] = 18
 	fumbles, total := 0, 0
 	for i := 0; i < 5000; i++ {
-		res := c.AttributeCheck(r, recAttributes+AttrLuck, 0)
+		res := c.AttributeCheck(r, recAttributes+AttrLuck, 0, true)
 		if res.Roll > 0 && res.Roll < fumble {
 			fumbles++
 			if res.OK {
@@ -113,16 +113,16 @@ func TestThresholdAndFumble(t *testing.T) {
 func TestAttributeCheckSpecialCases(t *testing.T) {
 	r := rng.New()
 	c := &Character{Gender: 1, Level: 7}
-	if res := c.AttributeCheck(r, recGender, 1); !res.OK || res.Roll != 0 {
+	if res := c.AttributeCheck(r, recGender, 1, true); !res.OK || res.Roll != 0 {
 		t.Fatalf("性別檢定應該直接比相等且不擲骰：%+v", res)
 	}
-	if res := c.AttributeCheck(r, recGender, 0); res.OK {
+	if res := c.AttributeCheck(r, recGender, 0, true); res.OK {
 		t.Fatal("性別 1 不該通過「等於 0」的檢定")
 	}
-	if res := c.AttributeCheck(r, recLevel, 7); !res.OK || res.Roll != 0 {
+	if res := c.AttributeCheck(r, recLevel, 7, true); !res.OK || res.Roll != 0 {
 		t.Fatalf("等級檢定應該比大小且不擲骰：%+v", res)
 	}
-	if res := c.AttributeCheck(r, recLevel, 8); res.OK {
+	if res := c.AttributeCheck(r, recLevel, 8, true); res.OK {
 		t.Fatal("等級 7 不該通過「≥ 8」的檢定")
 	}
 }
@@ -278,3 +278,46 @@ func TestScriptDayNightBranch(t *testing.T) {
 }
 
 var _ = assets.SectionTypes
+
+// ds:916Bh：只有玩家自己走出來的那一步之後，檢定成功才給經驗值
+// （docs/re/32 §7.1）。自動步不給——這是原版的防刷。
+func TestCheckXPFollowsPlayerStep(t *testing.T) {
+	r := rng.New()
+	award := func(awardXP bool) uint32 {
+		c := &Character{Level: 5}
+		c.Attributes[AttrLuck] = 18
+		for i := 0; i < 200; i++ {
+			c.AttributeCheck(r, recAttributes+AttrLuck, 0, awardXP)
+		}
+		return c.XP
+	}
+	if got := award(true); got == 0 {
+		t.Fatal("玩家走過一步之後，兩百次檢定應該累積到經驗值")
+	}
+	if got := award(false); got != 0 {
+		t.Fatalf("自動步之後不該給經驗值，卻拿到 %d", got)
+	}
+}
+
+// 走一步要把「這一步是玩家走的」記起來（ds:916Bh ← 方向 − 4）。
+func TestStepMarksPlayerStepped(t *testing.T) {
+	rom := openRom(t)
+	block, err := rom.Block(0)
+	if err != nil {
+		t.Fatalf("載入區塊 0 失敗：%v", err)
+	}
+	party := &Party{Members: []*Character{{CON: 20, MaxCON: 20}}, X: 55, Y: 62}
+	w := NewWorld(block, party, rng.New())
+	if w.Party.PlayerStepped {
+		t.Fatal("還沒走就不該是 true")
+	}
+	for dir := Up; dir <= Right; dir++ {
+		if res, err := w.Step(dir); err == nil && res.Moved {
+			if !w.Party.PlayerStepped {
+				t.Fatal("走成一步之後應該記成玩家步")
+			}
+			return
+		}
+	}
+	t.Skip("四個方向都走不動，換一張地圖再測")
+}
