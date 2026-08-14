@@ -201,6 +201,14 @@
 | Engineer | 工程師 | `game1:8`，1990 說明書的譯法；全大寫時是關鍵字，**不翻** |
 | Hobo | 賢人 | 同上。他在遊戲裡是先知不是流浪漢，當年的譯法比直譯準 |
 | Brakeman | 煞車員 | 同上；說明書當年沒譯 |
+| Junk Master | 廢料大師 | `game1:49`、段落 30 |
+| Red Hawk | 紅鷹 | 廢料大師之子；全大寫時是密語，**不翻** |
+| Desert Scavs | 沙漠拾荒者 | 野人村的居民 |
+| Sister Wrath | 憤怒修女 | `game2:35` 的守護者 |
+| Guardians | 守護者 | |
+| Diana | 黛安娜 | 段落 13 |
+| Crumb | 克朗姆 | 段落 33 |
+| Irwin John Finger | 厄文·約翰·芬格 | 段落 14；同一個人在別處拼成 `Finster`，兩種拼法照原文各自翻 |
 | Atchison／Topeka／Sante Fe | **保留原文** | 鐵路遊牧民族的三個宗族。1990 說明書也保留；那是 AT&SF 鐵路公司的名字拆成三家，同時是玩家要打的關鍵字 |
 
 ## 地點
@@ -313,6 +321,26 @@
 
 水晶球裡那個巫師罵「你以為這是 Bard's Tale 嗎」——那是 Interplay 自家的另一款遊戲，
 台灣譯名《冰城傳奇》，用既有譯名。
+
+## 廣告詞惡搞（守護者堡壘 `game2:35`／`game2:36`）
+
+守護者把牆上的「箴言」刻得莊嚴虔敬，內容全是 1980 年代美國的廣告詞與口號。
+**照廣告詞的口氣翻**，讓中文讀者也讀得出那不是經文；出處只記在這裡，
+正文不加註解——加了就等於把笑點講破。
+
+| 原文 | 譯法 | 出處 |
+|---|---|---|
+| Reach out and touch someone. | 伸出手，觸動一個人。 | AT&T 電話 |
+| Tastes Great! ／ Less Filling! | 口味絕佳！／熱量更少！ | 美樂淡啤，兩句是同一支廣告的對罵 |
+| We're #2, but we try harder. | 我們是第二，所以更努力。 | Avis 租車 |
+| We're looking for a few good men. | 我們正在找幾個好男人。 | 美國海軍陸戰隊徵兵 |
+| All beef and beef byproducts. Is your dog worth it? | 純牛肉與牛肉副產品。你家的狗值得嗎？ | 狗食廣告 |
+| Free with your paid subscription... | 訂閱付費即可免費獲得…… | 雜誌訂閱 |
+| How do you spell relief? | 解脫怎麼拼？ | Rolaids 胃藥（原廣告答案是把商標一個字母一個字母拼出來）|
+| Soup is good food! | 湯是好食物！ | 金寶湯 |
+
+⚠ `game2:36:56` 床墊底下那張紙上的 **`Rosebud` 保留原文**。那是《大國民》的梗，
+也是英文電影史上最有名的一個字；翻成中文就只是一種花名，什麼都不剩。
 
 ⚠ **製作人員名單（`game1:33:92`）裡的人名一律保留原文**，只翻職稱標籤。
 那是史料，不是敘述。
