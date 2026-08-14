@@ -187,7 +187,12 @@
 | Charmaine | 夏曼 | 蘑菇雲教派的大祭司 |
 | Dr. Michael Scott | 麥可·史考特醫生 | `game2:38` |
 | Slicerdicer | 切片機 | 機器人 |
-| Death Machine | 死亡機器 | |
+| Death Machine | 死亡機器 |
+| Spam Shade | 史班·夏德 | `game1:34` 的偵探，名字本身是黑色電影偵探的戲仿 |
+| Bill Dugan | 比爾·杜根 | 血之神殿代表；也是原版製作人員之一 |
+| Harry | 哈利 | 加油站 |
+| Todd | 陶德 | 全大寫時是玩家要輸入的名字，**不翻** |
+| robotclerk／robot-cop | 機器警員 | | |
 | Mutie Cuties | 變種美女 | 舞團 |
 
 ## 地點（石英城）
@@ -201,6 +206,9 @@
 | Quail Trail | 鵪鶉小徑 |
 | Moon Rd. | 月亮路 |
 | Loop Dr. | 環路 |
+| Hobo Dogs | 遊民熱狗 | 針岩城的速食攤 |
+| Crowley's Occult Shop | 克勞利神祕小舖 | |
+| Temple of Blood | 血之神殿 | |
 | Quartz City Jail | 石英城監獄 |
 | officer's club | 軍官俱樂部 |
 
@@ -251,4 +259,22 @@
 ⚠ **題目裡的專有名詞跟著答案走。** `game2:23` 問「1936 年世界大賽誰贏的」，
 答案要打 `NEW YORK YANKEES`，所以題目裡不能把隊名翻成「紐約洋基」；
 但敘述裡的 Joe McCarthy、Lou Gehrig 不是答案，照翻。
+
+## 惡搞與戲仿（`game1:33`）
+
+針岩城的電影海報牆全是當年片名的戲仿。**照戲仿的方式翻**，讓中文讀者也接得到梗：
+
+| 原文 | 譯名 | 梗 |
+|---|---|---|
+| Gone With the Nuke Storm | 《核爆隨風而逝》 | 《亂世佳人》(Gone With the Wind) |
+| Crater Raider | 《彈坑奇兵》 | 《法櫃奇兵》(Raiders of the Lost Ark) |
+| The Radheads | 《輻射頭》 | |
+| Humongous and the Mutants | 《巨無霸與變種人》 | |
+| Mario, Luigi and the Fireballs | 《馬利歐、路易吉與火球》 | |
+
+水晶球裡那個巫師罵「你以為這是 Bard's Tale 嗎」——那是 Interplay 自家的另一款遊戲，
+台灣譯名《冰城傳奇》，用既有譯名。
+
+⚠ **製作人員名單（`game1:33:92`）裡的人名一律保留原文**，只翻職稱標籤。
+那是史料，不是敘述。
 
