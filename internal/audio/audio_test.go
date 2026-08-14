@@ -63,27 +63,75 @@ func TestPitchTableIsUsedVerbatim(t *testing.T) {
 	}
 }
 
-// 驗收 1：九首都要解得完——走到序列結束或進入迴圈，不得越界或無限往後解。
-func TestAllSFXTerminateOrLoop(t *testing.T) {
-	p := load(t)
+// 驗收 1：八首自己會停，長度寫死當回歸護欄；音效 6 是唯一停不下來的那一首。
+//
+// ⚠ 靜態反組譯**回答不了這一題**——`0xFE` 走哪一條路要看執行期的計數器，
+// `tools/summarize_sfx.py` 兩條路都印得出來，但決定不了實際走哪條。
+// 「一首會不會停」只有實跑算數。
+func TestSFXLengths(t *testing.T) {
+	want := map[int]int{0: 1, 1: 5, 2: 3, 3: 71, 4: 225, 5: 121, 7: 109, 8: 161}
 	for n := 0; n < SFXCount; n++ {
-		fresh := load(t)
-		if !fresh.Play(n) {
+		if n == 6 {
+			continue // 見 TestSFX6NeverEnds
+		}
+		p := load(t)
+		if !p.Play(n) {
 			t.Fatalf("音效 %d 觸發失敗", n)
 		}
 		const maxTicks = 100000
 		ticks := 0
-		for fresh.Busy() && ticks < maxTicks {
-			fresh.Tick()
+		for p.Busy() && ticks < maxTicks {
+			p.Tick()
 			ticks++
 		}
-		if ticks == 0 {
-			t.Fatalf("音效 %d 一個 tick 都沒跑", n)
+		if p.Busy() {
+			t.Fatalf("音效 %d 跑了 %d 個 tick 還沒停", n, ticks)
 		}
-		// 停下來或跑滿都可以（音效 3/5/6/7/8 是無限迴圈，靠 Play(0) 停）。
-		t.Logf("音效 %d 跑了 %d 個 tick，還在跑：%v", n, ticks, fresh.Busy())
+		if ticks != want[n] {
+			t.Fatalf("音效 %d 跑了 %d 個 tick，應該是 %d", n, ticks, want[n])
+		}
 	}
-	_ = p
+}
+
+// 音效 6 停不下來，而且是**資料本身就這樣設計**，不是直譯器跑掉。
+//
+// `0x01FA` 起兩段各 180 次的滑音擺盪，跑完之後 `0x0232` 的計數器已經是 0，
+// `0xFE` 於是變成無條件跳，跳回 `0x01FA` 重來。要停只能 `Play(0)`。
+// 這個測試要抓到「跳回頭」這件事，光看「還在跑」分不出設計與失控。
+func TestSFX6NeverEnds(t *testing.T) {
+	p := load(t)
+	if !p.Play(6) {
+		t.Fatal("音效 6 觸發失敗")
+	}
+	// 第一段的批次停在 0x020E／0x0216，第二段停在 0x0226／0x022E。
+	const phase2 = 0x0226
+	var reachedPhase2, restarted bool
+	for i := 0; i < 2000 && !restarted; i++ {
+		p.Tick()
+		switch ptr := p.Voices[0].Pointer; {
+		case ptr >= phase2:
+			reachedPhase2 = true
+		case reachedPhase2 && ptr != 0 && ptr < phase2:
+			restarted = true
+		}
+	}
+	if !reachedPhase2 {
+		t.Fatal("音效 6 沒走到第二段")
+	}
+	if !restarted {
+		t.Fatal("音效 6 沒跳回開頭——這首應該是無限循環的")
+	}
+	if !p.Busy() {
+		t.Fatal("音效 6 停了，它不該停")
+	}
+	// 靠 Play(0) 停，這是原版唯一的關法。
+	p.Play(0)
+	for i := 0; i < 10; i++ {
+		p.Tick()
+	}
+	if p.Busy() {
+		t.Fatal("Play(0) 之後音效 6 還在跑")
+	}
 }
 
 // 驗收 3：音效 4 是唯一一首旋律，音序要對得上，

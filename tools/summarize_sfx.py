@@ -88,7 +88,7 @@ def disasm(seg: bytes, at: int, seen: set[int]) -> list[str]:
             out.append(f"  {pc:#06x}  設 +{f:#04x} = {val:#06x}   ; {field(f)}")
             if f == 0x00:
                 if val == 0:
-                    out.append("          └─ 時值 0 → 指標清成 0，**序列結束**")
+                    out.append("          └─ 時值 0 → 指標清成 0，**這一條路到此為止**")
                     return out
                 out.append(f"          ── 批次結束，等 {val} 個 tick 再解下一批")
         elif op == 0xFE:  # 迴圈
@@ -100,8 +100,13 @@ def disasm(seg: bytes, at: int, seen: set[int]) -> list[str]:
                 f"   ; 計數器為 0 就無條件跳，否則減 1、非零才跳"
             )
             if tgt in seen:
-                out.append(f"          └─ 目標 {tgt:#06x} 已經解過")
-                return out
+                # 已經解過就走**不跳**那條路，這樣看得到計數器數完之後的尾巴。
+                # ⚠ 但這只是兩條路的其中一條——`0xFE` 走哪一條要看執行期的
+                # 計數器，靜態列表**決定不了一首會不會停**。誰會停由
+                # `internal/audio` 的測試實跑決定（音效 6 就是靠這樣才發現
+                # 它其實是無限循環的）。
+                out.append(f"          ↩ {tgt:#06x} 已經解過，往下走計數器數完的那條路")
+                continue
             seen.add(tgt)
             i = tgt
             continue
@@ -147,6 +152,9 @@ def main() -> None:
     w("# 音效資料（`seg005`）")
     w("")
     w("由 `tools/summarize_sfx.py` 產生。**只排版，不加語意推論。**")
+    w("")
+    w("⚠ `0xFE` 走哪一條路要看執行期的計數器，所以**這份列表決定不了一首會不會停**。")
+    w("誰會停由 `internal/audio` 的測試實跑決定。")
     w("")
     w(f"`seg005` 線性 {SEG005:#x}–{SEG005_END:#x}，共 {len(seg)} bytes。")
     w("")
