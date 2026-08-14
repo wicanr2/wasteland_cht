@@ -1,0 +1,184 @@
+# 文本層的共用翻譯：`<原文>\t<譯文>`。
+#
+# 42 個地圖區塊**各自帶一份**戰鬥動詞與開門訊息，同樣的英文在 1,571 個 key 裡
+# 重複出現。逐 key 翻譯只會讓同一句話被翻出好幾種版本，所以這一層按**文本**翻，
+# 由 tools/build_lang.py 套到所有還沒被逐 key 翻到的相同原文上。
+#
+# 逐 key 的翻譯**永遠優先**——同一句話在某個區塊真的需要不同譯法時，
+# 在那個區塊的檔案裡寫一行就會蓋過這裡。
+#
+# ⚠ 這裡**不放**單一字母、數字、與全大寫的關鍵字（Y／N／A／CHAT／MAYOR／
+# FINSTER／UGLY…）。那些是玩家要輸入或選取的詞，翻掉就對不上了
+# （密語的比對程式碼還沒逆向，`docs/re/33` §4）。
+
+# --- 攻擊動作（主詞是 \x0B ＝ 名字）---
+\x0B attacks	\x0B攻擊
+\x0B shoots	\x0B開槍
+\x0B fires	\x0B射擊
+\x0B triggers	\x0B扣下扳機
+\x0B snaps a shot off	\x0B迅速射出一發
+\x0B clicks a shot off	\x0B輕輕扣下一發
+\x0B's gun lets fly	\x0B的槍噴出火舌
+\x0B's gun spits lead	\x0B的槍吐出彈頭
+\x0B empties a clip	\x0B清空一個彈匣
+\x0B burns a clip	\x0B打光一個彈匣
+\x0B rips a clip	\x0B傾瀉一整匣
+\x0B fires full auto	\x0B全自動掃射
+\x0B triggers a burst	\x0B打出一串點放
+\x0B discharges a burst	\x0B射出一串連發
+\x0B launches a shell	\x0B發射一枚砲彈
+\x0B lauches a shell	\x0B發射一枚砲彈
+\x0B fires a rocket	\x0B發射火箭
+\x0B blasts a rocket off	\x0B轟出一枚火箭
+\x0B ignites a rocket	\x0B點燃火箭
+\x0B throws a deadly charge	\x0B扔出致命的炸藥
+\x0B chucks an explosive charge	\x0B丟出一包炸藥
+\x0B hurls a handful of death	\x0B擲出滿手的死亡
+Bright energy streams from \x0B	刺眼的能量從\x0B身上射出
+Waves of energy flash from \x0B	能量波從\x0B身上閃出
+Energy blasts pulse from \x0B	能量爆從\x0B身上迸發
+Sub-atomic particles burst from \x0B	次原子粒子從\x0B身上爆開
+Gobs of quarks lance out from \x0B	成團的夸克從\x0B身上射穿而出
+
+# --- 命中與傷害的片段 ---
+hits \x0F 	命中 \x0F
+nails \x0F 	擊中 \x0F
+\x0F 	\x0F
+ for 	 造成
+ and hits for 	 並造成
+ but fail\x0As\x0A\x0A to inflict any damage	 但\x0A\x0A\x0A沒有造成任何傷害
+ \x0Ais\x0Aare\x0A stitched full of bullets for 	 \x0A\x0A\x0A被子彈打成蜂窩，
+ \x0Ais\x0Aare\x0A raked in a crossfire of bullets for 	 \x0A\x0A\x0A被交叉火網掃中，
+ \x0Ais\x0Aare\x0A filled full of lead taking 	 \x0A\x0A\x0A吃滿了鉛，
+
+# --- 遠程武器的動詞 ---
+ drills 	 鑽穿
+ blazes away at 	 朝著猛烈開火
+ sprays 	 掃射
+ triggers a burst at 	 朝著點放
+ fries 	 燒灼
+ toasts 	 烤焦
+ pounds at 	 猛轟
+ pounds 	 猛擊
+ bowls into 	 撞進
+ bowls 	 撞飛
+
+# --- 近戰的動詞 ---
+ whomps on 	 重擊
+ thrashes 	 痛毆
+ hammer\x0As\x0A\x0A 	 猛捶\x0A\x0A\x0A
+ wallop\x0As\x0A\x0A 	 狠揍\x0A\x0A\x0A
+ batter\x0As\x0A\x0A 	 連續痛擊\x0A\x0A\x0A
+ brutally pummel\x0As\x0A\x0A 	 殘暴地毆打\x0A\x0A\x0A
+ pummel\x0As\x0A\x0A 	 毆打\x0A\x0A\x0A
+ brutalize\x0As\x0A\x0A 	 狂暴地施暴\x0A\x0A\x0A
+ beat\x0As\x0A\x0A 	 打擊\x0A\x0A\x0A
+ bashes 	 重砸
+ mauls 	 撕咬
+ claws 	 抓撓
+ pounces on 	 撲向
+ rips into 	 撕開
+
+# --- 擊殺的收尾（\x0F 印數量，\x0E 是他/她/它三選一）---
+immolates \x0F 	燒盡 \x0F
+incinerates \x0F 	焚化 \x0F
+inflames \x0F 	點燃 \x0F
+irradiates \x0F 	輻照 \x0F
+ignites \x0F 	引燃 \x0F
+torches \x0F 	燒穿 \x0F
+vaporizes \x0F 	汽化 \x0F
+melts into \x0F 	熔穿 \x0F
+bores through \x0F 	貫穿 \x0F
+punches a hole in \x0F 	在 \x0F 身上打出一個洞
+drills an opening in \x0F 	在 \x0F 身上鑽出破口
+blows a hole in \x0F 	在 \x0F 身上炸出大洞
+tears a jagged rent in \x0F 	在 \x0F 身上撕出參差的裂口
+scores a dark chasm in \x0F 	在 \x0F 身上劃出漆黑的深溝
+shreds through \x0F 	撕穿 \x0F
+ and rips \x0Ehim\x0Eher\x0Eit\x0E to shreds	 並把\x0E他\x0E她\x0E它\x0E撕成碎片
+ and shreds \x0Ehim\x0Eher\x0Eit\x0E	 並撕碎\x0E他\x0E她\x0E它\x0E
+ and peppers \x0Ehim\x0Eher\x0Eit\x0E	 並打得\x0E他\x0E她\x0E它\x0E滿身彈孔
+ and frags \x0Ehim\x0Eher\x0Eit\x0E	 並把\x0E他\x0E她\x0E它\x0E炸碎
+ spraying \x0A\x0Ehim\x0Eher\x0Eit\x0E\x0A\x0F of them\x0A into a fine red mist	 把\x0A\x0E他\x0E她\x0E它\x0E\x0A\x0F個\x0A噴成一片紅霧
+ reducing \x0A\x0Ehim\x0Eher\x0Eit\x0E\x0A\x0F of them\x0A to a thin red paste	 把\x0A\x0E他\x0E她\x0E它\x0E\x0A\x0F個\x0A壓成一灘紅泥
+ reducing \x0A\x0Ehim\x0Eher\x0Eit\x0E\x0A\x0F of them\x0A into a thin red paste	 把\x0A\x0E他\x0E她\x0E它\x0E\x0A\x0F個\x0A壓成一灘紅泥
+ reducing \x0A\x0Ehim\x0Eher\x0Eit\x0E\x0A\x0F of them\x0A into ground round	 把\x0A\x0E他\x0E她\x0E它\x0E\x0A\x0F個\x0A絞成肉末
+ reducing \x0A\x0Ehim\x0Eher\x0Eit\x0E\x0A\x0F of them\x0A into an undertaker's nightmare	 把\x0A\x0E他\x0E她\x0E它\x0E\x0A\x0F個\x0A變成殯葬業者的惡夢
+ reducing \x0A\x0Ehim\x0Eher\x0Eit\x0E\x0A\x0F of them\x0A to a lump of tungsten slab	 把\x0A\x0E他\x0E她\x0E它\x0E\x0A\x0F個\x0A壓成一塊鎢板
+ blasting \x0A\x0Ehim\x0Eher\x0Eit\x0E\x0A\x0F of them\x0A into ground round	 把\x0A\x0E他\x0E她\x0E它\x0E\x0A\x0F個\x0A轟成肉末
+ blasting \x0A\x0Ehim\x0Eher\x0Eit\x0E\x0A\x0F of them\x0A into platinum shards	 把\x0A\x0E他\x0E她\x0E它\x0E\x0A\x0F個\x0A轟成鉑金碎片
+ ripping \x0A\x0Ehim\x0Eher\x0Eit\x0E\x0A\x0F of them\x0A into a scarlet side of meat	 把\x0A\x0E他\x0E她\x0E它\x0E\x0A\x0F個\x0A撕成一整片血肉
+ exploding \x0A\x0Ehim\x0Eher\x0Eit\x0E\x0A\x0F of them\x0A like a blood sausage	 把\x0A\x0E他\x0E她\x0E它\x0E\x0A\x0F個\x0A像血腸一樣炸開
+ spinning \x0A\x0Ehim\x0Eher\x0Eit\x0E\x0A\x0F of them\x0A into a dance of death	 讓\x0A\x0E他\x0E她\x0E它\x0E\x0A\x0F個\x0A旋成一支死亡之舞
+ sending \x0A\x0Ehim\x0Eher\x0Eit\x0E\x0A\x0F of them\x0A to meet \x0A\x0Ehis\x0Eher\x0Eits\x0E\x0Atheir\x0A maker	 送\x0A\x0E他\x0E她\x0E它\x0E\x0A\x0F個\x0A去見\x0A\x0E他的\x0E她的\x0E它的\x0E\x0A他們的\x0A造物主
+ leaving \x0A\x0Ehim\x0Eher\x0Eit\x0E\x0A\x0F of them\x0A in a heap of unrecognizable gore	 把\x0A\x0E他\x0E她\x0E它\x0E\x0A\x0F個\x0A留成一堆認不出來的血肉
+ leaving \x0A\x0Ehim\x0Eher\x0Eit\x0E\x0A\x0F of them\x0A in a ghastly pool of 30 weight on the floor	 把\x0A\x0E他\x0E她\x0E它\x0E\x0A\x0F個\x0A留成地上一灘駭人的機油
+ disintegrating \x0A\x0Ehim\x0Eher\x0Eit\x0E\x0A\x0F of them\x0A into a rain of silicon dust	 把\x0A\x0E他\x0E她\x0E它\x0E\x0A\x0F個\x0A分解成一陣矽塵雨
+ bursting \x0A\x0Ehim\x0Eher\x0Eit\x0E\x0A\x0F of them\x0A into a cloud of steel confetti	 把\x0A\x0E他\x0E她\x0E它\x0E\x0A\x0F個\x0A炸成一團鋼屑
+ blowing \x0A\x0Ehim\x0Eher\x0Eit\x0E\x0A\x0F of them\x0A in a shower of sparks and smashed sprockets	 把\x0A\x0E他\x0E她\x0E它\x0E\x0A\x0F個\x0A轟成一陣火花與碎齒輪
+
+# --- 門與牆 ---
+\x0DThe door is locked.\x0D	\x0D門鎖住了。\x0D
+\x0DThe door is open.\x0D	\x0D門開著。\x0D
+\x0DThis door is open.\x0D	\x0D這扇門開著。\x0D
+\x0DThe door opens.\x0D	\x0D門開了。\x0D
+\x0DYou open the door.\x0D	\x0D你把門打開。\x0D
+\x0DOpen doorway.\x0D	\x0D敞開的門口。\x0D
+\x0DThe door is still closed.\x0D	\x0D門還是關著。\x0D
+\x0DStill closed.\x0D	\x0D還是關著。\x0D
+\x0DThe door is still locked.\x0D	\x0D門還是鎖著。\x0D
+\x0DThe door won't budge.\x0D	\x0D門紋風不動。\x0D
+\x0DThe door resists your attempt to open it.\x0D	\x0D門擋住了你開它的企圖。\x0D
+\x0DThe door defies your best efforts to open it.\x0D	\x0D你使盡全力，門依然不為所動。\x0D
+\x0DYour attempt at opening the door, however humble it may have been, is successful.\x0D	\x0D你開門的嘗試雖然不怎麼樣，倒是成功了。\x0D
+\x0DThe door slides up into the ceiling.\x0D	\x0D門往上滑進天花板。\x0D
+\x0DThis door is sealed like a vault.\x0D	\x0D這扇門像金庫一樣封死。\x0D
+\x0DThe door has no handle or sign on it, just a narrow slot on the right side.\x0D	\x0D門上沒有把手也沒有標示，只有右側一道細窄的插槽。\x0D
+\x0DThe door blocking your path is stout and constructed of thick wood bound by iron. It is locked.\x0D	\x0D擋路的門厚實堅固，厚木板外包著鐵條。門鎖著。\x0D
+\x0DThe badly battered remnants of a door sag against the wall.\x0D	\x0D一扇被砸爛的門殘骸靠在牆上。\x0D
+\x0DSplinters and fragments of wood hanging upon fireblack hinges are all that remain of the door that once was here.\x0D	\x0D燻黑的鉸鏈上掛著碎裂的木片，那是這裡曾有一扇門的全部痕跡。\x0D
+\x0DYou open the cell.\x0D	\x0D你打開牢房。\x0D
+\x0DThis cabinet is locked.\x0D	\x0D這個櫃子鎖著。\x0D
+\x0DDo you always walk into walls?\x0D	\x0D你每次都往牆上撞嗎？\x0D
+\x0DYou don't even make a dent in the wall.\x0D	\x0D你連牆上的一個凹痕都弄不出來。\x0D
+\x0DThese walls are more rubble than solid walls, but they still impede your progress.\x0D	\x0D這些牆與其說是牆，不如說是瓦礫堆，但還是擋住了你。\x0D
+\x0DThe crumbling brick walls are still quite strong.\x0D	\x0D剝落的磚牆依然相當堅固。\x0D
+\x0DThe concrete here was poured long ago but it is still durable and solid.\x0D	\x0D這裡的混凝土是很久以前灌的，但依舊耐用結實。\x0D
+\x0DThe cinderblocks used to build the walls are old and broken, but they still hold up the city above.\x0D	\x0D砌牆用的煤渣磚又老又破，卻仍撐著上頭整座城市。\x0D
+\x0DThe walls are too slippery for a firm handhold.\x0D	\x0D牆面太滑，抓不牢。\x0D
+\x0DYou stumble and bark your shins.\x0D	\x0D你絆了一跤，脛骨撞得生疼。\x0D
+\x0DOuch!\x0D	\x0D好痛！\x0D
+\x0DNothing happens.\x0D	\x0D沒有任何反應。\x0D
+\x0DFound something!\x0D	\x0D找到東西了！\x0D
+\x0DYou win back...\x0D	\x0D你贏回了……\x0D
+\x0DYou don't have enough money.\x0D	\x0D你的錢不夠。\x0D
+\x0DA deadfall trap is sprung as you pass through!\x0D	\x0D你穿過去的瞬間，落石陷阱觸發了！\x0D
+
+# --- 下水道與街道 ---
+\x0DBefore you is a torpid river of raw sewage from the city of Vegas above you.\x0D	\x0D你面前是一條遲滯的污水河，來自上方的維加斯城。\x0D
+\x0DThe sewers are dank and moist and stinking. The stench is cloying and hangs on you like wet clothing.\x0D	\x0D下水道又濕又悶又臭。那股惡臭黏膩得像濕衣服一樣掛在你身上。\x0D
+\x0DThe solitary sound of water drops falling into puddles mocks your slow progress.\x0D	\x0D水滴落進積水的單調聲響，嘲笑著你緩慢的腳步。\x0D
+\x0DA cool breeze sweeps silently through the blackness and chills you to the bone.\x0D	\x0D一陣涼風無聲地掃過黑暗，寒意直透骨髓。\x0D
+\x0DThe current, though slow, is fairly strong.\x0D	\x0D水流雖慢，力道卻不小。\x0D
+\x0DDespite the sucking current, you keep your feet and move through the water easily.\x0D	\x0D儘管暗流拉扯，你仍站得穩，輕鬆涉水而過。\x0D
+\x0DThe stream bed shifts beneath you but the rope keeps you up. You feel creatures slither between your legs.\x0D	\x0D河床在腳下鬆動，繩子撐住了你。你感覺到有東西從腿間滑過。\x0D
+\x0DThe rope catches on debris across the stream and holds solidly. It will make your passage safer.\x0D	\x0D繩子勾住對岸的碎石，牢牢固定。有它渡河會安全些。\x0D
+\x0DSluggish water swirls around your legs. It stinks and is slippery, but the rope helps you wade across.\x0D	\x0D滯緩的水在腿邊打轉，又臭又滑，但有繩子幫忙你涉了過去。\x0D
+\x0DThese cute little yellow spiders don't look dangerous at all.\x0D	\x0D這些可愛的小黃蜘蛛看起來一點也不危險。\x0D
+\x0DGoing downtown.\x0D	\x0D進入市中心。\x0D
+\x0DLeaving Downtown.\x0D	\x0D離開市中心。\x0D
+
+# --- 遭遇的開場白 ---
+Gang members attack!\x0D	幫派份子發動攻擊！\x0D
+Intruder alert! Intruder alert!\x0D	入侵警報！入侵警報！\x0D
+Roaring out a war cry, cyborgs attack from ambush.\x0D	改造人吼出戰嚎，從埋伏處撲出。\x0D
+Three foot tall black rats race toward you with gleaming eyes and razor-sharp teeth.\x0D	三呎高的黑鼠瞪著發亮的眼睛、露出刀刃般的牙齒衝了過來。\x0D
+A mutant cyborg prepares to zap you.\x0D	一個變種改造人準備電你。\x0D
+A metal rustling echoes from the darkness.\x0D	黑暗中傳來金屬摩擦的回聲。\x0D
+A solitary figure made of tungsten fibers and armor plates laughs hauntingly and shoots at you.\x0D	一個由鎢纖維與裝甲板構成的身影發出陰森的笑聲，朝你開火。\x0D
+A small, six-armed robot with a squat, humanoid head on top whirls in your direction and raises its weapons.\x0D	一個矮胖人形頭顱、六隻手臂的小型機器人轉向你，舉起武器。\x0D
+A silvery mountain of reptilian terror cocks its head, studies you for a moment, then attacks!\x0D	一座銀色的爬蟲惡夢歪了歪頭，端詳你片刻，然後撲了上來！\x0D
+
+# --- 雜項 ---
+"Please help me get out of here."\x0D	「拜託幫我離開這裡。」\x0D
+\x0D"Thank you for rescuing me."\x0D	\x0D「謝謝你救了我。」\x0D
