@@ -50,7 +50,7 @@
 | **MSQ 區塊佈局** | **已解**：地圖區長度由選擇表決定（`0x600` ＝ 邊長 32／`0x1800` ＝ 邊長 64，只有 4 塊是大地圖），之後是 0x5C bytes 的記錄區標頭，41/42 個區塊第一個 section 落在 `P+0x5C`。取記錄走兩層索引（`sub_17CB1`），記錄指標落在 `ds:46AEh`（`docs/re/16`） |
 | **地圖三層與圖磚** | **已解**：地圖是正方形（邊長在記錄區標頭 `+0x2C`，32 或 64），分三層——第 1 層 4 bits／格是 section 型別、第 2 層 1 byte／格是記錄編號、**第 3 層（Huffman 尾段）是畫面上的圖形編號**（0–9 是 `IC0_9.WLF` 的疊圖，≥10 是圖磚編號 −10；`0x420 ＋ 10 × 128 ＝ 0x920` 剛好接上圖磚組）。**圖磚在 `ALLHTDS`**：9 組、每組 66–163 張，一張 128 bytes ＝ **16 × 16 packed 4bpp**，由標頭 `+0x30` 選組。畫一格走 `螢幕 ← (背景 AND 遮罩) OR 疊圖`（overlay slot 4），42 張地圖的縮圖都畫得出來（`docs/re/24`）|
 | **遊戲時鐘** | **已解**：24 小時制（`ds:4658h` 分的小數／`4659h` 分／`465Ah` 時），走一步推進的量寫在該地圖的記錄區標頭 `+0x34/+0x35`——荒野 4 分鐘、一般室內 15 秒。時鐘畫在外框上緣（字元欄 28、列 0）；**晝夜門檻 6 時與 18 時**，夜間換圖形、記錄也有白天／夜間兩套欄位。每 16 刻跑一次隨時間的角色處理（`docs/re/27`）|
-| **地圖事件處理** | **八支全解**：1 ＝ 遠看才顯示的描述（站上去反而不印）、2 ＝ 條件串列（門／鎖／檢定）、4 ＝ 印一句、5 ＝ **寶箱**（第一次踩到才把類別擲成具體物品與數量，寫回記錄）、6 ＝ **設施與腳本**（第二層分派：記錄 `+0x00` bit7 設 → `ds:A4E0h` 5 個設施畫面，商店已確認；bit7 沒設 → `ds:A4EAh` **44 個腳本指令**，已讀 6 個，含條件分支與晝夜分支）、8 ＝ 多選一選單、9／12 ＝ 印訊息、10 ＝ 傳送（`docs/re/29`）|
+| **地圖事件處理** | **八支全解**：1 ＝ 遠看才顯示的描述（站上去反而不印）、2 ＝ 條件串列（門／鎖／檢定）、4 ＝ 印一句、5 ＝ **寶箱**（第一次踩到才把類別擲成具體物品與數量，寫回記錄）、6 ＝ **設施與腳本**（第二層分派：記錄 `+0x00` bit7 設 → `ds:A4E0h` 5 個設施畫面，商店已確認；bit7 沒設 → `ds:A4EAh` **44 個腳本指令，全部讀完**：條件與晝夜分支、調整遭遇率與種類數、生成地圖物件、批次改記錄、時間戳與倒數，`docs/re/34`）、8 ＝ 多選一選單、9／12 ＝ 印訊息、10 ＝ 傳送（`docs/re/29`）|
 | **移動與事件觸發** | **已解（骨架）**：走一步 ＝ 可否進入（四道閘）→ 捲動（四個方向各一支 ＋ overlay slot 11–14）→ 腳步音效 → 遭遇擲骰 → 重畫與觸發。踩上去由 `ds:AA87h` 這張 **16 筆跳表**依地圖第 1 層的 nibble 分派；7 種是空的，8 種有專屬處理（10 ＝ 傳送、12 ＝ 印訊息）。**時間系統沒找到**（`docs/re/26`）|
 | **畫面版面** | **已解**：320 × 200 mode 0Dh。地圖／圖片視窗 **288 × 128 @ (8, 8)**（19 × 9 格、四邊半格裁切、隊伍固定在第 (9,4) 格），外框在欄 0–37／字元列 0–17，訊息視窗欄 1–38／字元列 18–23（6 行）。`ds:46B9h` 切換地圖與隊伍名單，兩者共用同一塊視窗（`docs/re/25`）|
 | **圖片格式** | **已解**：全部是 **packed 4bpp ＋ 列間 XOR delta**，而且 **XOR 的回看距離就是一列的 byte 數**——`ALLPICS` 是 48 → 96 × 84（共 82 張），`TITLE.PIC` 是 144 → 288 × 128。`ALLPICS` 的解碼在 overlay slot 2（`sub_10144`）、`TITLE.PIC` 在 `start` 內嵌，已用 `tools/decode_pic.py` 重現（`docs/re/23`）|
@@ -94,7 +94,7 @@
 | [`CLAUDE.md`](./CLAUDE.md) | 專案規範：三道閘門、IDA 鐵則、文件與中文化政策、環境硬規則 |
 | [`docs/re/00-master-index.md`](docs/re/00-master-index.md) | **RE 總表**：位址換算、資料格式、結構佈局、位址表、關鍵函式、工具。**查已知事實先看這份** |
 | [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md) | **RE 完成度檢查表**：remake 需要的每一項知識、狀態與入口 |
-| [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 285）。讀任何 `sub_XXXXX` 前先查 |
+| [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 286）。讀任何 `sub_XXXXX` 前先查 |
 | [`docs/re/01-binary-identity.md`](docs/re/01-binary-identity.md) | 20 檔 SHA-256、`wl.exe` 的 MZ header、第一份資料庫與「不可用作證據」的結論 |
 | [`docs/re/02-exepack-unpack.md`](docs/re/02-exepack-unpack.md) | EXEPACK 格式、解包器、relocation 起點的坑、解包後基準資料庫 |
 | [`docs/re/03-boot-and-asset-loading.md`](docs/re/03-boot-and-asset-loading.md) | 開機序列、`info` 安裝資訊、檔名表、七個開機素材的載入位址、`TITLE.PIC` XOR 解碼 |
@@ -128,6 +128,7 @@
 | [`docs/re/31-experience-and-skills.md`](docs/re/31-experience-and-skills.md) | 升級門檻 (L² − L) × 512、階級表、技能學習與費用公式 |
 | [`docs/re/32-skill-checks-and-xp.md`](docs/re/32-skill-checks-and-xp.md) | 資料表定址器、技能資料表、檢定與練等、條件串列、經驗值三來源 |
 | [`docs/re/33-paragraph-references.md`](docs/re/33-paragraph-references.md) | 段落編號怎麼出現、陷阱段落零引用、密語是遊戲內謎題 |
+| [`docs/re/34-map-script-opcodes.md`](docs/re/34-map-script-opcodes.md) | 地圖腳本直譯器的 44 個指令 |
 | [`docs/spec/00-index.md`](docs/spec/00-index.md) | **規格索引與閘門狀態**：哪些可以動工、其餘擋在什麼上 |
 | [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
 | [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |
@@ -181,12 +182,12 @@
 
 **RE 完成度**：資料格式、文字與資產層打通（含地圖三層、圖磚與圖片），
 戰鬥／屬性／效果／商店／升級／檢定與技能成長六塊規則已解；世界互動層仍是主要缺口。
-641 個函式裡人寫的筆記涵蓋 285 個。完整缺口見
+641 個函式裡人寫的筆記涵蓋 286 個。完整缺口見
 [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md)。
 
 **下一步（依「對 remake 的阻擋程度」排序）**
 
-1. **nibble 6 的腳本指令集** —— `ds:A4EAh` 那 44 個 opcode，已讀 6 個。
+1. **`ds:CF4Eh` 的狀態旗標表** —— 角色記錄 `+0x28` 的每個 bit 是什麼。
 2. **隊伍打敵方的傷害來源** —— `sub_12A76` 的兩個呼叫端都在敵方路徑上。
 3. **密語輸入的比對程式碼**，以及 `sub_12537`／`sub_1254A`
    （隨時間恢復／惡化的公式）。
