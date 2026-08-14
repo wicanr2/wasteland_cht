@@ -62,6 +62,7 @@ SHA-256 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`。
 |---|---|---|---|
 | EXEPACK 解包 | 反向 RLE ＋ relocation 重建 | `tools/unpack_exepack.py` | [`02`](02-exepack-unpack.md) |
 | MSQ 解密 | `key = lo(cs) ^ hi(cs)`；逐 byte XOR 後 `key += 0x1F` | `tools/decrypt_msq.py` | [`08`](08-msq-encryption.md) |
+| **checksum** | **＝ 0 − Σ 明文位元組**（改寫內容後必須重算） | `tools/dump_save.py` | [`08`](08-msq-encryption.md) §0、[`30`](30-save-layout.md) §2.1 |
 | **加密長度** | **＝ 區塊標頭第一個 word，不是整個區塊** | `tools/decode_block_text.py` | [`18`](18-block-text.md) §2 |
 | Huffman | 前序編碼的樹 ＋ 位元流，無 magic 的尾段也是同一套 | `tools/huffman.py` | [`10`](10-huffman-compression.md)、[`11`](11-huffman-decoder.md) |
 | 文字打包 | 5-bit 符號 ＋ 60 bytes 字元對照表；`0x1E` 轉大寫、`0x1F` escape | `tools/decode_text.py` | [`17`](17-packed-text.md) |
@@ -123,6 +124,19 @@ SHA-256 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`。
 | `+0x04` | 擲骰結果 | — |
 | `+0x05`／`+0x07` | 與 `+0x03` 一起做「此槽是否為空」判斷 | — |
 | `+0x08`–`+0x0A` | bit7 ＝ 續接，低 7 位是值（變長串列） | 同左 |
+
+### 4.2b 存檔（`game1`／`game2` 檔尾的一個 MSQ 資源）
+
+```
+game1 0x000253C5、game2 0x00028BC7   ← seek 是 cx:dx，32-bit
++0x00  magic  +0x04 checksum  +0x06  0x800 加密段 ＝ 8 × 256
+         第 0 筆：全域狀態    第 1–7 筆：角色記錄
++0x806 0xA00 未加密段（出廠全零）
+```
+
+全域狀態：`+0x00/0x0E/0x1C/0x2A` 四組隊伍槽表（各 14 bytes）、
+`+0x78` 起 14 bytes 是 `ds:464Eh`–`465Bh`（視窗原點、累計、隊伍人數、時鐘）、
+`+0xC8` 地點名稱、`+0xF5` 32-bit 存檔序號。詳見 [`30`](30-save-layout.md)。
 
 ### 4.3 角色記錄（256 bytes）
 
@@ -486,6 +500,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `tools/summarize_map_layers.py` | 地圖三層的長度、邊長、圖磚組驗證 | 否 |
 | `tools/render_map.py` | 用第 3 層把一張地圖畫成一格一字元的縮圖 | 否 |
 | `tools/dump_word_table.py` | 倒出執行檔裡的 16-bit 表（跳表、位移表） | 否 |
+| `tools/dump_save.py` | 解開存檔區並列出隊伍、時鐘、角色 | 否 |
 | `tools/ida/export_forced.py` | 強制把 IDA 漏掉的位址分析成程式碼再倒出 | 是 |
 | `tools/rng.py` | 亂數與擲骰的參考模型（附自我測試） | 否 |
 | `tools/unpack_exepack.py`／`apply_overlay.py` | 解包／合成分析映像 | 否 |
@@ -525,6 +540,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | [`27`](27-game-clock.md) | 遊戲時鐘：24 小時制、每步推進量、晝夜門檻、隨時間的角色處理 |
 | [`28`](28-text-variants.md) | 文字變形：單複數／性別／三選一／數量的骨架與選擇子 |
 | [`29`](29-map-event-handlers.md) | 地圖事件處理：寶箱、選單、訊息；強制分析 IDA 漏掉的位址 |
+| [`30`](30-save-layout.md) | 存檔佈局：位置、加密與 checksum、全域狀態、四組隊伍槽表、四個預設 Ranger |
 
 ## 9. 引用這份表時的紀律
 
