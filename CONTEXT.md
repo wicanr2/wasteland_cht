@@ -47,6 +47,7 @@
 | **亂數產生器** | **已解**：`sub_18E6B` 是 `ds:465Ch`–`4660h` 五個位元組的進位鏈，映像初值全零、全檔沒有種子設定，熵來自鍵盤輪詢次數。擲骰層四支（d6／dN／累加 Nd6／2d6 同點續擲）全部讀完並以模型驗證（`docs/re/13`、`tools/rng.py`） |
 | **文字編碼** | **已解**：遊戲文字是 **5-bit 打包 ＋ 60 字元對照表**。執行檔九張表 442 條、42 個地圖區塊各一張表共 4,493 條，**合計 4,935 條全部解出**（`docs/re/17`、`18`）|
 | **MSQ 區塊佈局** | **已解**：地圖區長度由選擇表決定（`0x600`＝64×48／`0x1800`＝128×96，只有 4 塊是大地圖），之後是 0x5C bytes 的記錄區標頭，41/42 個區塊第一個 section 落在 `P+0x5C`。取記錄走兩層索引（`sub_17CB1`），記錄指標落在 `ds:46AEh`（`docs/re/16`） |
+| **效果與傷害** | **已解**：地圖事件對角色的所有效果由記錄 `+0x08`／`+0x09` 兩個 byte 描述（哪個欄位、加或減、固定值或 Nd6），共用 `sub_141FA` 一個出口。護甲吸收 ＝ **AC 顆 d6 的和**（`docs/re/19`）|
 | **角色記錄** | **定址已確認**：記錄 ＝ `0x7131 ＋ 角色編號 × 256`，每筆 256 bytes，經隊伍槽表兩層間接。名字、金錢（24-bit）、MAXCON／CON、兩個 30 槽陣列、傷勢門檻（−11／−20／−30／−40）都已定位（`docs/re/15`） |
 | 逐指令基準 | 整個 CODE 區倒成 JSON（20,177 條指令、827 個全域、4,932 筆直接定址存取），後續形狀比對改在離線做（`tools/ida/export_listing.py`、`export_memops.py`） |
 | 儲存層 | 雙模式（硬碟 DOS 檔案／磁片 `int 25h` 絕對磁區）與分流旗標；資源表 8 筆全解，六個檔名的引用點就在表的 `+6` 欄位（`docs/re/05`） |
@@ -75,7 +76,7 @@
 | [`CLAUDE.md`](./CLAUDE.md) | 專案規範：三道閘門、IDA 鐵則、文件與中文化政策、環境硬規則 |
 | [`docs/re/00-master-index.md`](docs/re/00-master-index.md) | **RE 總表**：位址換算、資料格式、結構佈局、位址表、關鍵函式、工具。**查已知事實先看這份** |
 | [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md) | **RE 完成度檢查表**：remake 需要的每一項知識、狀態與入口 |
-| [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 152）。讀任何 `sub_XXXXX` 前先查 |
+| [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 162）。讀任何 `sub_XXXXX` 前先查 |
 | [`docs/re/01-binary-identity.md`](docs/re/01-binary-identity.md) | 20 檔 SHA-256、`wl.exe` 的 MZ header、第一份資料庫與「不可用作證據」的結論 |
 | [`docs/re/02-exepack-unpack.md`](docs/re/02-exepack-unpack.md) | EXEPACK 格式、解包器、relocation 起點的坑、解包後基準資料庫 |
 | [`docs/re/03-boot-and-asset-loading.md`](docs/re/03-boot-and-asset-loading.md) | 開機序列、`info` 安裝資訊、檔名表、七個開機素材的載入位址、`TITLE.PIC` XOR 解碼 |
@@ -94,6 +95,7 @@
 | [`docs/re/16-msq-block-layout.md`](docs/re/16-msq-block-layout.md) | MSQ 區塊的整體佈局、地圖區長度與尺寸、記錄區標頭、section 位移表與兩層索引 |
 | [`docs/re/17-packed-text.md`](docs/re/17-packed-text.md) | 5-bit 打包文字的格式與解碼器、執行檔九張字串表、單複數與性別機制、名片欄位對照 |
 | [`docs/re/18-block-text.md`](docs/re/18-block-text.md) | 地圖區塊的字串表：加密長度就是字串表基址、完整區塊佈局、4,493 條敘述文字 |
+| [`docs/re/19-effects-and-damage.md`](docs/re/19-effects-and-damage.md) | 資料驅動的效果系統（記錄 `+0x08`／`+0x09`）、傷害與護甲、單複數選擇器 |
 | [`docs/manual-cht/`](docs/manual-cht/) | 軟體世界 1990 中文說明書全 60 頁節轉錄 ＋ 當年譯名表 |
 | [`docs/manual/`](docs/manual/) | 官方英文手冊全文 markdown |
 | [`docs/paragraphs/`](docs/paragraphs/) | 段落書 162 段全文與索引，含防拷結構標註 |
@@ -134,7 +136,7 @@
 ## 7. Worklist
 
 **RE 完成度**：資料格式層與文字層大致打通，遊戲規則層剛開出第一個缺口（擲骰）。
-641 個函式裡人寫的筆記涵蓋 152 個。完整缺口見
+641 個函式裡人寫的筆記涵蓋 162 個。完整缺口見
 [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md)。
 
 **下一步（依「對 remake 的阻擋程度」排序）**
@@ -144,16 +146,18 @@
 2. **存檔內部欄位（C2）** —— 角色記錄定址與大半欄位已解（`docs/re/15`），
    還缺 `+0x80` 與 `+0xBD` 兩個 30 槽陣列哪個是物品、哪個是技能，
    以及位移用算的那 127 處存取。
-3. **規則判定（D1／D3）** —— 擲骰層已解，改讀 `sub_18E41`（24 個呼叫端）、
+3. **命中判定（D3 未竟）** —— `sub_157D6` 收到的是算好的傷害，算它的地方
+   在 `sub_141FA` 的另一個呼叫端 `0x1444F` 與 `0x1B0C6` 那條路徑。
+4. **規則判定（D1）** —— 擲骰層已解，改讀 `sub_18E41`（24 個呼叫端）、
    `sub_19C84`（11）、`sub_19D86`（3）的呼叫端，每個呼叫端就是一條規則。
-4. 畫面版面（B6）：游標與欄位計數變數已知，中文化重排版面要用。
-5. 段落編號顯示（E3）：段落書與遊戲內文字的分工要重新釐清。
-6. 逐一解 overlay 其餘 21 個 slot，特別是 `0x1029B`（881 bytes）。
-7. 追資源表 idx 7（無檔名，疑似存檔區）在硬碟模式下怎麼存取。
-8. 音效（F2）：確定是 PC 喇叭——`sub_1CC76` 寫 8253 channel 2（`out 42h`）
+5. 畫面版面（B6）：游標與欄位計數變數已知，中文化重排版面要用。
+6. 段落編號顯示（E3）：段落書與遊戲內文字的分工要重新釐清。
+7. 逐一解 overlay 其餘 21 個 slot，特別是 `0x1029B`（881 bytes）。
+8. 追資源表 idx 7（無檔名，疑似存檔區）在硬碟模式下怎麼存取。
+9. 音效（F2）：確定是 PC 喇叭——`sub_1CC76` 寫 8253 channel 2（`out 42h`）
    再開 61h 閘。待解的是 `sub_1CD52` 那套位元組碼的指令集與曲目資料在哪。
-9. 在 DOSBox 跑解包版與原版對照，驗證解包正確性（`docs/re/02` §5 的待辦）。
-10. 段落書的防拷結構要接進 remake 設計：變體組與火星誘餌劇情不能照抄成線性手札，
+10. 在 DOSBox 跑解包版與原版對照，驗證解包正確性（`docs/re/02` §5 的待辦）。
+11. 段落書的防拷結構要接進 remake 設計：變體組與火星誘餌劇情不能照抄成線性手札，
     要等段落呼叫表解出來才知道遊戲實際會叫哪一段。
 
 **不得開始**：`internal/` 下的任何 Go 引擎程式碼，直到對應規格標 READY。
