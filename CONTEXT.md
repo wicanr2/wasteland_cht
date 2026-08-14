@@ -46,7 +46,8 @@
 | `wla.bin` overlay | 26 個 slot 的 API 表、EGA mode 0Dh、列位址表、畫字元（字型 172 字 × 32 bytes、8×8、4 平面）、清除矩形（`docs/re/04`） |
 | **亂數產生器** | **已解**：`sub_18E6B` 是 `ds:465Ch`–`4660h` 五個位元組的進位鏈，映像初值全零、全檔沒有種子設定，熵來自鍵盤輪詢次數。擲骰層四支（d6／dN／累加 Nd6／2d6 同點續擲）全部讀完並以模型驗證（`docs/re/13`、`tools/rng.py`） |
 | **文字編碼** | **已解**：遊戲文字是 **5-bit 打包 ＋ 60 字元對照表**。執行檔九張表 442 條、42 個地圖區塊各一張表共 4,493 條，**合計 4,935 條全部解出**（`docs/re/17`、`18`）|
-| **MSQ 區塊佈局** | **已解**：地圖區長度由選擇表決定（`0x600`＝64×48／`0x1800`＝128×96，只有 4 塊是大地圖），之後是 0x5C bytes 的記錄區標頭，41/42 個區塊第一個 section 落在 `P+0x5C`。取記錄走兩層索引（`sub_17CB1`），記錄指標落在 `ds:46AEh`（`docs/re/16`） |
+| **MSQ 區塊佈局** | **已解**：地圖區長度由選擇表決定（`0x600` ＝ 邊長 32／`0x1800` ＝ 邊長 64，只有 4 塊是大地圖），之後是 0x5C bytes 的記錄區標頭，41/42 個區塊第一個 section 落在 `P+0x5C`。取記錄走兩層索引（`sub_17CB1`），記錄指標落在 `ds:46AEh`（`docs/re/16`） |
+| **地圖三層與圖磚** | **已解**：地圖是正方形（邊長在記錄區標頭 `+0x2C`，32 或 64），分三層——第 1 層 4 bits／格是 section 型別、第 2 層 1 byte／格是記錄編號、第 3 層在 Huffman 尾段（語意未解）。**圖磚在 `ALLHTDS`**：9 組、每組 66–163 張，一張 128 bytes ＝ **16 × 16 packed 4bpp**，由標頭 `+0x30` 選組（`docs/re/24`）|
 | **圖片格式** | **已解**：全部是 **packed 4bpp ＋ 列間 XOR delta**，而且 **XOR 的回看距離就是一列的 byte 數**——`ALLPICS` 是 48 → 96 × 84（共 82 張），`TITLE.PIC` 是 144 → 288 × 128。解碼在 overlay slot 2（`sub_10144`），已用 `tools/decode_pic.py` 重現（`docs/re/23`）|
 | **商店與物品** | **已解**：商店由地圖記錄設定，**價格 ＝ 基礎價 − (基礎價 >> n)**。物品資料表在 `ds:7A31h`，**95 筆 × 8 bytes**——與字串表裡的 95 個物品名兩個獨立來源吻合（`docs/re/22`）|
 | **七個屬性** | **已確認**：Strength／IQ／Luck／Speed／Agility／Dexterity／Charisma 在角色記錄 `+0x0E`–`+0x14`（選單字串 ＋ `sub al,'1'; add al,0Eh` 兩行釘死）。屬性→修正值有死區 9–13、兩側各半格。**角色建立也已解**：屬性 ＝ 5d6 取最高三顆、MAXCON ＝ 同擲法 ＋18、技能點 ＝ IQ（`docs/re/21`）|
@@ -63,11 +64,9 @@
 | 項目 | 狀態 |
 |---|---|
 | 解包映像實跑驗證 | **未做**。要在 DOSBox 跑起來與原版對照，才能把「解包等同原版」升為已確認 |
-| 資料格式 | 已解：`wla.bin`（overlay 程式碼）、`title.pic`（XOR 串流）、`colorf.fnt`（172 字 × 32 bytes，格式與用途都已驗證）、主文字字型（內嵌）、`GAME1`／`GAME2` 的定址方式。`allpics1/2` 的 82 張圖（`docs/re/23`）。未解：`allpics*` 交錯的參數區、`allhtds*`、`transtbl`、`curs`、`masks.wlf`、`ic0_9.wlf`、`end.cpa` |
-
-
-| 劇情敘述文字 | **原版遊戲檔案裡沒有**（強證據）：所有資料檔的每個 byte 都已有歸屬，執行檔內最長字串只有 50 字元。長篇敘述在紙本段落書上，遊戲只給編號（`docs/re/12`） |
-| MSQ 尾段 | 已解：無 magic 的 Huffman 流，42/42 解出 4,096 或 1,024 bytes，內容是 tile 圖形 |
+| 資料格式 | 已解：`wla.bin`（overlay 程式碼）、`title.pic`（XOR 串流）、`colorf.fnt`（172 字 × 32 bytes，格式與用途都已驗證）、主文字字型（內嵌）、`GAME1`／`GAME2` 的定址方式。`allpics1/2` 的 82 張圖（`docs/re/23`）、`allhtds1/2` 的 9 組圖磚（`docs/re/24`）。未解：`allpics*` 交錯的參數區、`transtbl`、`curs`、`masks.wlf`、`ic0_9.wlf`、`end.cpa` |
+| 劇情敘述文字 | **已解**：執行檔九張打包表 442 條 ＋ 地圖區塊 4,493 條，合計 4,935 條（`docs/re/17`、`18`）。與紙本段落書 162 段的分工待段落呼叫表解出 |
+| MSQ 尾段 | 已解：無 magic 的 Huffman 流，42/42 解出 4,096 或 1,024 bytes ＝ 地圖第 3 層（每格 1 byte，`docs/re/24`） |
 | **Huffman 解壓** | **已實作並驗證**（`tools/huffman.py`）：`allhtds1/2`、`allpics1/2`、`end.cpa` 共 173 個子區塊全部解出，長度精確吻合、檔案 100% 用完（`docs/re/11`） |
 | 載入器分工 | 已解：`DL`＝0 ALLPICS、1 GAME／存檔、2 ALLHTDS、6 END.CPA，各有位移表 |
 | 說明書整理 | 英文手冊、段落書、軟體世界中文說明書都完成；社群攻略未開始 |
@@ -80,7 +79,7 @@
 | [`CLAUDE.md`](./CLAUDE.md) | 專案規範：三道閘門、IDA 鐵則、文件與中文化政策、環境硬規則 |
 | [`docs/re/00-master-index.md`](docs/re/00-master-index.md) | **RE 總表**：位址換算、資料格式、結構佈局、位址表、關鍵函式、工具。**查已知事實先看這份** |
 | [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md) | **RE 完成度檢查表**：remake 需要的每一項知識、狀態與入口 |
-| [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 205）。讀任何 `sub_XXXXX` 前先查 |
+| [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 211）。讀任何 `sub_XXXXX` 前先查 |
 | [`docs/re/01-binary-identity.md`](docs/re/01-binary-identity.md) | 20 檔 SHA-256、`wl.exe` 的 MZ header、第一份資料庫與「不可用作證據」的結論 |
 | [`docs/re/02-exepack-unpack.md`](docs/re/02-exepack-unpack.md) | EXEPACK 格式、解包器、relocation 起點的坑、解包後基準資料庫 |
 | [`docs/re/03-boot-and-asset-loading.md`](docs/re/03-boot-and-asset-loading.md) | 開機序列、`info` 安裝資訊、檔名表、七個開機素材的載入位址、`TITLE.PIC` XOR 解碼 |
@@ -89,7 +88,7 @@
 | [`docs/re/06-resource-directory.md`](docs/re/06-resource-directory.md) | `GAME1`／`GAME2` 的資源目錄與位移表、資源 magic、文字輸出層 |
 | [`docs/re/07-msq-blocks.md`](docs/re/07-msq-blocks.md) | 42 個 MSQ 區塊的完整清單、數量的三重驗證、內容是加密／壓縮的 |
 | [`docs/re/08-msq-encryption.md`](docs/re/08-msq-encryption.md) | MSQ 加密演算法與 42/42 驗證、區塊佈局、長度表 |
-| [`docs/re/09-msq-map-structure.md`](docs/re/09-msq-map-structure.md) | 地圖層（4-bit tile、自相關驗證）、名稱字串是明文、存檔兩份輪替 |
+| [`docs/re/09-msq-map-structure.md`](docs/re/09-msq-map-structure.md) | 地圖層（三層、邊長、自相關驗證）、名稱字串是明文、存檔兩份輪替 |
 | [`docs/re/10-huffman-compression.md`](docs/re/10-huffman-compression.md) | 第二層 Huffman：容器格式、位元讀取器、樹的前序編碼、各資源的載入器對照 |
 | [`docs/re/11-huffman-decoder.md`](docs/re/11-huffman-decoder.md) | 解碼器實作與驗證、子區塊串接規則、四個資料檔全部解開 |
 | [`docs/re/12-msq-tail-and-text-model.md`](docs/re/12-msq-tail-and-text-model.md) | 兩張長度表的差別＝尾段、尾段是無 magic 的 Huffman、文字在各來源的分佈 |
@@ -103,7 +102,8 @@
 | [`docs/re/20-combat-resolution.md`](docs/re/20-combat-resolution.md) | 命中判定（d100 對門檻）、武器傷害公式、一次攻擊的完整流程 |
 | [`docs/re/21-attributes.md`](docs/re/21-attributes.md) | 七個屬性的記錄位移、屬性→修正值階梯、檢定骰、角色建立 |
 | [`docs/re/22-shop-and-items.md`](docs/re/22-shop-and-items.md) | 商店、價格公式、物品資料表（95 筆 × 8 bytes） |
-| [`docs/re/23-picture-format.md`](docs/re/23-picture-format.md) | 圖片格式：packed 4bpp ＋ 列間 XOR delta、`ALLPICS` 容器與 82 張圖、走錯一次的量測依據 |
+| [`docs/re/23-picture-format.md`](docs/re/23-picture-format.md) | 圖片格式：packed 4bpp ＋ 列間 XOR delta、`ALLPICS` 容器與 82 張圖 |
+| [`docs/re/24-map-layers-and-tiles.md`](docs/re/24-map-layers-and-tiles.md) | 地圖的三層結構、邊長與定址、`ALLHTDS` 九組 16 × 16 圖磚 |
 | [`docs/manual-cht/`](docs/manual-cht/) | 軟體世界 1990 中文說明書全 60 頁節轉錄 ＋ 當年譯名表 |
 | [`docs/manual/`](docs/manual/) | 官方英文手冊全文 markdown |
 | [`docs/paragraphs/`](docs/paragraphs/) | 段落書 162 段全文與索引，含防拷結構標註 |
@@ -132,7 +132,9 @@
 | 檔名表沒有任何程式碼引用（xref 與立即數掃描都是 0） | 立即數掃描器沒遮罩符號擴展，`0x91C5` 被讀成 `0xFFFF...91C5`，算出的位址不存在 | 檔名全部由 `mov dx, <位移>` 直接引用，修正後 `seg002` 有 50 個字串對上引用點（`docs/re/03` §7） |
 | `GAME1` 等六個檔名也沒有引用（修正掃描器後仍是 0） | 只查了「位址以立即數出現」這一種形式 | 檔名位址是資源表 `+6` 欄位的資料值，開啟路徑是 `sub_11445`（`docs/re/05` §6） |
 | ` etraoishlnd`、`bcdefghijklmdenopq` 是文字解碼的頻率表 | 憑字串長相猜的，沒有追引用點 | 後者是 `sub_166D3` 逐字印到畫面上的內容；文字編碼另有其處（`docs/re/06` §3） |
-| MSQ 區塊的地圖是固定 2048 bytes，記錄表從 `+0x800` 起 | `2048` 是從「64×64 × 4 bits」推出來的，不是讀出來的；自相關驗證通過的是「這區是地圖」，不是「這區到哪為止」 | 地圖區長度由執行檔的選擇表決定：`0x600`（64×48）或 `0x1800`（128×96），記錄區接在後面（`docs/re/16` §1） |
+| MSQ 區塊的地圖是固定 2048 bytes，記錄表從 `+0x800` 起 | `2048` 是從「64×64 × 4 bits」推出來的，不是讀出來的；自相關驗證通過的是「這區是地圖」，不是「這區到哪為止」 | 地圖區長度由執行檔的選擇表決定：`0x600` 或 `0x1800`，記錄區接在後面（`docs/re/16` §1） |
+| 地圖是 64 × 48（`0x600`）或 128 × 96（`0x1800`）的單一平面 | 自相關的峰值出現在 64 nibble，於是把整個地圖區當成一張圖。實際上峰值來自**占三分之二的 byte 層**（邊長 32 的 byte 列在 nibble 視角下正好是 64） | 地圖是**正方形**，邊長寫在記錄區標頭 `+0x2C`（32 或 64），而且分**三層**（`docs/re/24` §1–§2） |
+| MSQ 的 Huffman 尾段是該地圖的 tile 圖形 | 只看內容形狀（大量重複的小值）與 `ALLPICS` 相似，沒追載入後誰讀它 | 尾段是**地圖的第 3 層**，每格 1 byte、長度 D²；圖磚圖形在 `ALLHTDS`（`docs/re/24`） |
 | `ds:722Fh` 的 `+0x1C` 是字元碼重映射 | 只看到算術沒把字模畫出來 | 是**選色**：`colorf.fnt` 有兩組形狀相同、顏色不同的字模，相距 `0x1C`（`docs/re/14` §3） |
 | 用 xref 圖就能問出「誰在寫這個全域」 | 這份資料庫 4,932 筆直接定址存取裡只有 22 筆進了 xref 圖，其餘 `mov ax, ds:46B7h` 這類根本沒建 xref。零命中與「真的沒人寫」長得一樣 | 自己解碼運算元並用 IDA 的 `CF_CHGn`／`CF_USEn` 判讀寫（`tools/ida/export_memops.py`、`docs/re/13` §1） |
 | RNG 應該是移位／加法型 | 排除 `mul` 之後只憑印象推的 | 是**純加法**的進位鏈，一個移位都沒有；靠「讀寫同一全域」的形狀找到，不是靠指令（`docs/re/13` §2） |
@@ -144,17 +146,16 @@
 ## 7. Worklist
 
 **RE 完成度**：資料格式層與文字層打通，戰鬥／屬性／效果／商店四塊規則已解，
-圖片格式已解。641 個函式裡人寫的筆記涵蓋 205 個。完整缺口見
+圖片格式已解。641 個函式裡人寫的筆記涵蓋 211 個。完整缺口見
 [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md)。
 
 **下一步（依「對 remake 的阻擋程度」排序）**
 
-1. **tile 的像素格式（A8）** —— 擋住地圖畫面重現。`docs/re/23` 給了這個遊戲的
-   像素慣例（packed 4bpp ＋ 列間 XOR delta），拿同一把尺去量 MSQ 尾段
-   那 1,024／4,096 bytes。
-2. **移動、時間與觸發條件（E1／E2）** —— 記錄容器與效果系統都解了，
+1. **移動、時間與觸發條件（E1／E2）** —— 記錄容器與效果系統都解了，
    缺「玩家踩到什麼會啟動哪一筆記錄」。記錄指標在 `ds:46AEh`，
    全檔 150 處以上以它當基址，從那些使用端往回追。
+2. **地圖第 3 層的語意** —— 擋住地圖畫面重現。圖磚格式與圖磚組都解了，
+   缺「哪一格畫哪一張」（`docs/re/24` §2.3）。
 3. **存檔內部欄位（C2）** —— 角色記錄已解（`docs/re/15`），存檔是它的外層容器。
 4. 畫面版面（B6）：游標與欄位計數變數已知，中文化重排版面要用。
 5. 段落編號顯示（E3）：段落書與遊戲內文字的分工要重新釐清。
