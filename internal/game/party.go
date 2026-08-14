@@ -26,13 +26,26 @@ const (
 	deathFloor   = -50 // 掉破這條直接歸零
 )
 
-// Character 是角色記錄裡規則層目前用得到的部分。
+// Character 是角色記錄裡規則層目前用得到的部分（docs/spec/05 §4）。
 type Character struct {
 	Name    string
 	CON     int16 // +0x1D/+0x1E，可為負
 	MaxCON  int16 // +0x1B/+0x1C
 	PreHurt int16 // +0x26/+0x27，受傷前的備份
 	Status  uint8 // +0x28，八個狀態位元
+
+	Attributes [AttrCount]byte // +0x0E–+0x14
+	Money      uint32          // +0x15–+0x17，24-bit
+	Gender     byte            // +0x18
+	Nation     byte            // +0x19
+	AC         byte            // +0x1A
+	EquipIndex byte            // +0x1F
+	SkillPts   byte            // +0x20
+	XP         uint32          // +0x21–+0x23，24-bit
+	Level      byte            // +0x24
+	Rank       string          // +0x32…
+	Skills     []Slot          // +0x80，30 格
+	Items      []Slot          // +0xBD，30 格
 }
 
 // Dead 照原版的判定：CON 兩個 byte 都是 0（sub_172AE）。

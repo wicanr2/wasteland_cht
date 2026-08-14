@@ -30,7 +30,7 @@ RECORD = 256
 SLOT_GROUPS = (0x00, 0x0E, 0x1C, 0x2A)  # 四組隊伍槽表，各 14 bytes
 GLOBAL_AT = 0x78  # ds:464Eh–465Bh 那 14 bytes
 SERIAL_AT = 0xF5  # 32-bit 存檔序號
-PLACE_AT = 0xC8  # 地點名稱
+PLACE_AT = 0xD0  # 地點名稱（＝ 記憶體 ds:7201h，全域記錄載到 0x7131）
 
 
 def decrypt(raw: bytes, checksum: int) -> bytearray:
@@ -70,7 +70,7 @@ def dump(path: Path, at: int) -> None:
           f"  隊伍人數 {gl[8]}  目前地圖 {gl[7]}"
           f"  時鐘 {gl[12]:02d}:{gl[11]:02d}")
     print(f"      存檔序號 {struct.unpack_from('<I', g, SERIAL_AT)[0]}"
-          f"  地點 {ascii_of(g[PLACE_AT:PLACE_AT + 16]).strip('.')!r}")
+          f"  地點 {ascii_of(g[PLACE_AT:PLACE_AT + 13])!r}")
 
     print("    ── 第 1–7 筆：角色 ──")
     for r in range(1, 8):
