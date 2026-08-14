@@ -273,6 +273,26 @@ func (b *Block) At(x, y int) (terrain, record, graphic byte, err error) {
 	return b.Terrain[i], b.Record[i], b.Graphic[i], nil
 }
 
+// SetCell 改寫 (x, y) 那一格的第 1 層（地形 nibble）與第 2 層（記錄編號）。
+//
+// 這是 `sub_17CFF`／`sub_17D50` 那條路（docs/re/46 §4.1）：答對密語、
+// 通過條件檢定、開寶箱之後，原版**直接改地圖**而不是設旗標。
+//
+// ⚠ 只動記憶體裡的解碼結果，不碰原始 bytes——原始資料要能 round-trip
+// （CLAUDE.md §4）。存檔怎麼保存這個改動是另一回事。
+func (b *Block) SetCell(x, y int, terrain, record byte) error {
+	if x < 0 || y < 0 || x >= b.Dim || y >= b.Dim {
+		return fmt.Errorf("座標 (%d, %d) 超出 %d × %d 的地圖", x, y, b.Dim, b.Dim)
+	}
+	if terrain > 0x0F {
+		return fmt.Errorf("地形是 4 bits，%#x 放不下", terrain)
+	}
+	i := y*b.Dim + x
+	b.Terrain[i] = terrain
+	b.Record[i] = record
+	return nil
+}
+
 // OutsideGraphic 是地圖範圍外要畫的圖形編號（標頭 +0x33）。
 func (b *Block) OutsideGraphic() byte { return b.Header[hdrOutside] }
 
