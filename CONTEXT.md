@@ -75,7 +75,10 @@
 | 說明書整理 | 英文手冊、段落書、軟體世界中文說明書都完成；社群攻略未開始 |
 | **規格（G2）** | **三份 READY**：`docs/spec/01`（資產與資料格式）、`02`（亂數與擲骰）、`03`（畫面與文字）。其餘五份要等對應逆向補完 |
 | **`internal/assets`** | **已實作並通過驗收**：SHA-256 驗證、資源定址、MSQ 解密、Huffman、5-bit 文字、兩套字型、圖片／圖磚／地圖三層。9 個測試全綠，含 `Raw` 的 byte-for-byte round-trip（`tools/go.sh test ./...`）|
-| Go 引擎（其餘） | `internal/ui`、`internal/game/rng` 規格 READY 可動工；規則層仍不得開始 |
+| **`internal/textlayout`** | **已實作**：18 個控制碼（未解的回報成事件、絕不當文字印）、組行與分頁。4,889 條語料全部排得過 |
+| **`internal/render`** | **已實作**：合成 320 × 200 索引畫面。地圖視窗逐像素驗過剛好 288 × 128 @ (8,8)、捲動一格 ＝ 位移 16 像素 |
+| **`internal/game/rng`** | **已實作**：進位鏈與四支擲骰 ＋ 5d6 取三。驗收數列（前七項 ＝ 二項式係數）、分佈、300 萬次不重複全過 |
+| Go 引擎（其餘） | `internal/ui`（Ebiten 那層）未做；規則層仍不得開始 |
 
 ## 3. 文件索引
 
@@ -116,7 +119,7 @@
 | [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
 | [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |
 | [`docs/spec/03-screen-and-text.md`](docs/spec/03-screen-and-text.md) | READY：畫布、五個視窗、座標單位、控制碼、中文版面的兩條路 |
-| `internal/assets/` | 資產解碼層的實作（規格 01）。`tools/go.sh` 是 Go 的唯一入口，編譯與測試走 docker |
+| `internal/` | 已實作：`assets`（規格 01）、`textlayout`／`render`（規格 03）、`game/rng`（規格 02）。`tools/go.sh` 是 Go 的唯一入口，編譯與測試走 docker |
 | [`docs/manual-cht/`](docs/manual-cht/) | 軟體世界 1990 中文說明書全 60 頁節轉錄 ＋ 當年譯名表 |
 | [`docs/manual/`](docs/manual/) | 官方英文手冊全文 markdown |
 | [`docs/paragraphs/`](docs/paragraphs/) | 段落書 162 段全文與索引，含防拷結構標註 |
