@@ -73,7 +73,8 @@
 | **Huffman 解壓** | **已實作並驗證**（`tools/huffman.py`）：`allhtds1/2`、`allpics1/2`、`end.cpa` 共 173 個子區塊全部解出，長度精確吻合、檔案 100% 用完（`docs/re/11`） |
 | 載入器分工 | 已解：`DL`＝0 ALLPICS、1 GAME／存檔、2 ALLHTDS、6 END.CPA，各有位移表 |
 | 說明書整理 | 英文手冊、段落書、軟體世界中文說明書都完成；社群攻略未開始 |
-| Go 引擎 | **未開始，且依規定不得開始**，要等規格 READY |
+| **規格（G2）** | **三份 READY**：`docs/spec/01`（資產與資料格式）、`02`（亂數與擲骰）、`03`（畫面與文字）。其餘五份要等對應逆向補完 |
+| Go 引擎 | **`internal/assets`、`internal/ui`、`internal/game/rng` 已可動工**（規格 READY）；規則層仍不得開始 |
 
 ## 3. 文件索引
 
@@ -110,6 +111,10 @@
 | [`docs/re/25-screen-layout.md`](docs/re/25-screen-layout.md) | 畫面版面：兩套座標單位、地圖／圖片視窗、外框、訊息視窗、隊伍名單 |
 | [`docs/re/26-movement-and-triggers.md`](docs/re/26-movement-and-triggers.md) | 走一步的流程、四方向捲動與補畫、nibble → 事件處理的 16 筆跳表 |
 | [`docs/re/27-game-clock.md`](docs/re/27-game-clock.md) | 遊戲時鐘：24 小時制、每步推進量、晝夜門檻、隨時間的角色處理 |
+| [`docs/spec/00-index.md`](docs/spec/00-index.md) | **規格索引與閘門狀態**：哪些可以動工、其餘擋在什麼上 |
+| [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
+| [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |
+| [`docs/spec/03-screen-and-text.md`](docs/spec/03-screen-and-text.md) | READY：畫布、五個視窗、座標單位、控制碼、中文版面的兩條路 |
 | [`docs/manual-cht/`](docs/manual-cht/) | 軟體世界 1990 中文說明書全 60 頁節轉錄 ＋ 當年譯名表 |
 | [`docs/manual/`](docs/manual/) | 官方英文手冊全文 markdown |
 | [`docs/paragraphs/`](docs/paragraphs/) | 段落書 162 段全文與索引，含防拷結構標註 |
@@ -174,4 +179,6 @@
 9. 段落書的防拷結構要接進 remake 設計：變體組與火星誘餌劇情不能照抄成線性手札，
    要等段落呼叫表解出來才知道遊戲實際會叫哪一段。
 
-**不得開始**：`internal/` 下的任何 Go 引擎程式碼，直到對應規格標 READY。
+**可以開始**：`internal/assets`、`internal/ui`／`internal/textlayout`、`internal/game/rng`
+——這三塊的規格已標 READY（`docs/spec/00-index.md`）。
+**仍不得開始**：規則層（角色、戰鬥、世界互動、存檔）的任何 Go 程式碼。
