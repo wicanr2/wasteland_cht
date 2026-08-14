@@ -215,9 +215,38 @@ $ python3 tools/scan_callers.py workplace/analysis/unpacked/wl.merged.exe 1000:8
 - 單鍵模式的鍵與 `\x10` 的列熱鍵表（`docs/re/43` §2）是**兩個不同機制**，
   不要混在一起改。
 
+## 6.1 實際掃出來的數字
+
+`tools/summarize_questions.py` 掃 42 個區塊的 section 8：
+
+| | 題數 |
+|---|---:|
+| 單鍵（記錄 `+0x00` bit7 設） | **117** |
+| 打字 | **68** |
+| 標成打字、但沒有一條答案打得出來 → 不是問答 | 28 |
+
+「打得出來」不是猜的判準，是原版自己的上限：輸入緩衝區 16 bytes，
+所以超過 15 個字元的字串永遠比不中；輸入層丟掉 `< 0x20` 的字元，
+所以含控制碼的也一樣。用這條過濾之後，剩下的答案長這樣：
+
+```
+MUERTE  UGLY  SQUINT  MULEFOOT  THANATOS  KAPUT  DIPSTICK  PROTEUS
+ACAPULCO  ROSEBUD  MOTEKIM  RUN  TOAST  THE LETTER R  11-16-27  …
+```
+
+——密語、暗號、謎題答案，全部是大寫英文。完整清單在
+[`generated/ida94/questions.md`](generated/ida94/questions.md)。
+
+**這 126 條字串已經接進翻譯的建置守則。** `tools/summarize_questions.py`
+另外產生 `translations/must-not-translate.tsv`，`tools/build_lang.py` 讀它，
+譯文與原文不同就整個建置失敗。實測過現有的 126 條**全部維持英文原字**，
+守則也實測會咬（把 `MUERTE` 改成「死亡」就擋下來）。
+
+⚠ 這種錯**不會有任何徵兆**——遊戲照跑、畫面照顯示，只有那道關卡永遠過不了。
+所以守則的清單檔不存在時 `build_lang.py` 直接失敗，不靜靜跳過。
+
 ## 7. 還沒解的
 
-- 模式 A（單鍵）在資料裡實際被用在哪些格子——需要掃 42 張地圖的 nibble 8 記錄。
 - `sub_18EFE` 裡 `ds:CA62h`–`ds:CA64h` 那組按鍵錄放（巨集）機制。
 
 ## 8. 可重跑的完整指令
@@ -230,6 +259,11 @@ python3 tools/scan_callers.py workplace/analysis/unpacked/wl.merged.exe 1000:8D8
 WL_IDA_TARGET=$PWD/workplace/analysis/ida94/wl.merged.exe \
   tools/ida.sh run tools/ida/export_function.py <輸出>/f.json \
   0x18D8E 0x18E90 0x18EFE 0x1CAA9 0x1CAC0 0x1CA14 --callers
+
+# 42 個區塊的問答清單 ＋ 產生翻譯的守則清單
+python3 tools/summarize_questions.py workplace/analysis/unpacked/wl.unpacked.exe \
+  workplace/orig/wastland/game1 workplace/orig/wastland/game2 \
+  docs/re/generated/ida94/block-strings.json docs/re/generated/ida94/questions.md
 
 # nibble 8 的處理程式與文字輸入本體 IDA 沒建成函式，要強制分析
 WL_IDA_TARGET=$PWD/workplace/analysis/ida94/wl.merged.exe \
