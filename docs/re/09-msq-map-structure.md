@@ -65,7 +65,8 @@ Silicon   Sniper  Silver    Strangler  Robot …
 ```asm
 0x18745  mov  byte ptr ds:9168h, 80h    ; 指向 GAME1
 0x1874C  call sub_11445
-0x1874F  mov  dx, 53C5h                 ; seek 到 GAME1 的 0x53C5
+0x1874F  mov  dx, 53C5h                 ; ┐ seek 目標是 cx:dx ＝ 0x000253C5
+0x18752  mov  cx, 2                     ; ┘（不是 0x53C5，docs/re/30 §1）
 0x1876B  call sub_11AA3                 ; 讀 0x800 bytes → ds:7131h
 0x18776  call sub_115E5                 ; 讀 0xA00 bytes → ds:C062h
 0x1877D  mov  byte ptr ds:9168h, 40h    ; 換成 GAME2
@@ -83,7 +84,7 @@ Silicon   Sniper  Silver    Strangler  Robot …
 
 | 項目 | 值 |
 |---|---|
-| 存檔位置 | `GAME1` 的 `0x53C5`、`GAME2` 的 `0x8BC7`（在 MSQ 區塊內部的固定位移） |
+| 存檔位置 | `GAME1` 的 **`0x000253C5`**、`GAME2` 的 **`0x00028BC7`**（檔尾的一個 MSQ 資源，`docs/re/30`） |
 | 每份大小 | `0x800`（2,048）＋ `0xA00`（2,560）兩段 |
 | 版本判定 | `ds:7226h`／`ds:7228h` 的 32-bit 序號，大的較新 |
 | 載入後 | 兩段分別放在 `ds:7131h` 與 `ds:C062h` |
@@ -110,6 +111,6 @@ WL_IDA_TARGET=… tools/ida.sh run tools/ida/export_range_refs.py <out.json> 0x8
 | 項目 | 狀態 |
 |---|---|
 | 記錄本體的欄位語意 | 未解，要從使用端往回追（容器已解，`docs/re/16`） |
-| 存檔兩段（`0x800`／`0xA00`）的內部欄位 | 未解 |
+| 存檔兩段（`0x800`／`0xA00`）的內部欄位 | 0x800 段已解（`docs/re/30`）；0xA00 段出廠全零、用途未解 |
 | 第 1 層各 nibble 值對應哪一種 section | 部分已解：3 與 15 走記錄路徑（`docs/re/24` §2.2），其餘分支未讀 |
 | 第 3 層（Huffman 尾段）的語意 | 未解（`docs/re/24` §2.3） |
