@@ -6,21 +6,21 @@
 輸入：`wl.merged.exe（解包映像＋wla.bin overlay，本專案合成）`，SHA-256 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`
 
 - 自動辨識函式：**641**
-- 已在筆記中出現：**189**
-- 尚未碰過：**452**
+- 已在筆記中出現：**191**
+- 尚未碰過：**450**
 
 ## 已分析（依呼叫端數量排序）
 
 | 位址 | segment:offset | 大小 | callers | 出現於 |
 |---|---|---:|---:|---|
-| `0x16CB2` | seg000+0x6CB2 | 11 | 88 | re/19-effects-and-damage.md |
+| `0x16CB2` | seg000+0x6CB2 | 11 | 88 | re/19-effects-and-damage.md、re/21-attributes.md |
 | `0x10039` | seg000+0x39 | 3 | 71 | re/04-overlay-wla-bin.md、re/06-resource-directory.md |
 | `0x19614` | seg000+0x9614 | 38 | 43 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/15-character-record.md、re/19-effects-and-damage.md |
 | `0x17208` | seg000+0x7208 | 19 | 29 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/15-character-record.md |
 | `0x1786E` | seg000+0x786E | 46 | 28 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/03-boot-and-asset-loading.md、re/06-resource-directory.md、re/14-fonts-and-text-encoding.md |
-| `0x18E90` | seg000+0x8E90 | 29 | 28 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/13-rng.md |
+| `0x18E90` | seg000+0x8E90 | 29 | 28 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/13-rng.md、re/21-attributes.md |
 | `0x137F4` | seg000+0x37F4 | 52 | 27 | re/00-remake-knowledge-gaps.md、re/20-combat-resolution.md |
-| `0x19C2C` | seg000+0x9C2C | 40 | 26 | re/00-master-index.md、re/20-combat-resolution.md |
+| `0x19C2C` | seg000+0x9C2C | 40 | 26 | re/00-master-index.md、re/20-combat-resolution.md、re/21-attributes.md |
 | `0x19EFC` | seg000+0x9EFC | 22 | 26 | re/14-fonts-and-text-encoding.md |
 | `0x13A56` | seg000+0x3A56 | 28 | 25 | re/20-combat-resolution.md |
 | `0x18E41` | seg000+0x8E41 | 30 | 24 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/13-rng.md、re/20-combat-resolution.md |
@@ -28,7 +28,7 @@
 | `0x17ACE` | seg000+0x7ACE | 17 | 20 | re/17-packed-text.md |
 | `0x17CB1` | seg000+0x7CB1 | 33 | 19 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/16-msq-block-layout.md |
 | `0x172BB` | seg000+0x72BB | 25 | 18 | re/20-combat-resolution.md |
-| `0x19BF8` | seg000+0x9BF8 | 4 | 17 | re/20-combat-resolution.md |
+| `0x19BF8` | seg000+0x9BF8 | 4 | 17 | re/20-combat-resolution.md、re/21-attributes.md |
 | `0x1C561` | seg000+0xC561 | 15 | 16 | re/17-packed-text.md |
 | `0x13787` | seg000+0x3787 | 16 | 15 | re/20-combat-resolution.md |
 | `0x19E30` | seg000+0x9E30 | 6 | 15 | re/14-fonts-and-text-encoding.md |
@@ -41,7 +41,7 @@
 | `0x171B9` | seg000+0x71B9 | 15 | 11 | re/14-fonts-and-text-encoding.md、re/15-character-record.md |
 | `0x196C9` | seg000+0x96C9 | 18 | 11 | re/15-character-record.md、re/17-packed-text.md |
 | `0x19727` | seg000+0x9727 | 73 | 11 | re/14-fonts-and-text-encoding.md |
-| `0x19C84` | seg000+0x9C84 | 40 | 11 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/13-rng.md |
+| `0x19C84` | seg000+0x9C84 | 40 | 11 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/13-rng.md、re/21-attributes.md |
 | `0x1A26C` | seg000+0xA26C | 9 | 11 | re/14-fonts-and-text-encoding.md |
 | `0x1001B` | seg000+0x1B | 3 | 10 | re/04-overlay-wla-bin.md、re/14-fonts-and-text-encoding.md |
 | `0x118C3` | seg000+0x18C3 | 15 | 10 | re/05-storage-layer.md、re/06-resource-directory.md |
@@ -102,7 +102,7 @@
 | `0x11C54` | seg000+0x1C54 | 60 | 3 | re/10-huffman-compression.md、re/11-huffman-decoder.md |
 | `0x14193` | seg000+0x4193 | 103 | 3 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/13-rng.md、re/19-effects-and-damage.md |
 | `0x142ED` | seg000+0x42ED | 39 | 3 | re/00-remake-knowledge-gaps.md |
-| `0x15755` | seg000+0x5755 | 88 | 3 | re/20-combat-resolution.md |
+| `0x15755` | seg000+0x5755 | 88 | 3 | re/20-combat-resolution.md、re/21-attributes.md |
 | `0x157D6` | seg000+0x57D6 | 342 | 3 | re/00-master-index.md、re/13-rng.md、re/15-character-record.md、re/19-effects-and-damage.md、re/20-combat-resolution.md |
 | `0x159C7` | seg000+0x59C7 | 81 | 3 | re/20-combat-resolution.md |
 | `0x15A30` | seg000+0x5A30 | 84 | 3 | re/20-combat-resolution.md |
@@ -114,17 +114,19 @@
 | `0x1790B` | seg000+0x790B | 21 | 3 | re/16-msq-block-layout.md、re/17-packed-text.md、re/18-block-text.md |
 | `0x17B3E` | seg000+0x7B3E | 30 | 3 | re/15-character-record.md、re/19-effects-and-damage.md |
 | `0x17B8F` | seg000+0x7B8F | 56 | 3 | re/00-master-index.md、re/17-packed-text.md |
-| `0x182FA` | seg000+0x82FA | 20 | 3 | re/20-combat-resolution.md |
+| `0x182FA` | seg000+0x82FA | 20 | 3 | re/20-combat-resolution.md、re/21-attributes.md |
 | `0x18E6B` | seg000+0x8E6B | 37 | 3 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/13-rng.md |
 | `0x19004` | seg000+0x9004 | 52 | 3 | re/14-fonts-and-text-encoding.md |
+| `0x19394` | seg000+0x9394 | 192 | 3 | re/21-attributes.md |
 | `0x1B15F` | seg000+0xB15F | 10 | 3 | re/20-combat-resolution.md |
 | `0x10000` | seg000+0x0 | 3 | 2 | re/00-master-index.md、re/02-exepack-unpack.md、re/03-boot-and-asset-loading.md、re/04-overlay-wla-bin.md、re/06-resource-directory.md |
 | `0x10042` | seg000+0x42 | 3 | 2 | re/04-overlay-wla-bin.md |
 | `0x10045` | seg000+0x45 | 3 | 2 | re/04-overlay-wla-bin.md |
 | `0x11CA4` | seg000+0x1CA4 | 35 | 2 | re/10-huffman-compression.md、re/11-huffman-decoder.md |
 | `0x12A76` | seg000+0x2A76 | 23 | 2 | re/00-master-index.md、re/20-combat-resolution.md |
+| `0x13AE4` | seg000+0x3AE4 | 366 | 2 | re/21-attributes.md |
 | `0x141FA` | seg000+0x41FA | 156 | 2 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/19-effects-and-damage.md |
-| `0x15705` | seg000+0x5705 | 51 | 2 | re/20-combat-resolution.md |
+| `0x15705` | seg000+0x5705 | 51 | 2 | re/00-master-index.md、re/20-combat-resolution.md、re/21-attributes.md |
 | `0x1597E` | seg000+0x597E | 73 | 2 | re/20-combat-resolution.md |
 | `0x15A9D` | seg000+0x5A9D | 242 | 2 | re/00-remake-knowledge-gaps.md、re/20-combat-resolution.md |
 | `0x15B9C` | seg000+0x5B9C | 15 | 2 | re/20-combat-resolution.md |
@@ -146,7 +148,7 @@
 | `0x1A07E` | seg000+0xA07E | 71 | 2 | re/14-fonts-and-text-encoding.md |
 | `0x1A0C5` | seg000+0xA0C5 | 298 | 2 | re/14-fonts-and-text-encoding.md |
 | `0x1B0F1` | seg000+0xB0F1 | 8 | 2 | re/20-combat-resolution.md |
-| `0x1B108` | seg000+0xB108 | 87 | 2 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/20-combat-resolution.md |
+| `0x1B108` | seg000+0xB108 | 87 | 2 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/20-combat-resolution.md、re/21-attributes.md |
 | `0x10003` | seg000+0x3 | 3 | 1 | re/04-overlay-wla-bin.md |
 | `0x10006` | seg000+0x6 | 3 | 1 | re/04-overlay-wla-bin.md |
 | `0x10009` | seg000+0x9 | 3 | 1 | re/04-overlay-wla-bin.md |
@@ -219,7 +221,6 @@
 | `0x13C58` | seg000+0x3C58 | 443 | 2 |
 | `0x13EC9` | seg000+0x3EC9 | 437 | 1 |
 | `0x15500` | seg000+0x5500 | 370 | 3 |
-| `0x13AE4` | seg000+0x3AE4 | 366 | 2 |
 | `0x130C8` | seg000+0x30C8 | 347 | 1 |
 | `0x19202` | seg000+0x9202 | 321 | 1 |
 | `0x11F76` | seg000+0x1F76 | 279 | 1 |
@@ -230,7 +231,6 @@
 | `0x19130` | seg000+0x9130 | 210 | 3 |
 | `0x1C073` | seg000+0xC073 | 205 | 1 |
 | `0x18860` | seg000+0x8860 | 200 | 5 |
-| `0x19394` | seg000+0x9394 | 192 | 3 |
 | `0x1BA72` | seg000+0xBA72 | 192 | 2 |
 | `0x1BF5F` | seg000+0xBF5F | 188 | 1 |
 | `0x121A8` | seg000+0x21A8 | 186 | 2 |
@@ -269,3 +269,5 @@
 | `0x167CE` | seg000+0x67CE | 105 | 2 |
 | `0x160E1` | seg000+0x60E1 | 104 | 2 |
 | `0x16E43` | seg000+0x6E43 | 103 | 2 |
+| `0x12284` | seg000+0x2284 | 101 | 2 |
+| `0x122E9` | seg000+0x22E9 | 101 | 2 |
