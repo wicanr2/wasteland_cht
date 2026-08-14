@@ -1,10 +1,6 @@
 package game
 
-import (
-	"sort"
-
-	"github.com/wicanr2/wasteland_cht/internal/game/rng"
-)
+import "github.com/wicanr2/wasteland_cht/internal/game/rng"
 
 // 戰鬥的回合結構（docs/spec/12、docs/re/36）。
 //
@@ -57,7 +53,10 @@ func (b *Battle) AddEnemy(group, index int, e *Enemy) bool {
 	return true
 }
 
-// BeginRound 把活著的單位標成「還沒行動」，再排出行動順序。
+// BeginRound 把活著的單位排進行動表（docs/re/36 §2）。
+//
+// **回傳的順序是表的格子順序，不是行動順序**——誰先動要用 NextActor
+// 一個一個挑（原版沒有排序演算法，見 §3）。
 //
 // 行動值 ＝ 2d6（逢同點續擲）＋ 該單位的一個欄位 × 8（docs/re/36 §2）。
 // speedOf 讓呼叫者提供那個欄位——**原版取的是攻擊資料的哪個位移還沒對上**，
@@ -89,15 +88,33 @@ func (b *Battle) BeginRound(speedOf func(c Combatant) int) []Combatant {
 		add(Combatant{Slot: EnemySlots + i, IsParty: true})
 	}
 
-	// ⚠ **暫代**：原版怎麼排序還沒讀出來（docs/spec/12 §5）。
-	// 這裡先照「行動值大的先動」，同值時用格子順序當穩定的第二鍵。
-	sort.SliceStable(b.order, func(i, j int) bool {
-		if b.order[i].Initiative != b.order[j].Initiative {
-			return b.order[i].Initiative > b.order[j].Initiative
-		}
-		return b.order[i].Slot < b.order[j].Slot
-	})
 	return b.order
+}
+
+// NextActor 挑出這一回合下一個要行動的單位，並把它從表裡清掉。
+//
+// 原版**沒有排序**：每次線性掃一遍挑最大的，做完把那一格清成 0，再掃一遍
+// （`0x1AEAE`–`0x1AEE0`）。比較是 `A ≥ B`，所以**同值時取後面的格子**；
+// 隊伍排在敵人後面，**行動值相同時隊伍先動**。
+//
+// 回傳 false 表示這一回合的人都動完了。
+func (b *Battle) NextActor() (Combatant, bool) {
+	best, found := -1, false
+	for i, c := range b.order {
+		if c.Initiative <= 0 {
+			continue // 0 ＝ 已經動過（原版就是把那一格清成 0）
+		}
+		// ≥ 而不是 >：同值覆蓋，取後面的那一格。
+		if !found || c.Initiative >= b.order[best].Initiative {
+			best, found = i, true
+		}
+	}
+	if !found {
+		return Combatant{}, false
+	}
+	c := b.order[best]
+	b.order[best].Initiative = 0
+	return c, true
 }
 
 // Order 是這一回合排好的行動順序。
