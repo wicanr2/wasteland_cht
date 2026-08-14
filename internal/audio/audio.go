@@ -8,7 +8,6 @@
 // 方波怎麼變成取樣是呈現層的事。
 package audio
 
-
 // TickHz 是直譯器的更新率：1193182 ÷ 0x24E3（`docs/re/44` §2）。
 const TickHz = 1193182.0 / 0x24E3
 

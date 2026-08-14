@@ -19,18 +19,38 @@ var WoundNames = [6]string{"", "SER", "CRT", "MRT", "COM", "UNC"}
 type EnemyData struct {
 	// Base 同一組 byte 有兩個用途：生怪時是基礎血量、擊殺時是經驗值基值
 	// （sub_12AAB 與 sub_15A18 讀的是同樣的 +0x00/+0x01）。
-	Base    uint16 // +0x00/+0x01
-	Speed   byte   // +0x02，行動值欄位（× 8 進行動值，docs/spec/12）
-	DiceN   byte   // +0x03，傷害骰數
-	XPMul   byte   // +0x04 的低 4 位（實際倍數要 +1）
-	DamBase byte   // +0x05 的高 4 位，傷害基底
+	Base    uint16    // +0x00/+0x01
+	Speed   byte      // +0x02，行動值欄位（× 8 進行動值，docs/spec/12）
+	DiceN   byte      // +0x03，傷害骰數
+	XPMul   byte      // +0x04 的低 4 位（實際倍數要 +1）
+	Weapon  ItemClass // +0x05 的低 4 位，武器類別（與物品表同一套編碼）
+	DamBase byte      // +0x05 的高 4 位，傷害基底
+	Kind    EnemyKind // +0x06，敵人種類
+	Pronoun byte      // +0x07，代名詞索引（查 ds:A920h → 0/1/2）
 	Raw     [8]byte
 
 	// 敵方護甲的骰數來自別的路徑（loc_12A92），不在這 8 bytes 裡，
 	// 所以由呼叫者傳給 Enemy.TakeDamage，不放進這個結構假裝解過了。
 	//
-	// +0x04 的高 4 位、+0x06、+0x07 未解——只留在 Raw 裡原樣保存。
+	// +0x04 的**高 4 位沒有讀者**：資料裡有值（實測 0–10），但全檔只有
+	// loc_12A92（& 0x0F）與 0x19A14（物品表那條路）碰 +0x04。
+	// 原樣留在 Raw 裡，不給語意（docs/re/37 §3.2）。
 }
+
+// EnemyKind 是敵人種類（資料 +0x06）。42 個區塊 397 筆全部落在 1–5，
+// 而且執行檔字串表的第 0x53–0x57 條正好是這五個名字（docs/re/37 §3.2）。
+type EnemyKind byte
+
+const (
+	KindAnimal   EnemyKind = 1
+	KindMutant   EnemyKind = 2
+	KindHumanoid EnemyKind = 3
+	KindCyborg   EnemyKind = 4
+	KindRobot    EnemyKind = 5
+)
+
+// MessageID 回這個種類對應的訊息編號（原版 0x129FF 的 add al, 52h）。
+func (k EnemyKind) MessageID() byte { return 0x52 + byte(k) }
 
 // ParseEnemyData 拆一筆 8 bytes 的敵人資料。
 func ParseEnemyData(b []byte) EnemyData {
@@ -40,7 +60,10 @@ func ParseEnemyData(b []byte) EnemyData {
 	d.Speed = b[2]
 	d.DiceN = b[3]
 	d.XPMul = b[4] & 0x0F
+	d.Weapon = ItemClass(b[5] & 0x0F)
 	d.DamBase = b[5] >> 4
+	d.Kind = EnemyKind(b[6])
+	d.Pronoun = b[7]
 	return d
 }
 

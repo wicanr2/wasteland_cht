@@ -158,9 +158,9 @@ func TestHitChanceClamps(t *testing.T) {
 func TestPartyDamageFixedTerms(t *testing.T) {
 	r := rng.New()
 	c := &Character{Skills: []Slot{{ID: 6, Value: 4}}}
-	c.Attributes[AttrDexterity] = 18 // ＋3
-	c.Attributes[AttrStrength] = 16  // ＋2
-	c.Attributes[AttrLuck] = 3       // −3
+	c.Attributes[AttrDexterity] = 18                        // ＋3
+	c.Attributes[AttrStrength] = 16                         // ＋2
+	c.Attributes[AttrLuck] = 3                              // −3
 	w := ParseItemData([]byte{0, 0, 0, 4 << 3, 0, 6, 0, 0}) // 類別 4、技能 6、0 顆骰
 	want := uint16(4*3 + 3 + 2 - 3)
 	for i := 0; i < 100; i++ {
@@ -266,6 +266,42 @@ func TestEnemyDamageRange(t *testing.T) {
 		v := EnemyDamage(r, d)
 		if v < 5+3 || v > 5+18 {
 			t.Fatalf("傷害 %d 超出 8–23", v)
+		}
+	}
+}
+
+// 敵人資料表剩下的四處（docs/re/37 §3.2）：種類、武器類別、代名詞索引，
+// 以及「+0x04 高 4 位沒有讀者、只留在 Raw 裡」。
+func TestEnemyDataRemainingFields(t *testing.T) {
+	// +0x04 ＝ 0xA3（高 4 位 10、低 4 位 3）、+0x05 ＝ 0x26（傷害基底 2、武器類別 6）
+	d := ParseEnemyData([]byte{0x40, 0x01, 8, 3, 0xA3, 0x26, 5, 31})
+	if d.XPMul != 3 {
+		t.Fatalf("經驗值倍數應該取低 4 位 ＝ 3，得到 %d", d.XPMul)
+	}
+	if d.DamBase != 2 || d.Weapon != ClassSMG {
+		t.Fatalf("+0x05 拆錯：傷害基底 %d、武器類別 %d", d.DamBase, d.Weapon)
+	}
+	if d.Kind != KindRobot || d.Kind.MessageID() != 0x57 {
+		t.Fatalf("種類 %d、訊息編號 %#x", d.Kind, d.Kind.MessageID())
+	}
+	if d.Pronoun != 31 {
+		t.Fatalf("代名詞索引應該是 31，得到 %d", d.Pronoun)
+	}
+	// +0x04 的高 4 位沒有讀者，但 byte 要原樣留著。
+	if d.Raw[4] != 0xA3 {
+		t.Fatalf("Raw 應該原樣保存 +0x04 ＝ 0xA3，得到 %#x", d.Raw[4])
+	}
+}
+
+// 五個種類的訊息編號連號（原版 add al, 52h → 字串 0x53–0x57）。
+func TestEnemyKindMessageIDs(t *testing.T) {
+	want := map[EnemyKind]byte{
+		KindAnimal: 0x53, KindMutant: 0x54, KindHumanoid: 0x55,
+		KindCyborg: 0x56, KindRobot: 0x57,
+	}
+	for k, id := range want {
+		if got := k.MessageID(); got != id {
+			t.Fatalf("種類 %d 的訊息編號是 %#x，應該是 %#x", k, got, id)
 		}
 	}
 }
