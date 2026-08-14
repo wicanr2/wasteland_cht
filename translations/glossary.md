@@ -256,6 +256,11 @@
 | Old Freeway | 舊高速公路 | |
 | Warroid | 戰鬥機械體 | `game2:12` 的敵人 |
 | Spawnmaster | 孵育主宰 | `game2:22` 的敵人 |
+| Octotron | 奧克托創 | `game2:19` 八隻手臂的機器人 |
+| Silver Strangler | 銀色絞殺者 | 同上 |
+| Vax | **保留原文** | `game2:19:43`；那是迪吉多 VAX 電腦的名字，配上 C-3PO 的自我介紹台詞「負責人機關係」，兩個梗都靠原名才成立 |
+| M3 Regan All Terrain Hover Tank／M3 RATT | M3 Regan 全地形氣墊戰車 | `game1:31`，型號保留原文 |
+| Tazel | 塔澤爾 | `game2:24` 的生物，原版自創名 |
 | Mindlink | 心靈連結機 | 達爾文基地，要接一顆機器人的頭 |
 | Base Cochise 的機器人工廠 | 反應爐核心室／勞安室／機器人維修室／保安電子 | `game2:20` 的四個指示牌 |
 | Rail Nomads camp | 鐵路遊牧民族營地 | `game1:8` |
