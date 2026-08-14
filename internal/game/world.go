@@ -132,6 +132,26 @@ func (w *World) Step(dir Direction) (StepResult, error) {
 	return res, nil
 }
 
+// IdleStep 是「原地不動的一步」（方向碼 4，docs/re/26 §1.1）。
+//
+// 捲動跳表的第 5 筆是 `clc; retn`——隊伍不動，但時鐘、遭遇與重畫照跑。
+// 兩個觸發點都在主迴圈：節拍計數器滿 0x400，或 ds:46E1h 非 0。
+//
+// ⚠ **這一步不算玩家走的**：PlayerStepped 清成 false，之後的檢定就不給
+// 經驗值（ds:916Bh，docs/re/32 §7.1）。這是原版的防刷，不要順手改掉。
+func (w *World) IdleStep() StepResult {
+	var res StepResult
+	w.Party.PlayerStepped = false
+
+	res.Periodic = w.Clock.Advance(w.stepTime(), w.Block.StepTick())
+	if res.Periodic {
+		w.Party.Tick16(w.Clock.Tick)
+	}
+	res.Encounter = w.rollEncounter()
+	// Moved 維持 false：座標沒動，也不重跑踩上去的事件。
+	return res
+}
+
 func (w *World) stepTime() uint16 {
 	h := w.Block.Header
 	return uint16(h[0x34]) | uint16(h[0x35])<<8

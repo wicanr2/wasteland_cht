@@ -321,3 +321,42 @@ func TestStepMarksPlayerStepped(t *testing.T) {
 	}
 	t.Skip("四個方向都走不動，換一張地圖再測")
 }
+
+// 原地不動的一步（方向碼 4，docs/re/26 §1.1）：座標不動，
+// 但時鐘與遭遇照跑，而且**不算玩家走的**。
+func TestIdleStepDoesNotMoveButAdvancesTime(t *testing.T) {
+	rom := openRom(t)
+	block, err := rom.Block(0)
+	if err != nil {
+		t.Fatalf("載入區塊 0 失敗：%v", err)
+	}
+	party := &Party{Members: []*Character{{CON: 20, MaxCON: 20}}, X: 55, Y: 62}
+	w := NewWorld(block, party, rng.New())
+
+	// 先走一步讓 PlayerStepped 變 true。
+	for dir := Up; dir <= Right; dir++ {
+		if res, err := w.Step(dir); err == nil && res.Moved {
+			break
+		}
+	}
+	if !w.Party.PlayerStepped {
+		t.Skip("四個方向都走不動，換一張地圖再測")
+	}
+
+	x, y := w.Party.X, w.Party.Y
+	before := w.Clock
+	res := w.IdleStep()
+
+	if res.Moved {
+		t.Fatal("原地一步不該回報 Moved")
+	}
+	if w.Party.X != x || w.Party.Y != y {
+		t.Fatalf("座標動了：(%d,%d) → (%d,%d)", x, y, w.Party.X, w.Party.Y)
+	}
+	if w.Clock == before {
+		t.Fatal("時鐘應該照樣前進")
+	}
+	if w.Party.PlayerStepped {
+		t.Fatal("原地一步之後不該還算玩家步——那會讓站著不動也能刷經驗值")
+	}
+}
