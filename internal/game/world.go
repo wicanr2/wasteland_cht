@@ -27,8 +27,12 @@ var delta = [4][2]int{
 	Right: {+1, 0},
 }
 
-// 視窗原點與隊伍座標的固定差（隊伍在 19 × 9 視窗的第 (9, 4) 格）。
+// 地圖視窗（docs/re/25）：19 × 9 格，隊伍固定在第 (9, 4) 格。
+//
+// 遭遇掃描的範圍就是這一塊，距離表涵蓋的也正好是這個半徑（docs/re/39 §2）。
 const (
+	ViewCols    = 19
+	ViewRows    = 9
 	ViewOffsetX = 9
 	ViewOffsetY = 4
 )
