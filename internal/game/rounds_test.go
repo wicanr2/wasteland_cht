@@ -177,7 +177,8 @@ func TestFullBattlesAreStable(t *testing.T) {
 						if e == nil || e.HP == 0 {
 							continue
 						}
-						dmg := int(PartyDamage(m, 1))
+						w := ParseItemData([]byte{0, 0, 0, 4 << 3, 0, 1, 2, 0})
+						dmg := int(PartyDamage(r, m, w, 0))
 						e.TakeDamage(r, dmg, 0)
 						_ = slot
 						break
