@@ -12,7 +12,7 @@ import (
 //	+0x00  magic 'msq0'／'msq1'
 //	+0x04  checksum（16-bit）＝ 0 − Σ 明文位元組
 //	+0x06  0x800 加密段 ＝ 8 × 256 bytes
-//	+0x806 0xA00 未加密段（出廠全零，用途未解）
+//	+0x806 0xA00 未加密段 ＝ **十組按鍵巨集**（10 × 256，docs/re/30 §6）
 //
 // ⚠ 存檔策略是**改寫不是重建**：Plain 保留整份明文，寫回時就地修改，
 // 未解區域一個 byte 都不動（CLAUDE.md §4）。
@@ -45,7 +45,25 @@ type Save struct {
 	Offset int
 	Magic  string
 	Plain  []byte // 0x800 明文，含全域狀態與 7 筆角色記錄
-	Tail   []byte // 0xA00 未加密段，原樣保留
+	Tail   []byte // 0xA00 未加密段 ＝ 十組按鍵巨集
+}
+
+// 按鍵巨集在尾段裡的佈局（docs/re/43 §6）。
+const (
+	MacroCount  = 10
+	MacroStride = 0x100
+)
+
+// Macro 取第 n 組按鍵巨集（0–9）的原始 bytes。
+//
+// ⚠ 巨集**不進 checksum**——改它不會讓存檔被拒收。但重製版照樣要
+// round-trip 它（`CLAUDE.md` §4：未解的位元組要能原樣寫回，
+// 何況這一段已經不是未解的了）。
+func (s *Save) Macro(n int) ([]byte, bool) {
+	if n < 0 || n >= MacroCount || len(s.Tail) < (n+1)*MacroStride {
+		return nil, false
+	}
+	return s.Tail[n*MacroStride : (n+1)*MacroStride], true
 }
 
 // LoadSave 讀出指定資料檔尾端的存檔並驗 checksum。
