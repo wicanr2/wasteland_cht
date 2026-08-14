@@ -24,10 +24,12 @@
 | [`11-translation-catalogue.md`](11-translation-catalogue.md) | **READY**（管線已通） | `internal/lang` ✅ | 4,827 條的翻譯是人的工作 |
 | [`12-combat-rounds.md`](12-combat-rounds.md) | **READY**（回合骨架） | `internal/game` ✅ | 逃跑與隊形未解 |
 | [`13-encounters-and-spawning.md`](13-encounters-and-spawning.md) | **READY**（已實作） | `internal/game` ✅ | 遭遇佇列是誰填的未解 |
+| [`14-combat-commands.md`](14-combat-commands.md) | **READY**（已實作） | `internal/game` ✅ | Hire／Weapon／Use／Load 四支處理程式未解 |
 | `08-audio.md` | 未寫 | `internal/audio` | F2 位元組碼指令集與曲目資料未解 |
 
-**十二份 READY 規格涵蓋資產層、呈現層、亂數、規則層七塊、中文排版與翻譯管線**——
-走一步、遊戲時鐘、體力隨時間恢復、事件分派、遭遇生成到打完一場戰鬥。
+**十三份 READY 規格涵蓋資產層、呈現層、亂數、規則層八塊、中文排版與翻譯管線**——
+走一步、遊戲時鐘、體力隨時間恢復、事件分派，以及從遭遇生成、下指令、排行動順序
+到打完一場戰鬥的整條路。
 只剩 `08`（音效）等 F2 的位元組碼指令集。
 
 ## 2. 為什麼這些現在就能寫
