@@ -7,6 +7,7 @@
       "alphabet_text": " etanio\rsrd\u0000lcpmuhywfbv:8.91g!q6-'",
       "declared_groups": 5,
       "group_count": 5,
+      "decoded_groups": 5,
       "string_count": 20,
       "usable_string_count": 20,
       "strings": [
@@ -40,6 +41,7 @@
       "alphabet_text": " e\rsotan\u0000irhu.ymdl\ncp\u0010w\u000bbg\f'k?f\u0007v\u0006\u0011\u0004\u000e)j:x\u0003q,\u000f7654321/#!\b",
       "declared_groups": 27,
       "group_count": 27,
+      "decoded_groups": 27,
       "string_count": 108,
       "usable_string_count": 108,
       "strings": [
@@ -161,6 +163,7 @@
       "alphabet_text": "\ns\u0000e aroitnlcmpd\ruhkfgybwv1.x9j7\u0010\u000b\u0003\u0002z\u0006\u0004\u0001q:'?-)\u0011\f\u00078542/63(#\b",
       "declared_groups": 44,
       "group_count": 43,
+      "decoded_groups": 43,
       "string_count": 172,
       "usable_string_count": 170,
       "strings": [
@@ -346,6 +349,7 @@
       "alphabet_text": " e\ratrocysnl\u0000hui\u0010wpd?\u0004k.\u0011\u0007vqm\u000b\u0006",
       "declared_groups": 3,
       "group_count": 3,
+      "decoded_groups": 3,
       "string_count": 12,
       "usable_string_count": 12,
       "strings": [
@@ -371,6 +375,7 @@
       "alphabet_text": " etraoishlnd\rgcyupmb,\u0000wf.vk\"x0z9521'$\u000b",
       "declared_groups": 4,
       "group_count": 4,
+      "decoded_groups": 4,
       "string_count": 16,
       "usable_string_count": 16,
       "strings": [
@@ -400,6 +405,7 @@
       "alphabet_text": "e anrotics\u0000ldmughpfwyvbj.\"\u0007\r\u0006k1,\u000b\n'xq2\u000f",
       "declared_groups": 17,
       "group_count": 16,
+      "decoded_groups": 16,
       "string_count": 64,
       "usable_string_count": 64,
       "strings": [
@@ -477,6 +483,7 @@
       "alphabet_text": " noetilasr\u0000h\ryu.mpkgc\u0006\u0003wvd\u0007\u000bxq?=!\b",
       "declared_groups": 4,
       "group_count": 3,
+      "decoded_groups": 3,
       "string_count": 12,
       "usable_string_count": 12,
       "strings": [
@@ -502,6 +509,7 @@
       "alphabet_text": " to\rneya\u0000uhriswlc\u0006vm.pgfdb'!\u0010\u0004\u0003k?:$\u0011\u000b",
       "declared_groups": 3,
       "group_count": 3,
+      "decoded_groups": 3,
       "string_count": 12,
       "usable_string_count": 12,
       "strings": [
@@ -527,6 +535,7 @@
       "alphabet_text": " eo\u0000n\rtiashurdlycwpmg\".\u0010\u0004b:$v\u0011\u0006'\u000bxf?761,\u0003",
       "declared_groups": 7,
       "group_count": 7,
+      "decoded_groups": 7,
       "string_count": 28,
       "usable_string_count": 28,
       "strings": [
