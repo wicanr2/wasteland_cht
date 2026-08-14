@@ -7,9 +7,9 @@ import (
 
 // seg005 的表（`docs/re/44` §5）。
 const (
-	pitchTable = 0x0174 // 12 × u16，最低八度的除數
-	sfxTable   = 0x0192 // 9 × 4 × u16
-	lenTable   = 0x01DB // 音長表
+	pitchTable = 0x0174            // 12 × u16，最低八度的除數
+	sfxTable   = 0x0192            // 9 × 4 × u16
+	lenTable   = 0x01DB            // 音長表
 	lenUsable  = 0x01EF - lenTable // 表後面就是全域變數，只有這麼多筆在表內
 	SFXCount   = 9
 )
