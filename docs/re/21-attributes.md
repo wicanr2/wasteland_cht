@@ -1,6 +1,6 @@
 # 21：七個屬性、修正值階梯與檢定骰
 
-日期：2026-08-14 ｜ 對應盤點 **D1**（屬性與技能表）、補完 **D2**／**D3**
+日期：2026-08-14 ｜ 對應盤點 **D1**（屬性與技能表、角色建立）、補完 **D2**／**D3**
 
 輸入：`wl.merged.exe`，SHA-256
 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`。
@@ -135,7 +135,7 @@ jnb  失敗
 所以門檻 4／5 是很寬鬆的檢定。
 
 **這修正了先前把它標成「屬性生成入口」的推測**——
-角色建立時怎麼決定屬性起始值，仍然**未解**。
+角色建立用的是另一支（`sub_1CAD1`，見 §5.1）。
 
 ## 4. 這些修正用在哪
 
@@ -159,16 +159,85 @@ jnb  失敗
 隊伍傷害   ＝ … ＋ Strength 修正 ＋ Dexterity 修正 ＋ Luck 修正 ＋ 兩個未解來源
 ```
 
-## 5. 還沒解的
+## 5. 角色建立：`sub_1C6C9`
 
-- **屬性的起始值怎麼決定**（角色建立）。`ds:CE4Bh` 那張建立用字串表只有
-  12 條，沒有屬性名，所以建立流程的入口還要另找。
+印 `'Create a character.'`／`'Keep this char?'` 的那一支（789 bytes、1 個呼叫端）。
+
+```
+找空槽                      掃隊伍，rec[+0x29] ＝ 0 的算空；滿 4 個就印
+                            'You cannot create any more characters.'
+整筆清零                    rec[0..255] ← 0
+性別                        roll(1..2) → 決定用哪張輸入樣板（ds:DECFh／ds:DED9h）
+七個屬性                    bl 從 0x0E 跑到 0x14，每格 ＝ sub_1CAD1()
+MAXCON ＝ CON               sub_1CAD1() ＋ 18，兩者寫成同一個值
+rec[+0x24] ← 1
+rec[+0x20] ← rec[+0x0F]     技能點 ＝ IQ
+rec[+0x32…] ← "PRIVATE"     從 ds:DEC7h 複製到 0 為止（初始階級字串）
+```
+
+`rec[+0x20] ← IQ` 與字串 `'Skill points = '`、`'   IQ PTS LVL   SKILL'`
+（`docs/re/17`）互相對上，所以 **`+0x20` 是可用技能點**。
+
+### 5.1 屬性擲法：`sub_1CAD1` ＝ 5d6 取最高三顆
+
+```
+0x1CAD2  b204      mov  dl, 4
+0x1CAD4  e888c3    call sub_18E5F        ; ┐ d6 × 5，存進 5 格暫存
+0x1CAD9  8884f1df  mov  [si-200Fh], al   ; │
+0x1CADD  feca      dec  dl               ; │
+0x1CADF  79f3      jns  short loc_1CAD4  ; ┘ dl ＝ 4,3,2,1,0
+0x1CAE1  …         氣泡排序（升冪）
+0x1CB10  b000      mov  al, 0
+0x1CB12  b303      mov  bl, 3            ; ┐ 從最大的那端加三個
+0x1CB14  b204      mov  dl, 4            ; │
+0x1CB18  0284f1df  add  al, [si-200Fh]   ; │
+0x1CB20  75f4      jnz  short loc_1CB16  ; ┘
+```
+
+**擲 5 顆 d6，排序後把最大的三顆相加。**
+
+| | 值 |
+|---|---|
+| 值域 | 3 – 18 |
+| 期望值 | **13.43** |
+| 眾數 | 14（14.85%） |
+| ≤ 8 的機率 | 4.1% |
+| ≥ 16 的機率 | 23.4% |
+
+擲法配 §2 的修正值階梯看很合理：期望值 13.43 落在死區（9–13）的上緣，
+所以**大多數屬性給 +1 左右的修正**，極端值才拉開差距。
+
+MAXCON 起始 ＝ 同一支再擲一次 ＋ 18，也就是 **21–36**。
+
+推論等級：**已確認**（程式碼讀完；分佈以窮舉 6⁵ 種組合算出）。
+
+### 5.2 一個要看原始 bytes 才不會讀錯的地方
+
+清零那一段，反組譯文字看起來像「把 `bl` 寫進 `rec[bl]`」：
+
+```
+0x1C71B  b3 00        mov  bl, 0
+0x1C71D  8a c3        mov  al, bl
+0x1C71F  8b 3e b5 46  mov  di, ds:46B5h
+0x1C723  88 01        mov  [bx+di], al
+0x1C725  fe c3        inc  bl
+0x1C727  75 f6        jnz  short …
+```
+
+`75 f6` 的目標是 `0x1C729 − 10 ＝ 0x1C71F`，**不是 `0x1C71D`**——
+`mov al, bl` 在迴圈外，只執行一次，所以 `al` 全程是 0，這是乾淨的清零。
+只看反組譯很容易把它讀成「填入 0,1,2,…,255」。
+
+## 6. 還沒解的
+
+- 名字輸入的樣板（`ds:DECFh`／`ds:DED9h`／`ds:DEE3h` ＋ `sub_1C9DE`）。
+- 國籍在建立時怎麼選（`+0x19`，`docs/re/17` §4.3 已知欄位語意）。
 - `+0x0D`（屬性區前一個 byte）是什麼。
 - IQ（`+0x0F`）、Speed（`+0x11`）、Charisma（`+0x14`）用在哪裡還沒逐一追。
   `docs/re/15` 記過 `+0x0F` 有 15 處存取、`+0x11`／`+0x13`／`+0x14` 各有幾處。
 - 屬性上限（`sub_19394` 那條路徑會不會擋）。
 
-## 6. 可重跑的完整指令
+## 7. 可重跑的完整指令
 
 ```bash
 python3 tools/decode_text.py workplace/analysis/unpacked/wl.merged.exe \
@@ -176,17 +245,19 @@ python3 tools/decode_text.py workplace/analysis/unpacked/wl.merged.exe \
 
 WL_IDA_TARGET="$PWD/workplace/analysis/unpacked/wl.merged.exe" \
   tools/ida.sh run tools/ida/export_function.py workplace/analysis/dumps/attributes.json \
-  0x13AE4 0x15705 0x19C84 0x1B108 --callers
+  0x13AE4 0x15705 0x19C84 0x1B108 0x1C6C9 0x1CAD1 --callers
 ```
 
 `0x1570A`／`0x1570F`／`0x15714`／`0x15716` 不是函式起點，
 要用 `export_listing.py` 的逐指令 JSON 讀。
 
-## 7. 這一輪學到的（寫成規則）
+## 8. 這一輪學到的（寫成規則）
 
 - **選單文字就是欄位表。** `1) Strength … 7) Charisma` 加上緊接著的
   `sub al,'1' ／ add al, 0Eh`，兩行就把七個欄位位移全部定死——
   比從存取點逐一反推快一個數量級。**解出字串表之後，先回頭看選單類的字串**。
+- **`jcc` 的目標要用原始 bytes 算，不要看反組譯的標籤位置。** §5.2 那個清零迴圈，
+  目標差兩個 byte 就是「全部清零」與「填入 0..255」的差別。
 - **「入口已定」不等於「猜對了」。** `sub_19C84` 先前被標成屬性生成的入口，
   實際上是通用檢定骰。列入口的時候要寫清楚憑什麼（這次憑的是「分佈特別」，
   那只夠支持「它是某種檢定」，不足以支持「它是角色建立」）。

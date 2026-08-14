@@ -6,8 +6,8 @@
 輸入：`wl.merged.exe（解包映像＋wla.bin overlay，本專案合成）`，SHA-256 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`
 
 - 自動辨識函式：**641**
-- 已在筆記中出現：**191**
-- 尚未碰過：**450**
+- 已在筆記中出現：**194**
+- 尚未碰過：**447**
 
 ## 已分析（依呼叫端數量排序）
 
@@ -69,7 +69,7 @@
 | `0x1A3E1` | seg000+0xA3E1 | 17 | 7 | re/17-packed-text.md |
 | `0x11AE8` | seg000+0x1AE8 | 116 | 6 | re/10-huffman-compression.md、re/11-huffman-decoder.md、re/12-msq-tail-and-text-model.md |
 | `0x176D0` | seg000+0x76D0 | 47 | 6 | re/19-effects-and-damage.md |
-| `0x18E5F` | seg000+0x8E5F | 12 | 6 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/13-rng.md |
+| `0x18E5F` | seg000+0x8E5F | 12 | 6 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/13-rng.md、re/21-attributes.md |
 | `0x18EFE` | seg000+0x8EFE | 262 | 6 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/13-rng.md、re/14-fonts-and-text-encoding.md |
 | `0x19D86` | seg000+0x9D86 | 44 | 6 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/13-rng.md、re/19-effects-and-damage.md、re/20-combat-resolution.md |
 | `0x19E2A` | seg000+0x9E2A | 6 | 6 | re/14-fonts-and-text-encoding.md |
@@ -119,6 +119,7 @@
 | `0x19004` | seg000+0x9004 | 52 | 3 | re/14-fonts-and-text-encoding.md |
 | `0x19394` | seg000+0x9394 | 192 | 3 | re/21-attributes.md |
 | `0x1B15F` | seg000+0xB15F | 10 | 3 | re/20-combat-resolution.md |
+| `0x1C9DE` | seg000+0xC9DE | 54 | 3 | re/21-attributes.md |
 | `0x10000` | seg000+0x0 | 3 | 2 | re/00-master-index.md、re/02-exepack-unpack.md、re/03-boot-and-asset-loading.md、re/04-overlay-wla-bin.md、re/06-resource-directory.md |
 | `0x10042` | seg000+0x42 | 3 | 2 | re/04-overlay-wla-bin.md |
 | `0x10045` | seg000+0x45 | 3 | 2 | re/04-overlay-wla-bin.md |
@@ -149,6 +150,7 @@
 | `0x1A0C5` | seg000+0xA0C5 | 298 | 2 | re/14-fonts-and-text-encoding.md |
 | `0x1B0F1` | seg000+0xB0F1 | 8 | 2 | re/20-combat-resolution.md |
 | `0x1B108` | seg000+0xB108 | 87 | 2 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/20-combat-resolution.md、re/21-attributes.md |
+| `0x1CAD1` | seg000+0xCAD1 | 83 | 2 | re/00-master-index.md、re/21-attributes.md |
 | `0x10003` | seg000+0x3 | 3 | 1 | re/04-overlay-wla-bin.md |
 | `0x10006` | seg000+0x6 | 3 | 1 | re/04-overlay-wla-bin.md |
 | `0x10009` | seg000+0x9 | 3 | 1 | re/04-overlay-wla-bin.md |
@@ -198,6 +200,7 @@
 | `0x19C72` | seg000+0x9C72 | 9 | 1 | re/20-combat-resolution.md |
 | `0x19F12` | seg000+0x9F12 | 224 | 1 | re/14-fonts-and-text-encoding.md |
 | `0x1B7FE` | seg000+0xB7FE | 119 | 1 | re/05-storage-layer.md、re/07-msq-blocks.md、re/10-huffman-compression.md |
+| `0x1C6C9` | seg000+0xC6C9 | 789 | 1 | re/00-master-index.md、re/21-attributes.md |
 | `0x1CB67` | seg001+0x0 | 10 | 1 | re/00-master-index.md、re/02-exepack-unpack.md |
 | `0x1CB75` | seg001+0xE | 53 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md |
 | `0x1CBAA` | seg001+0x43 | 41 | 1 | re/00-remake-knowledge-gaps.md |
@@ -212,7 +215,6 @@
 | 位址 | segment:offset | 大小 | callers |
 |---|---|---:|---:|
 | `0x14664` | seg000+0x4664 | 915 | 2 |
-| `0x1C6C9` | seg000+0xC6C9 | 789 | 1 |
 | `0x12D84` | seg000+0x2D84 | 733 | 1 |
 | `0x11CD0` | seg000+0x1CD0 | 678 | 1 |
 | `0x1B170` | seg000+0xB170 | 677 | 1 |
@@ -271,3 +273,4 @@
 | `0x16E43` | seg000+0x6E43 | 103 | 2 |
 | `0x12284` | seg000+0x2284 | 101 | 2 |
 | `0x122E9` | seg000+0x22E9 | 101 | 2 |
+| `0x1676A` | seg000+0x676A | 99 | 3 |

@@ -129,6 +129,9 @@ SHA-256 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`。
 | `+0x18` | byte | 性別（0 ＝ Male、1 ＝ Female） | 已確認 |
 | `+0x19` | byte | 國籍（0–4 ＝ U.S./Russian/Mexican/Indian/Chinese） | 已確認 |
 | `+0x0E`–`+0x14` | 7 bytes | **七個屬性**：Strength／IQ／Luck／Speed／Agility／Dexterity／Charisma | 已確認 |
+| `+0x20` | byte | 可用技能點（建立時 ＝ IQ） | 強證據 |
+| `+0x24` | byte | 建立時寫 1（疑似等級） | 假說 |
+| `+0x32`… | 字串 | 階級名（建立時 ＝ `PRIVATE`） | 強證據 |
 | `+0x1A` | byte | AC（護甲等級） | 強證據 |
 | `+0x1B`–`+0x1C` | 16-bit | MAXCON（最大體力） | 強證據 |
 | `+0x1D`–`+0x1E` | 16-bit 有號 | CON（目前體力，可為負） | 強證據 |
@@ -169,7 +172,19 @@ v ≥ 13      修正 ＝ (v − 12) >> 1        （正；13 也是 0，所以死
 入口：`sub_15705`＝Luck、`loc_1570A`＝Dexterity、`loc_1570F`＝Agility、
 `loc_15714`＝Strength，四支扇入 `loc_15716`。詳見 [`21`](21-attributes.md)。
 
-### 4.6 戰鬥判定
+### 4.6 角色建立（`sub_1C6C9`）
+
+```
+整筆清零                rec[0..255] ← 0
+性別                    roll(1..2)
+七個屬性 +0x0E–+0x14    每格 ＝ 5d6 取最高三顆（3–18，期望 13.43）
+MAXCON ＝ CON           5d6 取最高三顆 ＋ 18（21–36）
+rec[+0x20] ← IQ         初始技能點
+rec[+0x24] ← 1
+rec[+0x32…] ← "PRIVATE" 初始階級字串
+```
+
+### 4.7 戰鬥判定
 
 兩條攻擊路徑共用 `sub_1B108` 累加到 `ds:46C0h`，**累加的永遠是隊伍成員的本事**，
 判定方向隨攻守翻轉（判定前綴機器碼相同，只差 `jb`／`jnb`）：
@@ -190,7 +205,7 @@ v ≥ 13      修正 ＝ (v − 12) >> 1        （正；13 也是 0，所以死
 
 詳見 [`20`](20-combat-resolution.md)、[`19`](19-effects-and-damage.md)。
 
-### 4.7 字串表
+### 4.8 字串表
 
 ```
 表基址 +0x00 … +0x3B    60 bytes 字元對照表（符號 → ASCII，0 ＝ 結束）
@@ -286,7 +301,7 @@ v ≥ 13      修正 ＝ (v − 12) >> 1        （正；13 也是 0，所以死
 
 ## 6. 關鍵函式
 
-完整索引在 [`00-function-index.md`](00-function-index.md)（641 個，已分析 191）。
+完整索引在 [`00-function-index.md`](00-function-index.md)（641 個，已分析 194）。
 下表只列「解 remake 時最常回頭查」的。
 
 | 位址 | 呼叫端 | 作用 | 文件 |
@@ -312,6 +327,8 @@ v ≥ 13      修正 ＝ (v − 12) >> 1        （正；13 也是 0，所以死
 | `0x141FA` | 2 | **套用效果**到角色欄位（地圖事件的唯一出口） | [`19`](19-effects-and-damage.md) §3 |
 | `0x157D6` | 3 | **傷害套用**（護甲擲骰、扣 CON、傷勢） | [`19`](19-effects-and-damage.md) §4 |
 | `0x1B108` | 2 | **累加命中門檻**（飽和加法，夾在 100） | [`20`](20-combat-resolution.md) §3 |
+| `0x1C6C9` | 1 | **角色建立** | [`21`](21-attributes.md) §5 |
+| `0x1CAD1` | 2 | 屬性擲法：5d6 取最高三顆 | [`21`](21-attributes.md) §5.1 |
 | `0x12A76` | 2 | **武器傷害**＝基底 ＋ Nd6 | [`20`](20-combat-resolution.md) §4 |
 | `0x19C2C` | 24 | 16-bit 飽和加減（累加器 `ds:46C0h`） | [`20`](20-combat-resolution.md) §3 |
 | `0x18E90` | 28 | 等待按鍵（ESC 以 CF 回報） | [`03`](03-boot-and-asset-loading.md) §8 |
