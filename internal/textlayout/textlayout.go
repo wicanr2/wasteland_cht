@@ -19,15 +19,15 @@ const (
 	CodeClearRect  = 0x04
 	CodeWaitKey    = 0x05
 	CodeWaitKey2   = 0x06
-	CodeUnknown07  = 0x07
-	CodeUnknown08  = 0x08
+	CodeNewFrame   = 0x07 // 開一個新的文字框（強證據）
+	CodeUnknown08  = 0x08 // 唯一還沒解的碼（語料裡 7 次）
 	CodeMoveTo     = 0x09 // ⚠ 帶一個 byte 參數
-	CodeUnknown0A  = 0x0A
+	CodePlural     = 0x0A // 單複數二選一
 	CodeInsertName = 0x0B
-	CodeGender     = 0x0C // 夾 his/her 做性別選字
+	CodeGender     = 0x0C // 性別二選一
 	CodeNewline    = 0x0D // 組行版：換行
-	CodeUnknown0E  = 0x0E
-	CodeUnknown0F  = 0x0F
+	CodePronoun    = 0x0E // him／her／it 三選一
+	CodeCount      = 0x0F // 印出數量
 	CodeCapture    = 0x10 // 捕捉下一個字元
 	CodeClearLine  = 0x11
 	CodeMax        = 0x11
@@ -63,7 +63,7 @@ const (
 	EventClearLine                    // 0x11
 	EventMoveTo                       // 0x09，Param 是位移量
 	EventCapture                      // 0x10
-	EventGender                       // 0x0C
+	EventNewFrame                     // 0x07
 	EventEnd                          // 0x00
 	EventUnknownCode                  // 還沒解出語意的控制碼
 )
@@ -78,6 +78,9 @@ type Event struct {
 }
 
 // Options 是排版設定。
+//
+// 三個選擇子對應原版的三個全域（docs/re/28 §3）：文字裡的分段只有一段會輸出，
+// **段數必須與原版一致**，少一個分隔碼整句就錯位。
 type Options struct {
 	// Width 是行寬上限（字元數）。原版訊息視窗是 38（ds:4675h ＝ 0x26）。
 	Width int
@@ -85,8 +88,16 @@ type Options struct {
 	// Name 提供 0x0B 要插入的角色名字。沒給就插入空字串。
 	Name func() string
 
-	// Gender 提供 0x0C 的性別選字結果。沒給就當事件回報、不插字。
-	Gender func() string
+	// Count 是數量（原版 ds:4687h）：1 ＝ 單數。同時是 0x0A 的選擇子與
+	// 0x0F 印出來的數字。預設 1。
+	Count int
+
+	// Gender 是 0x0C 的選擇子（原版 ds:470Bh ← 角色記錄 +0x18）：
+	// 0 ＝ 第 0 段（男）、非 0 ＝ 第 1 段。
+	Gender int
+
+	// Pronoun 是 0x0E 的選擇子（原版 ds:471Ah）：0／1／2 → him／her／it。
+	Pronoun int
 }
 
 // Result 是排版結果。
@@ -94,6 +105,22 @@ type Result struct {
 	Lines  []Line
 	Events []Event
 }
+
+// variant 是「分段只輸出其中一段」的狀態（原版是逐字元過濾器，docs/re/28 §2）。
+//
+// 原版**每個碼各有自己的段計數器**（`0x0A` → `ds:CDCBh`、`0x0C` → `ds:CDCAh`、
+// `0x0E` → `ds:CDC9h`），所以不同的碼可以互相巢狀——實際的戰鬥訊息就是這樣用的：
+// 外層 `0x0A` 的第 0 段裡面包著一整組 `0x0E`。
+// **外層沒選中時，內層連分隔碼都不會被看到**（原版的過濾器是串起來的，
+// 前面吃掉就不會傳到後面）。
+type variant struct {
+	active bool
+	seg    int // 目前在第幾段
+	last   int // 最後一段的編號（段數 − 1）
+	pick   int // 要輸出哪一段
+}
+
+func (v *variant) match() bool { return !v.active || v.seg == v.pick }
 
 // Layout 把一段原版字串排版。
 //
@@ -103,6 +130,37 @@ type Result struct {
 func Layout(text []byte, opt Options) (Result, error) {
 	if opt.Width <= 0 {
 		return Result{}, fmt.Errorf("行寬必須大於 0，收到 %d", opt.Width)
+	}
+	count := opt.Count
+	if count <= 0 {
+		count = 1
+	}
+	// 選擇子 → 要輸出第幾段。
+	pluralPick := 1 // 複數取第 1 段
+	if count == 1 {
+		pluralPick = 0
+	}
+	genderPick := 0
+	if opt.Gender != 0 {
+		genderPick = 1
+	}
+	pronounPick := opt.Pronoun
+	if pronounPick < 0 || pronounPick > 2 {
+		pronounPick = 0
+	}
+	// 每個變形碼各一份狀態，對應原版三個獨立的段計數器。
+	vars := map[byte]*variant{
+		CodePlural:  {last: 1, pick: pluralPick},
+		CodeGender:  {last: 1, pick: genderPick},
+		CodePronoun: {last: 2, pick: pronounPick},
+	}
+	allMatch := func() bool {
+		for _, v := range vars {
+			if !v.match() {
+				return false
+			}
+		}
+		return true
 	}
 	var res Result
 	line := Line{}
@@ -132,6 +190,24 @@ func Layout(text []byte, opt Options) (Result, error) {
 
 	for i := 0; i < len(text); i++ {
 		c := text[i]
+
+		// 分段進行中：分隔碼推進段號，其餘字元只有全部選中時才輸出。
+		if v, ok := vars[c]; ok && v.active {
+			v.seg++
+			if v.seg > v.last {
+				v.active = false
+				v.seg = 0
+			}
+			continue
+		}
+		if !allMatch() {
+			continue // 被某一層吃掉：連內層的分隔碼都看不到
+		}
+		if v, ok := vars[c]; ok {
+			v.active, v.seg = true, 0
+			continue
+		}
+
 		if c > CodeMax {
 			// 一般字元。原版的 \r（0x0D）落在控制碼範圍內，在下面處理。
 			put(c)
@@ -148,11 +224,10 @@ func Layout(text []byte, opt Options) (Result, error) {
 			if opt.Name != nil {
 				putString(opt.Name())
 			}
-		case CodeGender:
-			emit(EventGender, c, 0)
-			if opt.Gender != nil {
-				putString(opt.Gender())
-			}
+		case CodeCount:
+			putString(itoa(count))
+		case CodeNewFrame:
+			emit(EventNewFrame, c, 0)
 		case CodeMoveTo:
 			// ⚠ 帶一個 byte 參數：那個 byte 不是文字，切字串時也不能當文字。
 			var param byte
@@ -176,8 +251,8 @@ func Layout(text []byte, opt Options) (Result, error) {
 		case CodeEnd:
 			emit(EventEnd, c, 0)
 		default:
-			// 0x07／0x08／0x0A／0x0E／0x0F：語意未解。
-			// **回報，不印**——印出來就會變成畫面上的怪字。
+			// 只剩 0x08 未解（語料裡 7 次）。**回報，不印**——
+			// 印出來就會變成畫面上的怪字。
 			emit(EventUnknownCode, c, 0)
 		}
 	}
@@ -185,6 +260,21 @@ func Layout(text []byte, opt Options) (Result, error) {
 		flush()
 	}
 	return res, nil
+}
+
+// itoa 只處理非負小數字，避免為了一個數字拉進 strconv。
+func itoa(n int) string {
+	if n == 0 {
+		return "0"
+	}
+	var buf [8]byte
+	i := len(buf)
+	for n > 0 && i > 0 {
+		i--
+		buf[i] = byte('0' + n%10)
+		n /= 10
+	}
+	return string(buf[i:])
 }
 
 // Paginate 把排好的行切成每頁 height 行——訊息視窗只有 6 行，
