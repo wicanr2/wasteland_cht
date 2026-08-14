@@ -561,7 +561,10 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `0x169EB` | 多 | 取這一格的 nibble 並把 `ds:46AEh` 指到該筆記錄 | [`26`](26-movement-and-triggers.md) §5 |
 | `0x15280` | 跳表 | **寶箱**：類別 → 擲出具體物品與數量，寫回記錄 | [`29`](29-map-event-handlers.md) §4 |
 | `0x15453` | 1 | 數出某個類別有幾件物品（掃物品表 1–94） | [`29`](29-map-event-handlers.md) §4 |
-| `0x15160` | 跳表 | **多選一選單**（記錄 `+0x03` 起是選項） | [`29`](29-map-event-handlers.md) §3 |
+| `0x15160` | 跳表 | **問答**：單鍵或打字，答案清單在記錄 `+0x03` 起 | [`46`](46-typed-answers-and-text-input.md) §4 |
+| `0x17750` | 2 | **文字輸入本體**（緩衝區 `ds:4680h`、上限 `ds:4684h`） | [`46`](46-typed-answers-and-text-input.md) §2 |
+| `0x18D8E` | 2 | **字串比對**：兩個 NUL 結尾字串逐 byte 全等 | [`46`](46-typed-answers-and-text-input.md) §3 |
+| `0x18EFE` | 多 | 鍵盤讀取；**出口把 `a`–`z` 轉成大寫** | [`46`](46-typed-answers-and-text-input.md) §2.1 |
 | `0x167CE` | 2 | 重畫視窗內 nibble 為 4／5／9 的格子（會動的） | [`26`](26-movement-and-triggers.md) §5 |
 | `0x17FEE` | — | 地圖座標 → 螢幕座標（`ds:4685h`／`ds:4686h`） | [`24`](24-map-layers-and-tiles.md) §2.3 |
 | `0x10088` | — | 圖磚 packed 4bpp → EGA 4 平面（overlay） | [`24`](24-map-layers-and-tiles.md) §3.1 |
@@ -679,6 +682,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | [`43`](43-input-and-hotkeys.md) | 鍵盤三種比對、21 筆滑鼠熱區表、`\x10` 登記的每列熱鍵表 |
 | [`44`](44-audio.md) | 音效：計時器 ISR、四個聲部、位元組碼指令集、九首資料與呼叫端 |
 | [`45`](45-item-data-and-weapon-damage.md) | 物品資料表八個欄位、表在存檔區、武器傷害骰（`sub_15755`） |
+| [`46`](46-typed-answers-and-text-input.md) | 打字回答與密語比對、文字輸入常式、按鍵轉大寫、中文化硬約束 |
 
 ## 9. 引用這份表時的紀律
 
