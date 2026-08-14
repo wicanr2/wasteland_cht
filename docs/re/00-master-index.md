@@ -70,6 +70,7 @@ SHA-256 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`。
 | 字型繪製 | 主文字 8 bytes 單色；彩色字型 32 bytes、4 平面連續存放 | `tools/dump_font.py` | [`14`](14-fonts-and-text-encoding.md) |
 | **圖片** | packed 4bpp ＋ 列間 XOR delta；**回看距離 ＝ 列的 byte 數** | `tools/decode_pic.py` | [`23`](23-picture-format.md) |
 | **圖磚** | 同上，一張 128 bytes ＝ 16 × 16；載入時轉成 EGA 4 平面 | `tools/decode_pic.py tile` | [`24`](24-map-layers-and-tiles.md) §3 |
+| 走一步 | 可否進入 → 捲動 ＋ 補兩排 → 遭遇擲骰 → 依 nibble 分派事件 | — | [`26`](26-movement-and-triggers.md) |
 
 ## 4. 資料結構
 
@@ -307,6 +308,9 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 |---|---|---|
 | `0xA703` | `0x27523` | 字串表：開場字幕與製作名單 |
 | `0xAA60`／`0xAA6D`／`0xAA7A` | `0x27880`… | 遭遇生成用的三張 13 項表 |
+| `0xAA87` | `0x278A7` | **地圖 nibble → 事件處理函式**（16 項，`docs/re/26` §5） |
+| `0xAAA7` | `0x278C7` | 方向 → 捲動函式（4 項：上／下／左／右） |
+| `0xAAB1` | `0x278D1` | 方向 → 座標增減（4 項） |
 | `0xAB3E` | `0x2795E` | 字串表：無線電、隊伍、戰鬥 |
 | `0xB233` | `0x28053` | 傷勢等級 → 訊息碼（`85 9A 9B 9C 9D 84`） |
 | `0xB239` | `0x28059` | 隊伍槽表位移（`00 0E 1C 2A`，間隔 14） |
@@ -376,7 +380,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 
 ## 6. 關鍵函式
 
-完整索引在 [`00-function-index.md`](00-function-index.md)（641 個，已分析 227）。
+完整索引在 [`00-function-index.md`](00-function-index.md)（641 個，已分析 248）。
 下表只列「解 remake 時最常回頭查」的。
 
 | 位址 | 呼叫端 | 作用 | 文件 |
@@ -435,6 +439,11 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `0x16149` | 1 | 算視窗原點 ＝ 隊伍座標 − (9, 4) | [`25`](25-screen-layout.md) §2.1 |
 | `0x197BB` | 2 | 畫外框（欄 0–37、字元列 0–17） | [`25`](25-screen-layout.md) §2.3 |
 | `0x10762` | 10 | 清除矩形（同時定義了兩套座標單位） | [`25`](25-screen-layout.md) §1 |
+| `0x1651A` | 4 | **走一步**（方向 0 上／1 下／2 左／3 右） | [`26`](26-movement-and-triggers.md) §1 |
+| `0x1649E` | 1 | 能不能走（邊界 ＋ nibble ＋ 三道檢查） | [`26`](26-movement-and-triggers.md) §3 |
+| `0x16410` | 1 | **事件分派**（`ds:AA87h`[nibble] 間接呼叫） | [`26`](26-movement-and-triggers.md) §5 |
+| `0x169EB` | 多 | 取這一格的 nibble 並把 `ds:46AEh` 指到該筆記錄 | [`26`](26-movement-and-triggers.md) §5 |
+| `0x167CE` | 2 | 重畫視窗內 nibble 為 4／5／9 的格子（會動的） | [`26`](26-movement-and-triggers.md) §5 |
 | `0x17FEE` | — | 地圖座標 → 螢幕座標（`ds:4685h`／`ds:4686h`） | [`24`](24-map-layers-and-tiles.md) §2.3 |
 | `0x10088` | — | 圖磚 packed 4bpp → EGA 4 平面（overlay） | [`24`](24-map-layers-and-tiles.md) §3.1 |
 | `0x184E8` | — | **載入一張 `ALLPICS` 圖**（解壓 `0xFC0` ＋ 參數區，再叫 slot 2／16） | [`23`](23-picture-format.md) §4 |
@@ -465,6 +474,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `tools/decode_pic.py` | 圖片與圖磚的 delta 解碼 ＋ 4bpp 畫成文字圖 | 否 |
 | `tools/summarize_map_layers.py` | 地圖三層的長度、邊長、圖磚組驗證 | 否 |
 | `tools/render_map.py` | 用第 3 層把一張地圖畫成一格一字元的縮圖 | 否 |
+| `tools/dump_word_table.py` | 倒出執行檔裡的 16-bit 表（跳表、位移表） | 否 |
 | `tools/rng.py` | 亂數與擲骰的參考模型（附自我測試） | 否 |
 | `tools/unpack_exepack.py`／`apply_overlay.py` | 解包／合成分析映像 | 否 |
 | `tools/gen_func_index.py` | 產生 `00-function-index.md` | 否 |
@@ -499,6 +509,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | [`23`](23-picture-format.md) | 圖片格式：packed 4bpp ＋ 列間 XOR delta、82 張 `ALLPICS` |
 | [`24`](24-map-layers-and-tiles.md) | 地圖三層結構、`ALLHTDS` 九組圖磚、16 × 16 圖磚格式 |
 | [`25`](25-screen-layout.md) | 畫面版面：座標單位、地圖／圖片視窗 288 × 128、訊息視窗、隊伍名單 |
+| [`26`](26-movement-and-triggers.md) | 走一步的流程、四方向捲動、nibble → 事件處理的 16 筆跳表 |
 
 ## 9. 引用這份表時的紀律
 

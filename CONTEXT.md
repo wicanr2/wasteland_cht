@@ -48,6 +48,7 @@
 | **文字編碼** | **已解**：遊戲文字是 **5-bit 打包 ＋ 60 字元對照表**。執行檔九張表 442 條、42 個地圖區塊各一張表共 4,493 條，**合計 4,935 條全部解出**（`docs/re/17`、`18`）|
 | **MSQ 區塊佈局** | **已解**：地圖區長度由選擇表決定（`0x600` ＝ 邊長 32／`0x1800` ＝ 邊長 64，只有 4 塊是大地圖），之後是 0x5C bytes 的記錄區標頭，41/42 個區塊第一個 section 落在 `P+0x5C`。取記錄走兩層索引（`sub_17CB1`），記錄指標落在 `ds:46AEh`（`docs/re/16`） |
 | **地圖三層與圖磚** | **已解**：地圖是正方形（邊長在記錄區標頭 `+0x2C`，32 或 64），分三層——第 1 層 4 bits／格是 section 型別、第 2 層 1 byte／格是記錄編號、**第 3 層（Huffman 尾段）是畫面上的圖形編號**（0–9 是 `IC0_9.WLF` 的疊圖，≥10 是圖磚編號 −10；`0x420 ＋ 10 × 128 ＝ 0x920` 剛好接上圖磚組）。**圖磚在 `ALLHTDS`**：9 組、每組 66–163 張，一張 128 bytes ＝ **16 × 16 packed 4bpp**，由標頭 `+0x30` 選組。畫一格走 `螢幕 ← (背景 AND 遮罩) OR 疊圖`（overlay slot 4），42 張地圖的縮圖都畫得出來（`docs/re/24`）|
+| **移動與事件觸發** | **已解（骨架）**：走一步 ＝ 可否進入（四道閘）→ 捲動（四個方向各一支 ＋ overlay slot 11–14）→ 腳步音效 → 遭遇擲骰 → 重畫與觸發。踩上去由 `ds:AA87h` 這張 **16 筆跳表**依地圖第 1 層的 nibble 分派；7 種是空的，8 種有專屬處理（10 ＝ 傳送、12 ＝ 印訊息）。**時間系統沒找到**（`docs/re/26`）|
 | **畫面版面** | **已解**：320 × 200 mode 0Dh。地圖／圖片視窗 **288 × 128 @ (8, 8)**（19 × 9 格、四邊半格裁切、隊伍固定在第 (9,4) 格），外框在欄 0–37／字元列 0–17，訊息視窗欄 1–38／字元列 18–23（6 行）。`ds:46B9h` 切換地圖與隊伍名單，兩者共用同一塊視窗（`docs/re/25`）|
 | **圖片格式** | **已解**：全部是 **packed 4bpp ＋ 列間 XOR delta**，而且 **XOR 的回看距離就是一列的 byte 數**——`ALLPICS` 是 48 → 96 × 84（共 82 張），`TITLE.PIC` 是 144 → 288 × 128。`ALLPICS` 的解碼在 overlay slot 2（`sub_10144`）、`TITLE.PIC` 在 `start` 內嵌，已用 `tools/decode_pic.py` 重現（`docs/re/23`）|
 | **商店與物品** | **已解**：商店由地圖記錄設定，**價格 ＝ 基礎價 − (基礎價 >> n)**。物品資料表在 `ds:7A31h`，**95 筆 × 8 bytes**——與字串表裡的 95 個物品名兩個獨立來源吻合（`docs/re/22`）|
@@ -80,7 +81,7 @@
 | [`CLAUDE.md`](./CLAUDE.md) | 專案規範：三道閘門、IDA 鐵則、文件與中文化政策、環境硬規則 |
 | [`docs/re/00-master-index.md`](docs/re/00-master-index.md) | **RE 總表**：位址換算、資料格式、結構佈局、位址表、關鍵函式、工具。**查已知事實先看這份** |
 | [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md) | **RE 完成度檢查表**：remake 需要的每一項知識、狀態與入口 |
-| [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 227）。讀任何 `sub_XXXXX` 前先查 |
+| [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 248）。讀任何 `sub_XXXXX` 前先查 |
 | [`docs/re/01-binary-identity.md`](docs/re/01-binary-identity.md) | 20 檔 SHA-256、`wl.exe` 的 MZ header、第一份資料庫與「不可用作證據」的結論 |
 | [`docs/re/02-exepack-unpack.md`](docs/re/02-exepack-unpack.md) | EXEPACK 格式、解包器、relocation 起點的坑、解包後基準資料庫 |
 | [`docs/re/03-boot-and-asset-loading.md`](docs/re/03-boot-and-asset-loading.md) | 開機序列、`info` 安裝資訊、檔名表、七個開機素材的載入位址、`TITLE.PIC` XOR 解碼 |
@@ -106,6 +107,7 @@
 | [`docs/re/23-picture-format.md`](docs/re/23-picture-format.md) | 圖片格式：packed 4bpp ＋ 列間 XOR delta、`ALLPICS` 容器與 82 張圖 |
 | [`docs/re/24-map-layers-and-tiles.md`](docs/re/24-map-layers-and-tiles.md) | 地圖的三層結構、邊長與定址、`ALLHTDS` 九組 16 × 16 圖磚 |
 | [`docs/re/25-screen-layout.md`](docs/re/25-screen-layout.md) | 畫面版面：兩套座標單位、地圖／圖片視窗、外框、訊息視窗、隊伍名單 |
+| [`docs/re/26-movement-and-triggers.md`](docs/re/26-movement-and-triggers.md) | 走一步的流程、四方向捲動與補畫、nibble → 事件處理的 16 筆跳表 |
 | [`docs/manual-cht/`](docs/manual-cht/) | 軟體世界 1990 中文說明書全 60 頁節轉錄 ＋ 當年譯名表 |
 | [`docs/manual/`](docs/manual/) | 官方英文手冊全文 markdown |
 | [`docs/paragraphs/`](docs/paragraphs/) | 段落書 162 段全文與索引，含防拷結構標註 |
@@ -149,19 +151,18 @@
 
 **RE 完成度**：資料格式、文字與資產層打通（含地圖三層、圖磚與圖片），
 戰鬥／屬性／效果／商店四塊規則已解；世界互動層仍是主要缺口。
-641 個函式裡人寫的筆記涵蓋 227 個。完整缺口見
+641 個函式裡人寫的筆記涵蓋 248 個。完整缺口見
 [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md)。
 
 **下一步（依「對 remake 的阻擋程度」排序）**
 
-1. **移動、時間與觸發條件（E1／E2）** —— 記錄容器與效果系統都解了，
-   缺「玩家踩到什麼會啟動哪一筆記錄」。記錄指標在 `ds:46AEh`，
-   全檔 150 處以上以它當基址，從那些使用端往回追。
+1. **nibble 5／8／9 的事件處理函式** —— 分派已解，但那三支 IDA 沒建成程式碼
+   （`0x15280`／`0x15160`／`0x14410`），要指定位址重新分析（`docs/re/26` §8）。
 2. **存檔內部欄位（C2）** —— 角色記錄已解（`docs/re/15`），存檔是它的外層容器。
 3. **段落編號顯示（E3）** —— 段落書與遊戲內文字的分工要重新釐清。
 4. **中文排版決策** —— 訊息視窗只有 6 行 × 38 個 8×8 字元，換成 16 × 15 中文
    放不下，要連同文字控制碼一起重排（`docs/re/25` §3）。
-5. 逐一解 overlay 其餘的未解 slot（26 個裡已解 8 個）。
+5. 逐一解 overlay 其餘的未解 slot（26 個裡已解 12 個）。
 6. 追資源表 idx 7（無檔名，疑似存檔區）在硬碟模式下怎麼存取。
 7. 音效（F2）：確定是 PC 喇叭——`sub_1CC76` 寫 8253 channel 2（`out 42h`）
    再開 61h 閘。待解的是 `sub_1CD52` 那套位元組碼的指令集與曲目資料在哪。
