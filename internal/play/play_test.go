@@ -118,3 +118,68 @@ func TestQuitStopsScene(t *testing.T) {
 		t.Fatalf("F10 應該讓場景結束：ok=%v err=%v", ok, err)
 	}
 }
+
+// 驗收（規格 04 §8.6、規格 05 §2.1）：什麼都沒改就寫回，明文要完全相同。
+func TestStoreToIsIdempotent(t *testing.T) {
+	rom := openRom(t)
+	s, err := New(rom)
+	if err != nil {
+		t.Fatalf("開場失敗：%v", err)
+	}
+	save := s.Save()
+	before := append([]byte(nil), save.Plain...)
+	if err := s.StoreTo(save); err != nil {
+		t.Fatalf("寫回失敗：%v", err)
+	}
+	for i := range save.Plain {
+		if save.Plain[i] != before[i] {
+			t.Fatalf("什麼都沒改卻動了 +%#x：%#02x → %#02x", i, before[i], save.Plain[i])
+		}
+	}
+}
+
+// 走一段路再寫回：只有座標、視窗原點與時鐘那幾個 byte 會變。
+func TestStoreToAfterWalkTouchesOnlyKnownBytes(t *testing.T) {
+	rom := openRom(t)
+	s, err := New(rom)
+	if err != nil {
+		t.Fatalf("開場失敗：%v", err)
+	}
+	save := s.Save()
+	before := append([]byte(nil), save.Plain...)
+
+	for i := 0; i < 40; i++ {
+		if _, err := s.Update(input.Input{Dir: input.DirLeft}); err != nil {
+			t.Fatalf("走一步失敗：%v", err)
+		}
+	}
+	if err := s.StoreTo(save); err != nil {
+		t.Fatalf("寫回失敗：%v", err)
+	}
+
+	// 允許變動的位移：隊伍槽表的 +0x08/+0x09，全域 +0x78 的 0/1/2/3/4/10/11/12。
+	allowed := map[int]bool{0x08: true, 0x09: true}
+	for _, off := range []int{0, 1, 2, 3, 4, 10, 11, 12} {
+		allowed[0x78+off] = true
+	}
+	changed := 0
+	for i := range save.Plain {
+		if save.Plain[i] == before[i] {
+			continue
+		}
+		if !allowed[i] {
+			t.Fatalf("走路之後不該動到 +%#x（%#02x → %#02x）", i, before[i], save.Plain[i])
+		}
+		changed++
+	}
+	if changed == 0 {
+		t.Fatal("走了 40 步存檔卻一個 byte 都沒變")
+	}
+	t.Logf("走 40 步之後有 %d 個 byte 變動", changed)
+
+	// 而且重新編碼還是解得開（checksum 有跟著重算）。
+	reencoded := save.Bytes()
+	if len(reencoded) != 6+0x800+0xA00 {
+		t.Fatalf("重新編碼的長度不對：%d", len(reencoded))
+	}
+}
