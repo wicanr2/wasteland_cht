@@ -95,3 +95,11 @@ func BlockKey(file string, resourceID, slot int) string {
 func ExeKey(table, slot int) string {
 	return fmt.Sprintf("exe:%d:%d", table, slot)
 }
+
+// ParagraphKey 是段落手札正文的 key（`translations/paragraphs-zh-Hant.cat`）。
+//
+// 段落書不在原版的字串語料裡（它是紙本），所以自成一個目錄檔，
+// 但格式與 key 的形狀刻意沿用同一套，讀檔器只要一份。
+func ParagraphKey(n int) string {
+	return fmt.Sprintf("para:%d", n)
+}
