@@ -14,7 +14,7 @@
 |---|---|---|---|
 | [`01-assets-and-formats.md`](01-assets-and-formats.md) | **READY**（已實作） | `internal/assets` ✅ | — |
 | [`02-rng-and-dice.md`](02-rng-and-dice.md) | **READY**（已實作） | `internal/game/rng` ✅ | — |
-| [`03-screen-and-text.md`](03-screen-and-text.md) | **READY**（`textlayout`／`render` 已實作） | `internal/textlayout` ✅、`internal/render` ✅、`internal/ui` | Ebiten 那層還沒做 |
+| [`03-screen-and-text.md`](03-screen-and-text.md) | **READY**（已實作） | `internal/textlayout` ✅、`internal/render` ✅、`internal/ui` ✅ | — |
 | `04-movement-and-clock.md` | 未寫 | `internal/game` | 事件處理函式 5／8／9 未讀（`docs/re/26` §8） |
 | `05-character-and-save.md` | 未寫 | `internal/game` | **C2 存檔欄位未解**、C4 隊伍未解 |
 | `06-combat.md` | 未寫 | `internal/game` | D1 技能數值、D5 經驗值與升級未解 |
@@ -48,13 +48,28 @@
 2. internal/textlayout ← 規格 03；**已完成**（控制碼與組行，無相依）
 3. internal/render     ← 規格 03；**已完成**（合成索引畫面，幾何逐像素驗過）
 4. internal/game/rng   ← 規格 02；**已完成**（驗收數列與分佈全過）
-5. internal/ui         ← 規格 03 的 Ebiten 那層：上色 ＋ 送圖 ＋ 收鍵
-6. 其餘                ← 等對應規格 READY
+5. internal/input      ← 規格 03；**已完成**（與函式庫無關的按鍵模型）
+6. internal/ui         ← 規格 03；**已完成**（Ebiten：上色 ＋ 送圖 ＋ 收鍵）
+7. 其餘                ← 等對應規格 READY
 ```
 
-`internal/ui` 還沒做的理由是**建置環境**：`tools/go.sh` 刻意 `--network none`，
-而 Ebiten 還沒進本專案的模組快取。要做之前先決定相依的取得方式
-（vendor 進版控，或用唯讀掛載的本機快取當 file proxy），不要為了方便把建置開網路。
+相依取得方式（2026-08-15 定案）：**唯讀掛載本機模組快取當 file proxy**，
+`tools/go.sh` 仍然 `--network none`。Ebiten 的視窗層走 cgo，要 X11／GL 標頭，
+所以另建 `docker/wasteland-go.Dockerfile`（明確版本、可重現），不是臨時裝套件。
+
+⚠ **Ebiten 在沒有 DISPLAY 的環境會在 package init 就 panic**，所以無頭用得到的
+東西一律不放 `internal/ui`：按鍵模型在 `internal/input`、畫面合成在 `internal/render`、
+檢視器場景在 `internal/viewer`，三個都測得到。
+
+## 5. 兩支指令
+
+| 指令 | 用途 | 需要 X |
+|---|---|---|
+| `cmd/wl-shot` | 把一幀寫成 PNG，**與 DOSBox 的原版截圖對拍用** | 否 |
+| `cmd/wasteland` | 開視窗的資產檢視器 | 是 |
+
+**兩支都還不是遊戲**：規則層的規格還沒 READY，所以方向鍵只搬視窗原點，
+不判定能不能走、不推進時鐘、不擲遭遇。
 
 `internal/assets` 不認識 Ebiten，`internal/game` 不認識畫面（`CLAUDE.md` §4）。
 規格 01 與 03 的分界就照這條線切：**解碼回 `image.RGBA` 屬於 01，畫到畫面屬於 03**。

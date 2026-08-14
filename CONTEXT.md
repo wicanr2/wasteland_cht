@@ -78,7 +78,9 @@
 | **`internal/textlayout`** | **已實作**：18 個控制碼（未解的回報成事件、絕不當文字印）、組行與分頁。4,889 條語料全部排得過 |
 | **`internal/render`** | **已實作**：合成 320 × 200 索引畫面。地圖視窗逐像素驗過剛好 288 × 128 @ (8,8)、捲動一格 ＝ 位移 16 像素 |
 | **`internal/game/rng`** | **已實作**：進位鏈與四支擲骰 ＋ 5d6 取三。驗收數列（前七項 ＝ 二項式係數）、分佈、300 萬次不重複全過 |
-| Go 引擎（其餘） | `internal/ui`（Ebiten 那層）未做；規則層仍不得開始 |
+| **`internal/input`／`ui`／`viewer`** | **已實作**：與函式庫無關的按鍵模型（ESC 取消、F10 離開）、Ebiten 上色與送圖、資產檢視器場景。`cmd/wl-shot` 無頭輸出 PNG（對拍用）、`cmd/wasteland` 開視窗 |
+| Go 建置環境 | `docker/wasteland-go.Dockerfile`（golang 1.24 ＋ X11／GL 標頭，Ebiten 走 cgo 需要）。相依從**唯讀掛載的本機模組快取**當 file proxy 取得，`tools/go.sh` 仍 `--network none` |
+| 規則層 | **仍不得開始**——`docs/spec/04`–`08` 都還沒 READY |
 
 ## 3. 文件索引
 

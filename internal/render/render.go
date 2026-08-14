@@ -7,6 +7,7 @@ package render
 
 import (
 	"fmt"
+	"image"
 
 	"github.com/wicanr2/wasteland_cht/internal/assets"
 	"github.com/wicanr2/wasteland_cht/internal/textlayout"
@@ -220,6 +221,15 @@ func (f *Frame) DrawClock(font *assets.Font, hour, minute int) error {
 		}
 	}
 	return nil
+}
+
+// ToImage 把一幀轉成標準函式庫的圖——截圖與對拍用，不需要 Ebiten。
+func (f *Frame) ToImage() *image.RGBA {
+	return &image.RGBA{
+		Pix:    f.RGBA(),
+		Stride: ScreenWidth * 4,
+		Rect:   image.Rect(0, 0, ScreenWidth, ScreenHeight),
+	}
 }
 
 // RGBA 用 assets 的（暫代）調色盤上色，給 internal/ui 送上螢幕。
