@@ -248,13 +248,24 @@ rec[+0x32…] ← "PRIVATE" 初始階級字串
 ```
 偏移 0        第 1 層  4 bits／格   D²÷2 bytes   這一格屬於哪一種 section
 偏移 D²÷2     第 2 層  1 byte／格   D²   bytes   該 section 裡的第幾筆記錄
-Huffman 尾段  第 3 層  1 byte／格   D²   bytes   語意未解，載到 ds:3448h
+Huffman 尾段  第 3 層  1 byte／格   D²   bytes   畫面上的圖形編號，載到 ds:3448h
 偏移 D²×1.5   記錄區標頭 0x5C bytes（見 §4.1）
 ```
 
 D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `sub_17C20`
 （偶數行取高 4 位）、第 2 層 `sub_17C72`、第 3 層 `sub_17FC8`。
 圖磚組編號在記錄區標頭 `+0x30`（0–8，0–3 在 `ALLHTDS1`、4–8 在 `ALLHTDS2`）。
+
+**第 3 層的圖形編號**指進 `seg003:0x420` 起那張連續的 128 bytes／筆的表：
+
+```
+0–9    IC0_9.WLF 的十個疊圖
+≥10    圖磚，編號 ＝ 值 − 10          （0x420 ＋ 10 × 128 ＝ 0x920 ＝ 圖磚組起點）
+```
+
+畫一格：`螢幕 ← (背景[0x420+值×128] AND 遮罩[0xDA60+疊圖×32]) OR 疊圖[0x420+疊圖×128]`
+（overlay slot 4 ＝ `sub_1029B`）。螢幕座標 `ds:4685h` ＝ byte 欄（地圖行 ×2）、
+`ds:4686h` ＝ 像素列（地圖列 ×16）。
 
 ### 4.11 圖片
 
@@ -308,11 +319,11 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `seg003:` | 線性 | 內容 |
 |---|---|---|
 | `0x0100` | `0x2AF20` | `TRANSTBL`（800 bytes，用途未解） |
-| `0x0420` | `0x2B240` | `IC0_9.WLF`（1,280 bytes） |
-| `0x0920` | `0x2B740` | `TITLE.PIC`（18,432 bytes） |
+| `0x0420` | `0x2B240` | `IC0_9.WLF`：10 個 16 × 16 疊圖（128 bytes／筆，4 平面） |
+| `0x0920` | `0x2B740` | `TITLE.PIC`（18,432 bytes）；進遊戲後同一塊改放**圖磚組**（4 平面，128 bytes／張） |
 | `0xB4E0` | `0x36300` | `COLORF.FNT`（5,504 bytes ＝ 172 × 32） |
 | `0xCA60` | `0x37880` | **主文字字型**（內嵌，128 × 8 bytes） |
-| `0xDA60` | `0x38880` | `MASKS.WLF` |
+| `0xDA60` | `0x38880` | `MASKS.WLF`：10 張 16 × 16 遮罩（32 bytes／筆） |
 
 `CURS` 載到 `seg002:0x7E0B`。
 
@@ -353,7 +364,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 
 ## 6. 關鍵函式
 
-完整索引在 [`00-function-index.md`](00-function-index.md)（641 個，已分析 211）。
+完整索引在 [`00-function-index.md`](00-function-index.md)（641 個，已分析 213）。
 下表只列「解 remake 時最常回頭查」的。
 
 | 位址 | 呼叫端 | 作用 | 文件 |
@@ -403,6 +414,8 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `0x17C72` | — | 算地圖第 2 層的列基址（`ds:46ACh`） | [`24`](24-map-layers-and-tiles.md) §2.1 |
 | `0x17FC8` | — | 算地圖第 3 層的列基址（`ds:46CAh`） | [`24`](24-map-layers-and-tiles.md) §2.1 |
 | `0x1379E` | — | 用第 1／2 層的值取出該格的記錄 | [`24`](24-map-layers-and-tiles.md) §2.2 |
+| `0x1029B` | 4 | **畫一格地圖**（背景 AND 遮罩 OR 疊圖，overlay slot 4） | [`24`](24-map-layers-and-tiles.md) §2.3 |
+| `0x17FEE` | — | 地圖座標 → 螢幕座標（`ds:4685h`／`ds:4686h`） | [`24`](24-map-layers-and-tiles.md) §2.3 |
 | `0x10088` | — | 圖磚 packed 4bpp → EGA 4 平面（overlay） | [`24`](24-map-layers-and-tiles.md) §3.1 |
 | `0x184E8` | — | **載入一張 `ALLPICS` 圖**（解壓 `0xFC0` ＋ 參數區，再叫 slot 2／16） | [`23`](23-picture-format.md) §4 |
 | `0x10144` | — | **圖片 delta 解碼**（overlay slot 2，18 bytes） | [`23`](23-picture-format.md) §2 |
@@ -431,6 +444,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `tools/dump_font.py` | 兩套字型畫成文字圖 | 否 |
 | `tools/decode_pic.py` | 圖片與圖磚的 delta 解碼 ＋ 4bpp 畫成文字圖 | 否 |
 | `tools/summarize_map_layers.py` | 地圖三層的長度、邊長、圖磚組驗證 | 否 |
+| `tools/render_map.py` | 用第 3 層把一張地圖畫成一格一字元的縮圖 | 否 |
 | `tools/rng.py` | 亂數與擲骰的參考模型（附自我測試） | 否 |
 | `tools/unpack_exepack.py`／`apply_overlay.py` | 解包／合成分析映像 | 否 |
 | `tools/gen_func_index.py` | 產生 `00-function-index.md` | 否 |

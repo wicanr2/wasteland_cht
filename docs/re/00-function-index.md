@@ -6,8 +6,8 @@
 輸入：`wl.merged.exe（解包映像＋wla.bin overlay，本專案合成）`，SHA-256 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`
 
 - 自動辨識函式：**641**
-- 已在筆記中出現：**211**
-- 尚未碰過：**430**
+- 已在筆記中出現：**213**
+- 尚未碰過：**428**
 
 ## 已分析（依呼叫端數量排序）
 
@@ -85,6 +85,7 @@
 | `0x16F70` | seg000+0x6F70 | 185 | 5 | re/04-overlay-wla-bin.md |
 | `0x17B15` | seg000+0x7B15 | 41 | 5 | re/15-character-record.md、re/19-effects-and-damage.md、re/22-shop-and-items.md |
 | `0x17FC8` | seg000+0x7FC8 | 38 | 5 | re/00-master-index.md、re/12-msq-tail-and-text-model.md、re/24-map-layers-and-tiles.md |
+| `0x17FEE` | seg000+0x7FEE | 40 | 5 | re/00-master-index.md、re/24-map-layers-and-tiles.md |
 | `0x18024` | seg000+0x8024 | 171 | 5 | re/16-msq-block-layout.md |
 | `0x183B1` | seg000+0x83B1 | 110 | 5 | re/05-storage-layer.md、re/06-resource-directory.md、re/07-msq-blocks.md、re/10-huffman-compression.md |
 | `0x189B1` | seg000+0x89B1 | 158 | 5 | re/04-overlay-wla-bin.md |
@@ -108,6 +109,7 @@
 | `0x11AA3` | seg000+0x1AA3 | 69 | 3 | re/09-msq-map-structure.md |
 | `0x11C28` | seg000+0x1C28 | 44 | 3 | re/10-huffman-compression.md、re/11-huffman-decoder.md |
 | `0x11C54` | seg000+0x1C54 | 60 | 3 | re/10-huffman-compression.md、re/11-huffman-decoder.md |
+| `0x12738` | seg000+0x2738 | 11 | 3 | re/24-map-layers-and-tiles.md |
 | `0x14193` | seg000+0x4193 | 103 | 3 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/13-rng.md、re/19-effects-and-damage.md |
 | `0x142ED` | seg000+0x42ED | 39 | 3 | re/00-remake-knowledge-gaps.md |
 | `0x15755` | seg000+0x5755 | 88 | 3 | re/20-combat-resolution.md、re/21-attributes.md |
@@ -182,7 +184,7 @@
 | `0x10088` | seg000+0x88 | 188 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/04-overlay-wla-bin.md、re/24-map-layers-and-tiles.md |
 | `0x10144` | seg000+0x144 | 18 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/04-overlay-wla-bin.md、re/23-picture-format.md |
 | `0x10156` | seg000+0x156 | 325 | 1 | re/04-overlay-wla-bin.md |
-| `0x1029B` | seg000+0x29B | 881 | 1 | re/04-overlay-wla-bin.md |
+| `0x1029B` | seg000+0x29B | 881 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/04-overlay-wla-bin.md、re/24-map-layers-and-tiles.md |
 | `0x1060C` | seg000+0x60C | 189 | 1 | re/00-master-index.md、re/04-overlay-wla-bin.md、re/14-fonts-and-text-encoding.md |
 | `0x10762` | seg000+0x762 | 118 | 1 | re/04-overlay-wla-bin.md |
 | `0x107D8` | seg000+0x7D8 | 161 | 1 | re/04-overlay-wla-bin.md |
@@ -194,7 +196,7 @@
 | `0x10C5A` | seg000+0xC5A | 92 | 1 | re/04-overlay-wla-bin.md |
 | `0x10CB6` | seg000+0xCB6 | 151 | 1 | re/00-master-index.md、re/04-overlay-wla-bin.md、re/14-fonts-and-text-encoding.md |
 | `0x10E45` | seg000+0xE45 | 85 | 1 | re/04-overlay-wla-bin.md |
-| `0x10F12` | seg000+0xF12 | 82 | 1 | re/04-overlay-wla-bin.md、re/24-map-layers-and-tiles.md |
+| `0x10F12` | seg000+0xF12 | 82 | 1 | re/00-remake-knowledge-gaps.md、re/04-overlay-wla-bin.md、re/24-map-layers-and-tiles.md |
 | `0x10F64` | seg000+0xF64 | 67 | 1 | re/04-overlay-wla-bin.md |
 | `0x10FA7` | seg000+0xFA7 | 44 | 1 | re/04-overlay-wla-bin.md |
 | `0x11854` | seg000+0x1854 | 111 | 1 | re/03-boot-and-asset-loading.md |
