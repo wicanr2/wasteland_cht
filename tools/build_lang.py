@@ -67,6 +67,16 @@ def to_big5(text: str) -> tuple[bytes, list[str]]:
     return bytes(out), missing
 
 
+def hotkeys(text: str) -> list[str]:
+    """列出每個 `\\x10` 後面那個字元。
+
+    那個字元有兩個身分：畫面上的第一個字，**以及點擊該列時送出的按鍵**
+    （`ds:8DDCh` 的每列熱鍵表，`docs/re/43`）。翻成中文會讓滑鼠送出
+    Big5 的首位元組，而鍵盤比對的仍然是原本那個字母——兩邊都壞。
+    """
+    return [text[i + 1] for i, ch in enumerate(text) if ch == "\x10" and i + 1 < len(text)]
+
+
 def read_tsv(path: Path) -> dict[str, str]:
     rows: dict[str, str] = {}
     for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
@@ -156,6 +166,12 @@ def main() -> None:
             a, b = orig.count(chr(code)), text.count(chr(code))
             if a != b:
                 errors.append(f"{key}：控制碼 \\x{code:02X} 原文 {a} 個、譯文 {b} 個")
+        a, b = hotkeys(orig), hotkeys(text)
+        if a != b:
+            errors.append(
+                f"{key}：\\x10 後的按鍵 原文 {a}、譯文 {b}"
+                "——那個字元同時是點擊該列送出的鍵，不能翻（docs/re/43）"
+            )
         data, missing = to_big5(text)
         if missing:
             errors.append(f"{key}：Big5 編不出 {''.join(sorted(set(missing)))}")

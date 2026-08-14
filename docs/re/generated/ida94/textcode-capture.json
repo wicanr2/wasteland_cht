@@ -1,0 +1,12 @@
+{
+  "dataset": "function-dump",
+  "input_sha256": "cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118",
+  "input_identity": "wl.merged.exe（解包映像＋wla.bin overlay，本專案合成）",
+  "requested": [
+    "0x19EB8",
+    "0x19EBE"
+  ],
+  "unresolved": [],
+  "with_callers": false,
+  "functions": []
+}
