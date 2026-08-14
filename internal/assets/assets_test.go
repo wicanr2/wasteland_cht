@@ -330,3 +330,50 @@ func lit(g *Glyph) int {
 	}
 	return n
 }
+
+// 物品資料表在存檔區，三個槽各一份，checksum 都要過（docs/re/45 §2）。
+func TestLoadItemTableAllSlots(t *testing.T) {
+	r := openRom(t)
+	for slot := range ItemSlotOffsets {
+		raw, err := r.LoadItemTable("game1", slot)
+		if err != nil {
+			t.Fatalf("槽 %d：%v", slot, err)
+		}
+		if len(raw) != itemTableLen {
+			t.Fatalf("槽 %d 長度 %d，應該是 %d", slot, len(raw), itemTableLen)
+		}
+	}
+	// 槽超出範圍要回錯誤，不是靜靜回空表。
+	if _, err := r.LoadItemTable("game1", len(ItemSlotOffsets)); err == nil {
+		t.Fatal("槽超出範圍應該回錯誤")
+	}
+}
+
+// 出廠資料的幾筆已知值——這一組同時擋住「類別右移四次」與索引偏移錯位。
+func TestItemTableKnownEntries(t *testing.T) {
+	raw, err := openRom(t).LoadItemTable("game1", 0)
+	if err != nil {
+		t.Fatalf("讀物品表：%v", err)
+	}
+	// 索引 n 落在表的第 n+1 筆（基址 ＝ 表首 ＋ 8）。
+	entry := func(id int) []byte { return raw[(id+1)*8 : (id+2)*8] }
+
+	// 12 ＝ RPG-7：類別 9（反戰車重）、13 顆骰、彈匣 1、技能 11（AT weapon）。
+	rpg := entry(12)
+	if got := rpg[3] >> 3; got != 9 {
+		t.Fatalf("RPG-7 的類別是 %d，應該是 9（右移三次不是四次）", got)
+	}
+	if rpg[6] != 13 || rpg[5] != 11 {
+		t.Fatalf("RPG-7 骰數 %d、技能 %d，應該是 13／11", rpg[6], rpg[5])
+	}
+	// 13 ＝ M1911A1 45 pistol：彈匣 7、彈藥指向 30（45 clip）。
+	pistol := entry(13)
+	if pistol[4] != 7 || pistol[7] != 30 {
+		t.Fatalf(".45 手槍容量 %d、彈藥 %d，應該是 7／30", pistol[4], pistol[7])
+	}
+	// 37 ＝ Kevlar vest：類別 15（護甲）、AC 4。
+	vest := entry(37)
+	if got := vest[3] >> 3; got != 15 || vest[6] != 4 {
+		t.Fatalf("Kevlar vest 類別 %d、AC %d，應該是 15／4", got, vest[6])
+	}
+}

@@ -67,7 +67,7 @@
 | `+0x00`–`+0x01` | **基礎價**（16-bit） | `sub_17B5C` 把它搬進 24-bit 金額暫存 `ds:466Bh`– `466Dh` |
 | `+0x02` | **這家店的庫存量**：0 ＝ 缺貨（不列出）、`0xFF` ＝ 無限、其餘是數量，賣一件給它就 +1（[`42`](42-facility-loops.md) §4） | `sub_1C140` 的 `test al, al ／ jz 跳過`；寫入端在 `0x1BFE7` |
 | `+0x03` | `>> 3` ＝ **物品類別**（寶箱生成時掃這個欄位分類；18 類，見 [`45`](45-item-data-and-weapon-damage.md) §3.1） | `sub_15453`（`docs/re/29` §4）、`sub_199F1` |
-| `+0x04` | **彈匣容量** | [`45`](45-item-data-and-weapon-damage.md) §3.2 |
+| `+0x04` | **容量**（裝滿時的次數；槍是彈匣容量） | [`45`](45-item-data-and-weapon-damage.md) §3.2 |
 | `+0x05` | **使用技能的編號**（對到技能表的 36 條） | [`45`](45-item-data-and-weapon-damage.md) §3.3 |
 | `+0x06` | **骰數**：武器 ＝ 傷害 Nd6、護甲 ＝ AC | [`45`](45-item-data-and-weapon-damage.md) §3.4 |
 | `+0x07` | **要用的彈藥物品編號**（0 ＝ 不用；表自己指回自己） | [`45`](45-item-data-and-weapon-damage.md) §3.5 |
