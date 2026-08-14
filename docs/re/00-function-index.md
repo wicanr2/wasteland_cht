@@ -88,7 +88,7 @@
 | `0x1968C` | seg000+0x968C | 32 | 8 | re/00-master-index.md、re/15-character-record.md、re/32-skill-checks-and-xp.md、re/41-command-handlers.md |
 | `0x19BF0` | seg000+0x9BF0 | 8 | 8 | re/19-effects-and-damage.md |
 | `0x1CA8D` | seg000+0xCA8D | 11 | 8 | re/00-master-index.md、re/31-experience-and-skills.md |
-| `0x115E5` | seg000+0x15E5 | 199 | 7 | re/00-master-index.md、re/03-boot-and-asset-loading.md、re/05-storage-layer.md、re/09-msq-map-structure.md、re/16-msq-block-layout.md |
+| `0x115E5` | seg000+0x15E5 | 199 | 7 | re/00-master-index.md、re/03-boot-and-asset-loading.md、re/05-storage-layer.md、re/09-msq-map-structure.md、re/16-msq-block-layout.md、re/30-save-layout.md |
 | `0x119DB` | seg000+0x19DB | 53 | 7 | re/06-resource-directory.md、re/45-item-data-and-weapon-damage.md |
 | `0x11B83` | seg000+0x1B83 | 165 | 7 | re/00-master-index.md、re/11-huffman-decoder.md |
 | `0x17868` | seg000+0x7868 | 6 | 7 | re/40-combat-screen.md |
@@ -177,7 +177,7 @@
 | `0x1000F` | seg000+0xF | 3 | 3 | re/04-overlay-wla-bin.md、re/14-fonts-and-text-encoding.md |
 | `0x10D4D` | seg000+0xD4D | 181 | 3 | re/04-overlay-wla-bin.md |
 | `0x10E02` | seg000+0xE02 | 67 | 3 | re/04-overlay-wla-bin.md |
-| `0x11730` | seg000+0x1730 | 292 | 3 | re/03-boot-and-asset-loading.md、re/05-storage-layer.md |
+| `0x11730` | seg000+0x1730 | 292 | 3 | re/03-boot-and-asset-loading.md、re/05-storage-layer.md、re/30-save-layout.md |
 | `0x11A10` | seg000+0x1A10 | 73 | 3 | re/06-resource-directory.md、re/07-msq-blocks.md、re/08-msq-encryption.md、re/22-shop-and-items.md、re/30-save-layout.md、re/45-item-data-and-weapon-damage.md |
 | `0x11AA3` | seg000+0x1AA3 | 69 | 3 | re/09-msq-map-structure.md、re/30-save-layout.md |
 | `0x11C28` | seg000+0x1C28 | 44 | 3 | re/10-huffman-compression.md、re/11-huffman-decoder.md |

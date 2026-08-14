@@ -27,7 +27,7 @@ game1 0x000253C5    game2 0x00028BC7      ← seek 是 cx:dx，32-bit
 +0x00   magic 'msq0'（game1）／'msq1'（game2）
 +0x04   checksum（16-bit）
 +0x06   0x800 加密段 ＝ 8 × 256 bytes
-+0x806  0xA00 未加密段（出廠全零，用途未解）
++0x806  0xA00 未加密段 ＝ **十組按鍵巨集**（10 × 256，出廠全零）
 ```
 
 - 解密：`key = lo(checksum) ^ hi(checksum)`，逐 byte XOR 後 `key += 0x1F`。
@@ -122,7 +122,9 @@ game1 0x000253C5    game2 0x00028BC7      ← seek 是 cx:dx，32-bit
 
 ## 5. 未解與邊界
 
-- **`0xA00` 未加密段**出廠全零，執行期載到 `ds:C062h`／`ds:0`，用途未解。
+- **`0xA00` 未加密段 ＝ 十組按鍵巨集**（`docs/re/30` §6）：每組 256 bytes，
+  對應規格 20 §5.2 的 F1–F10。⚠ **它不進 checksum**——改它不會讓存檔被拒收，
+  但照樣要 round-trip。
   **原樣搬運，不解讀。**
 - 全域狀態除了上表的欄位外，其餘 bytes 未解。
 - `ds:4653h` 與 `ds:4656h` 都像隊伍人數，出廠都是 4，分不出差別。

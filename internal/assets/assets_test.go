@@ -409,3 +409,34 @@ func TestSetCell(t *testing.T) {
 		t.Fatalf("還原失敗：%v", err)
 	}
 }
+
+// 存檔尾段那 0xA00 就是十組按鍵巨集（docs/re/30 §6、docs/re/43 §6）。
+func TestSaveTailIsMacros(t *testing.T) {
+	sv, err := openRom(t).LoadSave("game1")
+	if err != nil {
+		t.Fatalf("讀存檔：%v", err)
+	}
+	if len(sv.Tail) != MacroCount*MacroStride {
+		t.Fatalf("尾段 %d bytes，應該是 %d ＝ 10 × 256", len(sv.Tail), MacroCount*MacroStride)
+	}
+	for n := 0; n < MacroCount; n++ {
+		m, ok := sv.Macro(n)
+		if !ok || len(m) != MacroStride {
+			t.Fatalf("第 %d 組取不到：ok=%v len=%d", n, ok, len(m))
+		}
+		// 出廠全零——還沒有人錄過。
+		for i, b := range m {
+			if b != 0 {
+				t.Fatalf("第 %d 組的第 %d 個 byte 是 %#x，出廠應該全零", n, i, b)
+			}
+		}
+	}
+	if _, ok := sv.Macro(MacroCount); ok {
+		t.Fatal("超出範圍應該回 false")
+	}
+	// 巨集不進 checksum：改了尾段照樣編得回去。
+	sv.Tail[0] = 'A'
+	if got := sv.Bytes(); len(got) != 6+savePlainLen+saveTailLen {
+		t.Fatalf("重新編碼的長度 %d 不對", len(got))
+	}
+}
