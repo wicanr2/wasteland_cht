@@ -100,8 +100,8 @@ func TestEnemyTakeDamage(t *testing.T) {
 
 // 驗收 6：擊殺經驗值 ＝ 基值 × (倍數 + 1)，加到角色身上會飽和。
 func TestKillXP(t *testing.T) {
-	d := ParseAttackData([]byte{0x10, 0x00, 0, 3, 0x02, 0x50, 0, 0})
-	if d.XPBase != 0x10 || d.XPMul != 2 || d.DiceN != 3 || d.DamBase != 5 {
+	d := ParseEnemyData([]byte{0x10, 0x00, 0, 3, 0x02, 0x50, 0, 0})
+	if d.Base != 0x10 || d.XPMul != 2 || d.DiceN != 3 || d.DamBase != 5 {
 		t.Fatalf("拆錯了：%+v", d)
 	}
 	if got := d.KillXP(); got != 0x10*3 {
@@ -170,7 +170,7 @@ func TestPartyDamageIsDeterministic(t *testing.T) {
 // 敵方傷害是基底 ＋ Nd6，值域要對。
 func TestEnemyDamageRange(t *testing.T) {
 	r := rng.New()
-	d := ParseAttackData([]byte{0, 0, 0, 3, 0, 0x50, 0, 0}) // 基底 5、3 顆 d6
+	d := ParseEnemyData([]byte{0, 0, 0, 3, 0, 0x50, 0, 0}) // 基底 5、3 顆 d6
 	for i := 0; i < 5000; i++ {
 		v := EnemyDamage(r, d)
 		if v < 5+3 || v > 5+18 {

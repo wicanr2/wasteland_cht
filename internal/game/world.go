@@ -61,8 +61,8 @@ type Event struct {
 	Kind    EventKind
 	Nibble  byte
 	Record  int   // 這一格的第 2 層值（記錄編號）
-	Strings []int  // 要顯示的字串編號
-	Choices []int  // 選單選項的字串編號
+	Strings []int // 要顯示的字串編號
+	Choices []int // 選單選項的字串編號
 	To      [2]uint8
 	Data    []byte // 這一格的 section 記錄（取不到時是 nil）
 }

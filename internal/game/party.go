@@ -7,14 +7,14 @@ package game
 
 // 狀態位元（角色記錄 +0x28，docs/re/35 §1）。
 const (
-	StatusRadiation = 1 << iota // Radiation poisoning
-	StatusHerpes                // Wasteland Herpes
-	StatusBugByte               // Bug byte
-	StatusSewerRot              // Sewer rot
-	StatusDesertDust            // Desert dust
-	StatusRabies                // Rabies
-	StatusD6                    // D6（原版就叫這個名字，看起來是佔位）
-	StatusD7                    // D7
+	StatusRadiation  = 1 << iota // Radiation poisoning
+	StatusHerpes                 // Wasteland Herpes
+	StatusBugByte                // Bug byte
+	StatusSewerRot               // Sewer rot
+	StatusDesertDust             // Desert dust
+	StatusRabies                 // Rabies
+	StatusD6                     // D6（原版就叫這個名字，看起來是佔位）
+	StatusD7                     // D7
 )
 
 // StatusWorsening 是「會隨時間惡化」的那一組（sub_12440 的 and al, 0F0h）。
