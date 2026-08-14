@@ -25,7 +25,14 @@
 | Project Darwin | 達爾文計畫 |
 | Highpool Creek | 高池溪 |
 | Camp Highpool | 高池營 |
-| Sleeper One | 沉睡者一號 | |
+| Sleeper One | 沉睡者一號 |
+| Temple of the Servants of the Mushroom Cloud | 蘑菇雲僕從神殿 |
+| Center of Holy Knowledge | 聖知識中心 |
+| Nuclear First Aid | 核子急救站 |
+| Boulder Highway | 巨石公路 |
+| Maryland Parkway | 馬里蘭大道 |
+| Charleston Blvd. | 查爾斯頓大道 |
+| Tropicana Ave. | 特羅皮卡納大道 | |
 
 ## 屬性
 
@@ -173,6 +180,14 @@
 | Mr. Jumbo | 巨無霸先生 | |
 | Joe McCarthy | 喬·麥卡錫 | 1936 年洋基隊總教練 |
 | Lou Gehrig | 魯·蓋瑞克 | |
+| Fat Freddy | 胖佛萊迪 | `game2:40`，全大寫時是關鍵字，**不翻** |
+| Faran Brygo | 法蘭·布萊哥 | 同上 |
+| Covenant | 「聖約」 | 人名就是這個字，加引號免得被讀成普通名詞 |
+| Max | 麥克斯 | |
+| Charmaine | 夏曼 | 蘑菇雲教派的大祭司 |
+| Dr. Michael Scott | 麥可·史考特醫生 | `game2:38` |
+| Slicerdicer | 切片機 | 機器人 |
+| Death Machine | 死亡機器 | |
 | Mutie Cuties | 變種美女 | 舞團 |
 
 ## 地點（石英城）
@@ -197,7 +212,10 @@
 | Plain sludge | 普通泥漿 | 酒名，直譯保留原本的粗俗感 |
 | Fancy sludge | 高級泥漿 | |
 | Firewater | 烈火水 | |
-| servomotor | 伺服馬達 | |
+| servomotor | 伺服馬達 |
+| Bloodstaff | 血杖 |
+| sonic key | 音波鑰匙 |
+| the Great Glow | 大輝光 | |
 
 ## 不翻的詞
 
