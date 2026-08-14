@@ -176,6 +176,52 @@ func (s *Scene) describe(res game.StepResult) string {
 	return ""
 }
 
+// StoreTo 把目前的狀態寫回存檔的明文。
+//
+// **改寫不是重建**（CLAUDE.md §4）：只蓋已解欄位，未解區域一個 byte 都不動。
+// 沒有走過路、沒有改過角色時，寫回去應該與讀進來完全相同。
+func (s *Scene) StoreTo(save *assets.Save) error {
+	groups := save.SlotGroups()
+	g := groups[0]
+
+	// 隊伍座標與所在地圖（隊伍槽表 +0x08/+0x09/+0x0A）。
+	slot := save.Plain[g.RawIndex : g.RawIndex+14]
+	slot[8] = s.world.Party.X
+	slot[9] = s.world.Party.Y
+
+	// 時鐘與視窗原點（ds:464Eh–465Bh 的副本）。
+	gl := save.Globals()
+	gl[0] = byte(s.world.ViewX)
+	gl[1] = byte(s.world.ViewY)
+	gl[2] = byte(s.world.Clock.Total)
+	gl[3] = byte(s.world.Clock.Total >> 8)
+	gl[4] = byte(s.world.Clock.Total >> 16)
+	gl[10] = s.world.Clock.Frac
+	gl[11] = s.world.Clock.Minute
+	gl[12] = s.world.Clock.Hour
+
+	// 角色記錄：就地蓋回已解欄位。
+	i := 0
+	for _, id := range g.Members {
+		if id == 0 {
+			continue
+		}
+		if i >= len(s.world.Party.Members) {
+			break
+		}
+		raw, err := save.Record(int(id))
+		if err != nil {
+			return err
+		}
+		s.world.Party.Members[i].StoreTo(raw)
+		i++
+	}
+	return nil
+}
+
+// Save 回傳目前這一份存檔（呼叫者負責寫檔）。
+func (s *Scene) Save() *assets.Save { return s.save }
+
 // Frame 合成一幀：地圖視窗 ＋ 時鐘 ＋ 訊息。
 func (s *Scene) Frame() *render.Frame {
 	if !s.dirty && s.frame != nil {
