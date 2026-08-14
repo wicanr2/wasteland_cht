@@ -116,6 +116,10 @@ WL_IDA_TARGET=/abs/path/other.exe tools/ida.sh build   # 換分析目標
   要追取址點與間接寫入，不能因此宣稱欄位唯讀。
 - **不要用 `grep -v` 過濾組語**。被濾掉的 `mov`／`add`／`shl` 常常正是索引計算與 stride。
   要縮短輸出就用位址範圍或函式邊界裁切。
+- **動手之前先查 `docs/re/00-master-index.md`（RE 總表）。** 位址換算、資料格式、
+  結構佈局、關鍵函式、工具全部在那一份，不要翻十八份文件，也不要憑記憶。
+  三份 `00-*` 的分工：**總表**＝已知的事實；`00-remake-knowledge-gaps.md`＝還缺什麼；
+  `00-function-index.md`＝641 個函式誰解過。
 - **讀任何 `sub_XXXXX` 之前先查函式索引**（`docs/re/00-function-index.md`）。
   筆記超過二三十份之後，靠記憶一定會重讀已經解過的函式。
 - **「唯一」「只有一處」沒有全檔掃描佐證就不要寫。**
@@ -252,7 +256,10 @@ cmd/wasteland    進入點
 ## 8. 目錄結構（規劃）
 
 ```
-docs/re/          IDA 逆向筆記（含 00-function-index.md）
+docs/re/          IDA 逆向筆記
+docs/re/00-master-index.md          RE 總表（速查：位址、格式、結構、函式、工具）
+docs/re/00-remake-knowledge-gaps.md 缺口檢查表
+docs/re/00-function-index.md        函式索引
 docs/formats/     資料格式規格
 docs/spec/        可實作規格（只有 READY 的能動工）
 docs/manual/      官方英文手冊 markdown + 繁中
@@ -270,10 +277,12 @@ internal/、cmd/   Go 引擎
 ## 9. 現在的狀態與下一步
 
 現況與 worklist 的單一真相來源是 [`CONTEXT.md`](./CONTEXT.md)，動手前先讀它。
+**逆向結果的速查表是 [`docs/re/00-master-index.md`](docs/re/00-master-index.md)**——
+remake 階段要查「某個位址是什麼、某個格式怎麼解」時查那一份。
 
-一句話現況：原版身分與 EXEPACK 解包已完成，解包映像的基準資料庫已建立
-（`docs/re/01`、`docs/re/02`）；資料格式、文字編碼、說明書整理都還沒開始，
-引擎程式碼依規定尚不得動工。
+一句話現況：資料格式層與文字層已打通——42 個 MSQ 區塊的佈局、兩套字型、
+5-bit 打包文字（4,935 條全部解出）、亂數與擲骰、角色記錄定址都已確認；
+遊戲規則層仍大片空白，引擎程式碼依規定尚不得動工。
 
 ## 素材位置
 
