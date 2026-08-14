@@ -22,16 +22,17 @@
 | [`09-facilities.md`](09-facilities.md) | **READY**（已實作） | `internal/game` ✅ | — |
 | [`10-cjk-layout.md`](10-cjk-layout.md) | **READY**（已實作） | `internal/assets` ✅、`internal/render` ✅ | — |
 | [`11-translation-catalogue.md`](11-translation-catalogue.md) | **READY**（管線已通） | `internal/lang` ✅ | 4,827 條的翻譯是人的工作 |
-| [`12-combat-rounds.md`](12-combat-rounds.md) | **READY**（回合骨架） | `internal/game` ✅ | 排序規則與逃跑未解 |
+| [`12-combat-rounds.md`](12-combat-rounds.md) | **READY**（回合骨架） | `internal/game` ✅ | 逃跑與隊形未解 |
+| [`13-encounters-and-spawning.md`](13-encounters-and-spawning.md) | **READY**（已實作） | `internal/game` ✅ | 遭遇佇列是誰填的未解 |
 | `08-audio.md` | 未寫 | `internal/audio` | F2 位元組碼指令集與曲目資料未解 |
 
-**十一份 READY 規格涵蓋資產層、呈現層、亂數、規則層六塊、中文排版與翻譯管線**——
-走一步、遊戲時鐘、體力隨時間恢復、事件分派的骨架。
+**十二份 READY 規格涵蓋資產層、呈現層、亂數、規則層七塊、中文排版與翻譯管線**——
+走一步、遊戲時鐘、體力隨時間恢復、事件分派、遭遇生成到打完一場戰鬥。
 只剩 `08`（音效）等 F2 的位元組碼指令集。
 
-## 2. 為什麼現在就能寫這三份
+## 2. 為什麼這些現在就能寫
 
-閘門是**逐機制**的，不是「整個逆向做完才能開始」。這三份底下的每一條敘述都：
+閘門是**逐機制**的，不是「整個逆向做完才能開始」。每一份底下的每一條敘述都：
 
 - 在 IDA 裡讀到程式碼，並寫進 `docs/re/NN-*.md`（G1）
 - 有可重跑的工具重現過（`tools/` 底下），或有 42/42、9/9 這類全量驗證

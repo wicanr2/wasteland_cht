@@ -21,8 +21,8 @@ func mkBattle(enemies, members int) *Battle {
 // 驗收 1／2：活著的才排進去、死的不排，而且排完不留 Pending。
 func TestBeginRoundSkipsDead(t *testing.T) {
 	b := mkBattle(5, 3)
-	b.Enemies[2].HP = 0                    // 死了一個敵人
-	b.Party.Members[1].CON = 0             // 死了一個隊員
+	b.Enemies[2].HP = 0        // 死了一個敵人
+	b.Party.Members[1].CON = 0 // 死了一個隊員
 	order := b.BeginRound(func(Combatant) int { return 1 })
 
 	if len(order) != 4+2 {

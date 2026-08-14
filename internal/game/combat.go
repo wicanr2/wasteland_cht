@@ -12,32 +12,65 @@ var woundThresholds = [4]int16{-11, -20, -30, -40}
 // WoundNames 對應原版的五個狀態字（docs/re/17 §4.4）。
 var WoundNames = [6]string{"", "SER", "CRT", "MRT", "COM", "UNC"}
 
-// AttackData 是攻擊資料表的一筆（記錄區標頭 +0x04，8 bytes，docs/re/32 §8.1）。
-type AttackData struct {
-	XPBase   uint16 // +0x00/+0x01
-	DiceN    byte   // +0x03，傷害骰數
-	XPMul    byte   // +0x04 的低 4 位（實際倍數要 +1）
-	DamBase byte // +0x05 的高 4 位，傷害基底
+// EnemyData 是敵人資料表的一筆（記錄區標頭 +0x04，8 bytes，docs/re/37 §3.1）。
+//
+// **一張表，每張地圖一份**，索引就是地圖記錄裡的敵人型別。
+// 第 0 筆恆為全零 ＝ 沒有敵人。
+type EnemyData struct {
+	// Base 同一組 byte 有兩個用途：生怪時是基礎血量、擊殺時是經驗值基值
+	// （sub_12AAB 與 sub_15A18 讀的是同樣的 +0x00/+0x01）。
+	Base    uint16 // +0x00/+0x01
+	Speed   byte   // +0x02，行動值欄位（× 8 進行動值，docs/spec/12）
+	DiceN   byte   // +0x03，傷害骰數
+	XPMul   byte   // +0x04 的低 4 位（實際倍數要 +1）
+	DamBase byte   // +0x05 的高 4 位，傷害基底
 	Raw     [8]byte
 
 	// 敵方護甲的骰數來自別的路徑（loc_12A92），不在這 8 bytes 裡，
 	// 所以由呼叫者傳給 Enemy.TakeDamage，不放進這個結構假裝解過了。
+	//
+	// +0x04 的高 4 位、+0x06、+0x07 未解——只留在 Raw 裡原樣保存。
 }
 
-// ParseAttackData 拆一筆 8 bytes 的攻擊資料。
-func ParseAttackData(b []byte) AttackData {
-	var d AttackData
+// ParseEnemyData 拆一筆 8 bytes 的敵人資料。
+func ParseEnemyData(b []byte) EnemyData {
+	var d EnemyData
 	copy(d.Raw[:], b)
-	d.XPBase = uint16(b[0]) | uint16(b[1])<<8
+	d.Base = uint16(b[0]) | uint16(b[1])<<8
+	d.Speed = b[2]
 	d.DiceN = b[3]
 	d.XPMul = b[4] & 0x0F
 	d.DamBase = b[5] >> 4
 	return d
 }
 
+// Empty 回報這一筆是不是「沒有敵人」（第 0 筆恆為全零）。
+func (d EnemyData) Empty() bool {
+	for _, b := range d.Raw {
+		if b != 0 {
+			return false
+		}
+	}
+	return true
+}
+
 // KillXP 是擊殺這個敵人給的經驗值：基值 × (倍數 + 1)。
-func (d AttackData) KillXP() uint32 {
-	return uint32(d.XPBase) * uint32(d.XPMul+1)
+func (d EnemyData) KillXP() uint32 {
+	return uint32(d.Base) * uint32(d.XPMul+1)
+}
+
+// RollHP 擲一隻敵人的血量（0x145FD–0x14639，docs/re/37 §3）。
+//
+//	血量 = ⌊基礎 / 4⌋ + 1d(基礎的低位) + 256 × 1d(基礎的高位)
+//
+// ⚠ **高低位是分開各擲一次再合起來的**，不是擲一次 16-bit。
+// 基礎 < 256 時高位是 0、1d(0) ＝ 0，退化成 ⌊基礎/4⌋ + 1d(基礎)；
+// 原版資料裡確實有基礎 > 255 的敵人（42 個區塊裡 8 筆），所以高位那一項不是死碼。
+func (d EnemyData) RollHP(r *rng.State) uint16 {
+	quarter := d.Base >> 2
+	lo := int(quarter&0xFF) + r.Roll(int(d.Base&0xFF))
+	hi := int(quarter>>8) + r.Roll(int(d.Base>>8)) + lo>>8
+	return uint16(lo&0xFF) | uint16(hi&0xFF)<<8
 }
 
 // SatAdd 是原版那支 16-bit 飽和加（sub_19C2C）：借位夾 0、進位夾 0xFFFF。
@@ -94,7 +127,7 @@ func PartyHits(r *rng.State, acc uint16) bool { return r.Roll(100) < int(acc) }
 func EnemyHits(r *rng.State, acc uint16) bool { return r.Roll(100) >= int(acc) }
 
 // EnemyDamage 是敵方打隊伍的傷害：基底 ＋ N 顆 d6。
-func EnemyDamage(r *rng.State, d AttackData) int {
+func EnemyDamage(r *rng.State, d EnemyData) int {
 	return r.SumD6(int(d.DamBase), int(d.DiceN))
 }
 
@@ -149,7 +182,7 @@ func (c *Character) WoundLevel() int {
 // Enemy 是敵方的一個目標。HP 減到 ≤0 就夾成 0，**不會變負**。
 type Enemy struct {
 	HP   uint16
-	Data AttackData
+	Data EnemyData
 }
 
 // TakeDamage 對敵人套用傷害，回傳是否被擊殺。

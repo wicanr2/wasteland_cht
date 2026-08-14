@@ -19,10 +19,10 @@ const (
 // 表是**固定格子**不是壓縮清單：第 g 組第 n 個永遠在 g*10+n，
 // 所以索引直接對得回單位編號。
 type Combatant struct {
-	Slot      int   // 敵人是 g*10+n；隊伍成員是 EnemySlots + 隊伍索引
-	IsParty   bool
+	Slot       int // 敵人是 g*10+n；隊伍成員是 EnemySlots + 隊伍索引
+	IsParty    bool
 	Initiative int
-	Pending   bool // 「這回合還沒行動」——排進表就清掉
+	Pending    bool // 「這回合還沒行動」——排進表就清掉
 }
 
 // Battle 是一場戰鬥。

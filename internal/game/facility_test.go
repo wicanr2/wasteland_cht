@@ -9,8 +9,8 @@ func TestShopPrice(t *testing.T) {
 		discount byte
 		want     uint16
 	}{
-		{100, 0, 0},   // n ＝ 0：base − base ＝ 0（原版的 0 就是全免）
-		{100, 1, 50},  // 半價
+		{100, 0, 0},  // n ＝ 0：base − base ＝ 0（原版的 0 就是全免）
+		{100, 1, 50}, // 半價
 		{100, 2, 75},
 		{100, 3, 88},
 		{1000, 2, 750},
