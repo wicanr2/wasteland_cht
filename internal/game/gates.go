@@ -81,10 +81,10 @@ func (p *Party) evalOne(r *rng.State, c *Character, g Gate, tbl SkillTable) bool
 		if !ok {
 			return false
 		}
-		return c.SkillCheck(r, g.Param, data, g.Difficulty).OK
+		return c.SkillCheck(r, g.Param, data, g.Difficulty, p.PlayerStepped).OK
 
 	case GateAttribute:
-		return c.AttributeCheck(r, g.Param, g.Difficulty).OK
+		return c.AttributeCheck(r, g.Param, g.Difficulty, p.PlayerStepped).OK
 
 	case GatePartySize:
 		return int(g.Param) == len(p.Members)

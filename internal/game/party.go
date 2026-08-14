@@ -57,6 +57,11 @@ type Party struct {
 	Members  []*Character
 	Selected int // 目前選中的角色索引；他的自然回復慢一半
 	X, Y     uint8
+
+	// PlayerStepped 對應原版的 ds:916Bh（docs/re/32 §7.1）：
+	// 最後一次移動是不是玩家自己走的。檢定成功時只有這個是 true 才給經驗值——
+	// 站著讓時間流逝所觸發的檢定不給。**它記的是最後一次移動，不是每次檢定**。
+	PlayerStepped bool
 }
 
 // Tick16 是每 16 刻跑一次的體力處理（sub_12440，docs/re/35 §2）。
