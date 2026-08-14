@@ -134,3 +134,61 @@
 | Humanoid | 人形生物 |
 | Cyborg | 改造人 |
 | Robot | 機器人 |
+
+## 人物與幫派（石英城一帶）
+
+| 原文 | 譯名 | 出處 |
+|---|---|---|
+| Ugly | 阿醜 | `game1:2`、`game1:3` |
+| Ugly's gang | 阿醜幫 | |
+| Scott | 史考特 | 酒吧老闆 |
+| Scott's Bar | 史考特酒吧 | |
+| Ellen | 艾倫 | 女侍，蘿莉的母親 |
+| Laurie | 蘿莉 | 坐輪椅，艾倫的女兒 |
+| Mayor Pedros | 佩德羅斯鎮長 | |
+| Cookie | 餅乾 | 廚子 |
+| Cookie's Chuckwagon | 餅乾的伙食車 | 餐廳招牌 |
+| Mulefoot | 騾腳 | |
+| Squint | 瞇眼 | 槍手 |
+| Head Crusher | 碎顱者 | |
+| the Obliterator | 殲滅者 | |
+| Ace | 王牌 | |
+| Wolf | 狼牙 | 狗 |
+| Chugbum | 查格本 | |
+| Mutie Cuties | 變種美女 | 舞團 |
+
+## 地點（石英城）
+
+| 原文 | 譯名 |
+|---|---|
+| Stagecoach Inn | 驛馬車旅館 |
+| Housekeeping | 清潔部 |
+| Courthouse | 法院 |
+| Devastation Row | 荒廢街 |
+| Quail Trail | 鵪鶉小徑 |
+| Moon Rd. | 月亮路 |
+| Loop Dr. | 環路 |
+
+## 物品與俚語
+
+| 原文 | 譯名 | 取捨 |
+|---|---|---|
+| Snake Squeezins | 蛇酒 | 全大寫時是玩家要輸入的關鍵字，**不翻** |
+| Plain sludge | 普通泥漿 | 酒名，直譯保留原本的粗俗感 |
+| Fancy sludge | 高級泥漿 | |
+| Firewater | 烈火水 | |
+| servomotor | 伺服馬達 | |
+
+## 不翻的詞
+
+密語與玩家要輸入／選取的關鍵字一律保留原文：
+`INFO`／`ROOM`／`CHAT`／`MONEY`／`GANG`／`SECRET`／`MAYOR`／`COURTHOUSE`／
+`BACK WAY`／`SNAKE SQUEEZINS`／`RIDDLES`／`RIDDLER`／`DANCER`／`DRINK`／
+`BYE`／`GOODBYE`／`THANKS`／`THANK YOU`／`TOAST`／`R`／`LETTER R`／
+`THE LETTER R`／`UGLY`／`Y`／`N`／`A`–`F`，以及
+`URAQT2`／`URABUTLN`／`MUERTE`／`THANATOS`／`UQTU`／`GEN QUART THANA TOES`。
+
+⚠ 謎語 `game1:2:79`（「America 和 Australia 的正中央」＝ 字母 R）與
+`game1:2:83`（八個字母稱讚女侍 ＝ `URABUTLN`，念作 "you are a beautiful one"）
+**靠英文拼字才成立**。題目照翻但把 `America`／`Australia` 留原文，
+答案不翻——這樣玩家看得懂題目，也答得出來。
