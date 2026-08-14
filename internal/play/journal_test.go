@@ -32,9 +32,16 @@ func TestJournalLoadsParagraphs(t *testing.T) {
 	if b := j.Text(7); len(b) == 0 {
 		t.Fatal("段落 7 已經翻好了，應該查得到正文")
 	}
+	// 驗收條件 3：手札一段都不刪，162 段全部要有正文（docs/spec/19 §6）。
 	have, total := j.Translated()
-	if have == 0 || have > total {
-		t.Fatalf("已翻 %d 段、共 %d 段，數字不合理", have, total)
+	if have != total {
+		var missing []int
+		for n := 1; n <= total; n++ {
+			if j.Text(n) == nil {
+				missing = append(missing, n)
+			}
+		}
+		t.Fatalf("已翻 %d／%d 段，缺 %v", have, total, missing)
 	}
 	if b := j.Text(total + 1); b != nil {
 		t.Fatal("超出 162 的編號不該查得到東西")
