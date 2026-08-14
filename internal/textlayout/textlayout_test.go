@@ -6,7 +6,7 @@ func TestControlCodesNeverPrint(t *testing.T) {
 	text := []byte{
 		CodeInverseOn, 'A', 'B', CodeInverseOff,
 		CodeMoveTo, 0x41, // ⚠ 0x41 是參數不是文字
-		CodeUnknown07,
+		CodeUnknown08,
 		'C',
 	}
 	res, err := Layout(text, Options{Width: 38})
@@ -31,7 +31,7 @@ func TestControlCodesNeverPrint(t *testing.T) {
 			}
 		case EventUnknownCode:
 			unknown++
-			if e.Code != CodeUnknown07 {
+			if e.Code != CodeUnknown08 {
 				t.Fatalf("未解控制碼回報成 %#x", e.Code)
 			}
 		}
@@ -57,6 +57,94 @@ func TestNewlineAndWrap(t *testing.T) {
 	}
 	if len(res.Lines) != 2 || res.Lines[0].String() != "abcd" || res.Lines[1].String() != "ef" {
 		t.Fatalf("硬斷結果：%q", linesOf(res))
+	}
+}
+
+// docs/re/28：三個變形碼是同一套機制，段數必須與原版一致。
+func TestVariants(t *testing.T) {
+	// 單複數：hammer\ns\n\n → 單數 hammers、複數 hammer
+	text := []byte("hammer\ns\n\n!")
+	for _, c := range []struct {
+		count int
+		want  string
+	}{{1, "hammers!"}, {3, "hammer!"}} {
+		res, err := Layout(text, Options{Width: 38, Count: c.count})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got := res.Lines[0].String(); got != c.want {
+			t.Fatalf("數量 %d 時排出 %q，應該是 %q", c.count, got, c.want)
+		}
+	}
+
+	// 三選一：him／her／it
+	pron := []byte("hits \x0ehim\x0eher\x0eit\x0e now")
+	pron = []byte{'h', 'i', 't', 's', ' ',
+		CodePronoun, 'h', 'i', 'm', CodePronoun, 'h', 'e', 'r', CodePronoun, 'i', 't', CodePronoun,
+		' ', 'n', 'o', 'w'}
+	for i, want := range []string{"hits him now", "hits her now", "hits it now"} {
+		res, err := Layout(pron, Options{Width: 38, Pronoun: i})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got := res.Lines[0].String(); got != want {
+			t.Fatalf("代名詞 %d 排出 %q，應該是 %q", i, got, want)
+		}
+	}
+
+	// 性別二選一
+	gender := []byte{CodeGender, 'h', 'i', 's', CodeGender, 'h', 'e', 'r', CodeGender, ' ', 'g', 'u', 'n'}
+	for g, want := range map[int]string{0: "his gun", 1: "her gun"} {
+		res, err := Layout(gender, Options{Width: 38, Gender: g})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got := res.Lines[0].String(); got != want {
+			t.Fatalf("性別 %d 排出 %q，應該是 %q", g, got, want)
+		}
+	}
+
+	// 數量：0x0F 印出數字，與 0x0A 共用同一個選擇子
+	res, err := Layout([]byte{'h', 'i', 't', 's', ' ', CodeCount, ' ', 'o', 'f'}, Options{Width: 38, Count: 12})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := res.Lines[0].String(); got != "hits 12 of" {
+		t.Fatalf("數量插入排出 %q", got)
+	}
+}
+
+// 戰鬥訊息的完整例子（docs/re/28 §1）。
+func TestCombatMessageVariants(t *testing.T) {
+	var text []byte
+	text = append(text, []byte(" sending ")...)
+	text = append(text, CodePlural)
+	text = append(text, CodePronoun, 'h', 'i', 'm', CodePronoun, 'h', 'e', 'r', CodePronoun, 'i', 't', CodePronoun)
+	text = append(text, CodePlural)
+	text = append(text, CodeCount)
+	text = append(text, []byte(" of them")...)
+	text = append(text, CodePlural)
+	text = append(text, []byte(" to meet ")...)
+	text = append(text, CodePlural)
+	text = append(text, CodePronoun, 'h', 'i', 's', CodePronoun, 'h', 'e', 'r', CodePronoun, 'i', 't', 's', CodePronoun)
+	text = append(text, CodePlural)
+	text = append(text, []byte("their")...)
+	text = append(text, CodePlural)
+	text = append(text, []byte(" maker")...)
+
+	single, err := Layout(text, Options{Width: 80, Count: 1, Pronoun: 0})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := single.Lines[0].String(); got != " sending him to meet his maker" {
+		t.Fatalf("單數版排出 %q", got)
+	}
+	plural, err := Layout(text, Options{Width: 80, Count: 3, Pronoun: 1})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := plural.Lines[0].String(); got != " sending 3 of them to meet their maker" {
+		t.Fatalf("複數版排出 %q", got)
 	}
 }
 

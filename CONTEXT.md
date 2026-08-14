@@ -41,6 +41,7 @@
 | MSQ 區塊 | 兩個資料檔切開：`game1` 20 塊全部 `msq0`、`game2` 22 塊全部 `msq1`；數量與目錄索引三重吻合（`docs/re/07`） |
 | **MSQ 加密** | **已解**：`key = lo(checksum) XOR hi(checksum)`，逐 byte XOR 後 `key += 0x1F`。42/42 通過原版自己的 checksum 驗證，解密後出現 `Titanium`／`Vanadium`／`REDHAWK` 等遊戲文字（`docs/re/08`） |
 | 中文說明書 | 全 60 頁節轉錄完成，含 IBM 版補充說明書與約 200 條當年譯名（`docs/manual-cht/`） |
+| **文字變形機制** | **已解**：`0x0A`／`0x0C`／`0x0E` 是同一個骨架的三個實例（分段 ＋ 選擇子），分別對應**單複數／性別／him-her-it 三選一**；`0x0F` 印出數量、與 `0x0A` 共用選擇子。三個碼可以互相巢狀，外層沒選中時內層連分隔碼都看不到。中文化要照著保留分段（`docs/re/28`）|
 | **字型與文字編碼** | **已解**：兩套字型、兩套索引。主文字字型**內嵌在 `wl.exe`**（`seg003:0xCA60`，128 字 × 8 bytes、單色、索引 ＝ ASCII − 0x20）；`colorf.fnt` 是彩色選單字型（兩組同形不同色的字模，`ds:722Fh` 選色，不是字元碼重映射）。18 個文字控制碼解出 14 個（`docs/re/14`） |
 | 文字輸出 | `sub_1786E` 印字串（`ds:4680h`）→ 每字元處理器可切換（`ds:B265h`）。**遊戲文字是 5-bit 打包的**（`docs/re/17`）；只有少數介面字串（`Yes`、`CREATE DELETE PLAY`、`Money = $`）以明文 ASCII 存在執行檔裡 |
 | `wla.bin` overlay | 26 個 slot 的 API 表、EGA mode 0Dh、列位址表、畫字元（字型 172 字 × 32 bytes、8×8、4 平面）、清除矩形（`docs/re/04`） |
@@ -75,7 +76,7 @@
 | 說明書整理 | 英文手冊、段落書、軟體世界中文說明書都完成；社群攻略未開始 |
 | **規格（G2）** | **三份 READY**：`docs/spec/01`（資產與資料格式）、`02`（亂數與擲骰）、`03`（畫面與文字）。其餘五份要等對應逆向補完 |
 | **`internal/assets`** | **已實作並通過驗收**：SHA-256 驗證、資源定址、MSQ 解密、Huffman、5-bit 文字、兩套字型、圖片／圖磚／地圖三層。9 個測試全綠，含 `Raw` 的 byte-for-byte round-trip（`tools/go.sh test ./...`）|
-| **`internal/textlayout`** | **已實作**：18 個控制碼（未解的回報成事件、絕不當文字印）、組行與分頁。4,889 條語料全部排得過 |
+| **`internal/textlayout`** | **已實作**：18 個控制碼含**變形機制與巢狀**（單複數／性別／三選一／數量）、組行與分頁。4,889 條語料全部排得過，未解碼只剩 `0x08` 的 7 次 |
 | **`internal/render`** | **已實作**：合成 320 × 200 索引畫面。地圖視窗逐像素驗過剛好 288 × 128 @ (8,8)、捲動一格 ＝ 位移 16 像素 |
 | **`internal/game/rng`** | **已實作**：進位鏈與四支擲骰 ＋ 5d6 取三。驗收數列（前七項 ＝ 二項式係數）、分佈、300 萬次不重複全過 |
 | **`internal/input`／`ui`／`viewer`** | **已實作**：與函式庫無關的按鍵模型（ESC 取消、F10 離開）、Ebiten 上色與送圖、資產檢視器場景。`cmd/wl-shot` 無頭輸出 PNG（對拍用）、`cmd/wasteland` 開視窗 |
@@ -89,7 +90,7 @@
 | [`CLAUDE.md`](./CLAUDE.md) | 專案規範：三道閘門、IDA 鐵則、文件與中文化政策、環境硬規則 |
 | [`docs/re/00-master-index.md`](docs/re/00-master-index.md) | **RE 總表**：位址換算、資料格式、結構佈局、位址表、關鍵函式、工具。**查已知事實先看這份** |
 | [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md) | **RE 完成度檢查表**：remake 需要的每一項知識、狀態與入口 |
-| [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 256）。讀任何 `sub_XXXXX` 前先查 |
+| [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 257）。讀任何 `sub_XXXXX` 前先查 |
 | [`docs/re/01-binary-identity.md`](docs/re/01-binary-identity.md) | 20 檔 SHA-256、`wl.exe` 的 MZ header、第一份資料庫與「不可用作證據」的結論 |
 | [`docs/re/02-exepack-unpack.md`](docs/re/02-exepack-unpack.md) | EXEPACK 格式、解包器、relocation 起點的坑、解包後基準資料庫 |
 | [`docs/re/03-boot-and-asset-loading.md`](docs/re/03-boot-and-asset-loading.md) | 開機序列、`info` 安裝資訊、檔名表、七個開機素材的載入位址、`TITLE.PIC` XOR 解碼 |
@@ -117,6 +118,7 @@
 | [`docs/re/25-screen-layout.md`](docs/re/25-screen-layout.md) | 畫面版面：兩套座標單位、地圖／圖片視窗、外框、訊息視窗、隊伍名單 |
 | [`docs/re/26-movement-and-triggers.md`](docs/re/26-movement-and-triggers.md) | 走一步的流程、四方向捲動與補畫、nibble → 事件處理的 16 筆跳表 |
 | [`docs/re/27-game-clock.md`](docs/re/27-game-clock.md) | 遊戲時鐘：24 小時制、每步推進量、晝夜門檻、隨時間的角色處理 |
+| [`docs/re/28-text-variants.md`](docs/re/28-text-variants.md) | 文字變形：單複數／性別／三選一／數量，四個碼的骨架與選擇子來源 |
 | [`docs/spec/00-index.md`](docs/spec/00-index.md) | **規格索引與閘門狀態**：哪些可以動工、其餘擋在什麼上 |
 | [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
 | [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |
@@ -160,13 +162,14 @@
 | 原版遊戲檔案裡沒有長篇敘述文字 | 依據是「掃不到 24 字元以上的 ASCII」，而遊戲文字是 5-bit 打包的，本來就掃不到 | 執行檔九張表 442 條（含完整的結局敘述）＋ 42 個地圖區塊 4,493 條，合計 **4,935 條**（`docs/re/17`、`18`） |
 | ` etraoishlnd` 是文字解碼的頻率表 | 憑字串長相猜的；第一次推翻時只否定了「是頻率表」，沒找出它到底是什麼，於是同一個字串被猜了兩次 | 它是結局敘述字串表的**字元對照表**，`0x1B7BF` 就是載入它的地方（`docs/re/17` §3） |
 | 遊戲文字共 4,935 條（執行檔 442 ＋ 區塊 4,493） | 兩個數字都是工具的產物而不是資料本身：`decode_block_text.py` 把「整個區塊」餵給解碼器，但原版只把 `ds:BD22h` 那麼長讀進緩衝區，多出來的壓縮尾段被 5-bit 解成看起來像文字的雜訊；另一支則用「看起來像不像文字」的啟發式裁掉尾巴，連真字串一起丟 | **4,889 個字串槽、4,827 條非空**（執行檔 444／426、區塊 4,445／4,401）。Go 與 Python 兩套獨立實作逐塊相同（`internal/assets`、`docs/re/18`） |
+| 未解的文字控制碼有四個、在語料裡出現 2,127 次，是呈現層最大的缺口 | `0x0A` 在 `docs/re/14` 的控制碼表裡掛「未解」，但 `docs/re/17` §4.1 早就從字串形狀認出它是單複數分隔——**同一個 byte，兩份文件兩種狀態**，統計時照著沒對齊的那一份數 | `0x0A`／`0x0C`／`0x0E` 是同一套文字變形機制（單複數／性別／三選一）、`0x0F` 印數量、`0x07` 開文字框，全部已解。**只剩 `0x08` 未解，語料裡 7 次**（`docs/re/28`） |
 | MSQ 資源的前 2 bytes 是長度 | 把 `mov cx, [bx]` 當成「取剛讀進來的 header」，其實 `ds:46B0h` 是別處設好的緩衝區位址 | 那 4 bytes 是 magic `msq0`／`msq1`；長度來源仍未解（`docs/re/07` §7） |
 
 ## 7. Worklist
 
 **RE 完成度**：資料格式、文字與資產層打通（含地圖三層、圖磚與圖片），
 戰鬥／屬性／效果／商店四塊規則已解；世界互動層仍是主要缺口。
-641 個函式裡人寫的筆記涵蓋 256 個。完整缺口見
+641 個函式裡人寫的筆記涵蓋 257 個。完整缺口見
 [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md)。
 
 **下一步（依「對 remake 的阻擋程度」排序）**
