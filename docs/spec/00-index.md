@@ -21,7 +21,7 @@
 | [`07-world-events.md`](07-world-events.md) | **READY**（已實作） | `internal/assets` ✅、`internal/game` ✅ | — |
 | [`09-facilities.md`](09-facilities.md) | **READY**（已實作） | `internal/game` ✅ | — |
 | [`10-cjk-layout.md`](10-cjk-layout.md) | **READY**（已實作） | `internal/assets` ✅、`internal/render` ✅ | — |
-| [`11-translation-catalogue.md`](11-translation-catalogue.md) | **READY**（管線已通） | `internal/lang` ✅ | 4,827 條的翻譯是人的工作 |
+| [`11-translation-catalogue.md`](11-translation-catalogue.md) | **READY**（已實作） | `internal/lang` ✅ | — |
 | [`12-combat-rounds.md`](12-combat-rounds.md) | **READY**（回合骨架） | `internal/game` ✅ | 逃跑與隊形未解 |
 | [`13-encounters-and-spawning.md`](13-encounters-and-spawning.md) | **READY**（已實作） | `internal/game` ✅ | 遭遇佇列是誰填的未解 |
 | [`14-combat-commands.md`](14-combat-commands.md) | **READY**（已實作） | `internal/game` ✅ | Hire／Weapon／Use／Load 四支處理程式未解 |

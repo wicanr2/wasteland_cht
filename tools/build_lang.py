@@ -67,6 +67,23 @@ def to_big5(text: str) -> tuple[bytes, list[str]]:
     return bytes(out), missing
 
 
+def read_untranslatable(root: Path) -> set[str]:
+    """讀「不可翻」清單：未用槽的解碼雜訊與純控制碼（`docs/re/17` §1）。
+
+    它讓「還有幾條沒翻」有結論——沒有這份清單，最後那 21 個槽會永遠掛在
+    未翻數字上，而它們本來就不是文字。
+    """
+    path = root / "untranslatable.tsv"
+    if not path.is_file():
+        return set()
+    keys: set[str] = set()
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip() or line.startswith("#"):
+            continue
+        keys.add(line.split("\t", 1)[0])
+    return keys
+
+
 def hotkeys(text: str) -> list[str]:
     """列出每個 `\\x10` 後面那個字元。
 
@@ -151,6 +168,17 @@ def main() -> None:
             zh[key], owner[key] = t, "_shared.tsv"
             from_shared += 1
 
+    # 不可翻的槽（解碼雜訊、純控制碼）：翻了就表示分類判斷錯了，要擋下來。
+    untranslatable = read_untranslatable(root)
+    if wrong := sorted(untranslatable & set(zh)):
+        for k in wrong:
+            print(f"錯誤：{k} 列在 untranslatable.tsv 卻有譯文", file=sys.stderr)
+        raise SystemExit(f"{len(wrong)} 條不該有譯文的 key 被翻了")
+    if missing := sorted(untranslatable - set(source)):
+        for k in missing:
+            print(f"錯誤：{k} 列在 untranslatable.tsv 卻不在原文裡", file=sys.stderr)
+        raise SystemExit(f"{len(missing)} 條 untranslatable 的 key 對不上原文")
+
     errors: list[str] = []
     entries: list[tuple[str, bytes]] = []
     for key, text in sorted(zh.items()):
@@ -192,9 +220,14 @@ def main() -> None:
 
     dest = root / "zh-Hant.cat"
     dest.write_bytes(bytes(out))
+    translatable = len(source) - len(untranslatable)
+    left = translatable - len(entries)
+    tail = "全部翻完" if left == 0 else f"還缺 {left} 條"
     print(
-        f"{len(entries)} 條 → {dest}（{len(out)} bytes；原文共 {len(source)} 條；"
-        f"其中 {from_shared} 條來自共用文本層）"
+        f"{len(entries)} 條 → {dest}（{len(out)} bytes；其中 {from_shared} 條來自共用文本層）\n"
+        f"可翻條目 {len(entries)}／{translatable} —— {tail}"
+        f"（原文共 {len(source)} 條，扣掉 {len(untranslatable)} 條不可翻的槽，"
+        f"見 translations/untranslatable.tsv）"
     )
 
 

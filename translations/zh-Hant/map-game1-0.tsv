@@ -1,4 +1,4 @@
-# game1 資源 0（世界地圖）的地名訊息
+# game1 資源 0：大地圖（各城鎮入口、沙漠、河流與輻射區）
 # 譯名以 translations/glossary.md 為準
 blk:game1:0:1	\x0D進入石英城。\x0D
 blk:game1:0:2	\x0D進入沙漠遊牧民族的地界。\x0D
@@ -8,3 +8,27 @@ blk:game1:0:5	\x0D進入針岩城。\x0D
 blk:game1:0:6	\x0D進入拉斯維加斯。\x0D
 blk:game1:0:7	\x0D進入一座礦坑。\x0D
 blk:game1:0:8	\x0D進入野人村。\x0D
+blk:game1:0:9	\x0D進入守護者堡壘。\x0D
+blk:game1:0:10	\x0D進入達爾文村。\x0D
+blk:game1:0:11	\x0D你們走上一條很少人走的小徑，通往一個你們從不知道存在的地方。\x0D
+blk:game1:0:12	荒野深處冒出一個懷有敵意的對手。\x0D
+blk:game1:0:13	\x0D這座山擋住你們的路。繞過去。\x0D
+blk:game1:0:14	\x0D你們底下那條河是一道激流，等著把你們捲下去。\x0D
+blk:game1:0:15	\x0D你被河水的急流捲住了。\x0D
+blk:game1:0:16	\x0D你們涉過湍急的水流。\x0D
+blk:game1:0:17	\x0D你們輕鬆游過這片水灣。\x0D
+blk:game1:0:18	這裡的水雖然平靜，你還是很難把頭撐在水面上。\x0D
+blk:game1:0:19	\x0D非常溫暖。\x0D
+blk:game1:0:20	\x0D越來越熱了。\x0D
+blk:game1:0:21	\x0D你被熱衰竭擊倒。\x0D
+blk:game1:0:22	\x0D非常熱！\x0D
+blk:game1:0:23	\x0D這裡的地面好像在發光。\x0D
+blk:game1:0:24	\x0D進入遊俠中心。\x0D
+blk:game1:0:25	\x0D你們看見綿延數哩、無邊無際的荒野。你們判斷再往前走對健康有害。\x0D
+blk:game1:0:26	\x0D散落在這裡的殘骸，是科奇斯基地被火燒黑的廢墟。\x0D
+blk:game1:0:27	\x0D進入科奇斯基地。\x0D
+blk:game1:0:28	\x0D進入沉睡者基地。\x0D
+blk:game1:0:29	\x0D你們看見一輛壞掉的吉普車。\x0D
+blk:game1:0:30	\x0D王牌把吉普車修好了，你們可以上路了。\x0D
+blk:game1:0:31	\x0D你們完全看不出它哪裡有問題。\x0D
+blk:game1:0:32	\x07

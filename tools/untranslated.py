@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from build_lang import read_tsv  # noqa: E402
+from build_lang import read_tsv, read_untranslatable  # noqa: E402
 from extract_strings import escape, unescape  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -45,10 +45,12 @@ def load() -> tuple[dict[str, str], set[str], set[str]]:
 
 
 def pending(source, done, shared) -> list[tuple[str, str]]:
+    # 不可翻的槽（解碼雜訊、純控制碼）不算未翻，否則那個數字永遠減不掉。
+    skip = read_untranslatable(SRC.parent)
     return [
         (k, v)
         for k, v in source.items()
-        if k not in done and v not in shared
+        if k not in done and v not in shared and k not in skip
     ]
 
 
@@ -69,7 +71,15 @@ def main() -> None:
         counts[k.rsplit(":", 1)[0]] = counts.get(k.rsplit(":", 1)[0], 0) + 1
     for blk, n in sorted(counts.items(), key=lambda kv: -kv[1]):
         print(f"{n:5d}  {blk}")
-    print(f"總計 {len(todo)} 條未翻／原文 {len(source)} 條")
+    skip = read_untranslatable(SRC.parent)
+    translatable = len(source) - len(skip)
+    if todo:
+        print(f"總計 {len(todo)} 條未翻／可翻 {translatable} 條")
+    else:
+        print(
+            f"可翻條目 {translatable}／{translatable} 全部翻完"
+            f"（原文 {len(source)} 條，扣掉 {len(skip)} 條不可翻的槽）"
+        )
 
 
 if __name__ == "__main__":
