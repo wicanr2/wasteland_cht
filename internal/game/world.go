@@ -61,9 +61,10 @@ type Event struct {
 	Kind    EventKind
 	Nibble  byte
 	Record  int   // 這一格的第 2 層值（記錄編號）
-	Strings []int // 要顯示的字串編號
-	Choices []int // 選單選項的字串編號
+	Strings []int  // 要顯示的字串編號
+	Choices []int  // 選單選項的字串編號
 	To      [2]uint8
+	Data    []byte // 這一格的 section 記錄（取不到時是 nil）
 }
 
 // World 是「目前在哪張地圖、隊伍在哪、幾點了」。
@@ -168,6 +169,8 @@ func (w *World) trigger(x, y int) Event {
 		return Event{}
 	}
 	ev := Event{Nibble: terrain, Record: int(record)}
+	// section 型別 ＝ 這一格的 nibble 本身（docs/spec/07 §2）。
+	ev.Data, _ = w.Block.SectionRecord(int(terrain), int(record))
 
 	switch terrain {
 	case 1:

@@ -10,7 +10,11 @@ const (
 	tblTotalLen  = 0xBD86 // 區塊總長度
 	tblReadLen   = 0xBD22 // 讀取量（＝ 交給 XOR 解密的長度）
 	tblMapSize   = 0xBF1C // 地圖大小選擇：0x40 → 0x1800，其餘 → 0x600
+	tblSection   = 0xB9E0 // section 型別 → 標頭位移（24 筆，0 ＝ 這個型別不存在）
 )
+
+// SectionTypes 是 ds:B9E0h 那張表的長度（docs/re/16 §3）。
+const SectionTypes = 24
 
 // 記錄區標頭的欄位（自 P 起算，docs/spec/01 §2.4）。
 const (
@@ -159,6 +163,14 @@ type Block struct {
 
 	// EncLen 是加密長度，同時是字串表在 Raw 裡的位移。
 	EncLen int
+
+	// SectionOffsets 是 ds:B9E0h 那張「型別 → 標頭位移」的表（24 筆）。
+	SectionOffsets []uint16
+
+	// HeaderAt 是記錄區標頭在 Raw 裡的位移（＝ 地圖區長度 P）。
+	// 區塊裡存的指標是 ds 位移，而區塊本身載到緩衝區起點，
+	// 所以那些指標直接就是 Raw 裡的位移。
+	HeaderAt int
 }
 
 // Block 解開第 n 個 MSQ 資源（n 是 Resources() 的索引，不是資源編號）。
@@ -230,6 +242,11 @@ func (r *Rom) blockFrom(res Resource) (*Block, error) {
 		return nil, fmt.Errorf("資源 %d 的字串表：%w", res.ID, err)
 	}
 
+	sections, err := r.wordTable(tblSection, SectionTypes)
+	if err != nil {
+		return nil, fmt.Errorf("資源 %d 的 section 位移表：%w", res.ID, err)
+	}
+
 	return &Block{
 		Resource: res,
 		Header:   header,
@@ -241,6 +258,9 @@ func (r *Rom) blockFrom(res Resource) (*Block, error) {
 		Strings:  strings,
 		Raw:      body,
 		EncLen:   encLen,
+
+		SectionOffsets: sections,
+		HeaderAt:       res.MapSize,
 	}, nil
 }
 
@@ -263,3 +283,97 @@ func (b *Block) StepMinutes() float64 {
 
 // StepTick 是走一步推進的刻（標頭 +0x36），週期性角色處理用。
 func (b *Block) StepTick() byte { return b.Header[hdrStepTick] }
+
+// SectionBase 回傳某個 section 型別在 Raw 裡的起點。
+// 型別不存在（表值為 0）時回 0 與 false。
+func (b *Block) SectionBase(typ int) (int, bool) {
+	if typ < 0 || typ >= len(b.SectionOffsets) {
+		return 0, false
+	}
+	hdrOff := int(b.SectionOffsets[typ])
+	if hdrOff == 0 {
+		return 0, false
+	}
+	at := b.HeaderAt + hdrOff
+	if at+1 >= len(b.Raw) {
+		return 0, false
+	}
+	base := int(le16(b.Raw, at))
+	if base == 0 || base >= len(b.Raw) {
+		return 0, false
+	}
+	return base, true
+}
+
+// SectionRecord 走兩層索引取出一筆記錄（sub_17CB1，docs/re/16 §3）：
+//
+//	標頭位移 ← ds:B9E0h[型別] → section 起點 ← word(標頭 + 位移)
+//	記錄位移 ← word(section 起點 + 編號 × 2)
+//
+// 回傳的是 Raw 的切片，改它就是改區塊本體（寶箱生成要寫回）。
+func (b *Block) SectionRecord(typ, index int) ([]byte, error) {
+	base, ok := b.SectionBase(typ)
+	if !ok {
+		return nil, fmt.Errorf("這個區塊沒有型別 %d 的 section", typ)
+	}
+	at := base + index*2
+	if index < 0 || at+1 >= len(b.Raw) {
+		return nil, fmt.Errorf("型別 %d 的第 %d 筆超出區塊", typ, index)
+	}
+	off := int(le16(b.Raw, at))
+	if off == 0 || off >= len(b.Raw) {
+		return nil, fmt.Errorf("型別 %d 的第 %d 筆指到 %#x，超出區塊", typ, index, off)
+	}
+	return b.Raw[off:], nil
+}
+
+// SectionEntry 回傳指標陣列裡的原始 word，**不解參考**。
+//
+// 大部分呼叫端要的是記錄本體（用 SectionRecord），但 nibble 6 的腳本分派
+// 要的是那個 word 本身——section 型別 0x10 的陣列裡存的是 opcode 不是位移
+// （docs/re/34 §1）。
+func (b *Block) SectionEntry(typ, index int) (uint16, error) {
+	base, ok := b.SectionBase(typ)
+	if !ok {
+		return 0, fmt.Errorf("這個區塊沒有型別 %d 的 section", typ)
+	}
+	at := base + index*2
+	if index < 0 || at+1 >= len(b.Raw) {
+		return 0, fmt.Errorf("型別 %d 的第 %d 筆超出區塊", typ, index)
+	}
+	return le16(b.Raw, at), nil
+}
+
+// CellRecord 取出某一格對應的記錄（sub_169EB → sub_17CB1）。
+//
+// ⚠ **section 型別就是第 1 層的 nibble 本身**，第 2 層的值是索引。
+// 這一點看 sub_17CB1 的靜態呼叫端會漏掉——它們傳的是常數，
+// 而 sub_169EB 傳的是動態的 nibble。
+func (b *Block) CellRecord(x, y int) ([]byte, byte, error) {
+	terrain, record, _, err := b.At(x, y)
+	if err != nil {
+		return nil, 0, err
+	}
+	rec, err := b.SectionRecord(int(terrain), int(record))
+	return rec, terrain, err
+}
+
+// SectionCount 回傳指標陣列有幾筆。
+// 陣列長度不另外存——**第一個非空指標指到哪，陣列就到哪為止**（docs/re/16 §3.1）。
+func (b *Block) SectionCount(typ int) int {
+	base, ok := b.SectionBase(typ)
+	if !ok {
+		return 0
+	}
+	end := len(b.Raw)
+	for at := base; at+1 < len(b.Raw); at += 2 {
+		off := int(le16(b.Raw, at))
+		if off != 0 && off < end {
+			end = off
+		}
+		if at+2 >= end {
+			return (end - base) / 2
+		}
+	}
+	return (end - base) / 2
+}
