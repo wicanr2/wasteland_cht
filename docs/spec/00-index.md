@@ -18,10 +18,10 @@
 | [`04-movement-and-clock.md`](04-movement-and-clock.md) | **READY**（已實作） | `internal/game` ✅ | — |
 | [`05-character-and-save.md`](05-character-and-save.md) | **READY**（已實作） | `internal/assets` ✅、`internal/game` ✅ | — |
 | `06-combat.md` | 未寫（可寫） | `internal/game` | 阻擋項已清（`docs/re/20`、`31`、`32`）；剩隊伍打敵方的傷害來源未讀 |
-| `07-world-events.md` | 未寫（可寫） | `internal/game` | 阻擋項已清（`docs/re/29`、`32`、`33`、`34`）|
+| [`07-world-events.md`](07-world-events.md) | **READY**（已實作） | `internal/assets` ✅、`internal/game` ✅ | — |
 | `08-audio.md` | 未寫 | `internal/audio` | F2 位元組碼指令集與曲目資料未解 |
 
-**五份 READY 規格涵蓋資產層、呈現層、亂數，以及規則層的前兩塊**——
+**六份 READY 規格涵蓋資產層、呈現層、亂數，以及規則層的前三塊**——
 走一步、遊戲時鐘、體力隨時間恢復、事件分派的骨架。
 05–07 的阻擋項在 2026-08-15 這一輪逆向之後都清掉了，可以逐份寫。
 
@@ -53,7 +53,8 @@
 6. internal/ui         ← 規格 03；**已完成**（Ebiten：上色 ＋ 送圖 ＋ 收鍵）
 7. internal/game       ← 規格 04；**已完成**（走一步、時鐘、體力處理、事件分派骨架）
 8. 存檔與角色記錄      ← 規格 05；**已完成**（round-trip byte-for-byte、升級與技能公式）
-9. 其餘                ← 等對應規格 READY
+9. 世界事件與檢定      ← 規格 07；**已完成**（section 定址、條件串列、檢定與練等、腳本直譯器）
+10. 其餘               ← 等對應規格 READY
 ```
 
 相依取得方式（2026-08-15 定案）：**唯讀掛載本機模組快取當 file proxy**，
