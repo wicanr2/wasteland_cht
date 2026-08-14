@@ -33,14 +33,13 @@ if [ -d "$HOSTMOD/cache/download" ]; then
   PROXY_ARGS=(
     -v "$HOSTMOD/cache/download:/hostmod:ro"
     -e GOPROXY=file:///hostmod
-    -e GOFLAGS=-mod=mod
+    -e GOFLAGS="-mod=mod -buildvcs=false"
     -e GONOSUMDB='*'
     -e GONOSUMCHECK=1
     -e GOSUMDB=off
-    -e GOFLAGS=-mod=mod
   )
 else
-  PROXY_ARGS=(-e GOPROXY=off)
+  PROXY_ARGS=(-e GOPROXY=off -e GOFLAGS=-buildvcs=false)
 fi
 
 exec docker run --rm \

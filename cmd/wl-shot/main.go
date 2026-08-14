@@ -13,6 +13,7 @@ import (
 	"os"
 
 	"github.com/wicanr2/wasteland_cht/internal/assets"
+	"github.com/wicanr2/wasteland_cht/internal/play"
 	"github.com/wicanr2/wasteland_cht/internal/render"
 	"github.com/wicanr2/wasteland_cht/internal/viewer"
 )
@@ -20,7 +21,7 @@ import (
 func main() {
 	romDir := flag.String("rom", "workplace/orig/wastland", "原版資料目錄（玩家自備）")
 	imagePath := flag.String("image", "workplace/analysis/unpacked/wl.merged.exe", "解包合成映像")
-	mode := flag.String("mode", "map", "map｜title｜pic")
+	mode := flag.String("mode", "map", "play｜map｜title｜pic")
 	block := flag.Int("block", 0, "MSQ 區塊編號（0–41）")
 	pic := flag.Int("pic", 0, "ALLPICS 圖片編號")
 	out := flag.String("out", "shot.png", "輸出 PNG")
@@ -40,16 +41,26 @@ func run(romDir, imagePath, mode string, blockID, picID int, outPath string) err
 	if err := rom.LoadImage(imagePath); err != nil {
 		return err
 	}
-	scene, err := viewer.New(rom, viewer.Mode(mode), blockID, picID)
-	if err != nil {
-		return err
+	var frame *render.Frame
+	if mode == "play" {
+		scene, err := play.New(rom)
+		if err != nil {
+			return err
+		}
+		frame = scene.Frame()
+	} else {
+		scene, err := viewer.New(rom, viewer.Mode(mode), blockID, picID)
+		if err != nil {
+			return err
+		}
+		frame = scene.Frame()
 	}
 	f, err := os.Create(outPath)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
-	if err := png.Encode(f, scene.Frame().ToImage()); err != nil {
+	if err := png.Encode(f, frame.ToImage()); err != nil {
 		return err
 	}
 	fmt.Printf("已寫出 %s（%d × %d）\n", outPath, render.ScreenWidth, render.ScreenHeight)
