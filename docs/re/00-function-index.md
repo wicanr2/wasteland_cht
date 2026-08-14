@@ -344,7 +344,7 @@
 | `0x11A59` | seg000+0x1A59 | 74 | 1 | re/00-master-index.md、re/08-msq-encryption.md、re/11-huffman-decoder.md、re/16-msq-block-layout.md、re/18-block-text.md |
 | `0x11C90` | seg000+0x1C90 | 20 | 1 | re/10-huffman-compression.md |
 | `0x11F76` | seg000+0x1F76 | 279 | 1 | re/00-master-index.md、re/38-combat-commands-and-flee.md、re/40-combat-screen.md |
-| `0x12636` | seg000+0x2636 | 161 | 1 | re/38-combat-commands-and-flee.md、re/40-combat-screen.md |
+| `0x12636` | seg000+0x2636 | 161 | 1 | re/37-enemy-records-and-hp.md、re/38-combat-commands-and-flee.md、re/40-combat-screen.md |
 | `0x13651` | seg000+0x3651 | 70 | 1 | re/37-enemy-records-and-hp.md |
 | `0x136C7` | seg000+0x36C7 | 95 | 1 | re/37-enemy-records-and-hp.md |
 | `0x1372B` | seg000+0x372B | 55 | 1 | re/37-enemy-records-and-hp.md |

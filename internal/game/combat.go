@@ -26,10 +26,10 @@ type EnemyData struct {
 	Weapon  ItemClass // +0x05 的低 4 位，武器類別（與物品表同一套編碼）
 	DamBase byte      // +0x05 的高 4 位，傷害基底
 	Kind    EnemyKind // +0x06，敵人種類
-	// Field7 是 +0x07。**語意未解**：一個消費者拿它查 ds:A920h 得到文字碼
-	// 0x0E 的 him／her／it 選擇子，另一個直接餵給資源切換（docs/re/37 §3.2）。
-	// 兩者兜不起來，所以只保留原值不命名。
-	Field7 byte // +0x07
+	// Portrait 是這種敵人的肖像圖編號（ALLPICS，docs/re/37 §3.2）。
+	// 遭遇時用它載圖，**同一個編號也決定文字裡用 him／her／it**
+	// （查 ds:A920h → 文字碼 0x0E 的選擇子）。
+	Portrait byte // +0x07
 	Raw    [8]byte
 
 	// 敵方護甲的骰數來自別的路徑（loc_12A92），不在這 8 bytes 裡，
@@ -66,7 +66,7 @@ func ParseEnemyData(b []byte) EnemyData {
 	d.Weapon = ItemClass(b[5] & 0x0F)
 	d.DamBase = b[5] >> 4
 	d.Kind = EnemyKind(b[6])
-	d.Field7 = b[7]
+	d.Portrait = b[7]
 	return d
 }
 
