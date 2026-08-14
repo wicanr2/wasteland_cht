@@ -183,3 +183,49 @@ func TestStoreToAfterWalkTouchesOnlyKnownBytes(t *testing.T) {
 		t.Fatalf("重新編碼的長度不對：%d", len(reencoded))
 	}
 }
+
+// 高解畫布：沒有字型時仍然畫得出來（只是沒中文），有字型時中文畫得上去。
+func TestHiFrame(t *testing.T) {
+	rom := openRom(t)
+	s, err := New(rom)
+	if err != nil {
+		t.Fatalf("開場失敗：%v", err)
+	}
+
+	// 沒載字型也要能畫。
+	h := s.HiFrame()
+	if h == nil {
+		t.Fatal("畫不出高解畫面")
+	}
+	// 640 × 400 應該是 320 × 200 的乾淨 2×。
+	f := s.Frame()
+	for _, p := range [][2]int{{0, 0}, {100, 50}, {319, 199}} {
+		want := f.At(p[0], p[1])
+		if got := h.At(p[0]*2, p[1]*2); got != want {
+			t.Fatalf("(%d,%d) 放大後應該是 %d，得到 %d", p[0], p[1], want, got)
+		}
+	}
+
+	dir := os.Getenv("WL_ETEN")
+	if dir == "" {
+		dir = "../../workplace/eten"
+	}
+	if err := s.LoadFont(dir); err != nil {
+		t.Skipf("沒有倚天字型（%v），中文那半跳過", err)
+	}
+	s.SetCJK([]byte{0xA7, 0x41, 0xAD, 0xCC}) // 「你們」
+	h = s.HiFrame()
+	// 訊息視窗第一格（欄 1、列 18）附近應該有非零像素。
+	on := 0
+	for y := 18 * 16; y < 19*16; y++ {
+		for x := 1 * 16; x < 3*16; x++ {
+			if h.At(x, y) != 0 {
+				on++
+			}
+		}
+	}
+	if on == 0 {
+		t.Fatal("設了中文卻沒畫上去")
+	}
+	t.Logf("兩個中文字畫出 %d 個像素", on)
+}

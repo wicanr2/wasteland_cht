@@ -32,6 +32,7 @@ const (
 
 	// 訊息視窗：字元欄 1–38、字元列 18–23。
 	MsgCol, MsgRow   = 1, 18
+	MsgRowEnd        = 23 // 訊息視窗最後一列（字元列 18–23，共 6 行）
 	MsgWidth         = 38
 	MsgHeight        = 6
 	CharWidth        = 8

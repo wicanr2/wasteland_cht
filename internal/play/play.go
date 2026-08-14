@@ -28,6 +28,55 @@ type Scene struct {
 	frame   *render.Frame
 	dirty   bool
 	message string
+
+	// eten 是倚天點陣字。沒有的話中文路徑整條關掉，遊戲照樣跑
+	// （字型檔玩家自備，docs/spec/10 §4）。
+	eten *assets.ETenFont
+	// cjk 是這一步要顯示的中文（Big5），空的就用 message 走英文路徑。
+	cjk []byte
+}
+
+// LoadFont 載入倚天字型；載不到就維持英文，不當成錯誤。
+func (s *Scene) LoadFont(dir string) error {
+	f, err := assets.LoadETen(dir)
+	if err != nil {
+		return err
+	}
+	s.eten = f
+	s.dirty = true
+	return nil
+}
+
+// SetCJK 設定這一步要顯示的中文訊息（Big5）。翻譯目錄接上之前，
+// 這是讓呈現層拿到中文的唯一入口——規則層永遠只給編號。
+func (s *Scene) SetCJK(b []byte) {
+	s.cjk = b
+	s.dirty = true
+}
+
+// HiFrame 合成 640 × 400 的畫面：原版素材 nearest 2× 放大，
+// 中文用倚天 16 × 15 直繪（docs/spec/10 §2）。
+//
+// 一個中文字剛好佔原版一個字元格，所以訊息視窗仍然是 6 行 × 38 格。
+func (s *Scene) HiFrame() *render.HiFrame {
+	h := render.NewHiFrame()
+	h.Upscale(s.Frame())
+	if s.eten == nil || len(s.cjk) == 0 {
+		return h
+	}
+	col, row := render.MsgCol, render.MsgRow
+	for i := 0; i+1 < len(s.cjk); i += 2 {
+		if col >= render.MsgCol+render.MsgWidth {
+			col = render.MsgCol
+			row++
+		}
+		if row > render.MsgRowEnd {
+			break // 訊息視窗滿了；分頁是控制碼的事（docs/re/14 §4）
+		}
+		h.DrawCJK(s.eten, s.cjk[i], s.cjk[i+1], col, row, 15)
+		col++
+	}
+	return h
 }
 
 // New 從出廠存檔開一個場景：挑序號大的那一份、讀出隊伍與所在地圖。
