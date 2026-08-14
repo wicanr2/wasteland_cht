@@ -6,8 +6,8 @@
 輸入：`wl.merged.exe（解包映像＋wla.bin overlay，本專案合成）`，SHA-256 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`
 
 - 自動辨識函式：**641**
-- 已在筆記中出現：**177**
-- 尚未碰過：**464**
+- 已在筆記中出現：**185**
+- 尚未碰過：**456**
 
 ## 已分析（依呼叫端數量排序）
 
@@ -65,7 +65,7 @@
 | `0x115E5` | seg000+0x15E5 | 199 | 7 | re/00-master-index.md、re/03-boot-and-asset-loading.md、re/05-storage-layer.md、re/09-msq-map-structure.md、re/16-msq-block-layout.md |
 | `0x119DB` | seg000+0x19DB | 53 | 7 | re/06-resource-directory.md |
 | `0x11B83` | seg000+0x1B83 | 165 | 7 | re/00-master-index.md、re/11-huffman-decoder.md |
-| `0x19BC0` | seg000+0x9BC0 | 44 | 7 | re/15-character-record.md、re/19-effects-and-damage.md |
+| `0x19BC0` | seg000+0x9BC0 | 44 | 7 | re/15-character-record.md、re/19-effects-and-damage.md、re/20-combat-resolution.md |
 | `0x1A3E1` | seg000+0xA3E1 | 17 | 7 | re/17-packed-text.md |
 | `0x11AE8` | seg000+0x1AE8 | 116 | 6 | re/10-huffman-compression.md、re/11-huffman-decoder.md、re/12-msq-tail-and-text-model.md |
 | `0x176D0` | seg000+0x76D0 | 47 | 6 | re/19-effects-and-damage.md |
@@ -102,7 +102,10 @@
 | `0x11C54` | seg000+0x1C54 | 60 | 3 | re/10-huffman-compression.md、re/11-huffman-decoder.md |
 | `0x14193` | seg000+0x4193 | 103 | 3 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/13-rng.md、re/19-effects-and-damage.md |
 | `0x142ED` | seg000+0x42ED | 39 | 3 | re/00-remake-knowledge-gaps.md |
+| `0x15755` | seg000+0x5755 | 88 | 3 | re/20-combat-resolution.md |
 | `0x157D6` | seg000+0x57D6 | 342 | 3 | re/00-master-index.md、re/13-rng.md、re/15-character-record.md、re/19-effects-and-damage.md、re/20-combat-resolution.md |
+| `0x159C7` | seg000+0x59C7 | 81 | 3 | re/20-combat-resolution.md |
+| `0x15A30` | seg000+0x5A30 | 84 | 3 | re/20-combat-resolution.md |
 | `0x15A84` | seg000+0x5A84 | 25 | 3 | re/19-effects-and-damage.md |
 | `0x15BFE` | seg000+0x5BFE | 5 | 3 | re/19-effects-and-damage.md |
 | `0x166D3` | seg000+0x66D3 | 67 | 3 | re/06-resource-directory.md |
@@ -111,6 +114,7 @@
 | `0x1790B` | seg000+0x790B | 21 | 3 | re/16-msq-block-layout.md、re/17-packed-text.md、re/18-block-text.md |
 | `0x17B3E` | seg000+0x7B3E | 30 | 3 | re/15-character-record.md、re/19-effects-and-damage.md |
 | `0x17B8F` | seg000+0x7B8F | 56 | 3 | re/00-master-index.md、re/17-packed-text.md |
+| `0x182FA` | seg000+0x82FA | 20 | 3 | re/20-combat-resolution.md |
 | `0x18E6B` | seg000+0x8E6B | 37 | 3 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/13-rng.md |
 | `0x19004` | seg000+0x9004 | 52 | 3 | re/14-fonts-and-text-encoding.md |
 | `0x1B15F` | seg000+0xB15F | 10 | 3 | re/20-combat-resolution.md |
@@ -120,6 +124,10 @@
 | `0x11CA4` | seg000+0x1CA4 | 35 | 2 | re/10-huffman-compression.md、re/11-huffman-decoder.md |
 | `0x12A76` | seg000+0x2A76 | 23 | 2 | re/00-master-index.md、re/20-combat-resolution.md |
 | `0x141FA` | seg000+0x41FA | 156 | 2 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/19-effects-and-damage.md |
+| `0x15705` | seg000+0x5705 | 51 | 2 | re/20-combat-resolution.md |
+| `0x15A9D` | seg000+0x5A9D | 242 | 2 | re/20-combat-resolution.md |
+| `0x15C19` | seg000+0x5C19 | 14 | 2 | re/20-combat-resolution.md |
+| `0x15CD1` | seg000+0x5CD1 | 14 | 2 | re/20-combat-resolution.md |
 | `0x16890` | seg000+0x6890 | 280 | 2 | re/00-master-index.md、re/00-remake-knowledge-gaps.md |
 | `0x16CBD` | seg000+0x6CBD | 10 | 2 | re/17-packed-text.md |
 | `0x17BC7` | seg000+0x7BC7 | 64 | 2 | re/00-master-index.md、re/17-packed-text.md |
@@ -135,7 +143,7 @@
 | `0x1A07E` | seg000+0xA07E | 71 | 2 | re/14-fonts-and-text-encoding.md |
 | `0x1A0C5` | seg000+0xA0C5 | 298 | 2 | re/14-fonts-and-text-encoding.md |
 | `0x1B0F1` | seg000+0xB0F1 | 8 | 2 | re/20-combat-resolution.md |
-| `0x1B108` | seg000+0xB108 | 87 | 2 | re/00-master-index.md、re/20-combat-resolution.md |
+| `0x1B108` | seg000+0xB108 | 87 | 2 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/20-combat-resolution.md |
 | `0x10003` | seg000+0x3 | 3 | 1 | re/04-overlay-wla-bin.md |
 | `0x10006` | seg000+0x6 | 3 | 1 | re/04-overlay-wla-bin.md |
 | `0x10009` | seg000+0x9 | 3 | 1 | re/04-overlay-wla-bin.md |
@@ -213,7 +221,6 @@
 | `0x11F76` | seg000+0x1F76 | 279 | 1 |
 | `0x161C0` | seg000+0x61C0 | 263 | 1 |
 | `0x15036` | seg000+0x5036 | 261 | 1 |
-| `0x15A9D` | seg000+0x5A9D | 242 | 2 |
 | `0x17748` | seg000+0x7748 | 241 | 0 |
 | `0x12440` | seg000+0x2440 | 222 | 2 |
 | `0x19130` | seg000+0x9130 | 210 | 3 |
@@ -257,3 +264,4 @@
 | `0x139CE` | seg000+0x39CE | 105 | 1 |
 | `0x167CE` | seg000+0x67CE | 105 | 2 |
 | `0x160E1` | seg000+0x60E1 | 104 | 2 |
+| `0x16E43` | seg000+0x6E43 | 103 | 2 |
