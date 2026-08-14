@@ -47,7 +47,7 @@
 | **亂數產生器** | **已解**：`sub_18E6B` 是 `ds:465Ch`–`4660h` 五個位元組的進位鏈，映像初值全零、全檔沒有種子設定，熵來自鍵盤輪詢次數。擲骰層四支（d6／dN／累加 Nd6／2d6 同點續擲）全部讀完並以模型驗證（`docs/re/13`、`tools/rng.py`） |
 | **文字編碼** | **已解**：遊戲文字是 **5-bit 打包 ＋ 60 字元對照表**。執行檔九張表 442 條、42 個地圖區塊各一張表共 4,493 條，**合計 4,935 條全部解出**（`docs/re/17`、`18`）|
 | **MSQ 區塊佈局** | **已解**：地圖區長度由選擇表決定（`0x600` ＝ 邊長 32／`0x1800` ＝ 邊長 64，只有 4 塊是大地圖），之後是 0x5C bytes 的記錄區標頭，41/42 個區塊第一個 section 落在 `P+0x5C`。取記錄走兩層索引（`sub_17CB1`），記錄指標落在 `ds:46AEh`（`docs/re/16`） |
-| **地圖三層與圖磚** | **已解**：地圖是正方形（邊長在記錄區標頭 `+0x2C`，32 或 64），分三層——第 1 層 4 bits／格是 section 型別、第 2 層 1 byte／格是記錄編號、第 3 層在 Huffman 尾段（語意未解）。**圖磚在 `ALLHTDS`**：9 組、每組 66–163 張，一張 128 bytes ＝ **16 × 16 packed 4bpp**，由標頭 `+0x30` 選組（`docs/re/24`）|
+| **地圖三層與圖磚** | **已解**：地圖是正方形（邊長在記錄區標頭 `+0x2C`，32 或 64），分三層——第 1 層 4 bits／格是 section 型別、第 2 層 1 byte／格是記錄編號、**第 3 層（Huffman 尾段）是畫面上的圖形編號**（0–9 是 `IC0_9.WLF` 的疊圖，≥10 是圖磚編號 −10；`0x420 ＋ 10 × 128 ＝ 0x920` 剛好接上圖磚組）。**圖磚在 `ALLHTDS`**：9 組、每組 66–163 張，一張 128 bytes ＝ **16 × 16 packed 4bpp**，由標頭 `+0x30` 選組。畫一格走 `螢幕 ← (背景 AND 遮罩) OR 疊圖`（overlay slot 4），42 張地圖的縮圖都畫得出來（`docs/re/24`）|
 | **圖片格式** | **已解**：全部是 **packed 4bpp ＋ 列間 XOR delta**，而且 **XOR 的回看距離就是一列的 byte 數**——`ALLPICS` 是 48 → 96 × 84（共 82 張），`TITLE.PIC` 是 144 → 288 × 128。`ALLPICS` 的解碼在 overlay slot 2（`sub_10144`）、`TITLE.PIC` 在 `start` 內嵌，已用 `tools/decode_pic.py` 重現（`docs/re/23`）|
 | **商店與物品** | **已解**：商店由地圖記錄設定，**價格 ＝ 基礎價 − (基礎價 >> n)**。物品資料表在 `ds:7A31h`，**95 筆 × 8 bytes**——與字串表裡的 95 個物品名兩個獨立來源吻合（`docs/re/22`）|
 | **七個屬性** | **已確認**：Strength／IQ／Luck／Speed／Agility／Dexterity／Charisma 在角色記錄 `+0x0E`–`+0x14`（選單字串 ＋ `sub al,'1'; add al,0Eh` 兩行釘死）。屬性→修正值有死區 9–13、兩側各半格。**角色建立也已解**：屬性 ＝ 5d6 取最高三顆、MAXCON ＝ 同擲法 ＋18、技能點 ＝ IQ（`docs/re/21`）|
@@ -64,7 +64,7 @@
 | 項目 | 狀態 |
 |---|---|
 | 解包映像實跑驗證 | **未做**。要在 DOSBox 跑起來與原版對照，才能把「解包等同原版」升為已確認 |
-| 資料格式 | 已解：`wla.bin`（overlay 程式碼）、`title.pic`（XOR 串流）、`colorf.fnt`（172 字 × 32 bytes，格式與用途都已驗證）、主文字字型（內嵌）、`GAME1`／`GAME2` 的定址方式。`allpics1/2` 的 82 張圖（`docs/re/23`）、`allhtds1/2` 的 9 組圖磚（`docs/re/24`）。未解：`allpics*` 交錯的參數區、`transtbl`、`curs`、`masks.wlf`、`ic0_9.wlf`、`end.cpa` |
+| 資料格式 | 已解：`wla.bin`（overlay 程式碼）、`title.pic`（XOR 串流）、`colorf.fnt`（172 字 × 32 bytes，格式與用途都已驗證）、主文字字型（內嵌）、`GAME1`／`GAME2` 的定址方式。`allpics1/2` 的 82 張圖（`docs/re/23`）、`allhtds1/2` 的 9 組圖磚（`docs/re/24`）。`ic0_9.wlf`／`masks.wlf` 的格式與用途（`docs/re/24` §2.3）。未解：`allpics*` 交錯的參數區、`transtbl`、`curs`、`end.cpa` |
 | 劇情敘述文字 | **已解**：執行檔九張打包表 442 條 ＋ 地圖區塊 4,493 條，合計 4,935 條（`docs/re/17`、`18`）。與紙本段落書 162 段的分工待段落呼叫表解出 |
 | MSQ 尾段 | 已解：無 magic 的 Huffman 流，42/42 解出 4,096 或 1,024 bytes ＝ 地圖第 3 層（每格 1 byte，`docs/re/24`） |
 | **Huffman 解壓** | **已實作並驗證**（`tools/huffman.py`）：`allhtds1/2`、`allpics1/2`、`end.cpa` 共 173 個子區塊全部解出，長度精確吻合、檔案 100% 用完（`docs/re/11`） |
@@ -79,7 +79,7 @@
 | [`CLAUDE.md`](./CLAUDE.md) | 專案規範：三道閘門、IDA 鐵則、文件與中文化政策、環境硬規則 |
 | [`docs/re/00-master-index.md`](docs/re/00-master-index.md) | **RE 總表**：位址換算、資料格式、結構佈局、位址表、關鍵函式、工具。**查已知事實先看這份** |
 | [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md) | **RE 完成度檢查表**：remake 需要的每一項知識、狀態與入口 |
-| [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 211）。讀任何 `sub_XXXXX` 前先查 |
+| [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 213）。讀任何 `sub_XXXXX` 前先查 |
 | [`docs/re/01-binary-identity.md`](docs/re/01-binary-identity.md) | 20 檔 SHA-256、`wl.exe` 的 MZ header、第一份資料庫與「不可用作證據」的結論 |
 | [`docs/re/02-exepack-unpack.md`](docs/re/02-exepack-unpack.md) | EXEPACK 格式、解包器、relocation 起點的坑、解包後基準資料庫 |
 | [`docs/re/03-boot-and-asset-loading.md`](docs/re/03-boot-and-asset-loading.md) | 開機序列、`info` 安裝資訊、檔名表、七個開機素材的載入位址、`TITLE.PIC` XOR 解碼 |
@@ -147,7 +147,7 @@
 
 **RE 完成度**：資料格式、文字與資產層打通（含地圖三層、圖磚與圖片），
 戰鬥／屬性／效果／商店四塊規則已解；世界互動層仍是主要缺口。
-641 個函式裡人寫的筆記涵蓋 211 個。完整缺口見
+641 個函式裡人寫的筆記涵蓋 213 個。完整缺口見
 [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md)。
 
 **下一步（依「對 remake 的阻擋程度」排序）**
@@ -155,12 +155,12 @@
 1. **移動、時間與觸發條件（E1／E2）** —— 記錄容器與效果系統都解了，
    缺「玩家踩到什麼會啟動哪一筆記錄」。記錄指標在 `ds:46AEh`，
    全檔 150 處以上以它當基址，從那些使用端往回追。
-2. **地圖第 3 層的語意** —— 擋住地圖畫面重現。圖磚格式與圖磚組都解了，
-   缺「哪一格畫哪一張」（`docs/re/24` §2.3）。
+2. **畫面版面（B6）** —— 現在擋住畫面重現的是視窗幾何：畫一格的路徑
+   （`sub_1029B` ＋ 列位址表）與整塊搬移的路徑（`sub_10F12`）還沒對上。
+   中文化重排版面也要用（`docs/re/24` §5）。
 3. **存檔內部欄位（C2）** —— 角色記錄已解（`docs/re/15`），存檔是它的外層容器。
-4. 畫面版面（B6）：游標與欄位計數變數已知，中文化重排版面要用。
 5. 段落編號顯示（E3）：段落書與遊戲內文字的分工要重新釐清。
-6. 逐一解 overlay 其餘 21 個 slot，特別是 `0x1029B`（881 bytes）。
+6. 逐一解 overlay 其餘的未解 slot（26 個裡已解 7 個）。
 7. 追資源表 idx 7（無檔名，疑似存檔區）在硬碟模式下怎麼存取。
 8. 音效（F2）：確定是 PC 喇叭——`sub_1CC76` 寫 8253 channel 2（`out 42h`）
    再開 61h 閘。待解的是 `sub_1CD52` 那套位元組碼的指令集與曲目資料在哪。

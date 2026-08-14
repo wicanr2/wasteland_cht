@@ -1,6 +1,7 @@
 # 24：地圖的三層結構與 `ALLHTDS` 圖磚
 
-日期：2026-08-14 ｜ 對應盤點 **A5**（地圖）、**A8**（圖磚像素格式）、**A10**（`ALLHTDS`）
+日期：2026-08-14 ｜ 對應盤點 **A5**（地圖）、**A8**（圖磚像素格式）、**A10**（`ALLHTDS`）、
+**A12** 的 `IC0_9.WLF` 與 `MASKS.WLF`
 
 輸入：`wl.merged.exe`，SHA-256
 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`；
@@ -30,6 +31,8 @@
 | 1 | 區塊位移 `0` | **4 bits** | D²÷2 | `sub_17C20` → `ds:46AAh` |
 | 2 | 區塊位移 D²÷2 | 1 byte | D² | `sub_17C72` → `ds:46ACh` |
 | 3 | **Huffman 尾段**，載到 `ds:3448h` | 1 byte | D² | `sub_17FC8` → `ds:46CAh` |
+
+第 1 層說「這一格有什麼」、第 2 層說「是第幾筆」、第 3 層說「畫成什麼樣子」。
 
 第 1、2 層加起來就是記錄區起點 P：
 
@@ -94,17 +97,69 @@ D ＝ 64：2,048 ＋ 4,096 ＝ 6,144 ＝ 0x1800
 
 推論等級：**強證據**（定址與呼叫鏈讀完，但只讀了 nibble ＝ 3／15 這一條分支）。
 
-### 2.3 第 3 層未解
+### 2.3 第 3 層是畫面上的圖形編號
 
-第 3 層的值域與圖磚張數同一個量級，但只有 12／42 個區塊的最大值落在張數以內；
-另外 30 個**超出最後一個編號 1–10**，其中 8 個剛好超出 10。
-形狀像「圖磚編號 ＋ 一小批不在 `ALLHTDS` 裡的追加圖形」，但這只是形狀，
-所以「第 3 層 ＝ 圖磚編號」**還不能寫成結論**。
-入口：`sub_17FC8` 的三個讀取端（`0x147FD`、`0x18092`、`0x180B0`）。
+四個讀取端（`0x147FD`、`0x16468`、`0x16742`、`0x18092`／`0x180B0`）形狀完全一樣：
+把第 3 層的 byte 放進 `ah`、把一個小常數放進 `al`，寫好螢幕座標之後呼叫
+overlay slot 4（`sub_1029B`）。座標由 `sub_17FEE` 從地圖座標換算：
 
-值得一起讀的線索：`sub_186B6` 的 delta 迴圈與 `sub_10088` 的平面轉換
-**都固定跑 163 輪**，不看實際張數——所以 163 張以下的圖磚組，緩衝區後段
-本來就存在被當成圖磚處理的額外內容。
+```
+ds:4685h ＝ (地圖行 − ds:464Eh) × 2     ; 螢幕的 byte 欄，一格 2 bytes ＝ 16 像素
+ds:4686h ＝ (地圖列 − ds:464Fh) × 16    ; 螢幕的像素列（sub_12738 是四次 shl）
+```
+
+`sub_1029B` 用 `ds:4686h` 去查 slot 0 建的列位址表（`ds:8DF9h`，每列 40 bytes），
+再加上 `ds:4685h` 得到寫入位址。
+
+`sub_1029B` 開頭把這兩個值換算成三個指標：
+
+```
+0x102BD  xor  dx, dx
+0x102BF  mov  dh, ah          ; dx ＝ ah × 256
+0x102C1  xor  ah, ah          ; ax ＝ al
+0x102C3  mov  cl, 5 / shl ax, cl
+0x102C7  shr  dx, 1           ; dx ＝ ah × 128
+0x102C9  mov  bx, ax          ; bx ＝ al × 32
+0x102CB  shl  ax, 1 / shl ax, 1
+0x102CF  add  ax, 420h        ; si ＝ 0x420 ＋ al × 128   ← 疊圖
+0x102D4  add  bx, 0DA60h      ; di ＝ 0xDA60 ＋ al × 32   ← 遮罩
+0x102DC  add  bp, 420h        ; bp ＝ 0x420 ＋ ah × 128   ← 背景
+```
+
+合成方式（`0x1035D` 起，每列兩個 word、每寫一個 word 跳 `0x26` 到下一列）：
+
+```
+螢幕 ← (背景[bp] AND 遮罩[bx]) OR 疊圖[si]
+```
+
+三個基址各自對上一個已知素材（`docs/re/03` §5）：
+
+| 基址 | 素材 | 大小 | 一筆 | 筆數 |
+|---|---|---:|---:|---:|
+| `seg003:0x0420` | `IC0_9.WLF` | 1,280 | 128（4 平面 16 × 16） | **10** |
+| `seg003:0x0920` | 圖磚組（`sub_10088` 轉出來的） | ≤20,864 | 128 | 66–163 |
+| `seg003:0xDA60` | `MASKS.WLF` | 320 | 32（單平面 16 × 16） | **10** |
+
+`0x420 ＋ 10 × 128 ＝ 0x920`——**`IC0_9.WLF` 與圖磚組在記憶體裡是連續的一張表**，
+所以第 3 層的 byte 是這張表的索引：
+
+```
+0–9    IC0_9.WLF 的十個圖形
+≥10    ALLHTDS 的圖磚，圖磚編號 ＝ 值 − 10
+```
+
+`al` 那個小常數則是疊在上面的東西（隊伍、遭遇標記等），範圍 0–9，
+與 `IC0_9.WLF` 和 `MASKS.WLF` 各 10 筆一致——**兩個素材的筆數同時吻合**。
+
+驗證：
+
+| 檢查 | 結果 |
+|---|---|
+| `max(第 3 層) − 10 < 該地圖圖磚組的張數` | **42／42** |
+| 值落在 0–9（`IC0_9.WLF`）的格子 | 全 42 張地圖合計 457 格（其中 448 格是 0） |
+| 用第 3 層畫出縮圖 | 城鎮有牆與房間、沙漠有道路與山脈（`tools/render_map.py`） |
+
+推論等級：**已確認**（算術、三個基址與素材大小、值域範圍、縮圖四項互相印證）。
 
 ## 3. 圖磚在 `ALLHTDS`，一張 128 bytes
 
@@ -174,6 +229,11 @@ overlay 的 `sub_10088` 把整組圖磚從 packed 4bpp 轉成 4 平面：
 ## 4. 可重跑的完整指令
 
 ```bash
+python3 tools/render_map.py \
+  workplace/analysis/unpacked/wl.merged.exe \
+  workplace/orig/wastland/game1 workplace/orig/wastland/game2 \
+  workplace/orig/wastland/allhtds1 workplace/orig/wastland/allhtds2 2
+
 python3 tools/summarize_map_layers.py \
   workplace/analysis/unpacked/wl.merged.exe \
   workplace/orig/wastland/game1 workplace/orig/wastland/game2 \
@@ -183,17 +243,19 @@ python3 tools/decode_pic.py tile workplace/orig/wastland/allhtds1 0 0
 
 WL_IDA_TARGET="$PWD/workplace/analysis/unpacked/wl.merged.exe" \
   tools/ida.sh run tools/ida/export_function.py workplace/analysis/dumps/maps.json \
-  0x17C20 0x17C72 0x17FC8 0x18350 0x1841F 0x186B6 0x10088 0x1379E --callers
+  0x17C20 0x17C72 0x17FC8 0x18350 0x1841F 0x186B6 0x10088 0x1029B 0x1379E --callers
 ```
 
 ## 5. 還沒解的
 
-- 第 3 層的語意（§2.3）。
 - 第 1 層 nibble 為 3／15 以外的值走哪條路（`sub_14664` 只讀了那一條分支）。
-- 地圖視窗的螢幕幾何：`sub_10F12` 從 `seg003:0x920` 搬 `0x24` bytes × `0x80` 列
-  到螢幕位移 `0x141`，形狀像 288 × 128 的視窗，但還沒與圖磚的擺放對上。
-- 圖磚組張數 66–163 遠多於 nibble 能表示的 16 種，所以「一格一磚」的對應
-  一定經過第 2 或第 3 層，見 §2.3。
+- `IC0_9.WLF` 那十個圖形各自是什麼（第 3 層裡幾乎只用到 0，另外九個共 9 格）。
+- 疊圖編號 `al` 的來源：`sub_14664` 走 `ds:0AA17h` 那張表，其餘呼叫端是常數
+  5／7／9，對應關係還沒逐一對上。
+- 地圖視窗的螢幕幾何（盤點 B6）：`sub_1029B` 每列寫兩個 word、跳 `0x26`，
+  列位址查 `ds:8DF9h` 的表；`sub_10F12` 另外把 `seg003:0x920` 的
+  `0x24` × `0x80` 區塊整塊搬上螢幕。兩條路徑還沒對上。
+- `CURS`（`seg002:0x7E0B`，2,048 bytes）仍未解。
 
 ## 6. 這一輪學到的（寫成規則）
 
@@ -206,3 +268,7 @@ WL_IDA_TARGET="$PWD/workplace/analysis/unpacked/wl.merged.exe" \
   資料是對的、統計是對的，**切層切錯，結論就錯**。
 - **一個 byte 同時寫進兩個變數，通常代表正方形。** `ds:46A4h`／`ds:46A5h`
   來自同一個 `al`，這比任何尺寸推測都直接。
+- **索引超出範圍一點點，通常是「前面還接了另一張表」。** 第 3 層的值最多
+  超出圖磚張數 10，而 `IC0_9.WLF` 正好是 10 筆、正好排在圖磚組前面
+  （`0x420 ＋ 10 × 128 ＝ 0x920`）。**先去看那個緩衝區前面放了什麼**，
+  比猜「大概有追加圖形」快得多。
