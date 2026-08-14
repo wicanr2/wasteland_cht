@@ -13,8 +13,8 @@
 | 規格 | 狀態 | 對應的 `internal/` | 擋住它的東西 |
 |---|---|---|---|
 | [`01-assets-and-formats.md`](01-assets-and-formats.md) | **READY**（已實作） | `internal/assets` ✅ | — |
-| [`02-rng-and-dice.md`](02-rng-and-dice.md) | **READY** | `internal/game/rng` | — |
-| [`03-screen-and-text.md`](03-screen-and-text.md) | **READY** | `internal/ui`、`internal/textlayout` | — |
+| [`02-rng-and-dice.md`](02-rng-and-dice.md) | **READY**（已實作） | `internal/game/rng` ✅ | — |
+| [`03-screen-and-text.md`](03-screen-and-text.md) | **READY**（`textlayout`／`render` 已實作） | `internal/textlayout` ✅、`internal/render` ✅、`internal/ui` | Ebiten 那層還沒做 |
 | `04-movement-and-clock.md` | 未寫 | `internal/game` | 事件處理函式 5／8／9 未讀（`docs/re/26` §8） |
 | `05-character-and-save.md` | 未寫 | `internal/game` | **C2 存檔欄位未解**、C4 隊伍未解 |
 | `06-combat.md` | 未寫 | `internal/game` | D1 技能數值、D5 經驗值與升級未解 |
@@ -44,11 +44,17 @@
 ## 4. 實作順序建議
 
 ```
-1. internal/assets   ← 規格 01；**已完成**（9 個測試全綠，含 round-trip）
-2. internal/ui       ← 規格 03；把 assets 的輸出畫出來，與原版截圖對拍
-3. internal/game/rng ← 規格 02；獨立、可先做
-4. 其餘              ← 等對應規格 READY
+1. internal/assets     ← 規格 01；**已完成**（9 個測試全綠，含 round-trip）
+2. internal/textlayout ← 規格 03；**已完成**（控制碼與組行，無相依）
+3. internal/render     ← 規格 03；**已完成**（合成索引畫面，幾何逐像素驗過）
+4. internal/game/rng   ← 規格 02；**已完成**（驗收數列與分佈全過）
+5. internal/ui         ← 規格 03 的 Ebiten 那層：上色 ＋ 送圖 ＋ 收鍵
+6. 其餘                ← 等對應規格 READY
 ```
+
+`internal/ui` 還沒做的理由是**建置環境**：`tools/go.sh` 刻意 `--network none`，
+而 Ebiten 還沒進本專案的模組快取。要做之前先決定相依的取得方式
+（vendor 進版控，或用唯讀掛載的本機快取當 file proxy），不要為了方便把建置開網路。
 
 `internal/assets` 不認識 Ebiten，`internal/game` 不認識畫面（`CLAUDE.md` §4）。
 規格 01 與 03 的分界就照這條線切：**解碼回 `image.RGBA` 屬於 01，畫到畫面屬於 03**。
