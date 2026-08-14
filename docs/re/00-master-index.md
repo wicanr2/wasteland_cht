@@ -385,7 +385,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 
 ## 6. 關鍵函式
 
-完整索引在 [`00-function-index.md`](00-function-index.md)（641 個，已分析 257）。
+完整索引在 [`00-function-index.md`](00-function-index.md)（641 個，已分析 259）。
 下表只列「解 remake 時最常回頭查」的。
 
 | 位址 | 呼叫端 | 作用 | 文件 |
@@ -451,6 +451,9 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `0x1649E` | 1 | 能不能走（邊界 ＋ nibble ＋ 三道檢查） | [`26`](26-movement-and-triggers.md) §3 |
 | `0x16410` | 1 | **事件分派**（`ds:AA87h`[nibble] 間接呼叫） | [`26`](26-movement-and-triggers.md) §5 |
 | `0x169EB` | 多 | 取這一格的 nibble 並把 `ds:46AEh` 指到該筆記錄 | [`26`](26-movement-and-triggers.md) §5 |
+| `0x15280` | 跳表 | **寶箱**：類別 → 擲出具體物品與數量，寫回記錄 | [`29`](29-map-event-handlers.md) §4 |
+| `0x15453` | 1 | 數出某個類別有幾件物品（掃物品表 1–94） | [`29`](29-map-event-handlers.md) §4 |
+| `0x15160` | 跳表 | **多選一選單**（記錄 `+0x03` 起是選項） | [`29`](29-map-event-handlers.md) §3 |
 | `0x167CE` | 2 | 重畫視窗內 nibble 為 4／5／9 的格子（會動的） | [`26`](26-movement-and-triggers.md) §5 |
 | `0x17FEE` | — | 地圖座標 → 螢幕座標（`ds:4685h`／`ds:4686h`） | [`24`](24-map-layers-and-tiles.md) §2.3 |
 | `0x10088` | — | 圖磚 packed 4bpp → EGA 4 平面（overlay） | [`24`](24-map-layers-and-tiles.md) §3.1 |
@@ -483,6 +486,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `tools/summarize_map_layers.py` | 地圖三層的長度、邊長、圖磚組驗證 | 否 |
 | `tools/render_map.py` | 用第 3 層把一張地圖畫成一格一字元的縮圖 | 否 |
 | `tools/dump_word_table.py` | 倒出執行檔裡的 16-bit 表（跳表、位移表） | 否 |
+| `tools/ida/export_forced.py` | 強制把 IDA 漏掉的位址分析成程式碼再倒出 | 是 |
 | `tools/rng.py` | 亂數與擲骰的參考模型（附自我測試） | 否 |
 | `tools/unpack_exepack.py`／`apply_overlay.py` | 解包／合成分析映像 | 否 |
 | `tools/gen_func_index.py` | 產生 `00-function-index.md` | 否 |
@@ -520,6 +524,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | [`26`](26-movement-and-triggers.md) | 走一步的流程、四方向捲動、nibble → 事件處理的 16 筆跳表 |
 | [`27`](27-game-clock.md) | 遊戲時鐘：24 小時制、每步推進量、晝夜門檻、隨時間的角色處理 |
 | [`28`](28-text-variants.md) | 文字變形：單複數／性別／三選一／數量的骨架與選擇子 |
+| [`29`](29-map-event-handlers.md) | 地圖事件處理：寶箱、選單、訊息；強制分析 IDA 漏掉的位址 |
 
 ## 9. 引用這份表時的紀律
 
