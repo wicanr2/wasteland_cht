@@ -170,6 +170,28 @@ func (r *Rom) fileOffset(linear int) (int, error) {
 // dsOffset 把 ds: 位移換成分析映像裡的檔案位移。
 func (r *Rom) dsOffset(off int) (int, error) { return r.fileOffset(dsBase + off) }
 
+// 音效資料段（docs/re/44 §5）。九首音效的表與位元組碼都在這裡，
+// 不在任何外部檔案裡。
+const (
+	seg005     = 0x39200
+	seg005Size = 0x360
+)
+
+// AudioData 取出音效段的原始 bytes（864 bytes）。
+// 純解碼層只負責把它切出來，怎麼解讀是 internal/audio 的事。
+func (r *Rom) AudioData() ([]byte, error) {
+	off, err := r.fileOffset(seg005)
+	if err != nil {
+		return nil, fmt.Errorf("音效資料段：%w", err)
+	}
+	if off+seg005Size > len(r.image) {
+		return nil, fmt.Errorf("音效資料段超出映像（%#x + %#x）", off, seg005Size)
+	}
+	out := make([]byte, seg005Size)
+	copy(out, r.image[off:off+seg005Size])
+	return out, nil
+}
+
 func le16(b []byte, at int) uint16 { return uint16(b[at]) | uint16(b[at+1])<<8 }
 func le32(b []byte, at int) uint32 {
 	return uint32(b[at]) | uint32(b[at+1])<<8 | uint32(b[at+2])<<16 | uint32(b[at+3])<<24
