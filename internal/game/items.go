@@ -1,5 +1,7 @@
 package game
 
+import "github.com/wicanr2/wasteland_cht/internal/game/rng"
+
 // 物品資料表（docs/re/45、docs/spec/06 §3.1）。
 //
 // ⚠ **這張表不在執行檔裡，在存檔區**，而且每個存檔槽各一份——
@@ -43,10 +45,12 @@ func (c ItemClass) Ranged() bool { return rangedClasses[c] }
 
 // ItemData 是物品資料表的一筆（8 bytes）。
 type ItemData struct {
-	Price    uint16 // +0x00/+0x01，基礎價
-	Stock    byte   // +0x02，這家店的庫存（0 缺貨、0xFF 無限）
-	Class    ItemClass
-	ClipSize byte // +0x04，彈匣容量
+	Price uint16 // +0x00/+0x01，基礎價
+	Stock byte   // +0x02，這家店的庫存（0 缺貨、0xFF 無限）
+	Class ItemClass
+	// Capacity 是「裝滿時能用幾次」：槍是彈匣容量、Match 是 40、Rope 是 1。
+	// 發裝備／換彈／買入時會寫進物品槽的附屬 byte（docs/re/21 §5.1）。
+	Capacity byte // +0x04
 	Skill    byte // +0x05，使用技能的編號
 	// Dice 是「這件裝備值幾顆 d6」：武器是傷害骰數、護甲是 AC。
 	// 同一個欄位兩種讀者，語意是同一個（docs/re/45 §3.4）。
@@ -65,7 +69,7 @@ func ParseItemData(b []byte) ItemData {
 	d.Price = uint16(b[0]) | uint16(b[1])<<8
 	d.Stock = b[2]
 	d.Class = ItemClass(b[3] >> 3) // ⚠ 右移三次，不是四次（sub_199F1 跳的是 loc_17C6B）
-	d.ClipSize = b[4]
+	d.Capacity = b[4]
 	d.Skill = b[5]
 	d.Dice = b[6]
 	d.Ammo = b[7]
@@ -95,4 +99,44 @@ func (t ItemTable) Get(id byte) (ItemData, bool) {
 		return ItemData{}, false
 	}
 	return t[id], true
+}
+
+// StartingKit 是建角色時發的三張物品清單（ds:DECFh／DED9h／DEE3h，
+// docs/re/21 §5.1）。清單裡是物品編號，`0xFF` 結束。
+//
+// roll(1..2) 從前兩張挑一張手槍組，第三張一定發。
+var (
+	KitPistol45 = []byte{13, 30, 30, 30, 30, 30, 30, 30, 30} // .45 手槍 ＋ 八個彈匣
+	KitPistol9  = []byte{16, 32, 32, 32, 32, 32, 32, 32, 32} // 9mm 手槍 ＋ 八個彈匣
+	KitCommon   = []byte{54, 44, 45, 4, 49, 52}              // 繩、水壺、撬棍、刀、鏡子、火柴
+)
+
+// GiveStartingKit 把一張清單發給角色（sub_1C9DE）。
+//
+// 每一格佔物品陣列的一個槽：編號 ＋ **附屬 byte ← 物品表的 Capacity**，
+// 也就是「發滿」。表裡查不到的編號照樣發，附屬 byte 給 0——
+// 原版沒有這道檢查，這裡只是不讓它越界。
+func (c *Character) GiveStartingKit(list []byte, tbl ItemTable) {
+	for _, id := range list {
+		if id == 0xFF {
+			return
+		}
+		slot, ok := FirstEmptyItemSlot(c.Items)
+		if !ok {
+			return
+		}
+		var full byte
+		if d, ok := tbl.Get(id); ok {
+			full = d.Capacity
+		}
+		c.Items[slot] = Slot{ID: id, Value: full}
+	}
+}
+
+// RollStartingPistol 照原版擲 1d2 決定拿哪一把起始手槍。
+func RollStartingPistol(r *rng.State) []byte {
+	if r.Roll(2) == 1 {
+		return KitPistol45
+	}
+	return KitPistol9
 }

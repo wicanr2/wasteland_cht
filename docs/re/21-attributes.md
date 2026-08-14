@@ -167,7 +167,7 @@ jnb  失敗
 找空槽                      掃隊伍，rec[+0x29] ＝ 0 的算空；滿 4 個就印
                             'You cannot create any more characters.'
 整筆清零                    rec[0..255] ← 0
-性別                        roll(1..2) → 決定用哪張輸入樣板（ds:DECFh／ds:DED9h）
+性別                        roll(1..2) → 決定拿哪一把起始手槍（§5.1）
 七個屬性                    bl 從 0x0E 跑到 0x14，每格 ＝ sub_1CAD1()
 MAXCON ＝ CON               sub_1CAD1() ＋ 18，兩者寫成同一個值
 rec[+0x24] ← 1              等級 ＝ 1（升級規則見 docs/re/31）
@@ -177,6 +177,36 @@ rec[+0x32…] ← "PRIVATE"     從 ds:DEC7h 複製到 0 為止（初始階級�
 
 `rec[+0x20] ← IQ` 與字串 `'Skill points = '`、`'   IQ PTS LVL   SKILL'`
 （`docs/re/17`）互相對上，所以 **`+0x20` 是可用技能點**。
+
+### 5.1 起始裝備：`sub_1C9DE`
+
+`ds:DECFh`／`ds:DED9h`／`ds:DEE3h` 不是名字輸入樣板，是**三張起始物品清單**
+（`0xFF` 結束）。`sub_1C9DE` 逐個發下去：
+
+```
+0x1C9E6  al ← [ds:4663h + ds:DEC5h]     ; 清單裡的下一個物品編號
+0x1C9E8  al == 0xFF → 收工
+0x1C9F4  rec[ds:0DEC6h] ← al            ; 寫進物品陣列（+0xBD 起）
+0x1C9F6  call sub_17AE0                 ; 拿這個編號去定址物品表
+0x1C9F9  call loc_19A14                 ; ＝ 物品 +0x04（容量）
+0x1CA08  rec[ds:0DEC6h + 1] ← al        ; 附屬 byte ← 容量（發滿）
+```
+
+所以**物品陣列的附屬 byte 初值就是物品表的 `+0x04`**——槍是滿彈匣、
+火柴是 40 根、繩子是 1 次。這與 `docs/re/32` §6「附屬 byte 低 6 位是次數」
+是同一個欄位的兩端。
+
+三張清單的內容（用 `docs/re/45` 的物品編號翻出來）：
+
+| 表 | 內容 |
+|---|---|
+| `ds:DECFh` | 13 `M1911A1 45 pistol` ＋ 30 `45 clip` × 8 |
+| `ds:DED9h` | 16 `VP91Z 9mm pistol` ＋ 32 `9mm clip` × 8 |
+| `ds:DEE3h` | 54 `Rope`、44 `Canteen`、45 `Crowbar`、4 `Knife`、49 `Hand mirror`、52 `Match` |
+
+`roll(1..2)` 挑前兩張其中一張，第三張一定發。**這同時是物品表編號的獨立驗證**：
+十個編號翻出來全部是合理的起始裝備，而且彈藥編號與槍的 `+0x07` 對得上
+（手槍 `+0x07` ＝ 30、9mm `+0x07` ＝ 32）。
 
 ### 5.1 屬性擲法：`sub_1CAD1` ＝ 5d6 取最高三顆
 
@@ -230,7 +260,7 @@ MAXCON 起始 ＝ 同一支再擲一次 ＋ 18，也就是 **21–36**。
 
 ## 6. 還沒解的
 
-- 名字輸入的樣板（`ds:DECFh`／`ds:DED9h`／`ds:DEE3h` ＋ `sub_1C9DE`）。
+- 名字是怎麼輸入的——`sub_1C6C9` 裡沒有讀字母進緩衝區的迴圈。
 - 國籍在建立時怎麼選（`+0x19`，`docs/re/17` §4.3 已知欄位語意）。
 - `+0x0D`（屬性區前一個 byte）是什麼。
 - IQ（`+0x0F`）、Speed（`+0x11`）、Charisma（`+0x14`）用在哪裡還沒逐一追。

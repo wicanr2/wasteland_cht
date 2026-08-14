@@ -40,7 +40,7 @@
 | `0x19DC3` | seg000+0x9DC3 | 103 | 14 | re/00-master-index.md、re/14-fonts-and-text-encoding.md、re/43-input-and-hotkeys.md |
 | `0x16D34` | seg000+0x6D34 | 128 | 13 | re/22-shop-and-items.md、re/41-command-handlers.md、re/42-facility-loops.md |
 | `0x176A2` | seg000+0x76A2 | 6 | 13 | re/28-text-variants.md |
-| `0x17AE0` | seg000+0x7AE0 | 16 | 13 | re/00-master-index.md、re/22-shop-and-items.md、re/29-map-event-handlers.md、re/32-skill-checks-and-xp.md、re/37-enemy-records-and-hp.md、re/41-command-handlers.md、re/42-facility-loops.md、re/45-item-data-and-weapon-damage.md |
+| `0x17AE0` | seg000+0x7AE0 | 16 | 13 | re/00-master-index.md、re/21-attributes.md、re/22-shop-and-items.md、re/29-map-event-handlers.md、re/32-skill-checks-and-xp.md、re/37-enemy-records-and-hp.md、re/41-command-handlers.md、re/42-facility-loops.md、re/45-item-data-and-weapon-damage.md |
 | `0x17C20` | seg000+0x7C20 | 73 | 13 | re/00-master-index.md、re/24-map-layers-and-tiles.md、re/26-movement-and-triggers.md、re/39-encounter-scan.md |
 | `0x19D2F` | seg000+0x9D2F | 30 | 13 | re/00-master-index.md、re/37-enemy-records-and-hp.md、re/39-encounter-scan.md、re/45-item-data-and-weapon-damage.md |
 | `0x1789C` | seg000+0x789C | 4 | 12 | re/06-resource-directory.md、re/14-fonts-and-text-encoding.md、re/40-combat-screen.md、re/41-command-handlers.md |
@@ -215,7 +215,7 @@
 | `0x198F0` | seg000+0x98F0 | 139 | 3 | re/43-input-and-hotkeys.md |
 | `0x1B15F` | seg000+0xB15F | 10 | 3 | re/20-combat-resolution.md、re/36-combat-rounds.md、re/37-enemy-records-and-hp.md |
 | `0x1C548` | seg000+0xC548 | 18 | 3 | re/42-facility-loops.md |
-| `0x1C9DE` | seg000+0xC9DE | 54 | 3 | re/21-attributes.md |
+| `0x1C9DE` | seg000+0xC9DE | 54 | 3 | re/21-attributes.md、re/45-item-data-and-weapon-damage.md |
 | `0x10000` | seg000+0x0 | 3 | 2 | re/00-master-index.md、re/02-exepack-unpack.md、re/03-boot-and-asset-loading.md、re/04-overlay-wla-bin.md、re/06-resource-directory.md |
 | `0x10042` | seg000+0x42 | 3 | 2 | re/04-overlay-wla-bin.md |
 | `0x10045` | seg000+0x45 | 3 | 2 | re/04-overlay-wla-bin.md |
@@ -376,7 +376,7 @@
 | `0x1C073` | seg000+0xC073 | 205 | 1 | re/22-shop-and-items.md、re/29-map-event-handlers.md、re/42-facility-loops.md |
 | `0x1C140` | seg000+0xC140 | 72 | 1 | re/22-shop-and-items.md、re/42-facility-loops.md、re/45-item-data-and-weapon-damage.md |
 | `0x1C5B0` | seg000+0xC5B0 | 88 | 1 | re/32-skill-checks-and-xp.md、re/35-status-and-healing.md |
-| `0x1C6C9` | seg000+0xC6C9 | 789 | 1 | re/00-master-index.md、re/21-attributes.md |
+| `0x1C6C9` | seg000+0xC6C9 | 789 | 1 | re/00-master-index.md、re/21-attributes.md、re/45-item-data-and-weapon-damage.md |
 | `0x1CB30` | seg000+0xCB30 | 55 | 1 | re/27-game-clock.md |
 | `0x1CB67` | seg001+0x0 | 10 | 1 | re/00-master-index.md、re/02-exepack-unpack.md、re/44-audio.md |
 | `0x1CB75` | seg001+0xE | 53 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/44-audio.md |

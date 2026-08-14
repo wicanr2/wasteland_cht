@@ -305,3 +305,53 @@ func TestEnemyKindMessageIDs(t *testing.T) {
 		}
 	}
 }
+
+// loadItemTable 從玩家自備的 game1 讀出物品資料表（存檔槽 0）。
+func loadItemTable(t *testing.T) ItemTable {
+	t.Helper()
+	raw, err := openRom(t).LoadItemTable("game1", 0)
+	if err != nil {
+		t.Fatalf("讀物品表：%v", err)
+	}
+	return ParseItemTable(raw)
+}
+
+// 起始裝備（docs/re/21 §5.1）：清單發下去，附屬 byte ＝ 物品表的容量。
+// 這同時是物品編號的獨立驗證——十個編號都要在表內查得到。
+func TestStartingKit(t *testing.T) {
+	tbl := loadItemTable(t)
+	c := &Character{Items: make([]Slot, ItemSlots)}
+	c.GiveStartingKit(KitPistol45, tbl)
+	c.GiveStartingKit(KitCommon, tbl)
+
+	if c.Items[0].ID != 13 {
+		t.Fatalf("第一件應該是 13（.45 手槍），得到 %d", c.Items[0].ID)
+	}
+	pistol, ok := tbl.Get(13)
+	if !ok {
+		t.Fatal("物品表裡沒有 13")
+	}
+	if c.Items[0].Value != pistol.Capacity || pistol.Capacity != 7 {
+		t.Fatalf(".45 手槍應該發滿 7 發，容量 %d、附屬 byte %d", pistol.Capacity, c.Items[0].Value)
+	}
+	// 槍的彈藥欄要指到接下來那八個彈匣。
+	if int(pistol.Ammo) != int(KitPistol45[1]) {
+		t.Fatalf("手槍的彈藥編號 %d 與清單裡的 %d 對不上", pistol.Ammo, KitPistol45[1])
+	}
+	// 九件 ＋ 六件 ＝ 十五格。
+	filled := 0
+	for _, s := range c.Items {
+		if s.ID != 0 {
+			filled++
+		}
+	}
+	if filled != len(KitPistol45)+len(KitCommon) {
+		t.Fatalf("應該佔掉 %d 格，實際 %d", len(KitPistol45)+len(KitCommon), filled)
+	}
+	// 每個編號都要在表內。
+	for _, id := range append(append([]byte{}, KitPistol9...), KitCommon...) {
+		if _, ok := tbl.Get(id); !ok {
+			t.Fatalf("起始裝備的編號 %d 不在物品表內", id)
+		}
+	}
+}

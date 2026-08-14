@@ -184,3 +184,47 @@ func PickNewer(a, b *Save) *Save {
 		return a
 	}
 }
+
+// 物品資料表（docs/re/45 §2）。
+//
+// ⚠ **它不在執行檔裡，在存檔區**：映像裡 `ds:7A31h` 那段是零，表是開檔時
+// 從「存檔資源 ＋ 0x1206 ＋ 槽位移」讀進來的（`0x186A9`）。每個存檔槽各一份，
+// 所以它是**可變的遊戲狀態**——賣東西改到的庫存欄位要跟著存回去。
+const (
+	itemTableDelta = 0x1206 // 存檔資源 → 物品表資源
+	itemTableLen   = 0x2F8  // 760 ＝ 95 × 8
+)
+
+// ItemSlotOffsets 是 `ds:BE20h` 那張表：三個存檔槽各自的物品表位移。
+// 第 4 筆與第 3 筆相同（＝ 檔尾），所以實際只有三個槽。
+var ItemSlotOffsets = [3]int{0x0000, 0x02FE, 0x05FC}
+
+// LoadItemTable 讀出某個存檔槽的物品資料表（解密後的 760 bytes）。
+// 用原版自己的條件驗 checksum，不符就回錯誤——不要為了讓流程過而放寬。
+func (r *Rom) LoadItemTable(file string, slot int) ([]byte, error) {
+	base, ok := SaveOffset[file]
+	if !ok {
+		return nil, fmt.Errorf("%s 沒有已知的存檔位移", file)
+	}
+	if slot < 0 || slot >= len(ItemSlotOffsets) {
+		return nil, fmt.Errorf("存檔槽 %d 不在 0–%d", slot, len(ItemSlotOffsets)-1)
+	}
+	data, err := r.File(file)
+	if err != nil {
+		return nil, err
+	}
+	at := base + itemTableDelta + ItemSlotOffsets[slot]
+	if at+6+itemTableLen > len(data) {
+		return nil, fmt.Errorf("%s 太短，放不下 %#x 的物品表", file, at)
+	}
+	if magic := string(data[at : at+3]); magic != "msq" {
+		return nil, fmt.Errorf("%s 的 %#x 不是 msq 而是 %q", file, at, magic)
+	}
+	checksum := le16(data, at+4)
+	plain := decryptSave(data[at+6:at+6+itemTableLen], checksum)
+	if got := saveChecksum(plain); got != checksum {
+		return nil, fmt.Errorf("%s 槽 %d 的物品表 checksum 對不上：檔案 %#04x、算出來 %#04x",
+			file, slot, checksum, got)
+	}
+	return plain, nil
+}
