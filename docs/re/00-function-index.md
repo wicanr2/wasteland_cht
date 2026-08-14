@@ -6,8 +6,8 @@
 輸入：`wl.merged.exe（解包映像＋wla.bin overlay，本專案合成）`，SHA-256 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`
 
 - 自動辨識函式：**641**
-- 已在筆記中出現：**387**
-- 尚未碰過：**254**
+- 已在筆記中出現：**388**
+- 尚未碰過：**253**
 
 ## 已分析（依呼叫端數量排序）
 
@@ -35,6 +35,7 @@
 | `0x1C561` | seg000+0xC561 | 15 | 16 | re/17-packed-text.md、re/29-map-event-handlers.md、re/35-status-and-healing.md、re/42-facility-loops.md |
 | `0x13787` | seg000+0x3787 | 16 | 15 | re/20-combat-resolution.md、re/37-enemy-records-and-hp.md |
 | `0x19E30` | seg000+0x9E30 | 6 | 15 | re/14-fonts-and-text-encoding.md、re/40-combat-screen.md、re/41-command-handlers.md |
+| `0x10EBE` | seg000+0xEBE | 60 | 14 | re/04-overlay-wla-bin.md |
 | `0x12A40` | seg000+0x2A40 | 12 | 14 | re/00-master-index.md、re/20-combat-resolution.md、re/32-skill-checks-and-xp.md、re/36-combat-rounds.md、re/37-enemy-records-and-hp.md |
 | `0x19C69` | seg000+0x9C69 | 9 | 14 | re/32-skill-checks-and-xp.md、re/36-combat-rounds.md |
 | `0x19DC3` | seg000+0x9DC3 | 103 | 14 | re/00-master-index.md、re/14-fonts-and-text-encoding.md、re/43-input-and-hotkeys.md、re/46-typed-answers-and-text-input.md |
@@ -458,7 +459,6 @@
 | `0x12B8A` | seg000+0x2B8A | 63 | 1 |
 | `0x1395B` | seg000+0x395B | 62 | 1 |
 | `0x19770` | seg000+0x9770 | 62 | 4 |
-| `0x10EBE` | seg000+0xEBE | 60 | 14 |
 | `0x12CFE` | seg000+0x2CFE | 58 | 4 |
 | `0x17709` | seg000+0x7709 | 58 | 2 |
 | `0x1A430` | seg000+0xA430 | 58 | 1 |
@@ -467,3 +467,4 @@
 | `0x13697` | seg000+0x3697 | 48 | 2 |
 | `0x16078` | seg000+0x6078 | 48 | 2 |
 | `0x1718B` | seg000+0x718B | 46 | 1 |
+| `0x13086` | seg000+0x3086 | 43 | 2 |
