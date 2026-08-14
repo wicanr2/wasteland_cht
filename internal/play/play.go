@@ -13,6 +13,7 @@ import (
 	"github.com/wicanr2/wasteland_cht/internal/game"
 	"github.com/wicanr2/wasteland_cht/internal/game/rng"
 	"github.com/wicanr2/wasteland_cht/internal/input"
+	"github.com/wicanr2/wasteland_cht/internal/lang"
 	"github.com/wicanr2/wasteland_cht/internal/render"
 	"github.com/wicanr2/wasteland_cht/internal/textlayout"
 )
@@ -34,6 +35,22 @@ type Scene struct {
 	eten *assets.ETenFont
 	// cjk 是這一步要顯示的中文（Big5），空的就用 message 走英文路徑。
 	cjk []byte
+	// cat 是翻譯目錄。沒有就整條中文關掉，遊戲跑英文（docs/spec/11 §7）。
+	cat *lang.Catalogue
+	// blockFile／blockID 是目前這張地圖的來源，組 key 用。
+	blockFile string
+	blockID   int
+}
+
+// LoadCatalogue 載入翻譯目錄；載不到就維持英文，不當成錯誤。
+func (s *Scene) LoadCatalogue(path string) error {
+	c, err := lang.Load(path)
+	if err != nil {
+		return err
+	}
+	s.cat = c
+	s.dirty = true
+	return nil
 }
 
 // LoadFont 載入倚天字型；載不到就維持英文，不當成錯誤。
@@ -125,6 +142,7 @@ func New(rom *assets.Rom) (*Scene, error) {
 	}
 	s.world.Clock = clock
 	s.message = save.Place()
+	s.blockFile, s.blockID = block.Resource.File, block.Resource.ID
 	return s, nil
 }
 
@@ -194,6 +212,7 @@ func (s *Scene) Update(in input.Input) (bool, error) {
 	}
 	s.dirty = true
 	s.message = s.describe(res)
+	s.cjk = s.translate(res)
 	return true, nil
 }
 
@@ -274,6 +293,19 @@ func (s *Scene) StoreTo(save *assets.Save) error {
 
 // Save 回傳目前這一份存檔（呼叫者負責寫檔）。
 func (s *Scene) Save() *assets.Save { return s.save }
+
+// translate 查這一步的訊息有沒有中文。查不到就回 nil，顯示原文
+// （docs/spec/11 §7：半成品的中文化要能玩）。
+func (s *Scene) translate(res game.StepResult) []byte {
+	if s.cat == nil || res.Event.Kind != game.EventMessage {
+		return nil
+	}
+	key := lang.BlockKey(s.blockFile, s.blockID, res.Event.Record)
+	if b, ok := s.cat.Lookup(key); ok {
+		return b
+	}
+	return nil
+}
 
 // Frame 合成一幀：地圖視窗 ＋ 時鐘 ＋ 訊息。
 func (s *Scene) Frame() *render.Frame {

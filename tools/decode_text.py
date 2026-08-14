@@ -144,25 +144,28 @@ def decode_table(buf: bytes, base: int, max_groups: int = 512) -> dict:
     }
 
 
-def main() -> None:
-    if len(sys.argv) < 2:
-        raise SystemExit(__doc__)
-    exe = Path(sys.argv[1]).read_bytes()
+def decode_tables(exe: bytes) -> list[dict]:
+    """解出執行檔的九張表。給 extract_strings.py 之類的工具重用。"""
     if exe[:2] != b"MZ":
-        raise SystemExit("要餵解包映像（MZ 執行檔）")
+        raise ValueError("要餵解包映像（MZ 執行檔）")
     header = int.from_bytes(exe[8:10], "little") * 16
-
     tables = []
-    slots = 0
-    non_empty = 0
     for ds_off, who in EXE_TABLES.items():
         result = decode_table(exe, DS + ds_off - 0x10000 + header)
         result["table_ds_offset"] = f"0x{ds_off:04X}"
         result["table_linear"] = f"0x{DS + ds_off:05X}"
         result["set_by"] = who
         tables.append(result)
-        slots += result["slot_count"]
-        non_empty += result["non_empty_count"]
+    return tables
+
+
+def main() -> None:
+    if len(sys.argv) < 2:
+        raise SystemExit(__doc__)
+    exe = Path(sys.argv[1]).read_bytes()
+    tables = decode_tables(exe)
+    slots = sum(t["slot_count"] for t in tables)
+    non_empty = sum(t["non_empty_count"] for t in tables)
 
     if len(sys.argv) > 2:
         Path(sys.argv[2]).write_text(
