@@ -84,6 +84,29 @@ def read_untranslatable(root: Path) -> set[str]:
     return keys
 
 
+def read_must_not_translate(root: Path) -> dict[str, str]:
+    """讀「必須維持原文」的清單（打字問答的答案，docs/re/46 §6）。
+
+    檔案由 tools/summarize_questions.py 產生。**不在就直接失敗**——
+    靜靜跳過等於這道守則不存在，而它擋的是不會有錯誤訊息的那種錯。
+    """
+    path = root / "must-not-translate.tsv"
+    if not path.exists():
+        raise SystemExit(
+            f"{path} 不存在。先跑 tools/summarize_questions.py 產生它——"
+            "少了這份清單，密語被翻掉不會有任何徵兆。"
+        )
+    out: dict[str, str] = {}
+    for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        if not line.strip() or line.startswith("#"):
+            continue
+        if "\t" not in line:
+            raise SystemExit(f"{path}:{lineno}：沒有 TAB")
+        key, orig = line.split("\t", 1)
+        out[key] = orig
+    return out
+
+
 def hotkeys(text: str) -> list[str]:
     """列出每個 `\\x10` 後面那個字元。
 
@@ -178,6 +201,25 @@ def main() -> None:
         for k in missing:
             print(f"錯誤：{k} 列在 untranslatable.tsv 卻不在原文裡", file=sys.stderr)
         raise SystemExit(f"{len(missing)} 條 untranslatable 的 key 對不上原文")
+
+    # 打字問答的答案：**必須維持原文**（docs/re/46 §6）。
+    #
+    # 比對是逐 byte 全等而輸入層是 ASCII，翻成中文玩家永遠打不出來——
+    # 這一條翻錯不會有任何錯誤訊息，只會讓那道關卡通不了。
+    # 清單由 tools/summarize_questions.py 從原版資料產生，不要手改。
+    must_keep = read_must_not_translate(root)
+    if bad := sorted(k for k, orig in must_keep.items() if k in zh and zh[k] != orig):
+        for k in bad:
+            print(
+                f"錯誤：{k} 是打字問答的答案，必須維持原文 "
+                f"{escape_for_error(must_keep[k])}，現在是 {escape_for_error(zh[k])}",
+                file=sys.stderr,
+            )
+        raise SystemExit(f"{len(bad)} 條密語答案被翻掉了")
+    if stale := sorted(k for k in must_keep if k not in source):
+        for k in stale:
+            print(f"錯誤：{k} 在 must-not-translate.tsv 卻不在原文裡", file=sys.stderr)
+        raise SystemExit(f"{len(stale)} 條 must-not-translate 的 key 對不上原文")
 
     errors: list[str] = []
     entries: list[tuple[str, bytes]] = []

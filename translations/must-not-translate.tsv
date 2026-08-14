@@ -1,0 +1,130 @@
+# 打字問答的答案：**不可翻譯**（`docs/re/46` §6）。
+# 比對是逐 byte 全等而輸入層是 ASCII，翻成中文玩家永遠打不出來。
+# 由 tools/summarize_questions.py 產生，不要手改。
+# key	原文
+blk:game1:2:42	UGLY
+blk:game1:2:43	GANG
+blk:game1:2:44	MAYOR
+blk:game1:2:45	RIDDLES
+blk:game1:2:46	RIDDLER
+blk:game1:2:50	BYE
+blk:game1:2:51	GOODBYE
+blk:game1:2:52	THANKS
+blk:game1:2:53	THANK YOU
+blk:game1:2:55	COURTHOUSE
+blk:game1:2:62	CHAT
+blk:game1:2:63	DANCER
+blk:game1:2:64	DRINK
+blk:game1:2:75	TOAST
+blk:game1:2:80	R
+blk:game1:2:81	LETTER R
+blk:game1:2:82	THE LETTER R
+blk:game1:2:84	URABUTLN
+blk:game1:3:19	INFO
+blk:game1:3:20	ROOM
+blk:game1:3:60	URAQT2
+blk:game1:3:61	URABUTLN
+blk:game1:3:92	CHAT
+blk:game1:3:93	MONEY
+blk:game1:3:94	SNAKE SQUEEZINS
+blk:game1:3:95	GANG
+blk:game1:3:96	SECRET
+blk:game1:3:97	MAYOR
+blk:game1:3:98	COURTHOUSE
+blk:game1:3:99	BACK WAY
+blk:game1:4:20	KAPUT
+blk:game1:4:21	THANATOS
+blk:game1:4:26	STINGER
+blk:game1:4:27	PIGFACE
+blk:game1:4:28	MADWOLF
+blk:game1:4:29	SKULKER
+blk:game1:4:30	GRUNT
+blk:game1:4:88	11-27-57-04-30
+blk:game1:4:101	11 16 27
+blk:game1:4:102	11-16-27
+blk:game1:4:103	O
+blk:game1:4:111	AZRAEL
+blk:game1:4:112	MORS
+blk:game1:6:2	MUERTE
+blk:game1:6:3	UGLY
+blk:game1:6:4	SQUINT
+blk:game1:6:5	MULEFOOT
+blk:game1:8:7	LADYBUG
+blk:game1:8:8	LIZARD
+blk:game1:8:30	CHAT
+blk:game1:8:35	CATERPILLAR
+blk:game1:8:39	ATCHISONS
+blk:game1:8:65	HOBO
+blk:game1:8:66	TOPEKANS
+blk:game1:8:67	SANTE FE
+blk:game1:8:68	BRAKEMAN
+blk:game1:8:69	VISA CARD
+blk:game1:10:41	BOBBY'S DOG
+blk:game1:10:43	REX
+blk:game1:10:44	DOG
+blk:game1:10:45	JACKIE
+blk:game1:10:46	CAVE
+blk:game1:10:47	BUSH
+blk:game1:10:53	BUSHES
+blk:game1:27:31	30
+blk:game1:27:40	THIRTY
+blk:game1:27:56	MOTEKIM
+blk:game1:27:72	MORTAR
+blk:game1:27:73	ATOM
+blk:game1:32:37	ACAPULCO
+blk:game1:34:21	DIPSTICK
+blk:game1:34:27	BUZZARD
+blk:game1:34:28	PASTEL
+blk:game1:34:43	R
+blk:game1:34:86	TODD
+blk:game1:49:23	REDHAWK
+blk:game1:49:47	RED HAWK
+blk:game2:17:34	FINSTER
+blk:game2:17:35	MISSION
+blk:game2:17:36	CHAT
+blk:game2:17:37	BASE COCHISE
+blk:game2:17:38	BREAK
+blk:game2:19:6	RUN
+blk:game2:21:25	CHAT
+blk:game2:21:26	PLAGUE
+blk:game2:21:27	ISOLATE
+blk:game2:21:28	FINSTER
+blk:game2:21:29	BASE
+blk:game2:21:30	DRINK
+blk:game2:21:39	METAL MANIAC
+blk:game2:21:40	BRIAN THE FIST
+blk:game2:21:41	PASSWORD
+blk:game2:21:61	CRETIAN
+blk:game2:22:21	PROTEUS
+blk:game2:23:1	512
+blk:game2:23:3	32
+blk:game2:23:36	20
+blk:game2:23:41	FINSTER
+blk:game2:23:51	NOTHING
+blk:game2:23:86	ICEBERG
+blk:game2:23:88	IRWIN FINSTER
+blk:game2:23:91	IRWIN J FINSTER
+blk:game2:23:119	0
+blk:game2:23:120	ZERO
+blk:game2:38:35	EINSTEIN
+blk:game2:38:36	OPPENHEIMER
+blk:game2:38:42	BLOODSTAFF
+blk:game2:38:114	FAT FREDDY
+blk:game2:38:115	FARAN BRYGO
+blk:game2:39:3	KESTREL
+blk:game2:39:12	CRUMB SENT ME
+blk:game2:39:13	CRUMB
+blk:game2:39:65	PHOENIX
+blk:game2:39:66	CLOVER
+blk:game2:40:5	FAT FREDDY
+blk:game2:40:24	BIRD
+blk:game2:40:70	ROBOTS
+blk:game2:40:71	DEATH MACHINES
+blk:game2:40:72	MAX
+blk:game2:40:73	ACE
+blk:game2:40:74	FARAN BRYGO
+blk:game2:40:75	BIG BOSS
+blk:game2:40:76	MUSHROOM CLOUD
+blk:game2:40:77	HOSPITAL
+blk:game2:40:78	LIBRARY
+blk:game2:42:16	ROSEBUD

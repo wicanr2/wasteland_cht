@@ -628,6 +628,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `tools/dump_word_table.py` | 倒出執行檔裡的 16-bit 表（跳表、位移表） | 否 |
 | `tools/dump_save.py` | 解開存檔區並列出隊伍、時鐘、角色 | 否 |
 | `tools/dump_items.py` | 解開物品資料表並配上物品名／技能名 | 否 |
+| `tools/summarize_questions.py` | 42 個區塊的 nibble 8 問答 ＋ 產生「不可翻譯」守則清單 | 否 |
 | `tools/ida/export_forced.py` | 強制把 IDA 漏掉的位址分析成程式碼再倒出 | 是 |
 | `tools/rng.py` | 亂數與擲骰的參考模型（附自我測試） | 否 |
 | `tools/unpack_exepack.py`／`apply_overlay.py` | 解包／合成分析映像 | 否 |
