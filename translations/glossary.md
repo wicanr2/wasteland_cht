@@ -153,6 +153,12 @@
 | Head Crusher | 碎顱者 | |
 | the Obliterator | 殲滅者 | |
 | Ace | 王牌 | |
+| Ugly John | 醜約翰 | `game1:4`，阿醜的全名 |
+| Felicia Pedros | 費莉西亞·佩德羅斯 | 鎮長夫人 |
+| Danny Citrine | 丹尼·西特林 | 法院裡被刑求的人 |
+| Stinger | 刺針 | 幫派小隊長，關鍵字時不翻 |
+| Pigface | 豬臉 | 同上 |
+| Huey／Dewey | 休伊／杜威 | 三胞胎其中兩個 |
 | Wolf | 狼牙 | 狗 |
 | Chugbum | 查格本 | |
 | Mutie Cuties | 變種美女 | 舞團 |
@@ -168,6 +174,8 @@
 | Quail Trail | 鵪鶉小徑 |
 | Moon Rd. | 月亮路 |
 | Loop Dr. | 環路 |
+| Quartz City Jail | 石英城監獄 |
+| officer's club | 軍官俱樂部 |
 
 ## 物品與俚語
 
@@ -192,3 +200,10 @@
 `game1:2:83`（八個字母稱讚女侍 ＝ `URABUTLN`，念作 "you are a beautiful one"）
 **靠英文拼字才成立**。題目照翻但把 `America`／`Australia` 留原文，
 答案不翻——這樣玩家看得懂題目，也答得出來。
+
+## 標點：人名的間隔號
+
+⚠ 用 **`·`（U+00B7，Big5 `A150`）**，不要用 `‧`（U+2027）——
+後者不在 Big5 裡，編譯會擋下來。同類的坑：`・`（U+30FB）也不行；
+`．`（U+FF0E→`A144`）與 `•`（`A145`）在 Big5 裡，但那是句點與項目符號，不是名字間隔號。
+

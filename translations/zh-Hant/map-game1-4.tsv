@@ -1,0 +1,112 @@
+# game1 資源 4：阿醜幫的藏身處（Ugly's hideout）
+#
+# ⚠ 密語、關鍵字與代碼不翻：KAPUT／THANATOS／STINGER／PIGFACE／MADWOLF／
+# SKULKER／GRUNT／AZRAEL／MORS／Y／N／O，以及保險箱與炸彈的號碼
+# （`11 16 27`／`11-16-27`／`11-27-57-04-30`）。
+blk:game1:4:1	\x0D砰！\x0D
+blk:game1:4:2	\x0D你看到三個歹徒背對著你，正在抽菸。\x0D
+blk:game1:4:3	\x0D趁他們沒注意，你伏擊並把他們打昏。\x0D
+blk:game1:4:4	\x0D他們聽見你跌跌撞撞地進門，撲了上來。\x0D
+blk:game1:4:5	糟糕！你被發現了。\x0D
+blk:game1:4:6	\x0D「我們快閃人！」\x0D
+blk:game1:4:7	\x0D看起來這裡用得上繩子。\x0D
+blk:game1:4:8	\x0D你把繩子往上拋。\x0D
+blk:game1:4:9	\x0D那樣到不了頂上。\x0D
+blk:game1:4:10	\x0D這張桌子是空的。\x0D
+blk:game1:4:11	\x0D透過玻璃天窗，你看到有人影在陰影裡走動。\x0D
+blk:game1:4:12	\x0D也許可以打破玻璃跳下去，殺他們個措手不及。\x0D
+blk:game1:4:13	\x0D你穿過破掉的玻璃跳到下層地板。\x0D
+blk:game1:4:14	\x0D玻璃碎了。\x0D
+blk:game1:4:15	\x0D連刮痕都沒有。\x0D
+blk:game1:4:16	\x0D你撞上了天窗。\x0D
+blk:game1:4:17	\x0D這裡的牆你絕對爬不上去。\x0D
+blk:game1:4:18	「喂，喬，沒有密語誰都不准進出。」\x0D
+blk:game1:4:19	\x0D「你剛才說我什麼？」\x0D
+blk:game1:4:20	KAPUT
+blk:game1:4:21	THANATOS
+blk:game1:4:22	\x0D「喔，你們一定是剛從法院過來的。」\x0D
+blk:game1:4:23	\x0D「錯了，老兄！密語是『去死吧你這人渣！』」\x0D
+blk:game1:4:24	\x0D「那是舊的密語。」\x0D
+blk:game1:4:25	「你的小隊長是誰？」\x0D
+blk:game1:4:26	STINGER
+blk:game1:4:27	PIGFACE
+blk:game1:4:28	MADWOLF
+blk:game1:4:29	SKULKER
+blk:game1:4:30	GRUNT
+blk:game1:4:31	\x0D「密語現在是 KAPUT。」\x0D
+blk:game1:4:32	\x0D「你想騙誰啊？」\x0D
+blk:game1:4:33	一個高大的保鑣擋住你的去路。\x0D
+blk:game1:4:34	\x0D「進去吧。」\x0D
+blk:game1:4:35	你被凶狠地狂吠著。\x0D
+blk:game1:4:36	狗舍。\x0D
+blk:game1:4:37	\x0D這裡有一道高圍籬，用來關住狗。\x0D
+blk:game1:4:38	\x0D你在圍籬頂上。\x0D
+blk:game1:4:39	\x0D你還在另一邊。\x0D
+blk:game1:4:40	\x0D書架上塞滿了《傭兵、間諜與私家偵探》系列的書。\x0D
+blk:game1:4:41	休息室。\x0D
+blk:game1:4:42	\x0D你在入口，這裡是
+blk:game1:4:43	宿舍。\x0D
+blk:game1:4:44	\x0D你走到一堆待洗衣物旁邊時……\x0D
+blk:game1:4:45	\x0D……兩隻郊狼犬撲了出來。\x0D
+blk:game1:4:46	\x0D……兩隻超級忍者郊狼犬給了你一個驚喜。\x0D
+blk:game1:4:48	\x0D你打開櫃子。\x0D
+blk:game1:4:49	\x0D櫃子還是鎖著。\x0D
+blk:game1:4:50	\x0D這裡有一個被砸爛的櫃子。\x0D
+blk:game1:4:51	\x0D到處都是木頭碎片。\x0D
+blk:game1:4:52	\x0D這個櫃子是空的。\x0D
+blk:game1:4:53	\x0D桌上有幾個積灰的罐子。\x0D
+blk:game1:4:54	\x0D你湊近一看，發現了有意思的東西……\x0D
+blk:game1:4:55	\x0D看起來沒什麼用。\x0D
+blk:game1:4:56	\x0D這是軍官俱樂部的入口。\x0D
+blk:game1:4:57	\x0D你找到一道暗門走了進去。\x0D
+blk:game1:4:58	\x0D往下走到地窖。\x0D
+blk:game1:4:59	\x0D往上走。\x0D
+blk:game1:4:60	「退開，不然我開槍了。」\x0D
+blk:game1:4:61	\x0D門上寫著：「我很醜，你不是。」\x0D
+blk:game1:4:64	「我要把你轟成碎片。」\x0D
+blk:game1:4:65	\x0D牆上有一張石英城的地圖。請看第 109 段。\x0D
+blk:game1:4:66	\x0D別站到桌上。\x0D
+blk:game1:4:67	\x0D房裡傳來一個聲音：「怎麼拖這麼久？」你看見費莉西亞·佩德羅斯被綁在椅子上，腿上放著一顆炸彈。醜約翰站在旁邊，一手拿烏茲衝鋒槍，一手握著死人開關。\x0D
+blk:game1:4:68	\x0D「好吧。隨你便。」\x0D
+blk:game1:4:69	\x0D「站住。我是你就不會再靠近。」\x0D
+blk:game1:4:70	\x0D鎮長轉向你，臉上滿是痛苦：「我們一定要救我太太！」\x0D
+blk:game1:4:71	\x0D阿醜說：「讓我活著走出去，我就給你拆彈的密碼。看你們的樣子，沒有密碼是拆不掉的。」\x0D
+blk:game1:4:72	\x0D阿醜的房間。\x0D
+blk:game1:4:73	從浴室角落撲出……\x0D
+blk:game1:4:74	\x0D費莉西亞的碎塊散落一地。\x0D
+blk:game1:4:75	「成交嗎？」\x0D\x0D\x11\x10是\x0D\x10否\x0D
+blk:game1:4:76	Y
+blk:game1:4:77	N
+blk:game1:4:78	\x0D阿醜說：「請看第 26 段。」然後他撥了炸彈上的一個開關就跑了。\x0D
+blk:game1:4:79	\x0D你看見費莉西亞身上的炸彈閃著黃燈和紅燈。\x0D
+blk:game1:4:80	\x0D你讓黃燈停了下來。\x0D
+blk:game1:4:81	\x0D轟！\x0D
+blk:game1:4:82	\x0D紅燈還在閃。\x0D
+blk:game1:4:83	\x0D你成功拆掉炸彈。費莉西亞感激不盡。\x0D
+blk:game1:4:84	「嗨。我叫費莉西亞。」\x0D
+blk:game1:4:85	\x0D請看第 126 段。\x0D
+blk:game1:4:86	輸入炸彈密碼：\x0D
+blk:game1:4:87	\x0D「我很樂意加入你們。」\x0D
+blk:game1:4:88	11-27-57-04-30
+blk:game1:4:89	\x0D燈閃得更快了。\x0D
+blk:game1:4:91	\x0D這間牢房鎖著。\x0D
+blk:game1:4:92	「我是王牌。拜託放我出去。」\x0D
+blk:game1:4:93	\x0D你聽見這間牢房裡有窸窣聲。\x0D
+blk:game1:4:95	\x0D牢房還是關著。\x0D
+blk:game1:4:96	\x0D請看第 35 段。\x0D
+blk:game1:4:97	\x0D別站到櫃檯上。\x0D
+blk:game1:4:98	\x0D屋頂上的狙擊手朝你開火。\x0D
+blk:game1:4:99	\x0D你注意到那張地圖有點怪，把它挪開。\x0D
+blk:game1:4:100	這裡有一個保險箱。可以試著 O)開它，或輸入密碼（"XX-XX-XX"）。\x0D
+blk:game1:4:101	11 16 27
+blk:game1:4:102	11-16-27
+blk:game1:4:103	O
+blk:game1:4:104	喀一聲開了。\x0D
+blk:game1:4:105	\x0D你試著打開保險箱，
+blk:game1:4:106	成功了。\x0D
+blk:game1:4:107	但沒有用。\x0D
+blk:game1:4:108	\x0D這只是一個空衣櫃。\x0D
+blk:game1:4:109	什麼也沒發生。\x0D
+blk:game1:4:110	\x0D你轉動轉盤，
+blk:game1:4:111	AZRAEL
+blk:game1:4:112	MORS
