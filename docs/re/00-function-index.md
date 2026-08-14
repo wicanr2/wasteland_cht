@@ -6,8 +6,8 @@
 輸入：`wl.merged.exe（解包映像＋wla.bin overlay，本專案合成）`，SHA-256 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`
 
 - 自動辨識函式：**641**
-- 已在筆記中出現：**285**
-- 尚未碰過：**356**
+- 已在筆記中出現：**286**
+- 尚未碰過：**355**
 
 ## 已分析（依呼叫端數量排序）
 
@@ -30,7 +30,7 @@
 | `0x1785E` | seg000+0x785E | 7 | 20 | re/14-fonts-and-text-encoding.md |
 | `0x17ACE` | seg000+0x7ACE | 17 | 20 | re/17-packed-text.md |
 | `0x17CB1` | seg000+0x7CB1 | 33 | 19 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/16-msq-block-layout.md、re/24-map-layers-and-tiles.md |
-| `0x172BB` | seg000+0x72BB | 25 | 18 | re/20-combat-resolution.md、re/26-movement-and-triggers.md、re/29-map-event-handlers.md |
+| `0x172BB` | seg000+0x72BB | 25 | 18 | re/20-combat-resolution.md、re/26-movement-and-triggers.md、re/34-map-script-opcodes.md |
 | `0x19BF8` | seg000+0x9BF8 | 4 | 17 | re/20-combat-resolution.md、re/21-attributes.md、re/32-skill-checks-and-xp.md |
 | `0x1C561` | seg000+0xC561 | 15 | 16 | re/17-packed-text.md |
 | `0x13787` | seg000+0x3787 | 16 | 15 | re/20-combat-resolution.md |
@@ -66,7 +66,7 @@
 | `0x11534` | seg000+0x1534 | 177 | 9 | re/06-resource-directory.md、re/30-save-layout.md |
 | `0x118D2` | seg000+0x18D2 | 214 | 9 | re/03-boot-and-asset-loading.md、re/05-storage-layer.md、re/11-huffman-decoder.md |
 | `0x178A0` | seg000+0x78A0 | 3 | 9 | re/16-msq-block-layout.md、re/17-packed-text.md、re/18-block-text.md、re/22-shop-and-items.md、re/29-map-event-handlers.md |
-| `0x17CD2` | seg000+0x7CD2 | 25 | 9 | re/29-map-event-handlers.md |
+| `0x17CD2` | seg000+0x7CD2 | 25 | 9 | re/29-map-event-handlers.md、re/34-map-script-opcodes.md |
 | `0x19E53` | seg000+0x9E53 | 97 | 9 | re/00-master-index.md、re/14-fonts-and-text-encoding.md |
 | `0x1BB5D` | seg000+0xBB5D | 15 | 9 | re/00-master-index.md、re/17-packed-text.md、re/31-experience-and-skills.md |
 | `0x1393E` | seg000+0x393E | 9 | 8 | re/00-master-index.md、re/16-msq-block-layout.md、re/32-skill-checks-and-xp.md |
@@ -96,6 +96,7 @@
 | `0x19EB4` | seg000+0x9EB4 | 4 | 6 | re/26-movement-and-triggers.md |
 | `0x1C213` | seg000+0xC213 | 15 | 6 | re/17-packed-text.md |
 | `0x1003F` | seg000+0x3F | 3 | 5 | re/04-overlay-wla-bin.md |
+| `0x1142B` | seg000+0x142B | 13 | 5 | re/34-map-script-opcodes.md |
 | `0x129E9` | seg000+0x29E9 | 87 | 5 | re/16-msq-block-layout.md |
 | `0x16619` | seg000+0x6619 | 45 | 5 | re/00-master-index.md、re/25-screen-layout.md、re/26-movement-and-triggers.md |
 | `0x169EB` | seg000+0x69EB | 13 | 5 | re/00-master-index.md、re/26-movement-and-triggers.md |
@@ -183,7 +184,7 @@
 | `0x1254A` | seg000+0x254A | 7 | 2 | re/27-game-clock.md |
 | `0x1295D` | seg000+0x295D | 89 | 2 | re/20-combat-resolution.md |
 | `0x12A76` | seg000+0x2A76 | 23 | 2 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/20-combat-resolution.md、re/22-shop-and-items.md、re/32-skill-checks-and-xp.md |
-| `0x12C80` | seg000+0x2C80 | 54 | 2 | re/29-map-event-handlers.md |
+| `0x12C80` | seg000+0x2C80 | 54 | 2 | re/29-map-event-handlers.md、re/34-map-script-opcodes.md |
 | `0x1379E` | seg000+0x379E | 48 | 2 | re/00-master-index.md、re/24-map-layers-and-tiles.md |
 | `0x13AE4` | seg000+0x3AE4 | 366 | 2 | re/21-attributes.md |
 | `0x141FA` | seg000+0x41FA | 156 | 2 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/19-effects-and-damage.md |
@@ -235,7 +236,7 @@
 | `0x1002D` | seg000+0x2D | 3 | 1 | re/04-overlay-wla-bin.md |
 | `0x10030` | seg000+0x30 | 3 | 1 | re/04-overlay-wla-bin.md |
 | `0x10033` | seg000+0x33 | 3 | 1 | re/04-overlay-wla-bin.md |
-| `0x10036` | seg000+0x36 | 3 | 1 | re/04-overlay-wla-bin.md、re/29-map-event-handlers.md |
+| `0x10036` | seg000+0x36 | 3 | 1 | re/04-overlay-wla-bin.md、re/34-map-script-opcodes.md |
 | `0x1003C` | seg000+0x3C | 3 | 1 | re/04-overlay-wla-bin.md |
 | `0x10048` | seg000+0x48 | 3 | 1 | re/04-overlay-wla-bin.md |
 | `0x1004B` | seg000+0x4B | 3 | 1 | re/04-overlay-wla-bin.md |
