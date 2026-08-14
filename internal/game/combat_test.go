@@ -284,8 +284,8 @@ func TestEnemyDataRemainingFields(t *testing.T) {
 	if d.Kind != KindRobot || d.Kind.MessageID() != 0x57 {
 		t.Fatalf("種類 %d、訊息編號 %#x", d.Kind, d.Kind.MessageID())
 	}
-	if d.Pronoun != 31 {
-		t.Fatalf("代名詞索引應該是 31，得到 %d", d.Pronoun)
+	if d.Field7 != 31 {
+		t.Fatalf("+0x07 應該原樣保留 31，得到 %d", d.Field7)
 	}
 	// +0x04 的高 4 位沒有讀者，但 byte 要原樣留著。
 	if d.Raw[4] != 0xA3 {

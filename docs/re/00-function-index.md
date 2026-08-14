@@ -6,8 +6,8 @@
 輸入：`wl.merged.exe（解包映像＋wla.bin overlay，本專案合成）`，SHA-256 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`
 
 - 自動辨識函式：**641**
-- 已在筆記中出現：**386**
-- 尚未碰過：**255**
+- 已在筆記中出現：**387**
+- 尚未碰過：**254**
 
 ## 已分析（依呼叫端數量排序）
 
@@ -93,6 +93,7 @@
 | `0x17868` | seg000+0x7868 | 6 | 7 | re/40-combat-screen.md |
 | `0x17CFF` | seg000+0x7CFF | 53 | 7 | re/00-master-index.md、re/29-map-event-handlers.md、re/46-typed-answers-and-text-input.md |
 | `0x17DC7` | seg000+0x7DC7 | 25 | 7 | re/26-movement-and-triggers.md、re/29-map-event-handlers.md |
+| `0x190A8` | seg000+0x90A8 | 16 | 7 | re/00-master-index.md、re/37-enemy-records-and-hp.md |
 | `0x196B2` | seg000+0x96B2 | 18 | 7 | re/37-enemy-records-and-hp.md、re/41-command-handlers.md |
 | `0x199F1` | seg000+0x99F1 | 11 | 7 | re/00-master-index.md、re/22-shop-and-items.md、re/29-map-event-handlers.md、re/39-encounter-scan.md、re/45-item-data-and-weapon-damage.md |
 | `0x19AC8` | seg000+0x9AC8 | 5 | 7 | re/00-master-index.md |
@@ -271,7 +272,7 @@
 | `0x18146` | seg000+0x8146 | 72 | 2 | re/00-master-index.md、re/32-skill-checks-and-xp.md |
 | `0x1820C` | seg000+0x820C | 124 | 2 | re/00-master-index.md、re/32-skill-checks-and-xp.md |
 | `0x1830E` | seg000+0x830E | 12 | 2 | re/20-combat-resolution.md |
-| `0x184E8` | seg000+0x84E8 | 252 | 2 | re/00-master-index.md、re/05-storage-layer.md、re/07-msq-blocks.md、re/10-huffman-compression.md、re/23-picture-format.md、re/29-map-event-handlers.md |
+| `0x184E8` | seg000+0x84E8 | 252 | 2 | re/00-master-index.md、re/05-storage-layer.md、re/07-msq-blocks.md、re/10-huffman-compression.md、re/23-picture-format.md、re/29-map-event-handlers.md、re/37-enemy-records-and-hp.md |
 | `0x185E6` | seg000+0x85E6 | 110 | 2 | re/10-huffman-compression.md |
 | `0x19362` | seg000+0x9362 | 50 | 2 | re/15-character-record.md、re/17-packed-text.md |
 | `0x19454` | seg000+0x9454 | 74 | 2 | re/00-master-index.md、re/15-character-record.md |
