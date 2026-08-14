@@ -1,6 +1,6 @@
 # 02：`wl.exe` 是 EXEPACK 打包的，解包後才是真正的分析對象
 
-日期：2026-08-13 ｜ 狀態：格式與解包過程已確認；「解包映像等同原版執行行為」目前是**強證據**（見 §5）
+日期：2026-08-13（§5 於 2026-08-15 更新）｜ 狀態：**全部已確認**——解包映像已在 DOSBox 實跑，畫面與原版逐像素相同（§5）
 
 ## 1. 打包器身分
 
@@ -91,9 +91,14 @@ stub 裡的錯誤訊息在 IDA 顯示成 `Packed file is corrupt#`，看起來�
    `ALLPICS1`／`ALLPICS2`／`ALLHTDS1`／`ALLHTDS2`／`END.CPA`／`WLA.BIN`／
    `COLORF.FNT`／`IC0_9.WLF`／`MASKS.WLF`／`TRANSTBL`／`TITLE.PIC`。
 
-**還沒做的驗證**：解包映像**尚未實際執行過**。要把「解包映像的行為等同原版」從
-強證據升為已確認，需要在 DOSBox 裡跑起來，並與原版 `wl.exe` 做同輸入的行為對照。
-在那之前，任何依賴「執行時期行為」的結論都要標明這個前提。
+**已驗證（2026-08-15）**：解包映像複製成 `WLU.EXE` 在 headless DOSBox 裡跑起來，
+與原版同一個時間點的畫面用 `compare -metric AE` 比對，**0 個不同的像素**
+（`docs/re/47` §3）。「解包映像的行為等同原版」升為**已確認**。
+
+```bash
+cp workplace/analysis/unpacked/wl.unpacked.exe workplace/dosbox/game/WLU.EXE
+tools/dosbox.sh "wait:6;shot:02-unpacked" "fixed 3000" WLU
+```
 
 ## 6. 解包後的基準資料庫
 

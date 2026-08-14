@@ -390,7 +390,7 @@
 | `0x1C073` | seg000+0xC073 | 205 | 1 | re/22-shop-and-items.md、re/29-map-event-handlers.md、re/42-facility-loops.md |
 | `0x1C140` | seg000+0xC140 | 72 | 1 | re/22-shop-and-items.md、re/42-facility-loops.md、re/45-item-data-and-weapon-damage.md |
 | `0x1C5B0` | seg000+0xC5B0 | 88 | 1 | re/32-skill-checks-and-xp.md、re/35-status-and-healing.md |
-| `0x1C6C9` | seg000+0xC6C9 | 789 | 1 | re/00-master-index.md、re/21-attributes.md、re/45-item-data-and-weapon-damage.md |
+| `0x1C6C9` | seg000+0xC6C9 | 789 | 1 | re/00-master-index.md、re/21-attributes.md、re/45-item-data-and-weapon-damage.md、re/47-dosbox-oracle.md |
 | `0x1CB30` | seg000+0xCB30 | 55 | 1 | re/27-game-clock.md |
 | `0x1CB67` | seg001+0x0 | 10 | 1 | re/00-master-index.md、re/02-exepack-unpack.md、re/44-audio.md |
 | `0x1CB75` | seg001+0xE | 53 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/44-audio.md |
