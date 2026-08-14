@@ -19,9 +19,10 @@
 | [`05-character-and-save.md`](05-character-and-save.md) | **READY**（已實作） | `internal/assets` ✅、`internal/game` ✅ | — |
 | [`06-combat.md`](06-combat.md) | **READY**（已實作） | `internal/game` ✅ | — |
 | [`07-world-events.md`](07-world-events.md) | **READY**（已實作） | `internal/assets` ✅、`internal/game` ✅ | — |
+| [`09-facilities.md`](09-facilities.md) | **READY**（已實作） | `internal/game` ✅ | — |
 | `08-audio.md` | 未寫 | `internal/audio` | F2 位元組碼指令集與曲目資料未解 |
 
-**七份 READY 規格涵蓋資產層、呈現層、亂數，以及規則層的四塊**——
+**八份 READY 規格涵蓋資產層、呈現層、亂數，以及規則層的五塊**——
 走一步、遊戲時鐘、體力隨時間恢復、事件分派的骨架。
 只剩 `08`（音效）等 F2 的位元組碼指令集。
 
@@ -55,7 +56,8 @@
 8. 存檔與角色記錄      ← 規格 05；**已完成**（round-trip byte-for-byte、升級與技能公式）
 9. 世界事件與檢定      ← 規格 07；**已完成**（section 定址、條件串列、檢定與練等、腳本直譯器）
 10. 戰鬥               ← 規格 06；**已完成**（命中、兩種傷害、護甲、傷勢、擊殺經驗值）
-11. 音效               ← 規格 08；等 F2 的位元組碼指令集解出來
+11. 設施               ← 規格 09；**已完成**（商店價格、醫生三種收費、訓練師）
+12. 音效               ← 規格 08；等 F2 的位元組碼指令集解出來
 ```
 
 相依取得方式（2026-08-15 定案）：**唯讀掛載本機模組快取當 file proxy**，

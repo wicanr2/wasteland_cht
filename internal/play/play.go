@@ -168,7 +168,11 @@ func (s *Scene) describe(res game.StepResult) string {
 	case game.EventGate:
 		return "BLOCKED BY SOMETHING."
 	case game.EventFacility:
-		return "A PLACE."
+		// bit7 設起來的是設施畫面，沒設的是腳本指令（docs/spec/09 §2）。
+		if f, ok := game.ParseFacility(res.Event.Data); ok {
+			return f.Name
+		}
+		return "SOMETHING HAPPENS."
 	}
 	if res.Encounter {
 		return "YOU ARE BEING ATTACKED!"
