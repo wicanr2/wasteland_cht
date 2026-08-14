@@ -93,14 +93,17 @@ seek 之後載入器先讀 4 bytes，再依讀到的內容決定後續：
 `mov word ptr ds:4680h, 9274h` ＋ `call sub_1786E`（`docs/re/03` §2）
 與這裡是同一套機制，兩處互相印證。
 
-**`wl.exe` 內的介面文字是明文 ASCII**（`Yes`、`CREATE DELETE PLAY`、
+**執行檔裡有一小批明文 ASCII 的介面字串**（`Yes`、`CREATE DELETE PLAY`、
 `YOU ARE NOT SMART ENOUGH!`、`Money = $` 等，見 `docs/re/generated/ida94/file-io.json`），
-沒有經過編碼。中文化時這一批可以直接處理，但受限於 8×8 字型與固定欄寬。
+中文化時這一批可以直接處理，但受限於 8×8 字型與固定欄寬。
 
-至於劇情文字，目前**沒有證據**顯示它在 `wl.exe` 裡——合理的位置是 `GAME1`／`GAME2`，
-編碼方式未知。先前把 `0x29FAE` 的 ` etraoishlnd` 之類字串當成頻率表是**沒有根據的猜測**，
-追下去發現 `0x2786D` 的 `bcdefghijklmdenopq` 其實是被 `sub_166D3` 逐字印出的**畫面內容**，
-不是解碼表。這類字串在證實之前不要當線索用。
+**遊戲文字本體不在這一批裡**：執行檔九張 5-bit 打包表 442 條、42 個地圖區塊
+4,493 條，合計 4,935 條（`docs/re/17`、`18`）。掃 ASCII 掃不到它們是正常的，
+所以「掃不到就是沒有」對這個遊戲不成立。
+
+`0x2786D` 的 `bcdefghijklmdenopq` 是被 `sub_166D3` 逐字印出的**畫面內容**，不是解碼表；
+`0x29FAE` 的 ` etraoishlnd` 才是字元對照表（`docs/re/17` §3）。
+**憑字串長相判斷用途要追到引用點才算數。**
 
 ## 4. 未解與下一步
 
