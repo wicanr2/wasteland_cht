@@ -15,7 +15,7 @@
 | 資源目錄與位移表 | 已確認 | [`re/06`](../re/06-resource-directory.md)、[`re/07`](../re/07-msq-blocks.md) |
 | MSQ 加密（42/42） | 已確認 | [`re/08`](../re/08-msq-encryption.md)、[`re/18`](../re/18-block-text.md) §2 |
 | Huffman 解壓（173 塊） | 已確認 | [`re/10`](../re/10-huffman-compression.md)、[`re/11`](../re/11-huffman-decoder.md) |
-| 5-bit 打包文字（4,935 條） | 已確認 | [`re/17`](../re/17-packed-text.md)、[`re/18`](../re/18-block-text.md) |
+| 5-bit 打包文字（4,827 條非空） | 已確認 | [`re/17`](../re/17-packed-text.md)、[`re/18`](../re/18-block-text.md) |
 | 兩套字型 | 已確認 | [`re/14`](../re/14-fonts-and-text-encoding.md) |
 | 圖片格式（82 張 ＋ 標題） | 已確認 | [`re/23`](../re/23-picture-format.md) |
 | 圖磚與地圖三層（42/42、9/9） | 已確認 | [`re/24`](../re/24-map-layers-and-tiles.md) |
@@ -120,11 +120,11 @@ section 的形狀（型別 3、5 已驗證）：`[16-bit 指標陣列][記錄本
 `0x1E` ＝ 下一個字元轉大寫、`0x1F` ＝ escape（讀下一個符號 ＋ 0x1E）。
 **每張表有自己的字元對照表，不能共用。**
 
-| 來源 | 張數 | 字串數 |
-|---|---:|---:|
-| 執行檔（基址見 `re/00-master-index` §5.1） | 9 | 442 |
-| 42 個 MSQ 區塊（各一張） | 42 | 4,493 |
-| 合計 | 51 | **4,935** |
+| 來源 | 張數 | 字串槽 | 非空 |
+|---|---:|---:|---:|
+| 執行檔（基址見 `re/00-master-index` §5.1） | 9 | 444 | 426 |
+| 42 個 MSQ 區塊（各一張） | 42 | 4,445 | 4,401 |
+| 合計 | 51 | **4,889** | **4,827** |
 
 字串內的機制：`\n` 分隔字根／單數字尾／複數字尾；`0x0B` 插入角色名字；
 `0x0C` 夾 his/her 做性別選字；`0x0D` 段內換行。
@@ -222,7 +222,7 @@ func (r *Rom) FontColor() *Font                     // 8×8 四平面
 1. **雜湊驗證**：20 個檔案的 SHA-256 全部對上；改一個 byte 就要拒絕載入。
 2. **全量解碼**：42 個 MSQ 區塊全部通過原版自己的 checksum；
    173 個 Huffman 子區塊長度精確吻合；9 個圖磚組長度都整除 128。
-3. **文字**：解出 4,935 條字串，數量與 `tools/decode_text.py`／`decode_block_text.py` 一致。
+3. **文字**：解出 4,889 個字串槽、4,827 條非空，與 `tools/decode_text.py`／`decode_block_text.py` 一致。
 4. **round-trip**：`Block.Raw` 原樣寫回，與原始檔 **byte-for-byte 相同**。
 5. **對原版畫面**：任取一張 `ALLPICS` 圖與一組圖磚，在 DOSBox 跑原版截同一張圖，
    與解碼結果**逐像素比對**（調色盤未定案前比索引值，不比 RGB）。

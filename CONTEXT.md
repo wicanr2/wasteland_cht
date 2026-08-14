@@ -45,7 +45,7 @@
 | 文字輸出 | `sub_1786E` 印字串（`ds:4680h`）→ 每字元處理器可切換（`ds:B265h`）。**遊戲文字是 5-bit 打包的**（`docs/re/17`）；只有少數介面字串（`Yes`、`CREATE DELETE PLAY`、`Money = $`）以明文 ASCII 存在執行檔裡 |
 | `wla.bin` overlay | 26 個 slot 的 API 表、EGA mode 0Dh、列位址表、畫字元（字型 172 字 × 32 bytes、8×8、4 平面）、清除矩形（`docs/re/04`） |
 | **亂數產生器** | **已解**：`sub_18E6B` 是 `ds:465Ch`–`4660h` 五個位元組的進位鏈，映像初值全零、全檔沒有種子設定，熵來自鍵盤輪詢次數。擲骰層四支（d6／dN／累加 Nd6／2d6 同點續擲）全部讀完並以模型驗證（`docs/re/13`、`tools/rng.py`） |
-| **文字編碼** | **已解**：遊戲文字是 **5-bit 打包 ＋ 60 字元對照表**。執行檔九張表 442 條、42 個地圖區塊各一張表共 4,493 條，**合計 4,935 條全部解出**（`docs/re/17`、`18`）|
+| **文字編碼** | **已解**：遊戲文字是 **5-bit 打包 ＋ 60 字元對照表**。執行檔九張表 426 條、42 個地圖區塊各一張表共 4,401 條，**合計 4,827 條非空全部解出**（`docs/re/17`、`18`）|
 | **MSQ 區塊佈局** | **已解**：地圖區長度由選擇表決定（`0x600` ＝ 邊長 32／`0x1800` ＝ 邊長 64，只有 4 塊是大地圖），之後是 0x5C bytes 的記錄區標頭，41/42 個區塊第一個 section 落在 `P+0x5C`。取記錄走兩層索引（`sub_17CB1`），記錄指標落在 `ds:46AEh`（`docs/re/16`） |
 | **地圖三層與圖磚** | **已解**：地圖是正方形（邊長在記錄區標頭 `+0x2C`，32 或 64），分三層——第 1 層 4 bits／格是 section 型別、第 2 層 1 byte／格是記錄編號、**第 3 層（Huffman 尾段）是畫面上的圖形編號**（0–9 是 `IC0_9.WLF` 的疊圖，≥10 是圖磚編號 −10；`0x420 ＋ 10 × 128 ＝ 0x920` 剛好接上圖磚組）。**圖磚在 `ALLHTDS`**：9 組、每組 66–163 張，一張 128 bytes ＝ **16 × 16 packed 4bpp**，由標頭 `+0x30` 選組。畫一格走 `螢幕 ← (背景 AND 遮罩) OR 疊圖`（overlay slot 4），42 張地圖的縮圖都畫得出來（`docs/re/24`）|
 | **遊戲時鐘** | **已解**：24 小時制（`ds:4658h` 分的小數／`4659h` 分／`465Ah` 時），走一步推進的量寫在該地圖的記錄區標頭 `+0x34/+0x35`——荒野 4 分鐘、一般室內 15 秒。時鐘畫在外框上緣（字元欄 28、列 0）；**晝夜門檻 6 時與 18 時**，夜間換圖形、記錄也有白天／夜間兩套欄位。每 16 刻跑一次隨時間的角色處理（`docs/re/27`）|
@@ -68,13 +68,14 @@
 |---|---|
 | 解包映像實跑驗證 | **未做**。要在 DOSBox 跑起來與原版對照，才能把「解包等同原版」升為已確認 |
 | 資料格式 | 已解：`wla.bin`（overlay 程式碼）、`title.pic`（XOR 串流）、`colorf.fnt`（172 字 × 32 bytes，格式與用途都已驗證）、主文字字型（內嵌）、`GAME1`／`GAME2` 的定址方式。`allpics1/2` 的 82 張圖（`docs/re/23`）、`allhtds1/2` 的 9 組圖磚（`docs/re/24`）。`ic0_9.wlf`／`masks.wlf` 的格式與用途（`docs/re/24` §2.3）。未解：`allpics*` 交錯的參數區、`transtbl`、`curs`、`end.cpa` |
-| 劇情敘述文字 | **已解**：執行檔九張打包表 442 條 ＋ 地圖區塊 4,493 條，合計 4,935 條（`docs/re/17`、`18`）。與紙本段落書 162 段的分工待段落呼叫表解出 |
+| 劇情敘述文字 | **已解**：執行檔九張打包表 426 條 ＋ 地圖區塊 4,401 條，合計 4,827 條非空（`docs/re/17`、`18`）。與紙本段落書 162 段的分工待段落呼叫表解出 |
 | MSQ 尾段 | 已解：無 magic 的 Huffman 流，42/42 解出 4,096 或 1,024 bytes ＝ 地圖第 3 層（每格 1 byte，`docs/re/24`） |
 | **Huffman 解壓** | **已實作並驗證**（`tools/huffman.py`）：`allhtds1/2`、`allpics1/2`、`end.cpa` 共 173 個子區塊全部解出，長度精確吻合、檔案 100% 用完（`docs/re/11`） |
 | 載入器分工 | 已解：`DL`＝0 ALLPICS、1 GAME／存檔、2 ALLHTDS、6 END.CPA，各有位移表 |
 | 說明書整理 | 英文手冊、段落書、軟體世界中文說明書都完成；社群攻略未開始 |
 | **規格（G2）** | **三份 READY**：`docs/spec/01`（資產與資料格式）、`02`（亂數與擲骰）、`03`（畫面與文字）。其餘五份要等對應逆向補完 |
-| Go 引擎 | **`internal/assets`、`internal/ui`、`internal/game/rng` 已可動工**（規格 READY）；規則層仍不得開始 |
+| **`internal/assets`** | **已實作並通過驗收**：SHA-256 驗證、資源定址、MSQ 解密、Huffman、5-bit 文字、兩套字型、圖片／圖磚／地圖三層。9 個測試全綠，含 `Raw` 的 byte-for-byte round-trip（`tools/go.sh test ./...`）|
+| Go 引擎（其餘） | `internal/ui`、`internal/game/rng` 規格 READY 可動工；規則層仍不得開始 |
 
 ## 3. 文件索引
 
@@ -101,7 +102,7 @@
 | [`docs/re/15-character-record.md`](docs/re/15-character-record.md) | 角色記錄的兩層定址、欄位表、傷勢等級與門檻、名片行的欄位座標 |
 | [`docs/re/16-msq-block-layout.md`](docs/re/16-msq-block-layout.md) | MSQ 區塊的整體佈局、地圖區長度與尺寸、記錄區標頭、section 位移表與兩層索引 |
 | [`docs/re/17-packed-text.md`](docs/re/17-packed-text.md) | 5-bit 打包文字的格式與解碼器、執行檔九張字串表、單複數與性別機制、名片欄位對照 |
-| [`docs/re/18-block-text.md`](docs/re/18-block-text.md) | 地圖區塊的字串表：加密長度就是字串表基址、完整區塊佈局、4,493 條敘述文字 |
+| [`docs/re/18-block-text.md`](docs/re/18-block-text.md) | 地圖區塊的字串表：加密長度就是字串表基址、完整區塊佈局、4,401 條敘述文字 |
 | [`docs/re/19-effects-and-damage.md`](docs/re/19-effects-and-damage.md) | 資料驅動的效果系統（記錄 `+0x08`／`+0x09`）、傷害與護甲、單複數選擇器 |
 | [`docs/re/20-combat-resolution.md`](docs/re/20-combat-resolution.md) | 命中判定（d100 對門檻）、武器傷害公式、一次攻擊的完整流程 |
 | [`docs/re/21-attributes.md`](docs/re/21-attributes.md) | 七個屬性的記錄位移、屬性→修正值階梯、檢定骰、角色建立 |
@@ -115,6 +116,7 @@
 | [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
 | [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |
 | [`docs/spec/03-screen-and-text.md`](docs/spec/03-screen-and-text.md) | READY：畫布、五個視窗、座標單位、控制碼、中文版面的兩條路 |
+| `internal/assets/` | 資產解碼層的實作（規格 01）。`tools/go.sh` 是 Go 的唯一入口，編譯與測試走 docker |
 | [`docs/manual-cht/`](docs/manual-cht/) | 軟體世界 1990 中文說明書全 60 頁節轉錄 ＋ 當年譯名表 |
 | [`docs/manual/`](docs/manual/) | 官方英文手冊全文 markdown |
 | [`docs/paragraphs/`](docs/paragraphs/) | 段落書 162 段全文與索引，含防拷結構標註 |
@@ -152,6 +154,7 @@
 | 解密要對整個 MSQ 區塊做 | 原版只解到「標頭第一個 word」那個長度為止；多解的那一段被 XOR 破壞成高熵資料，看起來像壓縮或未知格式 | 加密長度 ＝ 標頭第一個 word，而**同一個 word 就是字串表的基址**——字串表接在加密區之後且不加密（`docs/re/18` §2）|
 | 原版遊戲檔案裡沒有長篇敘述文字 | 依據是「掃不到 24 字元以上的 ASCII」，而遊戲文字是 5-bit 打包的，本來就掃不到 | 執行檔九張表 442 條（含完整的結局敘述）＋ 42 個地圖區塊 4,493 條，合計 **4,935 條**（`docs/re/17`、`18`） |
 | ` etraoishlnd` 是文字解碼的頻率表 | 憑字串長相猜的；第一次推翻時只否定了「是頻率表」，沒找出它到底是什麼，於是同一個字串被猜了兩次 | 它是結局敘述字串表的**字元對照表**，`0x1B7BF` 就是載入它的地方（`docs/re/17` §3） |
+| 遊戲文字共 4,935 條（執行檔 442 ＋ 區塊 4,493） | 兩個數字都是工具的產物而不是資料本身：`decode_block_text.py` 把「整個區塊」餵給解碼器，但原版只把 `ds:BD22h` 那麼長讀進緩衝區，多出來的壓縮尾段被 5-bit 解成看起來像文字的雜訊；另一支則用「看起來像不像文字」的啟發式裁掉尾巴，連真字串一起丟 | **4,889 個字串槽、4,827 條非空**（執行檔 444／426、區塊 4,445／4,401）。Go 與 Python 兩套獨立實作逐塊相同（`internal/assets`、`docs/re/18`） |
 | MSQ 資源的前 2 bytes 是長度 | 把 `mov cx, [bx]` 當成「取剛讀進來的 header」，其實 `ds:46B0h` 是別處設好的緩衝區位址 | 那 4 bytes 是 magic `msq0`／`msq1`；長度來源仍未解（`docs/re/07` §7） |
 
 ## 7. Worklist

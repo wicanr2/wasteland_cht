@@ -12,7 +12,7 @@
 
 | 規格 | 狀態 | 對應的 `internal/` | 擋住它的東西 |
 |---|---|---|---|
-| [`01-assets-and-formats.md`](01-assets-and-formats.md) | **READY** | `internal/assets` | — |
+| [`01-assets-and-formats.md`](01-assets-and-formats.md) | **READY**（已實作） | `internal/assets` ✅ | — |
 | [`02-rng-and-dice.md`](02-rng-and-dice.md) | **READY** | `internal/game/rng` | — |
 | [`03-screen-and-text.md`](03-screen-and-text.md) | **READY** | `internal/ui`、`internal/textlayout` | — |
 | `04-movement-and-clock.md` | 未寫 | `internal/game` | 事件處理函式 5／8／9 未讀（`docs/re/26` §8） |
@@ -44,7 +44,7 @@
 ## 4. 實作順序建議
 
 ```
-1. internal/assets   ← 規格 01；先做解碼與 round-trip 測試
+1. internal/assets   ← 規格 01；**已完成**（9 個測試全綠，含 round-trip）
 2. internal/ui       ← 規格 03；把 assets 的輸出畫出來，與原版截圖對拍
 3. internal/game/rng ← 規格 02；獨立、可先做
 4. 其餘              ← 等對應規格 READY

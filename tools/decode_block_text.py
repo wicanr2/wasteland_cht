@@ -23,6 +23,7 @@ from decode_text import decode_table  # noqa: E402
 
 DS = 0x1CE20
 BLOCK_LENGTHS = 0xBD86
+READ_LENGTHS = 0xBD22  # 載入器實際讀進緩衝區的長度——字串只能解到這裡為止
 DIRECTORY = 0xBEC9
 MAP_SIZE_SELECTOR = 0xBF1C
 
@@ -60,6 +61,10 @@ def main() -> None:
         struct.unpack_from("<H", exe, at(BLOCK_LENGTHS) + i * 2)[0]
         for i in range(len(directory))
     ]
+    read_len = [
+        struct.unpack_from("<H", exe, at(READ_LENGTHS) + i * 2)[0]
+        for i in range(len(directory))
+    ]
 
     files = {"game1": g1_p.read_bytes(), "game2": g2_p.read_bytes()}
     cursor = {"game1": 0, "game2": 0}
@@ -76,7 +81,9 @@ def main() -> None:
         span = data[off : off + block_len[res_id]]
         checksum = struct.unpack_from("<H", span, 4)[0]
         header_at = 0x1800 if selector[res_id] == 0x40 else 0x600
-        body, length = decrypt_block(span[6:], checksum, header_at)
+        # ⚠ 只餵「載入器實際讀進來」的那一段。多餵的部分是壓縮的尾段，
+        # 解 5-bit 會解出看起來像文字的雜訊，而且一路解到檔案結束。
+        body, length = decrypt_block(span[6 : read_len[res_id]], checksum, header_at)
 
         entry: dict = {
             "resource_id": res_id,
@@ -96,19 +103,19 @@ def main() -> None:
             entry["error"] = str(exc)
             blocks.append(entry)
             continue
-        usable = table["usable_string_count"]
-        strings = table["strings"][:usable]
+        strings = table["strings"]
         entry["group_count"] = table["group_count"]
-        entry["string_count"] = usable
+        entry["slot_count"] = len(strings)
         entry["alphabet"] = table["alphabet"]
         entry["strings"] = strings
         total += sum(1 for s in strings if s)
         blocks.append(entry)
 
-    decoded = [b for b in blocks if "string_count" in b]
+    decoded = [b for b in blocks if "slot_count" in b]
     summary = {
         "block_count": len(blocks),
         "blocks_with_text": len(decoded),
+        "slot_total": sum(b.get("slot_count", 0) for b in blocks),
         "non_empty_strings": total,
         "longest": max(
             ((len(s), b["resource_id"]) for b in decoded for s in b["strings"]),

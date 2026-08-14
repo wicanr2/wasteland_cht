@@ -1,0 +1,332 @@
+package assets
+
+import (
+	"bytes"
+	"os"
+	"testing"
+)
+
+// 這些測試吃玩家自備的原版資料（不入版控）。沒有就整包跳過，
+// 但**跳過會明講**——沉默的跳過與通過長得一模一樣。
+const (
+	romDir    = "../../workplace/orig/wastland"
+	imagePath = "../../workplace/analysis/unpacked/wl.merged.exe"
+)
+
+func openRom(t *testing.T) *Rom {
+	t.Helper()
+	if _, err := os.Stat(romDir); err != nil {
+		t.Skipf("找不到原版資料目錄 %s，跳過（玩家自備）", romDir)
+	}
+	rom, err := Open(romDir)
+	if err != nil {
+		t.Fatalf("Open：%v", err)
+	}
+	return rom
+}
+
+func openWithImage(t *testing.T) *Rom {
+	t.Helper()
+	rom := openRom(t)
+	if _, err := os.Stat(imagePath); err != nil {
+		t.Skipf("找不到分析映像 %s，跳過（tools/unpack_exepack.py 的產物）", imagePath)
+	}
+	if err := rom.LoadImage(imagePath); err != nil {
+		t.Fatalf("LoadImage：%v", err)
+	}
+	return rom
+}
+
+func TestOpenVerifiesHashes(t *testing.T) {
+	rom := openRom(t)
+	if len(rom.files) != len(KnownFiles) {
+		t.Fatalf("載入 %d 個檔案，應該是 %d 個", len(rom.files), len(KnownFiles))
+	}
+}
+
+func TestOpenRejectsTamperedFile(t *testing.T) {
+	rom := openRom(t)
+	dir := t.TempDir()
+	for name := range KnownFiles {
+		data, err := rom.File(name)
+		if err != nil {
+			t.Fatal(err)
+		}
+		out := append([]byte(nil), data...)
+		if name == "info" {
+			out[0] ^= 0xFF // 動一個 byte
+		}
+		if err := os.WriteFile(dir+"/"+name, out, 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if _, err := Open(dir); err == nil {
+		t.Fatal("改過一個 byte 還是通過了——雜湊驗證沒有生效")
+	}
+}
+
+// 42 個 MSQ 區塊全部解得開，而且三層的長度都對得上（docs/spec/01 §4）。
+func TestAllBlocksDecode(t *testing.T) {
+	rom := openWithImage(t)
+	res, err := rom.Resources()
+	if err != nil {
+		t.Fatalf("Resources：%v", err)
+	}
+	if len(res) != 42 {
+		t.Fatalf("解出 %d 個 MSQ 資源，應該是 42 個", len(res))
+	}
+
+	dims := map[int]int{}
+	tilesets := map[int]bool{}
+	strings := 0
+	for i := range res {
+		b, err := rom.Block(i)
+		if err != nil {
+			t.Fatalf("區塊 %d：%v", i, err)
+		}
+		if len(b.Terrain) != b.Dim*b.Dim || len(b.Record) != b.Dim*b.Dim || len(b.Graphic) != b.Dim*b.Dim {
+			t.Fatalf("區塊 %d 的三層長度不一致", i)
+		}
+		dims[b.Dim]++
+		tilesets[b.Tileset] = true
+		strings += countNonEmpty(b.Strings)
+	}
+	if dims[32] != 38 || dims[64] != 4 {
+		t.Fatalf("邊長分佈是 %v，應該是 32 × 38、64 × 4", dims)
+	}
+	if len(tilesets) != 9 {
+		t.Fatalf("用到 %d 個圖磚組，應該是 9 個", len(tilesets))
+	}
+	// 字串保留空槽（編號就是索引），所以比對的是非空的條數。
+	if strings != 4401 {
+		t.Fatalf("區塊的非空字串共 %d 條，應該是 4,401 條", strings)
+	}
+}
+
+// 未解區域要能原樣寫回：Raw 的加密段重新加密後，必須與原始檔 byte-for-byte 相同。
+func TestBlockRawRoundTrip(t *testing.T) {
+	rom := openWithImage(t)
+	res, err := rom.Resources()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i, r := range res {
+		b, err := rom.Block(i)
+		if err != nil {
+			t.Fatalf("區塊 %d：%v", i, err)
+		}
+		data, err := rom.File(r.File)
+		if err != nil {
+			t.Fatal(err)
+		}
+		span := data[r.Offset : r.Offset+r.TotalLen]
+		checksum := le16(span, 4)
+
+		// 重新加密：同一把 key、同一個長度
+		enc := append([]byte(nil), b.Raw...)
+		key := byte(checksum&0xFF) ^ byte(checksum>>8)
+		for j := 0; j < b.EncLen && j < len(enc); j++ {
+			enc[j] = b.Raw[j] ^ key
+			key += 0x1F
+		}
+		if !bytes.Equal(enc, span[6:r.ReadLen]) {
+			t.Fatalf("區塊 %d 的加密段 round-trip 不一致", i)
+		}
+	}
+}
+
+func TestExeStrings(t *testing.T) {
+	rom := openWithImage(t)
+	tables, err := rom.ExeStrings()
+	if err != nil {
+		t.Fatalf("ExeStrings：%v", err)
+	}
+	if len(tables) != 9 {
+		t.Fatalf("解出 %d 張表，應該是 9 張", len(tables))
+	}
+	slots, nonEmpty := 0, 0
+	for _, tb := range tables {
+		slots += len(tb)
+		nonEmpty += countNonEmpty(tb)
+	}
+	// 一組固定四個槽，最後一組不一定用滿——所以槽數與非空條數要分開看。
+	if slots != 444 || nonEmpty != 426 {
+		t.Fatalf("執行檔字串是 %d 個槽、%d 條非空，應該是 444／426", slots, nonEmpty)
+	}
+	// 第一張表的第一條是開場字幕，用它確認解碼方向沒錯。
+	if len(tables[0]) < 2 || !bytes.Contains([]byte(tables[0][1]), []byte("Electronic Arts")) {
+		t.Fatalf("開場字幕解出來的是 %q", tables[0])
+	}
+}
+
+func TestPicturesAndTiles(t *testing.T) {
+	rom := openRom(t)
+
+	title, err := rom.Title()
+	if err != nil {
+		t.Fatalf("Title：%v", err)
+	}
+	if title.Width != 288 || title.Height != 128 {
+		t.Fatalf("標題畫面是 %d × %d", title.Width, title.Height)
+	}
+	if used := colorsUsed(title); used != 16 {
+		t.Fatalf("標題畫面用到 %d 種顏色，應該是 16 種", used)
+	}
+
+	pics := 0
+	for _, name := range []string{"allpics1", "allpics2"} {
+		list, err := rom.Pictures(name)
+		if err != nil {
+			t.Fatalf("%s：%v", name, err)
+		}
+		for _, p := range list {
+			if p.Width != 96 || p.Height != 84 {
+				t.Fatalf("%s 有一張是 %d × %d", name, p.Width, p.Height)
+			}
+		}
+		pics += len(list)
+	}
+	if pics != 82 {
+		t.Fatalf("解出 %d 張圖，應該是 82 張", pics)
+	}
+
+	want := []int{66, 141, 163, 107, 127, 118, 90, 104, 135}
+	for n, count := range want {
+		tiles, err := rom.Tileset(n)
+		if err != nil {
+			t.Fatalf("圖磚組 %d：%v", n, err)
+		}
+		if len(tiles) != count {
+			t.Fatalf("圖磚組 %d 有 %d 張，應該是 %d 張", n, len(tiles), count)
+		}
+		if tiles[0].Width != 16 || tiles[0].Height != 16 {
+			t.Fatalf("圖磚組 %d 的圖磚是 %d × %d", n, tiles[0].Width, tiles[0].Height)
+		}
+	}
+}
+
+// 地圖第 3 層的圖形編號：0–9 是 IC0_9.WLF，≥10 是圖磚（編號 − 10）。
+// 全 42 張地圖都不得指到範圍外。
+func TestGraphicIndexInRange(t *testing.T) {
+	rom := openWithImage(t)
+	res, err := rom.Resources()
+	if err != nil {
+		t.Fatal(err)
+	}
+	icons, err := rom.Icons()
+	if err != nil {
+		t.Fatalf("Icons：%v", err)
+	}
+	if len(icons) != 10 {
+		t.Fatalf("IC0_9.WLF 解出 %d 張，應該是 10 張", len(icons))
+	}
+	for i := range res {
+		b, err := rom.Block(i)
+		if err != nil {
+			t.Fatal(err)
+		}
+		tiles, err := rom.Tileset(b.Tileset)
+		if err != nil {
+			t.Fatalf("區塊 %d 的圖磚組：%v", i, err)
+		}
+		limit := len(icons) + len(tiles)
+		for _, g := range b.Graphic {
+			if int(g) >= limit {
+				t.Fatalf("區塊 %d 的圖形編號 %d 超出 %d（%d 疊圖 ＋ %d 圖磚）",
+					i, g, limit, len(icons), len(tiles))
+			}
+		}
+		if int(b.OutsideGraphic()) >= limit {
+			t.Fatalf("區塊 %d 的地圖外圖形 %d 超出範圍", i, b.OutsideGraphic())
+		}
+	}
+}
+
+func TestFonts(t *testing.T) {
+	rom := openWithImage(t)
+
+	mono, err := rom.FontMain()
+	if err != nil {
+		t.Fatalf("FontMain：%v", err)
+	}
+	if len(mono.Glyphs) != 128 {
+		t.Fatalf("主文字字型有 %d 個字模，應該是 128 個", len(mono.Glyphs))
+	}
+	// 空白（ASCII 0x20）必須整格空白，A 必須有筆畫——方向錯了這兩項會同時壞。
+	space, err := mono.GlyphForASCII(' ')
+	if err != nil {
+		t.Fatal(err)
+	}
+	if lit(space) != 0 {
+		t.Fatalf("空白字模有 %d 個亮點", lit(space))
+	}
+	letterA, err := mono.GlyphForASCII('A')
+	if err != nil {
+		t.Fatal(err)
+	}
+	if n := lit(letterA); n < 8 || n > 40 {
+		t.Fatalf("字母 A 的亮點數是 %d，不像字", n)
+	}
+
+	color, err := rom.FontColor()
+	if err != nil {
+		t.Fatalf("FontColor：%v", err)
+	}
+	if len(color.Glyphs) != 172 {
+		t.Fatalf("彩色字型有 %d 個字模，應該是 172 個", len(color.Glyphs))
+	}
+}
+
+// 時間欄位：荒野大地圖每步 4 分鐘、一般室內 15 秒（docs/re/27 §3）。
+func TestStepTime(t *testing.T) {
+	rom := openWithImage(t)
+	res, err := rom.Resources()
+	if err != nil {
+		t.Fatal(err)
+	}
+	counts := map[float64]int{}
+	for i := range res {
+		b, err := rom.Block(i)
+		if err != nil {
+			t.Fatal(err)
+		}
+		counts[b.StepMinutes()]++
+	}
+	if counts[0.25] != 28 || counts[4] != 1 {
+		t.Fatalf("每步分鐘的分佈是 %v，應該有 28 張 0.25、1 張 4", counts)
+	}
+}
+
+func countNonEmpty(list []string) int {
+	n := 0
+	for _, s := range list {
+		if s != "" {
+			n++
+		}
+	}
+	return n
+}
+
+func colorsUsed(im *Indexed) int {
+	var seen [16]bool
+	for _, p := range im.Pix {
+		seen[p&0x0F] = true
+	}
+	n := 0
+	for _, s := range seen {
+		if s {
+			n++
+		}
+	}
+	return n
+}
+
+func lit(g *Glyph) int {
+	n := 0
+	for _, p := range g.Pix {
+		if p != 0 {
+			n++
+		}
+	}
+	return n
+}
