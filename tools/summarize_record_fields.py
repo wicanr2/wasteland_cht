@@ -66,9 +66,31 @@ def main() -> None:
     for func, insns in by_func.items():
         if func is None:
             continue
+
+        # **往前跳**的目標要清掉追蹤狀態：線性掃描會把兩條互斥分支的 `inc bl`
+        # 疊加，報出根本不存在的位移（踩過雷：`sub_14193` 兩條分支各 inc 一次，
+        # 被算成 `+0x0A`，實際上兩邊都是 `+0x09`）。
+        #
+        # 往回跳（迴圈）不清：迴圈裡位移每輪都在變，任何單一值都不算「這一輪的」，
+        # 而迴圈**進入前**的那個值正是要找的東西（陣列起點）。
+        targets = set()
+        for insn in insns:
+            if not insn["mnem"].startswith("j"):
+                continue
+            here = int(insn["ea"], 16)
+            for op in insn["ops"]:
+                if op["kind"] != "near":
+                    continue
+                dest = int(op["addr"], 16)
+                if (dest & 0xFFFF) > (here & 0xFFFF):
+                    targets.add(op["addr"])
+
         offset: int | None = None
         base: str | None = None
         for insn in insns:
+            if insn["ea"] in targets or f"0x{int(insn['ea'], 16) & 0xFFFF:X}" in targets:
+                offset = None
+                base = None
             text = " ".join(insn["disasm"].split())
             m = MOV_CONST.match(text)
             if m:
