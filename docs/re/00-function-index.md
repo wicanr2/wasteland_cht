@@ -6,8 +6,8 @@
 輸入：`wl.merged.exe（解包映像＋wla.bin overlay，本專案合成）`，SHA-256 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`
 
 - 自動辨識函式：**641**
-- 已在筆記中出現：**185**
-- 尚未碰過：**456**
+- 已在筆記中出現：**189**
+- 尚未碰過：**452**
 
 ## 已分析（依呼叫端數量排序）
 
@@ -106,7 +106,7 @@
 | `0x157D6` | seg000+0x57D6 | 342 | 3 | re/00-master-index.md、re/13-rng.md、re/15-character-record.md、re/19-effects-and-damage.md、re/20-combat-resolution.md |
 | `0x159C7` | seg000+0x59C7 | 81 | 3 | re/20-combat-resolution.md |
 | `0x15A30` | seg000+0x5A30 | 84 | 3 | re/20-combat-resolution.md |
-| `0x15A84` | seg000+0x5A84 | 25 | 3 | re/19-effects-and-damage.md |
+| `0x15A84` | seg000+0x5A84 | 25 | 3 | re/19-effects-and-damage.md、re/20-combat-resolution.md |
 | `0x15BFE` | seg000+0x5BFE | 5 | 3 | re/19-effects-and-damage.md |
 | `0x166D3` | seg000+0x66D3 | 67 | 3 | re/06-resource-directory.md |
 | `0x17533` | seg000+0x7533 | 49 | 3 | re/14-fonts-and-text-encoding.md |
@@ -125,8 +125,11 @@
 | `0x12A76` | seg000+0x2A76 | 23 | 2 | re/00-master-index.md、re/20-combat-resolution.md |
 | `0x141FA` | seg000+0x41FA | 156 | 2 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/19-effects-and-damage.md |
 | `0x15705` | seg000+0x5705 | 51 | 2 | re/20-combat-resolution.md |
-| `0x15A9D` | seg000+0x5A9D | 242 | 2 | re/20-combat-resolution.md |
+| `0x1597E` | seg000+0x597E | 73 | 2 | re/20-combat-resolution.md |
+| `0x15A9D` | seg000+0x5A9D | 242 | 2 | re/00-remake-knowledge-gaps.md、re/20-combat-resolution.md |
+| `0x15B9C` | seg000+0x5B9C | 15 | 2 | re/20-combat-resolution.md |
 | `0x15C19` | seg000+0x5C19 | 14 | 2 | re/20-combat-resolution.md |
+| `0x15CC0` | seg000+0x5CC0 | 17 | 2 | re/20-combat-resolution.md |
 | `0x15CD1` | seg000+0x5CD1 | 14 | 2 | re/20-combat-resolution.md |
 | `0x16890` | seg000+0x6890 | 280 | 2 | re/00-master-index.md、re/00-remake-knowledge-gaps.md |
 | `0x16CBD` | seg000+0x6CBD | 10 | 2 | re/17-packed-text.md |
@@ -181,6 +184,7 @@
 | `0x119A8` | seg000+0x19A8 | 50 | 1 | re/03-boot-and-asset-loading.md |
 | `0x11A59` | seg000+0x1A59 | 74 | 1 | re/00-master-index.md、re/08-msq-encryption.md、re/11-huffman-decoder.md、re/16-msq-block-layout.md、re/18-block-text.md |
 | `0x11C90` | seg000+0x1C90 | 20 | 1 | re/10-huffman-compression.md |
+| `0x15672` | seg000+0x5672 | 13 | 1 | re/20-combat-resolution.md |
 | `0x16390` | seg000+0x6390 | 7 | 1 | re/17-packed-text.md |
 | `0x1708B` | seg000+0x708B | 256 | 1 | re/00-master-index.md、re/15-character-record.md、re/17-packed-text.md |
 | `0x17B80` | seg000+0x7B80 | 15 | 1 | re/17-packed-text.md |
