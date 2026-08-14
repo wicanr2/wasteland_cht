@@ -61,6 +61,7 @@
 | **存檔** | **已解**：在 `game1`／`game2` 檔尾的一個 MSQ 資源（`0x000253C5`／`0x00028BC7`，**seek 是 32-bit 的 `cx:dx`**）。`0x800` 加密段 ＝ 8 × 256：第 0 筆是全域狀態（四組隊伍槽表、時鐘、32-bit 序號、地點名稱），第 1–7 筆是角色。**checksum ＝ 0 − Σ 明文位元組**，改寫必須重算。出廠的四個 Ranger（Hell Razor／Angela Deth／Thrasher／Snake Vargas）把角色記錄欄位表整個驗過一遍（`docs/re/30`）|
 | **經驗值與升級** | **已解**：經驗值在角色記錄 `+0x21`–`+0x23`（24-bit 累計，升級**不扣**），**升到等級 L 要 (L² − L) × 512**（1,024／3,072／6,144…）。升級把等級寫 `+0x24`、技能點 `+0x20` ＋1、播音效 4、查 `ds:D522h`（等級 → 階級編號，**50 階對到等級 1–131**，`Private` 到 `General Argent`）決定要不要印升階訊息，經驗值夠可連升。技能學習：IQ 需求 ＝ 技能資料 `+0x00 >> 3`、基礎費用 ＝ `& 7`、升到等級 L 的費用 ＝ 基礎 × 2^(L−1)（`docs/re/31`）|
 | **檢定與技能成長** | **已解**：技能資料表在 `ds:BA20h`（36 筆 × 2 bytes，第二個 byte 是檢定屬性的記錄位移）；35 條的 IQ 與費用**與官方手冊列的 27 條逐值吻合**。檢定 ＝ 2d6 續擲（< 5 直接失敗）＋ 屬性 ＋ 技能等級×3 **≥ 難度 × 5 ＋ 15**，成功之後技能還有機率自己 ＋1 級（上限 ＝ 角色等級）。地圖記錄 `+0x0A` 起每 2 bytes 一個條件（型別／難度／參數），涵蓋技能、屬性、等級、性別、隊伍人數、金錢、持有物品（`docs/re/32`）|
+| **狀態與療傷** | **已解**：角色記錄 `+0x28` 是**八個狀態位元**（Radiation poisoning／Wasteland Herpes／Bug byte／Sewer rot／Desert dust／Rabies／D6／D7），高四位會隨時間惡化。每 16 刻跑一次體力處理：健康的人每 64 刻 ＋1 CON、生病的人每 64 刻 −1，CON 掉破 −50 直接歸零。設施身分也定了——`0x1C260` 是醫生、`0x1BBA0` 是技能訓練師（`docs/re/35`）|
 | **角色記錄** | **定址已確認**：記錄 ＝ `0x7131 ＋ 角色編號 × 256`，每筆 256 bytes，經隊伍槽表兩層間接。名字、金錢（24-bit）、七個屬性、MAXCON／CON、**技能與物品兩個 30 槽陣列（已分辨）**、傷勢門檻（−11／−20／−30／−40）都已定位（`docs/re/15`） |
 | 逐指令基準 | 整個 CODE 區倒成 JSON（20,177 條指令、827 個全域、4,932 筆直接定址存取），後續形狀比對改在離線做（`tools/ida/export_listing.py`、`export_memops.py`） |
 | 儲存層 | 雙模式（硬碟 DOS 檔案／磁片 `int 25h` 絕對磁區）與分流旗標；資源表 8 筆全解，六個檔名的引用點就在表的 `+6` 欄位（`docs/re/05`） |
@@ -94,7 +95,7 @@
 | [`CLAUDE.md`](./CLAUDE.md) | 專案規範：三道閘門、IDA 鐵則、文件與中文化政策、環境硬規則 |
 | [`docs/re/00-master-index.md`](docs/re/00-master-index.md) | **RE 總表**：位址換算、資料格式、結構佈局、位址表、關鍵函式、工具。**查已知事實先看這份** |
 | [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md) | **RE 完成度檢查表**：remake 需要的每一項知識、狀態與入口 |
-| [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 286）。讀任何 `sub_XXXXX` 前先查 |
+| [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 288）。讀任何 `sub_XXXXX` 前先查 |
 | [`docs/re/01-binary-identity.md`](docs/re/01-binary-identity.md) | 20 檔 SHA-256、`wl.exe` 的 MZ header、第一份資料庫與「不可用作證據」的結論 |
 | [`docs/re/02-exepack-unpack.md`](docs/re/02-exepack-unpack.md) | EXEPACK 格式、解包器、relocation 起點的坑、解包後基準資料庫 |
 | [`docs/re/03-boot-and-asset-loading.md`](docs/re/03-boot-and-asset-loading.md) | 開機序列、`info` 安裝資訊、檔名表、七個開機素材的載入位址、`TITLE.PIC` XOR 解碼 |
@@ -129,6 +130,7 @@
 | [`docs/re/32-skill-checks-and-xp.md`](docs/re/32-skill-checks-and-xp.md) | 資料表定址器、技能資料表、檢定與練等、條件串列、經驗值三來源 |
 | [`docs/re/33-paragraph-references.md`](docs/re/33-paragraph-references.md) | 段落編號怎麼出現、陷阱段落零引用、密語是遊戲內謎題 |
 | [`docs/re/34-map-script-opcodes.md`](docs/re/34-map-script-opcodes.md) | 地圖腳本直譯器的 44 個指令 |
+| [`docs/re/35-status-and-healing.md`](docs/re/35-status-and-healing.md) | 八個狀態位元與疾病名、體力隨時間恢復與惡化、醫生與訓練師 |
 | [`docs/spec/00-index.md`](docs/spec/00-index.md) | **規格索引與閘門狀態**：哪些可以動工、其餘擋在什麼上 |
 | [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
 | [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |
@@ -182,12 +184,12 @@
 
 **RE 完成度**：資料格式、文字與資產層打通（含地圖三層、圖磚與圖片），
 戰鬥／屬性／效果／商店／升級／檢定與技能成長六塊規則已解；世界互動層仍是主要缺口。
-641 個函式裡人寫的筆記涵蓋 286 個。完整缺口見
+641 個函式裡人寫的筆記涵蓋 288 個。完整缺口見
 [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md)。
 
 **下一步（依「對 remake 的阻擋程度」排序）**
 
-1. **`ds:CF4Eh` 的狀態旗標表** —— 角色記錄 `+0x28` 的每個 bit 是什麼。
+1. **隊伍打敵方的傷害來源** —— `sub_12A76` 的兩個呼叫端都在敵方路徑上。
 2. **隊伍打敵方的傷害來源** —— `sub_12A76` 的兩個呼叫端都在敵方路徑上。
 3. **密語輸入的比對程式碼**，以及 `sub_12537`／`sub_1254A`
    （隨時間恢復／惡化的公式）。
