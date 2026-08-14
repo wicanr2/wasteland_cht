@@ -70,12 +70,16 @@
 
 | 指令 | 用途 | 需要 X |
 |---|---|---|
-| `cmd/wl-shot` | 把一幀寫成 PNG，**與 DOSBox 的原版截圖對拍用** | 否 |
-| `cmd/wasteland` | 開視窗的資產檢視器 | 是 |
+| `cmd/wl-shot` | 把一幀寫成 PNG，**與 DOSBox 的原版截圖對拍用**（`-mode play` 也可以） | 否 |
+| `cmd/wasteland` | 開視窗；`-mode play` 是遊戲、`-mode map/title/pic` 是資產檢視器 | 是 |
 
-**兩支都還不是遊戲**：`internal/game` 已經會走路與推進時鐘，但還沒接到
-呈現層——`cmd/wasteland` 的方向鍵目前仍只搬視窗原點。接線等規格 07
-（事件處理）落地之後一起做，免得接了又拆。
+`-mode play`（`internal/play`）**是遊戲**：從出廠存檔開場（挑序號大的那一份、
+讀出四個 Ranger、時鐘 01:00、座標 (55, 62)），方向鍵走的是規則層——
+四道閘、時鐘推進、體力處理、遭遇擲骰、事件分派。
+
+`-mode map` 仍然是**純檢視器**，一條規則都沒有，留著對拍用。
+兩者分成 `internal/play` 與 `internal/viewer` 兩個套件，就是為了讓
+「有規則」與「沒規則」永遠分得開。
 
 `internal/assets` 不認識 Ebiten，`internal/game` 不認識畫面（`CLAUDE.md` §4）。
 規格 01 與 03 的分界就照這條線切：**解碼回 `image.RGBA` 屬於 01，畫到畫面屬於 03**。

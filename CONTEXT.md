@@ -96,6 +96,7 @@
 | **`internal/textlayout`** | **已實作**：18 個控制碼含**變形機制與巢狀**（單複數／性別／三選一／數量）、組行與分頁。4,889 條語料全部排得過，未解碼只剩 `0x08` 的 7 次 |
 | **`internal/render`** | **已實作**：合成 320 × 200 索引畫面。地圖視窗逐像素驗過剛好 288 × 128 @ (8,8)、捲動一格 ＝ 位移 16 像素 |
 | **`internal/game/rng`** | **已實作**：進位鏈與四支擲骰 ＋ 5d6 取三。驗收數列（前七項 ＝ 二項式係數）、分佈、300 萬次不重複全過 |
+| **`internal/play`** | **可以走的遊戲場景**：從出廠存檔開場（四個 Ranger、時鐘 01:00、座標 (55, 62)），方向鍵走規則層。`cmd/wasteland -mode play` 開視窗、`cmd/wl-shot -mode play` 無頭輸出 PNG。與 `internal/viewer`（純檢視器、零規則）分開兩個套件 |
 | **`internal/input`／`ui`／`viewer`** | **已實作**：與函式庫無關的按鍵模型（ESC 取消、F10 離開）、Ebiten 上色與送圖、資產檢視器場景。`cmd/wl-shot` 無頭輸出 PNG（對拍用）、`cmd/wasteland` 開視窗 |
 | Go 建置環境 | `docker/wasteland-go.Dockerfile`（golang 1.24 ＋ X11／GL 標頭，Ebiten 走 cgo 需要）。相依從**唯讀掛載的本機模組快取**當 file proxy 取得，`tools/go.sh` 仍 `--network none` |
 | **`internal/game`** | **已實作**：走一步（四道閘、被擋住就什麼都不推進）、24 小時制時鐘、每 16 刻的體力恢復與惡化、事件分派骨架。9 個測試全綠，含「400 步裡至少走成 100 步」的假綠防呆 |
