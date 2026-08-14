@@ -6,8 +6,8 @@
 輸入：`wl.merged.exe（解包映像＋wla.bin overlay，本專案合成）`，SHA-256 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`
 
 - 自動辨識函式：**641**
-- 已在筆記中出現：**248**
-- 尚未碰過：**393**
+- 已在筆記中出現：**256**
+- 尚未碰過：**385**
 
 ## 已分析（依呼叫端數量排序）
 
@@ -68,7 +68,7 @@
 | `0x1BB5D` | seg000+0xBB5D | 15 | 9 | re/17-packed-text.md |
 | `0x1393E` | seg000+0x393E | 9 | 8 | re/00-master-index.md、re/16-msq-block-layout.md |
 | `0x1651A` | seg000+0x651A | 19 | 8 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/26-movement-and-triggers.md |
-| `0x18350` | seg000+0x8350 | 97 | 8 | re/00-master-index.md、re/24-map-layers-and-tiles.md、re/25-screen-layout.md |
+| `0x18350` | seg000+0x8350 | 97 | 8 | re/00-master-index.md、re/24-map-layers-and-tiles.md、re/25-screen-layout.md、re/27-game-clock.md |
 | `0x1968C` | seg000+0x968C | 32 | 8 | re/15-character-record.md |
 | `0x19BF0` | seg000+0x9BF0 | 8 | 8 | re/19-effects-and-damage.md |
 | `0x115E5` | seg000+0x15E5 | 199 | 7 | re/00-master-index.md、re/03-boot-and-asset-loading.md、re/05-storage-layer.md、re/09-msq-map-structure.md、re/16-msq-block-layout.md |
@@ -94,13 +94,14 @@
 | `0x16D1A` | seg000+0x6D1A | 14 | 5 | re/26-movement-and-triggers.md |
 | `0x16F4C` | seg000+0x6F4C | 27 | 5 | re/22-shop-and-items.md |
 | `0x16F70` | seg000+0x6F70 | 185 | 5 | re/04-overlay-wla-bin.md、re/25-screen-layout.md |
+| `0x176A8` | seg000+0x76A8 | 14 | 5 | re/27-game-clock.md |
 | `0x17920` | seg000+0x7920 | 3 | 5 | re/26-movement-and-triggers.md |
 | `0x17A6B` | seg000+0x7A6B | 62 | 5 | re/25-screen-layout.md |
 | `0x17B15` | seg000+0x7B15 | 41 | 5 | re/15-character-record.md、re/19-effects-and-damage.md、re/22-shop-and-items.md |
 | `0x17FC8` | seg000+0x7FC8 | 38 | 5 | re/00-master-index.md、re/12-msq-tail-and-text-model.md、re/24-map-layers-and-tiles.md |
 | `0x17FEE` | seg000+0x7FEE | 40 | 5 | re/00-master-index.md、re/24-map-layers-and-tiles.md、re/25-screen-layout.md |
-| `0x18024` | seg000+0x8024 | 171 | 5 | re/00-master-index.md、re/16-msq-block-layout.md、re/25-screen-layout.md |
-| `0x183B1` | seg000+0x83B1 | 110 | 5 | re/05-storage-layer.md、re/06-resource-directory.md、re/07-msq-blocks.md、re/10-huffman-compression.md |
+| `0x18024` | seg000+0x8024 | 171 | 5 | re/00-master-index.md、re/16-msq-block-layout.md、re/25-screen-layout.md、re/27-game-clock.md |
+| `0x183B1` | seg000+0x83B1 | 110 | 5 | re/05-storage-layer.md、re/06-resource-directory.md、re/07-msq-blocks.md、re/10-huffman-compression.md、re/27-game-clock.md |
 | `0x189B1` | seg000+0x89B1 | 158 | 5 | re/04-overlay-wla-bin.md |
 | `0x1BE31` | seg000+0xBE31 | 15 | 5 | re/17-packed-text.md |
 | `0x1CBD3` | seg001+0x6C | 86 | 5 | re/26-movement-and-triggers.md |
@@ -115,8 +116,10 @@
 | `0x16C6F` | seg000+0x6C6F | 13 | 4 | re/25-screen-layout.md |
 | `0x17451` | seg000+0x7451 | 102 | 4 | re/00-master-index.md、re/14-fonts-and-text-encoding.md |
 | `0x17574` | seg000+0x7574 | 271 | 4 | re/00-master-index.md、re/14-fonts-and-text-encoding.md |
+| `0x17DF1` | seg000+0x7DF1 | 81 | 4 | re/00-master-index.md、re/27-game-clock.md |
 | `0x17E42` | seg000+0x7E42 | 390 | 4 | re/04-overlay-wla-bin.md |
-| `0x18801` | seg000+0x8801 | 89 | 4 | re/00-remake-knowledge-gaps.md、re/10-huffman-compression.md |
+| `0x18801` | seg000+0x8801 | 89 | 4 | re/00-remake-knowledge-gaps.md、re/10-huffman-compression.md、re/27-game-clock.md |
+| `0x18DCE` | seg000+0x8DCE | 115 | 4 | re/27-game-clock.md |
 | `0x1968A` | seg000+0x968A | 2 | 4 | re/22-shop-and-items.md |
 | `0x19A1D` | seg000+0x9A1D | 36 | 4 | re/00-master-index.md、re/15-character-record.md、re/19-effects-and-damage.md |
 | `0x19CCC` | seg000+0x9CCC | 29 | 4 | re/20-combat-resolution.md |
@@ -139,6 +142,7 @@
 | `0x15BFE` | seg000+0x5BFE | 5 | 3 | re/19-effects-and-damage.md |
 | `0x1649E` | seg000+0x649E | 57 | 3 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/26-movement-and-triggers.md |
 | `0x166D3` | seg000+0x66D3 | 67 | 3 | re/06-resource-directory.md |
+| `0x1676A` | seg000+0x676A | 99 | 3 | re/00-master-index.md、re/27-game-clock.md |
 | `0x17533` | seg000+0x7533 | 49 | 3 | re/14-fonts-and-text-encoding.md |
 | `0x178B9` | seg000+0x78B9 | 82 | 3 | re/17-packed-text.md |
 | `0x1790B` | seg000+0x790B | 21 | 3 | re/16-msq-block-layout.md、re/17-packed-text.md、re/18-block-text.md |
@@ -146,7 +150,7 @@
 | `0x17B3E` | seg000+0x7B3E | 30 | 3 | re/15-character-record.md、re/19-effects-and-damage.md、re/22-shop-and-items.md |
 | `0x17B8F` | seg000+0x7B8F | 56 | 3 | re/00-master-index.md、re/17-packed-text.md |
 | `0x17C72` | seg000+0x7C72 | 63 | 3 | re/00-master-index.md、re/24-map-layers-and-tiles.md |
-| `0x18016` | seg000+0x8016 | 14 | 3 | re/26-movement-and-triggers.md |
+| `0x18016` | seg000+0x8016 | 14 | 3 | re/26-movement-and-triggers.md、re/27-game-clock.md |
 | `0x182FA` | seg000+0x82FA | 20 | 3 | re/20-combat-resolution.md、re/21-attributes.md |
 | `0x18E6B` | seg000+0x8E6B | 37 | 3 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/13-rng.md |
 | `0x19004` | seg000+0x9004 | 52 | 3 | re/14-fonts-and-text-encoding.md |
@@ -158,6 +162,9 @@
 | `0x10042` | seg000+0x42 | 3 | 2 | re/04-overlay-wla-bin.md |
 | `0x10045` | seg000+0x45 | 3 | 2 | re/04-overlay-wla-bin.md |
 | `0x11CA4` | seg000+0x1CA4 | 35 | 2 | re/10-huffman-compression.md、re/11-huffman-decoder.md |
+| `0x12440` | seg000+0x2440 | 222 | 2 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/27-game-clock.md |
+| `0x12537` | seg000+0x2537 | 19 | 2 | re/27-game-clock.md |
+| `0x1254A` | seg000+0x254A | 7 | 2 | re/27-game-clock.md |
 | `0x12A76` | seg000+0x2A76 | 23 | 2 | re/00-master-index.md、re/20-combat-resolution.md、re/22-shop-and-items.md |
 | `0x1379E` | seg000+0x379E | 48 | 2 | re/00-master-index.md、re/24-map-layers-and-tiles.md |
 | `0x13AE4` | seg000+0x3AE4 | 366 | 2 | re/21-attributes.md |
@@ -243,7 +250,7 @@
 | `0x17B80` | seg000+0x7B80 | 15 | 1 | re/17-packed-text.md |
 | `0x1841F` | seg000+0x841F | 201 | 1 | re/00-master-index.md、re/05-storage-layer.md、re/06-resource-directory.md、re/07-msq-blocks.md、re/08-msq-encryption.md、re/09-msq-map-structure.md、re/10-huffman-compression.md、re/11-huffman-decoder.md、re/12-msq-tail-and-text-model.md、re/16-msq-block-layout.md、re/18-block-text.md、re/24-map-layers-and-tiles.md |
 | `0x186B6` | seg000+0x86B6 | 142 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/10-huffman-compression.md、re/23-picture-format.md、re/24-map-layers-and-tiles.md |
-| `0x18744` | seg000+0x8744 | 189 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/05-storage-layer.md、re/07-msq-blocks.md、re/09-msq-map-structure.md、re/10-huffman-compression.md |
+| `0x18744` | seg000+0x8744 | 189 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/05-storage-layer.md、re/07-msq-blocks.md、re/09-msq-map-structure.md、re/10-huffman-compression.md、re/27-game-clock.md |
 | `0x18B4C` | seg000+0x8B4C | 20 | 1 | re/14-fonts-and-text-encoding.md |
 | `0x18EAD` | seg000+0x8EAD | 76 | 1 | re/14-fonts-and-text-encoding.md |
 | `0x19202` | seg000+0x9202 | 321 | 1 | re/22-shop-and-items.md |
@@ -255,6 +262,7 @@
 | `0x1C073` | seg000+0xC073 | 205 | 1 | re/22-shop-and-items.md |
 | `0x1C140` | seg000+0xC140 | 72 | 1 | re/22-shop-and-items.md |
 | `0x1C6C9` | seg000+0xC6C9 | 789 | 1 | re/00-master-index.md、re/21-attributes.md |
+| `0x1CB30` | seg000+0xCB30 | 55 | 1 | re/27-game-clock.md |
 | `0x1CB67` | seg001+0x0 | 10 | 1 | re/00-master-index.md、re/02-exepack-unpack.md |
 | `0x1CB75` | seg001+0xE | 53 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md |
 | `0x1CBAA` | seg001+0x43 | 41 | 1 | re/00-remake-knowledge-gaps.md |
@@ -279,7 +287,6 @@
 | `0x11F76` | seg000+0x1F76 | 279 | 1 |
 | `0x15036` | seg000+0x5036 | 261 | 1 |
 | `0x17748` | seg000+0x7748 | 241 | 0 |
-| `0x12440` | seg000+0x2440 | 222 | 2 |
 | `0x19130` | seg000+0x9130 | 210 | 3 |
 | `0x18860` | seg000+0x8860 | 200 | 5 |
 | `0x1BA72` | seg000+0xBA72 | 192 | 2 |
@@ -308,7 +315,6 @@
 | `0x114BE` | seg000+0x14BE | 118 | 2 |
 | `0x16428` | seg000+0x6428 | 118 | 2 |
 | `0x18A4F` | seg000+0x8A4F | 117 | 2 |
-| `0x18DCE` | seg000+0x8DCE | 115 | 4 |
 | `0x19506` | seg000+0x9506 | 115 | 2 |
 | `0x19814` | seg000+0x9814 | 114 | 2 |
 | `0x149F7` | seg000+0x49F7 | 110 | 2 |
@@ -318,7 +324,6 @@
 | `0x16E43` | seg000+0x6E43 | 103 | 2 |
 | `0x12284` | seg000+0x2284 | 101 | 2 |
 | `0x122E9` | seg000+0x22E9 | 101 | 2 |
-| `0x1676A` | seg000+0x676A | 99 | 3 |
 | `0x12551` | seg000+0x2551 | 96 | 1 |
 | `0x16018` | seg000+0x6018 | 96 | 3 |
 | `0x1095D` | seg000+0x95D | 95 | 1 |
@@ -328,3 +333,6 @@
 | `0x14B36` | seg000+0x4B36 | 93 | 2 |
 | `0x14ECB` | seg000+0x4ECB | 91 | 3 |
 | `0x1295D` | seg000+0x295D | 89 | 2 |
+| `0x14FDE` | seg000+0x4FDE | 88 | 2 |
+| `0x1C5B0` | seg000+0xC5B0 | 88 | 1 |
+| `0x18AC4` | seg000+0x8AC4 | 87 | 3 |
