@@ -6,8 +6,8 @@
 輸入：`wl.merged.exe（解包映像＋wla.bin overlay，本專案合成）`，SHA-256 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`
 
 - 自動辨識函式：**641**
-- 已在筆記中出現：**282**
-- 尚未碰過：**359**
+- 已在筆記中出現：**285**
+- 尚未碰過：**356**
 
 ## 已分析（依呼叫端數量排序）
 
@@ -44,6 +44,7 @@
 | `0x17C20` | seg000+0x7C20 | 73 | 13 | re/00-master-index.md、re/24-map-layers-and-tiles.md、re/26-movement-and-triggers.md |
 | `0x1789C` | seg000+0x789C | 4 | 12 | re/06-resource-directory.md、re/14-fonts-and-text-encoding.md |
 | `0x178A3` | seg000+0x78A3 | 22 | 12 | re/00-master-index.md、re/17-packed-text.md |
+| `0x1B735` | seg000+0xB735 | 130 | 12 | re/29-map-event-handlers.md |
 | `0x11445` | seg000+0x1445 | 121 | 11 | re/00-master-index.md、re/05-storage-layer.md、re/06-resource-directory.md、re/09-msq-map-structure.md、re/10-huffman-compression.md |
 | `0x17033` | seg000+0x7033 | 88 | 11 | re/25-screen-layout.md |
 | `0x171B9` | seg000+0x71B9 | 15 | 11 | re/14-fonts-and-text-encoding.md、re/15-character-record.md |
@@ -110,8 +111,10 @@
 | `0x18024` | seg000+0x8024 | 171 | 5 | re/00-master-index.md、re/16-msq-block-layout.md、re/25-screen-layout.md、re/27-game-clock.md |
 | `0x183B1` | seg000+0x83B1 | 110 | 5 | re/05-storage-layer.md、re/06-resource-directory.md、re/07-msq-blocks.md、re/10-huffman-compression.md、re/27-game-clock.md |
 | `0x189B1` | seg000+0x89B1 | 158 | 5 | re/04-overlay-wla-bin.md |
+| `0x190A6` | seg000+0x90A6 | 2 | 5 | re/00-master-index.md、re/29-map-event-handlers.md |
 | `0x19CAC` | seg000+0x9CAC | 32 | 5 | re/32-skill-checks-and-xp.md |
-| `0x1BE31` | seg000+0xBE31 | 15 | 5 | re/17-packed-text.md |
+| `0x1B7B7` | seg000+0xB7B7 | 3 | 5 | re/29-map-event-handlers.md |
+| `0x1BE31` | seg000+0xBE31 | 15 | 5 | re/17-packed-text.md、re/29-map-event-handlers.md |
 | `0x1CBD3` | seg001+0x6C | 86 | 5 | re/26-movement-and-triggers.md |
 | `0x1000C` | seg000+0xC | 3 | 4 | re/04-overlay-wla-bin.md |
 | `0x116AC` | seg000+0x16AC | 132 | 4 | re/03-boot-and-asset-loading.md、re/05-storage-layer.md |
@@ -124,11 +127,11 @@
 | `0x169CF` | seg000+0x69CF | 28 | 4 | re/00-master-index.md、re/25-screen-layout.md |
 | `0x16C6F` | seg000+0x6C6F | 13 | 4 | re/25-screen-layout.md |
 | `0x17451` | seg000+0x7451 | 102 | 4 | re/00-master-index.md、re/14-fonts-and-text-encoding.md |
-| `0x17574` | seg000+0x7574 | 271 | 4 | re/00-master-index.md、re/14-fonts-and-text-encoding.md |
+| `0x17574` | seg000+0x7574 | 271 | 4 | re/00-master-index.md、re/14-fonts-and-text-encoding.md、re/29-map-event-handlers.md |
 | `0x17DF1` | seg000+0x7DF1 | 81 | 4 | re/00-master-index.md、re/27-game-clock.md |
 | `0x17E42` | seg000+0x7E42 | 390 | 4 | re/04-overlay-wla-bin.md |
 | `0x18134` | seg000+0x8134 | 18 | 4 | re/00-master-index.md、re/32-skill-checks-and-xp.md |
-| `0x18801` | seg000+0x8801 | 89 | 4 | re/10-huffman-compression.md、re/27-game-clock.md、re/30-save-layout.md |
+| `0x18801` | seg000+0x8801 | 89 | 4 | re/10-huffman-compression.md、re/27-game-clock.md、re/29-map-event-handlers.md、re/30-save-layout.md |
 | `0x18DCE` | seg000+0x8DCE | 115 | 4 | re/27-game-clock.md、re/28-text-variants.md |
 | `0x194E8` | seg000+0x94E8 | 21 | 4 | re/32-skill-checks-and-xp.md |
 | `0x1968A` | seg000+0x968A | 2 | 4 | re/22-shop-and-items.md |
@@ -201,7 +204,7 @@
 | `0x180F0` | seg000+0x80F0 | 68 | 2 | re/00-master-index.md、re/32-skill-checks-and-xp.md |
 | `0x18146` | seg000+0x8146 | 72 | 2 | re/00-master-index.md、re/32-skill-checks-and-xp.md |
 | `0x1820C` | seg000+0x820C | 124 | 2 | re/00-master-index.md、re/32-skill-checks-and-xp.md |
-| `0x184E8` | seg000+0x84E8 | 252 | 2 | re/00-master-index.md、re/05-storage-layer.md、re/07-msq-blocks.md、re/10-huffman-compression.md、re/23-picture-format.md |
+| `0x184E8` | seg000+0x84E8 | 252 | 2 | re/00-master-index.md、re/05-storage-layer.md、re/07-msq-blocks.md、re/10-huffman-compression.md、re/23-picture-format.md、re/29-map-event-handlers.md |
 | `0x185E6` | seg000+0x85E6 | 110 | 2 | re/10-huffman-compression.md |
 | `0x19362` | seg000+0x9362 | 50 | 2 | re/15-character-record.md、re/17-packed-text.md |
 | `0x19454` | seg000+0x9454 | 74 | 2 | re/00-master-index.md、re/15-character-record.md |
@@ -284,10 +287,10 @@
 | `0x1B7FE` | seg000+0xB7FE | 119 | 1 | re/05-storage-layer.md、re/07-msq-blocks.md、re/10-huffman-compression.md、re/23-picture-format.md |
 | `0x1B875` | seg000+0xB875 | 34 | 1 | re/25-screen-layout.md |
 | `0x1BF5F` | seg000+0xBF5F | 188 | 1 | re/22-shop-and-items.md |
-| `0x1C073` | seg000+0xC073 | 205 | 1 | re/22-shop-and-items.md |
+| `0x1C073` | seg000+0xC073 | 205 | 1 | re/22-shop-and-items.md、re/29-map-event-handlers.md |
 | `0x1C140` | seg000+0xC140 | 72 | 1 | re/22-shop-and-items.md |
 | `0x1C5B0` | seg000+0xC5B0 | 88 | 1 | re/32-skill-checks-and-xp.md |
-| `0x1C6C9` | seg000+0xC6C9 | 789 | 1 | re/00-master-index.md、re/21-attributes.md |
+| `0x1C6C9` | seg000+0xC6C9 | 789 | 1 | re/00-master-index.md、re/21-attributes.md、re/29-map-event-handlers.md |
 | `0x1CB30` | seg000+0xCB30 | 55 | 1 | re/27-game-clock.md |
 | `0x1CB67` | seg001+0x0 | 10 | 1 | re/00-master-index.md、re/02-exepack-unpack.md |
 | `0x1CB75` | seg001+0xE | 53 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md |
@@ -327,7 +330,6 @@
 | `0x18928` | seg000+0x8928 | 136 | 1 |
 | `0x172D4` | seg000+0x72D4 | 131 | 4 |
 | `0x19ACD` | seg000+0x9ACD | 130 | 2 |
-| `0x1B735` | seg000+0xB735 | 130 | 12 |
 | `0x14E4A` | seg000+0x4E4A | 129 | 1 |
 | `0x15D30` | seg000+0x5D30 | 127 | 1 |
 | `0x179B7` | seg000+0x79B7 | 126 | 5 |
@@ -362,3 +364,4 @@
 | `0x13828` | seg000+0x3828 | 80 | 1 |
 | `0x14090` | seg000+0x4090 | 77 | 1 |
 | `0x14AEA` | seg000+0x4AEA | 76 | 3 |
+| `0x1567F` | seg000+0x567F | 76 | 1 |
