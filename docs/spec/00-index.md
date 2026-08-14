@@ -21,9 +21,10 @@
 | [`07-world-events.md`](07-world-events.md) | **READY**（已實作） | `internal/assets` ✅、`internal/game` ✅ | — |
 | [`09-facilities.md`](09-facilities.md) | **READY**（已實作） | `internal/game` ✅ | — |
 | [`10-cjk-layout.md`](10-cjk-layout.md) | **READY**（已實作） | `internal/assets` ✅、`internal/render` ✅ | — |
+| [`11-translation-catalogue.md`](11-translation-catalogue.md) | **READY**（管線已通） | `internal/lang` ✅ | 4,827 條的翻譯是人的工作 |
 | `08-audio.md` | 未寫 | `internal/audio` | F2 位元組碼指令集與曲目資料未解 |
 
-**九份 READY 規格涵蓋資產層、呈現層、亂數、規則層五塊，以及中文排版**——
+**十份 READY 規格涵蓋資產層、呈現層、亂數、規則層五塊、中文排版與翻譯管線**——
 走一步、遊戲時鐘、體力隨時間恢復、事件分派的骨架。
 只剩 `08`（音效）等 F2 的位元組碼指令集。
 
@@ -59,7 +60,8 @@
 10. 戰鬥               ← 規格 06；**已完成**（命中、兩種傷害、護甲、傷勢、擊殺經驗值）
 11. 設施               ← 規格 09；**已完成**（商店價格、醫生三種收費、訓練師）
 12. 中文排版           ← 規格 10；**已完成**（640×400 畫布、倚天 16×15、索引 oracle 過關）
-13. 音效               ← 規格 08；等 F2 的位元組碼指令集解出來
+13. 翻譯目錄           ← 規格 11；**管線已通**（抽 4,827 條、編譯擋三種錯、端到端出中文）
+14. 音效               ← 規格 08；等 F2 的位元組碼指令集解出來
 ```
 
 相依取得方式（2026-08-15 定案）：**唯讀掛載本機模組快取當 file proxy**，

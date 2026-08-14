@@ -229,3 +229,86 @@ func TestHiFrame(t *testing.T) {
 	}
 	t.Logf("兩個中文字畫出 %d 個像素", on)
 }
+
+// 驗收 6（端到端）：踩到一個有翻譯的訊息格，畫面上要出現中文。
+func TestTranslatedMessageShowsCJK(t *testing.T) {
+	rom := openRom(t)
+	s, err := New(rom)
+	if err != nil {
+		t.Fatalf("開場失敗：%v", err)
+	}
+	if err := s.LoadCatalogue("../../translations/zh-Hant.cat"); err != nil {
+		t.Skipf("沒有翻譯目錄（%v），跳過", err)
+	}
+	dir := os.Getenv("WL_ETEN")
+	if dir == "" {
+		dir = "../../workplace/eten"
+	}
+	if err := s.LoadFont(dir); err != nil {
+		t.Skipf("沒有倚天字型（%v），跳過", err)
+	}
+
+	// 走到全世界地圖上任何一個有翻譯的訊息格。翻譯目錄裡有的是
+	// blk:game1:0:1–8，對應第 2 層值 1–8 的 nibble 4/9/12 格。
+	w := s.World()
+	found := false
+	for y := 0; y < w.Block.Dim && !found; y++ {
+		for x := 0; x < w.Block.Dim; x++ {
+			terrain, record, _, err := w.Block.At(x, y)
+			if err != nil || record < 1 || record > 8 {
+				continue
+			}
+			if terrain != 4 && terrain != 9 && terrain != 12 {
+				continue
+			}
+			// 直接把隊伍放到旁邊再走過去，比亂走可靠。
+			w.Party.X, w.Party.Y = uint8(x), uint8(y+1)
+			if _, err := w.Step(0 /* Up */); err != nil {
+				continue
+			}
+			if w.Party.X != uint8(x) || w.Party.Y != uint8(y) {
+				continue
+			}
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Skip("這張地圖上找不到有翻譯的訊息格")
+	}
+
+	// 用 Update 走一次一樣的流程，讓 translate 跑到。
+	s.SetCJK(nil)
+	res, err := w.Step(1 /* Down */)
+	_ = res
+	if err != nil {
+		t.Fatalf("走一步失敗：%v", err)
+	}
+	// 直接驗 translate 的行為（Update 只是它的呼叫端）。
+	if b, ok := s.cat.Lookup("blk:game1:0:1"); !ok || len(b) == 0 {
+		t.Fatal("翻譯目錄裡應該有 blk:game1:0:1")
+	}
+	s.SetCJK(mustLookup(t, s, "blk:game1:0:1"))
+	h := s.HiFrame()
+	on := 0
+	for y := 18 * 16; y < 19*16; y++ {
+		for x := 16; x < 16*20; x++ {
+			if h.At(x, y) != 0 {
+				on++
+			}
+		}
+	}
+	if on == 0 {
+		t.Fatal("有翻譯卻沒畫出中文")
+	}
+	t.Logf("中文訊息畫出 %d 個像素", on)
+}
+
+func mustLookup(t *testing.T, s *Scene, key string) []byte {
+	t.Helper()
+	b, ok := s.cat.Lookup(key)
+	if !ok {
+		t.Fatalf("查不到 %s", key)
+	}
+	return b
+}

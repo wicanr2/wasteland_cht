@@ -45,9 +45,8 @@ def decrypt_block(raw: bytes, checksum: int, header_at: int) -> tuple[bytearray,
     return out, length
 
 
-def main() -> None:
-    exe_p, g1_p, g2_p, out_p = (Path(p) for p in sys.argv[1:5])
-    exe = exe_p.read_bytes()
+def decode_blocks(exe: bytes, game1: bytes, game2: bytes) -> list[dict]:
+    """解出 42 個地圖區塊的字串表。給 extract_strings.py 之類的工具重用。"""
     header_bytes = struct.unpack_from("<H", exe, 8)[0] * 16
     at = lambda off: DS + off - 0x10000 + header_bytes  # noqa: E731
 
@@ -66,7 +65,7 @@ def main() -> None:
         for i in range(len(directory))
     ]
 
-    files = {"game1": g1_p.read_bytes(), "game2": g2_p.read_bytes()}
+    files = {"game1": game1, "game2": game2}
     cursor = {"game1": 0, "game2": 0}
     blocks = []
     total = 0
@@ -110,6 +109,13 @@ def main() -> None:
         entry["strings"] = strings
         total += sum(1 for s in strings if s)
         blocks.append(entry)
+    return blocks
+
+
+def main() -> None:
+    exe_p, g1_p, g2_p, out_p = (Path(p) for p in sys.argv[1:5])
+    blocks = decode_blocks(exe_p.read_bytes(), g1_p.read_bytes(), g2_p.read_bytes())
+    total = sum(1 for b in blocks for s in b.get("strings", []) if s)
 
     decoded = [b for b in blocks if "slot_count" in b]
     summary = {

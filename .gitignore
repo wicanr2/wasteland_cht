@@ -29,3 +29,7 @@ __pycache__/
 # IDA 批次 log
 *.ida.log
 ida-batch.log
+
+# 抽出來的原版英文文本＝原版資料，不散布（CLAUDE.md §7）。
+# 用 tools/extract_strings.py 從自己那份原版重新產生。
+translations/source/
