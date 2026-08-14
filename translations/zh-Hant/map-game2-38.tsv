@@ -41,10 +41,10 @@ blk:game2:38:33	\x0D你聽見遠處傳來：「炸到他們發光，再往黑暗
 blk:game2:38:34	「說出聖者之名。」\x0D
 blk:game2:38:35	EINSTEIN
 blk:game2:38:36	OPPENHEIMER
-blk:game2:38:37	「你們在尋求大輝光嗎？」\x0D\x0D\x11\x10是\x0D\x10否\x0D
+blk:game2:38:37	「你們在尋求大輝光嗎？」\x0D\x0D\x11\x10Y 是\x0D\x10N 否\x0D
 blk:game2:38:38	Y
 blk:game2:38:39	N
-blk:game2:38:40	「你們帶供品來了嗎？」\x0D\x0D\x11\x10是\x0D\x10否\x0D
+blk:game2:38:40	「你們帶供品來了嗎？」\x0D\x0D\x11\x10Y 是\x0D\x10N 否\x0D
 blk:game2:38:41	「你們的供品是什麼？」\x0D
 blk:game2:38:42	BLOODSTAFF
 blk:game2:38:43	\x0D輻射天使只剩下一堆發光的塵埃。\x0D
