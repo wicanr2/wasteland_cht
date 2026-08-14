@@ -63,25 +63,66 @@ func TestEnemySlotLayout(t *testing.T) {
 	}
 }
 
-// 行動值 ＝ 2d6 ＋ 欄位 × 8，所以欄位大的平均排前面。
+// 行動值 ＝ 2d6 ＋ 欄位 × 8，所以欄位大的先動。
 func TestInitiativeUsesSpeedField(t *testing.T) {
 	b := mkBattle(2, 0)
-	fast, slow := 0, 1
-	order := b.BeginRound(func(c Combatant) int {
+	const fast = 0
+	if n := len(b.BeginRound(func(c Combatant) int {
 		if c.Slot == fast {
 			return 5
 		}
 		return 0
-	})
-	if len(order) != 2 {
-		t.Fatalf("應該有兩個單位，得到 %d", len(order))
+	})); n != 2 {
+		t.Fatalf("應該有兩個單位，得到 %d", n)
 	}
 	// 2d6 最大 12（續擲會更大，但 5×8 ＝ 40 的差距吃得掉一般情況）。
-	if order[0].Slot != fast {
-		t.Fatalf("欄位 5（＝ ＋40）的應該排前面，得到格子 %d（%d vs %d）",
-			order[0].Slot, order[0].Initiative, order[1].Initiative)
+	c, ok := b.NextActor()
+	if !ok || c.Slot != fast {
+		t.Fatalf("欄位 5（＝ ＋40）的應該先動，得到 %+v", c)
 	}
-	_ = slow
+}
+
+// 每個單位一回合只動一次，動完表就空了。
+func TestNextActorConsumesEachUnitOnce(t *testing.T) {
+	b := mkBattle(4, 2)
+	b.BeginRound(func(Combatant) int { return 1 })
+	seen := map[int]int{}
+	for {
+		c, ok := b.NextActor()
+		if !ok {
+			break
+		}
+		seen[c.Slot]++
+	}
+	if len(seen) != 6 {
+		t.Fatalf("應該有 6 個單位行動，得到 %d", len(seen))
+	}
+	for slot, n := range seen {
+		if n != 1 {
+			t.Fatalf("格子 %d 動了 %d 次", slot, n)
+		}
+	}
+	if _, ok := b.NextActor(); ok {
+		t.Fatal("都動完了還挑得出人")
+	}
+}
+
+// 同值時取後面的格子——隊伍排在敵人後面，所以平手時隊伍先動
+// （原版的比較是 A ≥ B，docs/re/36 §3）。
+func TestTiesFavourLaterSlot(t *testing.T) {
+	b := mkBattle(1, 1)
+	// 讓兩邊的行動值一樣：BeginRound 之後直接覆寫。
+	b.BeginRound(func(Combatant) int { return 0 })
+	for i := range b.order {
+		b.order[i].Initiative = 7
+	}
+	c, ok := b.NextActor()
+	if !ok {
+		t.Fatal("挑不出人")
+	}
+	if !c.IsParty {
+		t.Fatalf("平手時應該是隊伍先動（格子編號比較大），得到 %+v", c)
+	}
 }
 
 // 驗收 4：一方全滅就結束，而且有回合上限。
@@ -120,7 +161,12 @@ func TestFullBattlesAreStable(t *testing.T) {
 			if over, _ := b.Over(); over {
 				break
 			}
-			for _, c := range b.BeginRound(speed) {
+			b.BeginRound(speed)
+			for {
+				c, ok := b.NextActor()
+				if !ok {
+					break
+				}
 				if c.IsParty {
 					m := b.Member(c)
 					if m == nil || m.Dead() {
