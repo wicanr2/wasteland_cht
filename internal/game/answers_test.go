@@ -77,3 +77,38 @@ func TestAnswerBranch(t *testing.T) {
 		}
 	}
 }
+
+// 改寫地圖格的兩個 byte（docs/re/46 §4.1）。
+func TestParseCellPatch(t *testing.T) {
+	rec := []byte{0, 0, 0, 0x05, 0x21, 0x83, 0x44, 0xFE, 0x00, 0xFD, 0x00}
+
+	p, reuse, ok := ParseCellPatch(rec, 3)
+	if !ok || reuse {
+		t.Fatalf("一般的兩個 byte 應該直接拆：ok=%v reuse=%v", ok, reuse)
+	}
+	if p.Skip || p.Terrain != 5 || p.Record != 0x21 {
+		t.Fatalf("拆出來是 %+v，應該是 {5, 0x21, false}", p)
+	}
+
+	// bit7 設起來 ＝ 這一支什麼都不改。
+	p, _, ok = ParseCellPatch(rec, 5)
+	if !ok || !p.Skip {
+		t.Fatalf("bit7 設起來應該是 Skip：%+v ok=%v", p, ok)
+	}
+	// ⚠ Terrain 只去掉 bit7，不遮成 4 bits——0x83 的低 7 位是 3。
+	if p.Terrain != 3 {
+		t.Fatalf("Terrain 應該是 0x83 & 0x7F ＝ 3，得到 %d", p.Terrain)
+	}
+
+	// 0xFE／0xFD 是「沿用上一次」的特例，交給呼叫端。
+	for _, at := range []int{7, 9} {
+		if _, reuse, ok := ParseCellPatch(rec, at); !ok || !reuse {
+			t.Fatalf("位移 %d 應該回 reuse：ok=%v reuse=%v", at, ok, reuse)
+		}
+	}
+
+	// 位移超出記錄要回 false，不要讀到別人的 byte。
+	if _, _, ok := ParseCellPatch(rec, len(rec)-1); ok {
+		t.Fatal("只剩一個 byte 應該回 false")
+	}
+}

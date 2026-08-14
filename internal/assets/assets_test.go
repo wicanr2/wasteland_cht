@@ -377,3 +377,35 @@ func TestItemTableKnownEntries(t *testing.T) {
 		t.Fatalf("Kevlar vest 類別 %d、AC %d，應該是 15／4", got, vest[6])
 	}
 }
+
+// SetCell 改寫兩層，並且擋住放不進 4 bits 的地形值——
+// 原版是直接 or 進去的，遮掉的話資料異常永遠不會被發現（docs/re/46 §4.1）。
+func TestSetCell(t *testing.T) {
+	r := openWithImage(t)
+	b, err := r.Block(0)
+	if err != nil {
+		t.Fatalf("載入區塊 0 失敗：%v", err)
+	}
+	x, y := 10, 10
+	oldT, oldR, _, err := b.At(x, y)
+	if err != nil {
+		t.Fatalf("讀格子失敗：%v", err)
+	}
+	if err := b.SetCell(x, y, 3, 0x21); err != nil {
+		t.Fatalf("改寫失敗：%v", err)
+	}
+	gotT, gotR, _, _ := b.At(x, y)
+	if gotT != 3 || gotR != 0x21 {
+		t.Fatalf("改寫後是 (%d, %#x)，應該是 (3, 0x21)", gotT, gotR)
+	}
+	if err := b.SetCell(x, y, 0x1F, 0); err == nil {
+		t.Fatal("地形是 4 bits，0x1F 應該被擋下來")
+	}
+	if err := b.SetCell(-1, 0, 0, 0); err == nil {
+		t.Fatal("越界應該回錯誤")
+	}
+	// 放回去，免得影響同一個 Block 的其他測試。
+	if err := b.SetCell(x, y, oldT, oldR); err != nil {
+		t.Fatalf("還原失敗：%v", err)
+	}
+}

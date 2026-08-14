@@ -564,6 +564,8 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `0x15160` | 跳表 | **問答**：單鍵或打字，答案清單在記錄 `+0x03` 起 | [`46`](46-typed-answers-and-text-input.md) §4 |
 | `0x17750` | 2 | **文字輸入本體**（緩衝區 `ds:4680h`、上限 `ds:4684h`） | [`46`](46-typed-answers-and-text-input.md) §2 |
 | `0x18D8E` | 2 | **字串比對**：兩個 NUL 結尾字串逐 byte 全等 | [`46`](46-typed-answers-and-text-input.md) §3 |
+| `0x17CFF` | 7 | **改寫地圖格**：記錄裡兩個 byte ＝（新第 1 層 nibble、新第 2 層記錄編號） | [`46`](46-typed-answers-and-text-input.md) §4.1 |
+| `0x17D7A` | 1 | 寫第 1 層的 nibble（讀出、清舊、or 新值、寫回） | [`46`](46-typed-answers-and-text-input.md) §4.1 |
 | `0x18EFE` | 多 | 鍵盤讀取；**出口把 `a`–`z` 轉成大寫** | [`46`](46-typed-answers-and-text-input.md) §2.1 |
 | `0x167CE` | 2 | 重畫視窗內 nibble 為 4／5／9 的格子（會動的） | [`26`](26-movement-and-triggers.md) §5 |
 | `0x17FEE` | — | 地圖座標 → 螢幕座標（`ds:4685h`／`ds:4686h`） | [`24`](24-map-layers-and-tiles.md) §2.3 |

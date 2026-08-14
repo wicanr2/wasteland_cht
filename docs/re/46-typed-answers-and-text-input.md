@@ -153,6 +153,39 @@ $ python3 tools/scan_callers.py workplace/analysis/unpacked/wl.merged.exe 1000:8
 比對是**照順序試，第一個相等的贏**；全部不中就落到「答案數」那一格
 （`ds:0A651h` ＝ 答案數），也就是「答錯」的那一支。
 
+### 4.1 分支要做什麼：`sub_169B1` ＝ 改寫腳下那一格
+
+`sub_169B1(al ＝ 記錄裡的位移)` 只是把玩家所在的座標（`ds:46A6h`／`46A7h`）
+填好，轉給 `sub_17CFF`——**那是六個地方共用的「改寫地圖格」機制**
+（條件串列、腳本、寶箱都走它）。
+
+```
+0x17CFF  ds:0BA0Ch/0Dh ← 座標
+0x17D09  al ← 記錄[al]                ; 第一個 byte
+0x17D0F  == 0xFE → sub_17D34          ; 改用上一次算出來的 ds:46FCh/46FDh
+0x17D13  == 0xFD → sub_17D34 後 clc   ; 同上，但回報「沒改」
+0x17D17  ds:46B3h ← al                ; 新的第 1 層 nibble
+0x17D1A  ds:46B4h ← 記錄[al+1]        ; 新的第 2 層記錄編號
+0x17D21  → sub_17D47 / sub_17CD2 / sub_17D50
+```
+
+`sub_17D50` 才是真的動手的那一支：
+
+```
+0x17D50  al ← ds:46B3h
+0x17D53  bit7 設 → clc; retn          ; ← 這一格不改
+0x17D5F  sub_17D7A(al)                ; 寫第 1 層的 nibble（讀出、清舊、or 新值、寫回）
+0x17D66  sub_17C72(bl)                ; 算第 2 層那一列的位址 → ds:46ACh
+0x17D74  [ds:46ACh + x] ← ds:46B4h    ; 寫第 2 層的記錄編號
+0x17D76  stc; retn
+```
+
+**所以「答對第 N 個」的兩個 byte 是（新的地形 nibble、新的記錄編號）。**
+守衛問密語、答對之後那一格從「擋路」變成「可以走的通道」，就是這樣做的——
+不是設一個旗標，是**直接改地圖**。
+
+第一個 byte 的 bit7 設起來 ＝ 這一支什麼都不改（例如「答錯只印一句話」）。
+
 ## 5. 角色名字：同一支輸入
 
 `sub_1CAA9`（`0x1CAA9`）：
@@ -184,7 +217,6 @@ $ python3 tools/scan_callers.py workplace/analysis/unpacked/wl.merged.exe 1000:8
 
 ## 7. 還沒解的
 
-- `sub_169B1` 怎麼把「第幾個答案」換成實際動作（拿到的是 section 位移還是編號）。
 - 模式 A（單鍵）在資料裡實際被用在哪些格子——需要掃 42 張地圖的 nibble 8 記錄。
 - `sub_18EFE` 裡 `ds:CA62h`–`ds:CA64h` 那組按鍵錄放（巨集）機制。
 
