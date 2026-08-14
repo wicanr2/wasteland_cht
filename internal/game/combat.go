@@ -30,7 +30,7 @@ type EnemyData struct {
 	// 遭遇時用它載圖，**同一個編號也決定文字裡用 him／her／it**
 	// （查 ds:A920h → 文字碼 0x0E 的選擇子）。
 	Portrait byte // +0x07
-	Raw    [8]byte
+	Raw      [8]byte
 
 	// 敵方護甲的骰數來自別的路徑（loc_12A92），不在這 8 bytes 裡，
 	// 所以由呼叫者傳給 Enemy.TakeDamage，不放進這個結構假裝解過了。

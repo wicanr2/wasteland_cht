@@ -247,7 +247,7 @@ ACAPULCO  ROSEBUD  MOTEKIM  RUN  TOAST  THE LETTER R  11-16-27  …
 
 ## 7. 還沒解的
 
-- `sub_18EFE` 裡 `ds:CA62h`–`ds:CA64h` 那組按鍵錄放（巨集）機制。
+（`sub_18EFE` 的按鍵錄放機制已經解掉，見 `docs/re/43` §6。）
 
 ## 8. 可重跑的完整指令
 
