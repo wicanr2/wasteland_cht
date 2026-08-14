@@ -1,0 +1,72 @@
+# game1 資源 1：石英城的街道、下水道人孔與墓園
+#
+# ⚠ 玩家要按的鍵不翻：N／S／E／W。人孔的方向選項寫成 `\x10N 北`。
+#
+# ⚠ 墓碑上的 `Ken St. Andre` **保留原文**——他是原版的共同設計者
+# （見 `game1:33:92` 的製作名單），墓碑上那個生卒日期是開發團隊的玩笑。
+# `Lester More` 那句是美國 Boot Hill 真實墓誌銘的引用，
+# 笑點在 `No Les, no more`（＝ no less, no more）的雙關，**保留原文**。
+blk:game1:1:1	\x0D進入奎克庸醫的急診所。\x0D
+blk:game1:1:2	\x0D進入驛馬車旅館。\x0D
+blk:game1:1:3	\x0D一間廢棄的老棚屋。\x0D
+blk:game1:1:4	\x0D離開石英城。\x0D
+blk:game1:1:5	\x0D南北向
+blk:game1:1:6	\x0D進入史考特酒吧。\x0D
+blk:game1:1:7	\x0D你撞上了一株仙人掌。針刺進身上，非常痛。\x0D
+blk:game1:1:8	\x0D這裡面看起來很暗。\x0D
+blk:game1:1:9	東西向
+blk:game1:1:10	\x0D這裡看起來不是個進得去的安全地方。\x0D
+blk:game1:1:11	有東西憑空跳了出來。\x0D
+blk:game1:1:12	不懷好意的敵人擋在你們面前。\x0D
+blk:game1:1:13	這幾個傢伙不是要邀你們去派對的。\x0D
+blk:game1:1:14	看樣子你們晃到了不該來的地方。\x0D
+blk:game1:1:15	\x0D從史考特酒吧的後門進入。\x0D
+blk:game1:1:16	\x0D進入法院。\x0D
+blk:game1:1:17	\x0D一道高高的石牆圍著墓園。\x0D
+blk:game1:1:18	\x0D你爬上牆頂，也拉了需要幫忙的人一把。\x0D
+blk:game1:1:19	\x0D這對你來說太難了。\x0D
+blk:game1:1:20	\x0D裡面那片沙漠墓地看起來還算安詳……\x0D
+blk:game1:1:21	\x0D這座老墓園是個陰森的地方。等等！裡面有東西動了！\x0D
+blk:game1:1:22	亡魂從一座墳裡冒了出來。\x0D
+blk:game1:1:23	\x0D墓園的大門用鐵鏈鎖著。\x0D
+blk:game1:1:24	\x0D掛鎖開了。你解開鐵鏈走了進去。\x0D
+blk:game1:1:25	\x0D那把鎖鏽死了，怎麼都打不開。\x0D
+blk:game1:1:26	\x0D這塊墓碑上刻著：Ken St. Andre，1947/4/28－1987/4/28。\x0D
+blk:game1:1:27	\x0D墓碑上寫著：Lester More，死於一把點四四。No Les, no more.\x0D
+blk:game1:1:28	\x0D這座墳寫著：無名變種人之墓。\x0D
+blk:game1:1:29	\x0D這座墳寫著：安息吧，平庸的弗雷德。\x0D
+blk:game1:1:30	\x0D墓碑上寫著：保留給芬斯特。\x0D
+blk:game1:1:31	\x0D墓碑上寫著：紀念理查·皮克曼。\x0D
+blk:game1:1:32	\x0D你在黏滑的地底爬行。\x0D
+blk:game1:1:33	\x0D進入石英城商場。\x0D
+blk:game1:1:34	\x0D你在墓園裡。好陰森！\x0D
+blk:game1:1:35	鵪鶉小徑\x0D
+blk:game1:1:36	芬斯特路\x0D
+blk:game1:1:37	地獄公路\x0D
+blk:game1:1:38	山路\x0D
+blk:game1:1:39	月亮路\x0D
+blk:game1:1:40	環路\x0D
+blk:game1:1:41	灰熊路\x0D
+blk:game1:1:42	標靶小徑\x0D
+blk:game1:1:43	蜥蜴巷\x0D
+blk:game1:1:44	短街\x0D
+blk:game1:1:45	輪圈蓋大道\x0D
+blk:game1:1:46	負鼠巷\x0D
+blk:game1:1:47	金字塔路\x0D
+blk:game1:1:48	瘋子巷\x0D
+blk:game1:1:49	荒廢街\x0D
+blk:game1:1:50	最低巷\x0D
+blk:game1:1:51	萊森路\x0D
+blk:game1:1:52	N
+blk:game1:1:53	\x0D原力擋住了你，你這個蠢蛋。\x0D
+blk:game1:1:54	這個人孔通往：\x0D\x0D\x11\x10S 南\x0D\x10E 東\x0D
+blk:game1:1:55	這個人孔通往：\x0D\x0D\x11\x10S 南\x0D\x10W 西\x0D
+blk:game1:1:56	這個人孔通往：\x0D\x0D\x11\x10N 北\x0D\x10S 南\x0D\x10E 東\x0D
+blk:game1:1:57	這個人孔通往：\x0D\x0D\x11\x10N 北\x0D\x10S 南\x0D\x10W 西\x0D
+blk:game1:1:58	這個人孔通往：\x0D\x0D\x11\x10N 北\x0D\x10E 東\x0D
+blk:game1:1:59	這個人孔通往：\x0D\x0D\x11\x10N 北\x0D\x10W 西\x0D
+blk:game1:1:60	S
+blk:game1:1:61	E
+blk:game1:1:62	W
+blk:game1:1:64	\x07歡迎光臨石英城商場。\x0D
+blk:game1:1:65	\x07奎克庸醫的急診所。\x0D

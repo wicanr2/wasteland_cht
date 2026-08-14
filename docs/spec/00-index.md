@@ -29,7 +29,7 @@
 | [`16-combat-screen.md`](16-combat-screen.md) | **READY**（已實作） | `internal/play` ✅ | 命中訊息的字串編號未確認 |
 | [`17-command-handlers.md`](17-command-handlers.md) | **READY**（已實作） | `internal/game` ✅ | 可雇用對象的算法、Use 那個 byte 的欄位配置未解 |
 | [`18-facility-loops.md`](18-facility-loops.md) | **READY**（已實作） | `internal/game` ✅ | 賣價公式、清單框架未解 |
-| [`19-paragraph-journal.md`](19-paragraph-journal.md) | **READY**（已實作） | `internal/game` ✅、`internal/play` ✅ | 譯稿 80／162 段 |
+| [`19-paragraph-journal.md`](19-paragraph-journal.md) | **READY**（已實作） | `internal/game` ✅、`internal/play` ✅ | 譯稿 120／162 段 |
 | [`20-mouse-input.md`](20-mouse-input.md) | **READY**（已實作） | `internal/input` ✅ | 打字型密語的比對程式碼未定位 |
 | `08-audio.md` | 未寫 | `internal/audio` | F2 位元組碼指令集與曲目資料未解 |
 

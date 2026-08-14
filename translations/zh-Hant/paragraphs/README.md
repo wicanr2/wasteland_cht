@@ -17,7 +17,8 @@ python3 tools/build_paragraphs.py     # → translations/paragraphs-zh-Hant.cat
 |---|---|---|
 | `01-paragraphs-001-040.md` | 1–40 | 已翻 |
 | `02-paragraphs-041-080.md` | 41–80 | 已翻 |
-| — | 81–162 | 未翻 |
+| `03-paragraphs-081-120.md` | 81–120 | 已翻 |
+| — | 121–162 | 未翻 |
 
 ## 譯法
 
