@@ -107,9 +107,16 @@ def decode_table(buf: bytes, base: int, max_groups: int = 512) -> dict:
             break
         offsets.append(off)
 
+    # 逐組解，讀到緩衝區尾就停——位移表的最後幾項可能指到區塊外，
+    # 這時要記下「解到第幾組」，不要整張表放棄。
     strings: list[str] = []
+    decoded_groups = 0
     for off in offsets:
-        strings.extend(decode_run(buf, base, data + off, 4))
+        try:
+            strings.extend(decode_run(buf, base, data + off, 4))
+        except IndexError:
+            break
+        decoded_groups += 1
 
     # 最後一組不一定四個都有用到；控制字元佔多數的就是解過頭了。
     def looks_like_text(s: str) -> bool:
@@ -127,6 +134,7 @@ def decode_table(buf: bytes, base: int, max_groups: int = 512) -> dict:
         "alphabet_text": alphabet.decode("latin1"),
         "declared_groups": declared,
         "group_count": len(offsets),
+        "decoded_groups": decoded_groups,
         "string_count": len(strings),
         "usable_string_count": usable,
         "strings": strings,
