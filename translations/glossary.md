@@ -242,6 +242,21 @@
 | Quartz City Jail | 石英城監獄 |
 | officer's club | 軍官俱樂部 |
 | Spade's Casino | 黑桃賭場 | `game2:41` |
+| Rosie's Motel | 蘿西汽車旅館 | `game1:32` 荒廢街 |
+| Leroy's Place | Leroy's | 同上，招牌照原文；敘述裡稱「Leroy 的軍火櫃檯」 |
+| Acapulco Club | 阿卡波可俱樂部 | 同上，密語 `ACAPULCO` |
+| The Jerks | 混球幫 | 同上的街頭幫派 |
+| Wastemetal | 荒野金屬 | 重金屬的荒野版惡搞 |
+| Flamingo Ave | 紅鶴大道 | `game2:12` 維加斯街名 |
+| Desert Inn Road | 沙漠旅館路 | |
+| Sahara Ave | 撒哈拉大道 | |
+| Las Vegas Blvd | 拉斯維加斯大道 | |
+| Paradise Road | 天堂路 | |
+| Center Dr | 中央路 | |
+| Old Freeway | 舊高速公路 | |
+| Warroid | 戰鬥機械體 | `game2:12` 的敵人 |
+| Spawnmaster | 孵育主宰 | `game2:22` 的敵人 |
+| Mindlink | 心靈連結機 | 達爾文基地，要接一顆機器人的頭 |
 | Base Cochise 的機器人工廠 | 反應爐核心室／勞安室／機器人維修室／保安電子 | `game2:20` 的四個指示牌 |
 | Rail Nomads camp | 鐵路遊牧民族營地 | `game1:8` |
 | Caboose／Trading Car／Casino Car | 守車／交易車廂／賭場車廂 | 同上 |
