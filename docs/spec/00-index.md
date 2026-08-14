@@ -17,13 +17,13 @@
 | [`03-screen-and-text.md`](03-screen-and-text.md) | **READY**（已實作） | `internal/textlayout` ✅、`internal/render` ✅、`internal/ui` ✅ | — |
 | [`04-movement-and-clock.md`](04-movement-and-clock.md) | **READY**（已實作） | `internal/game` ✅ | — |
 | [`05-character-and-save.md`](05-character-and-save.md) | **READY**（已實作） | `internal/assets` ✅、`internal/game` ✅ | — |
-| `06-combat.md` | 未寫（可寫） | `internal/game` | 阻擋項已清（`docs/re/20`、`31`、`32`）；剩隊伍打敵方的傷害來源未讀 |
+| [`06-combat.md`](06-combat.md) | **READY**（已實作） | `internal/game` ✅ | — |
 | [`07-world-events.md`](07-world-events.md) | **READY**（已實作） | `internal/assets` ✅、`internal/game` ✅ | — |
 | `08-audio.md` | 未寫 | `internal/audio` | F2 位元組碼指令集與曲目資料未解 |
 
-**六份 READY 規格涵蓋資產層、呈現層、亂數，以及規則層的前三塊**——
+**七份 READY 規格涵蓋資產層、呈現層、亂數，以及規則層的四塊**——
 走一步、遊戲時鐘、體力隨時間恢復、事件分派的骨架。
-05–07 的阻擋項在 2026-08-15 這一輪逆向之後都清掉了，可以逐份寫。
+只剩 `08`（音效）等 F2 的位元組碼指令集。
 
 ## 2. 為什麼現在就能寫這三份
 
@@ -54,7 +54,8 @@
 7. internal/game       ← 規格 04；**已完成**（走一步、時鐘、體力處理、事件分派骨架）
 8. 存檔與角色記錄      ← 規格 05；**已完成**（round-trip byte-for-byte、升級與技能公式）
 9. 世界事件與檢定      ← 規格 07；**已完成**（section 定址、條件串列、檢定與練等、腳本直譯器）
-10. 其餘               ← 等對應規格 READY
+10. 戰鬥               ← 規格 06；**已完成**（命中、兩種傷害、護甲、傷勢、擊殺經驗值）
+11. 音效               ← 規格 08；等 F2 的位元組碼指令集解出來
 ```
 
 相依取得方式（2026-08-15 定案）：**唯讀掛載本機模組快取當 file proxy**，
