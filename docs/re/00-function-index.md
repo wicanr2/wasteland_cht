@@ -143,7 +143,7 @@
 | `0x16CBD` | seg000+0x6CBD | 10 | 2 | re/17-packed-text.md |
 | `0x17B5C` | seg000+0x7B5C | 24 | 2 | re/22-shop-and-items.md |
 | `0x17BC7` | seg000+0x7BC7 | 64 | 2 | re/00-master-index.md、re/17-packed-text.md |
-| `0x184E8` | seg000+0x84E8 | 252 | 2 | re/05-storage-layer.md、re/07-msq-blocks.md、re/10-huffman-compression.md |
+| `0x184E8` | seg000+0x84E8 | 252 | 2 | re/00-master-index.md、re/05-storage-layer.md、re/07-msq-blocks.md、re/10-huffman-compression.md、re/23-picture-format.md |
 | `0x185E6` | seg000+0x85E6 | 110 | 2 | re/00-remake-knowledge-gaps.md、re/10-huffman-compression.md |
 | `0x19362` | seg000+0x9362 | 50 | 2 | re/15-character-record.md、re/17-packed-text.md |
 | `0x19454` | seg000+0x9454 | 74 | 2 | re/00-master-index.md、re/15-character-record.md |
@@ -174,7 +174,7 @@
 | `0x1004B` | seg000+0x4B | 3 | 1 | re/04-overlay-wla-bin.md |
 | `0x1004E` | seg000+0x4E | 58 | 1 | re/04-overlay-wla-bin.md |
 | `0x10088` | seg000+0x88 | 188 | 1 | re/04-overlay-wla-bin.md |
-| `0x10144` | seg000+0x144 | 18 | 1 | re/04-overlay-wla-bin.md |
+| `0x10144` | seg000+0x144 | 18 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/04-overlay-wla-bin.md、re/23-picture-format.md |
 | `0x10156` | seg000+0x156 | 325 | 1 | re/04-overlay-wla-bin.md |
 | `0x1029B` | seg000+0x29B | 881 | 1 | re/04-overlay-wla-bin.md |
 | `0x1060C` | seg000+0x60C | 189 | 1 | re/00-master-index.md、re/04-overlay-wla-bin.md、re/14-fonts-and-text-encoding.md |
@@ -183,7 +183,7 @@
 | `0x108A3` | seg000+0x8A3 | 92 | 1 | re/04-overlay-wla-bin.md |
 | `0x109BC` | seg000+0x9BC | 94 | 1 | re/04-overlay-wla-bin.md |
 | `0x10A1A` | seg000+0xA1A | 96 | 1 | re/04-overlay-wla-bin.md |
-| `0x10A7A` | seg000+0xA7A | 151 | 1 | re/04-overlay-wla-bin.md |
+| `0x10A7A` | seg000+0xA7A | 151 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/04-overlay-wla-bin.md、re/23-picture-format.md |
 | `0x10B11` | seg000+0xB11 | 329 | 1 | re/04-overlay-wla-bin.md |
 | `0x10C5A` | seg000+0xC5A | 92 | 1 | re/04-overlay-wla-bin.md |
 | `0x10CB6` | seg000+0xCB6 | 151 | 1 | re/00-master-index.md、re/04-overlay-wla-bin.md、re/14-fonts-and-text-encoding.md |
@@ -200,14 +200,14 @@
 | `0x1708B` | seg000+0x708B | 256 | 1 | re/00-master-index.md、re/15-character-record.md、re/17-packed-text.md |
 | `0x17B80` | seg000+0x7B80 | 15 | 1 | re/17-packed-text.md |
 | `0x1841F` | seg000+0x841F | 201 | 1 | re/00-master-index.md、re/05-storage-layer.md、re/06-resource-directory.md、re/07-msq-blocks.md、re/08-msq-encryption.md、re/09-msq-map-structure.md、re/10-huffman-compression.md、re/11-huffman-decoder.md、re/12-msq-tail-and-text-model.md、re/16-msq-block-layout.md、re/18-block-text.md |
-| `0x186B6` | seg000+0x86B6 | 142 | 1 | re/10-huffman-compression.md |
+| `0x186B6` | seg000+0x86B6 | 142 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/10-huffman-compression.md、re/23-picture-format.md |
 | `0x18744` | seg000+0x8744 | 189 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/05-storage-layer.md、re/07-msq-blocks.md、re/09-msq-map-structure.md、re/10-huffman-compression.md |
 | `0x18B4C` | seg000+0x8B4C | 20 | 1 | re/14-fonts-and-text-encoding.md |
 | `0x18EAD` | seg000+0x8EAD | 76 | 1 | re/14-fonts-and-text-encoding.md |
 | `0x19202` | seg000+0x9202 | 321 | 1 | re/22-shop-and-items.md |
 | `0x19C72` | seg000+0x9C72 | 9 | 1 | re/20-combat-resolution.md |
 | `0x19F12` | seg000+0x9F12 | 224 | 1 | re/14-fonts-and-text-encoding.md |
-| `0x1B7FE` | seg000+0xB7FE | 119 | 1 | re/05-storage-layer.md、re/07-msq-blocks.md、re/10-huffman-compression.md |
+| `0x1B7FE` | seg000+0xB7FE | 119 | 1 | re/05-storage-layer.md、re/07-msq-blocks.md、re/10-huffman-compression.md、re/23-picture-format.md |
 | `0x1BF5F` | seg000+0xBF5F | 188 | 1 | re/22-shop-and-items.md |
 | `0x1C073` | seg000+0xC073 | 205 | 1 | re/22-shop-and-items.md |
 | `0x1C140` | seg000+0xC140 | 72 | 1 | re/22-shop-and-items.md |
