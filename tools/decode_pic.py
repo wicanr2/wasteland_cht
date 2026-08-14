@@ -30,6 +30,7 @@ HEX = "0123456789ABCDEF"
 PROFILES = {
     "allpics": {"stride": 48, "width": 96, "height": 84},
     "title": {"stride": 144, "width": 288, "height": 128},
+    "tile": {"stride": 8, "width": 16, "height": 16},
 }
 
 
@@ -67,6 +68,22 @@ def main() -> None:
         raise SystemExit(__doc__)
     profile = PROFILES[sys.argv[1]]
     source = Path(sys.argv[2]).read_bytes()
+
+    if sys.argv[1] == "tile":
+        blocks = split_all(source)
+        block = int(sys.argv[3]) if len(sys.argv) > 3 else 0
+        first = int(sys.argv[4]) if len(sys.argv) > 4 else 0
+        raw, _ = decompress(source[blocks[block]["offset"] :])
+        print(
+            f"{len(blocks)} 個子區塊；第 {block} 塊 {len(raw)} bytes ＝ "
+            f"{len(raw) // 128} 個 16 × 16 圖磚"
+        )
+        for n in range(first, min(first + 4, len(raw) // 128)):
+            tile = undelta(raw[n * 128 : (n + 1) * 128], 8)
+            print(f"\n  圖磚 #{n}")
+            for line in render(tile, 16, 16, 8, cols=16):
+                print("  " + line)
+        return
 
     if sys.argv[1] == "allpics":
         blocks = split_all(source)

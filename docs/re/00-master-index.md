@@ -47,8 +47,8 @@ SHA-256 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`。
 | `game1`／`game2` | 42 個 MSQ 區塊（XOR ＋ Huffman ＋ 打包文字） | 已解 | [`06`](06-resource-directory.md)–[`09`](09-msq-map-structure.md)、[`16`](16-msq-block-layout.md)、[`18`](18-block-text.md) |
 | `colorf.fnt` | 172 字 × 32 bytes，8×8、EGA 4 平面 | 已解 | [`14`](14-fonts-and-text-encoding.md) §3 |
 | `title.pic` | XOR 自參考串流 `out[n]=in[n]^out[n−0x90]` | 已解 | [`03`](03-boot-and-asset-loading.md) §6 |
-| `allpics1/2` | Huffman 容器，66／98 個子區塊 | 容器已解，內容未解 | [`11`](11-huffman-decoder.md) |
-| `allhtds1/2` | Huffman 容器，4／5 個大塊 | 容器已解，內容未解 | [`11`](11-huffman-decoder.md) |
+| `allpics1/2` | 82 張 96 × 84 packed 4bpp 圖，與參數區交錯 | 圖已解，參數區未解 | [`23`](23-picture-format.md) |
+| `allhtds1/2` | 9 組圖磚，每組 66–163 張 16 × 16 packed 4bpp | 已解 | [`24`](24-map-layers-and-tiles.md) §3 |
 | `end.cpa` | Huffman 容器 | 容器已解 | [`11`](11-huffman-decoder.md) |
 | `curs`／`masks.wlf`／`ic0_9.wlf`／`transtbl` | 未加密，載入位址已知 | 內容未解 | [`03`](03-boot-and-asset-loading.md) §5 |
 | `info` | 2 bytes 安裝資訊 | 已解 | [`03`](03-boot-and-asset-loading.md) §3 |
@@ -69,24 +69,26 @@ SHA-256 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`。
 | 擲骰 | dN ＝ 遮罩 ＋ 拒絕取樣，回傳 1..N 等機率 | `tools/rng.py` | [`13`](13-rng.md) §3 |
 | 字型繪製 | 主文字 8 bytes 單色；彩色字型 32 bytes、4 平面連續存放 | `tools/dump_font.py` | [`14`](14-fonts-and-text-encoding.md) |
 | **圖片** | packed 4bpp ＋ 列間 XOR delta；**回看距離 ＝ 列的 byte 數** | `tools/decode_pic.py` | [`23`](23-picture-format.md) |
+| **圖磚** | 同上，一張 128 bytes ＝ 16 × 16；載入時轉成 EGA 4 平面 | `tools/decode_pic.py tile` | [`24`](24-map-layers-and-tiles.md) §3 |
 
 ## 4. 資料結構
 
 ### 4.1 MSQ 區塊（`game1`／`game2` 的一個資源）
 
 ```
-+0x0000                地圖：一個 byte 兩格（4 bits），長度 P
-+P                     記錄區標頭（0x5C bytes），第一個 word ＝ 加密長度 L
++0x0000                地圖第 1 層：一個 byte 兩格（4 bits）
++D²÷2                  地圖第 2 層：一格 1 byte
++P（＝ D²×1.5）         記錄區標頭（0x5C bytes），第一個 word ＝ 加密長度 L
 +P+0x5C                各 section
 +L                     字串表（不加密）
-+（讀取量 − 6）         Huffman 尾段：tile 圖形，解出 4,096 或 1,024 bytes
++（讀取量 − 6）         Huffman 尾段 ＝ 地圖第 3 層，D² bytes（載到 ds:3448h）
 +（總長度 − 6）         結束
 ```
 
-| P | 地圖尺寸 | 區塊數 | 判定 |
-|---|---|---:|---|
-| `0x600` | 64 × 48 | 38 | `ds:BF1Ch[資源編號] != 0x40` |
-| `0x1800` | 128 × 96 | 4 | `ds:BF1Ch[資源編號] == 0x40` |
+| P | 邊長 D | 區塊數 | 判定 |
+|---|---:|---:|---|
+| `0x600` | 32 | 38 | `ds:BF1Ch[資源編號] != 0x40` |
+| `0x1800` | 64 | 4 | `ds:BF1Ch[資源編號] == 0x40` |
 
 **記錄區標頭（P 起算）**
 
@@ -96,7 +98,9 @@ SHA-256 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`。
 | `+0x02` | 明文 NUL 分隔的敵人名表位址 |
 | `+0x04` | 一張 8 bytes 一筆的記錄表位址 |
 | `+0x06`…`+0x28` | section 位移表（型別 → 位移要查執行檔的 `ds:B9E0h`） |
+| `+0x2C` | **地圖邊長 D**（32 或 64） |
 | `+0x2F` | 遭遇出現機率的分母 |
+| `+0x30` | **圖磚組編號**（0–8） |
 | `+0x31` | 遭遇種類數 |
 | `+0x32` | 遭遇槽位上限 |
 | `+0x33` | 未解 |
@@ -239,7 +243,20 @@ rec[+0x32…] ← "PRIVATE" 初始階級字串
 字串內的機制：`\n` 分隔字根／單數字尾／複數字尾；`0x0B` 插入角色名字；
 `0x0C` 夾 his/her 做性別選字；`0x0D` 段內換行。
 
-### 4.10 圖片
+### 4.10 地圖（三層，正方形，邊長 D 在記錄區標頭 `+0x2C`）
+
+```
+偏移 0        第 1 層  4 bits／格   D²÷2 bytes   這一格屬於哪一種 section
+偏移 D²÷2     第 2 層  1 byte／格   D²   bytes   該 section 裡的第幾筆記錄
+Huffman 尾段  第 3 層  1 byte／格   D²   bytes   語意未解，載到 ds:3448h
+偏移 D²×1.5   記錄區標頭 0x5C bytes（見 §4.1）
+```
+
+D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `sub_17C20`
+（偶數行取高 4 位）、第 2 層 `sub_17C72`、第 3 層 `sub_17FC8`。
+圖磚組編號在記錄區標頭 `+0x30`（0–8，0–3 在 `ALLHTDS1`、4–8 在 `ALLHTDS2`）。
+
+### 4.11 圖片
 
 ```
 解碼（word 為單位，n 由 0 起每次 +2）：
@@ -255,6 +272,9 @@ rec[+0x32…] ← "PRIVATE" 初始階級字串
 | `END.CPA` | 18,432 | 144（推測） | 288 × 128（推測） | 1 |
 
 `ALLPICS` 的子區塊嚴格交錯：一張圖 ＋ 一段變動長度的參數區（430–2,490 bytes，未解）。
+
+`ALLHTDS` 的圖磚是同一套格式的最小單位：一張 128 bytes、stride 8 → **16 × 16**，
+每張各自帶 8 bytes 的種子列（delta 不跨圖磚）。
 
 ## 5. 位址表
 
@@ -333,7 +353,7 @@ rec[+0x32…] ← "PRIVATE" 初始階級字串
 
 ## 6. 關鍵函式
 
-完整索引在 [`00-function-index.md`](00-function-index.md)（641 個，已分析 205）。
+完整索引在 [`00-function-index.md`](00-function-index.md)（641 個，已分析 211）。
 下表只列「解 remake 時最常回頭查」的。
 
 | 位址 | 呼叫端 | 作用 | 文件 |
@@ -378,10 +398,16 @@ rec[+0x32…] ← "PRIVATE" 初始階級字串
 | `0x17451` | 4 | 畫選單詞（彩色字型，置中） | [`14`](14-fonts-and-text-encoding.md) §5 |
 | `0x17574` | 4 | 選單：按鍵比對字首字母 | [`14`](14-fonts-and-text-encoding.md) §5 |
 | `0x16890` | 2 | **遭遇生成**（讀標頭 `+0x2F/+0x31/+0x32`、擲骰、填 section 15 槽） | 本表 §4.2 |
+| `0x18350` | — | **換地圖**：讀邊長 `+0x2C`、圖磚組 `+0x30`，必要時重載圖磚 | [`24`](24-map-layers-and-tiles.md) |
+| `0x17C20` | — | 取地圖第 1 層的 nibble（section 型別） | [`24`](24-map-layers-and-tiles.md) §2.1 |
+| `0x17C72` | — | 算地圖第 2 層的列基址（`ds:46ACh`） | [`24`](24-map-layers-and-tiles.md) §2.1 |
+| `0x17FC8` | — | 算地圖第 3 層的列基址（`ds:46CAh`） | [`24`](24-map-layers-and-tiles.md) §2.1 |
+| `0x1379E` | — | 用第 1／2 層的值取出該格的記錄 | [`24`](24-map-layers-and-tiles.md) §2.2 |
+| `0x10088` | — | 圖磚 packed 4bpp → EGA 4 平面（overlay） | [`24`](24-map-layers-and-tiles.md) §3.1 |
 | `0x184E8` | — | **載入一張 `ALLPICS` 圖**（解壓 `0xFC0` ＋ 參數區，再叫 slot 2／16） | [`23`](23-picture-format.md) §4 |
 | `0x10144` | — | **圖片 delta 解碼**（overlay slot 2，18 bytes） | [`23`](23-picture-format.md) §2 |
 | `0x10A7A` | — | 拆圖片參數區成兩張指標表（overlay slot 16，內容未解） | [`23`](23-picture-format.md) §5 |
-| `0x186B6` | — | 載入 `ALLHTDS` 大塊到 `seg003:0x2F60`（用途未解） | 盤點 A10 |
+| `0x186B6` | — | **載入一組圖磚**到 `seg003:0x2F60`（含 delta 解碼） | [`24`](24-map-layers-and-tiles.md) §3 |
 | `0x18744` | — | 存檔載入（兩份輪替，比 32-bit 序號） | [`09`](09-msq-map-structure.md) §4 |
 | `0x1CB75` | — | 掛 `int 08h`，重設 8253 channel 0 | [`04`](04-overlay-wla-bin.md) |
 | `0x1CC76` | — | PC 喇叭發聲（`out 42h` ＋ `out 61h`） | 盤點 F2 |
@@ -403,7 +429,8 @@ rec[+0x32…] ← "PRIVATE" 初始階級字串
 | `tools/decode_block_text.py` | 42 個區塊各自的字串表 | 否 |
 | `tools/decrypt_msq.py`／`split_resources.py`／`huffman.py` | 解密／切資源／解壓 | 否 |
 | `tools/dump_font.py` | 兩套字型畫成文字圖 | 否 |
-| `tools/decode_pic.py` | 圖片 delta 解碼 ＋ 4bpp 畫成文字圖 | 否 |
+| `tools/decode_pic.py` | 圖片與圖磚的 delta 解碼 ＋ 4bpp 畫成文字圖 | 否 |
+| `tools/summarize_map_layers.py` | 地圖三層的長度、邊長、圖磚組驗證 | 否 |
 | `tools/rng.py` | 亂數與擲骰的參考模型（附自我測試） | 否 |
 | `tools/unpack_exepack.py`／`apply_overlay.py` | 解包／合成分析映像 | 否 |
 | `tools/gen_func_index.py` | 產生 `00-function-index.md` | 否 |
@@ -436,6 +463,7 @@ rec[+0x32…] ← "PRIVATE" 初始階級字串
 | [`21`](21-attributes.md) | 七個屬性的記錄位移、屬性→修正值階梯、檢定骰、角色建立 |
 | [`22`](22-shop-and-items.md) | 商店、價格公式、物品資料表（95 筆 × 8 bytes） |
 | [`23`](23-picture-format.md) | 圖片格式：packed 4bpp ＋ 列間 XOR delta、82 張 `ALLPICS` |
+| [`24`](24-map-layers-and-tiles.md) | 地圖三層結構、`ALLHTDS` 九組圖磚、16 × 16 圖磚格式 |
 
 ## 9. 引用這份表時的紀律
 
