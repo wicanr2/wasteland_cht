@@ -6,8 +6,8 @@
 輸入：`wl.merged.exe（解包映像＋wla.bin overlay，本專案合成）`，SHA-256 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`
 
 - 自動辨識函式：**641**
-- 已在筆記中出現：**378**
-- 尚未碰過：**263**
+- 已在筆記中出現：**382**
+- 尚未碰過：**259**
 
 ## 已分析（依呼叫端數量排序）
 
@@ -194,6 +194,7 @@
 | `0x15A84` | seg000+0x5A84 | 25 | 3 | re/19-effects-and-damage.md、re/20-combat-resolution.md、re/28-text-variants.md |
 | `0x15BFE` | seg000+0x5BFE | 5 | 3 | re/19-effects-and-damage.md |
 | `0x15C96` | seg000+0x5C96 | 14 | 3 | re/41-command-handlers.md |
+| `0x163C1` | seg000+0x63C1 | 3 | 3 | re/26-movement-and-triggers.md |
 | `0x1649E` | seg000+0x649E | 57 | 3 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/26-movement-and-triggers.md |
 | `0x166D3` | seg000+0x66D3 | 67 | 3 | re/06-resource-directory.md |
 | `0x1676A` | seg000+0x676A | 99 | 3 | re/00-master-index.md、re/26-movement-and-triggers.md、re/27-game-clock.md |
@@ -252,7 +253,9 @@
 | `0x15CA4` | seg000+0x5CA4 | 14 | 2 | re/41-command-handlers.md |
 | `0x15CC0` | seg000+0x5CC0 | 17 | 2 | re/20-combat-resolution.md |
 | `0x15CD1` | seg000+0x5CD1 | 14 | 2 | re/20-combat-resolution.md |
+| `0x162E1` | seg000+0x62E1 | 43 | 2 | re/00-master-index.md、re/44-audio.md |
 | `0x164E8` | seg000+0x64E8 | 5 | 2 | re/26-movement-and-triggers.md |
+| `0x1652D` | seg000+0x652D | 56 | 2 | re/26-movement-and-triggers.md |
 | `0x167CE` | seg000+0x67CE | 105 | 2 | re/00-master-index.md、re/26-movement-and-triggers.md |
 | `0x16890` | seg000+0x6890 | 280 | 2 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/26-movement-and-triggers.md |
 | `0x16B17` | seg000+0x6B17 | 13 | 2 | re/43-input-and-hotkeys.md |
@@ -355,9 +358,10 @@
 | `0x15A18` | seg000+0x5A18 | 24 | 1 | re/32-skill-checks-and-xp.md |
 | `0x15CE0` | seg000+0x5CE0 | 78 | 1 | re/26-movement-and-triggers.md |
 | `0x161C0` | seg000+0x61C0 | 263 | 1 | re/25-screen-layout.md |
+| `0x16356` | seg000+0x6356 | 32 | 1 | re/26-movement-and-triggers.md |
 | `0x16390` | seg000+0x6390 | 7 | 1 | re/17-packed-text.md |
 | `0x16410` | seg000+0x6410 | 23 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/26-movement-and-triggers.md |
-| `0x1656D` | seg000+0x656D | 23 | 1 | re/32-skill-checks-and-xp.md、re/44-audio.md |
+| `0x1656D` | seg000+0x656D | 23 | 1 | re/26-movement-and-triggers.md、re/32-skill-checks-and-xp.md、re/44-audio.md |
 | `0x16675` | seg000+0x6675 | 94 | 1 | re/00-master-index.md、re/25-screen-layout.md |
 | `0x16AD5` | seg000+0x6AD5 | 66 | 1 | re/26-movement-and-triggers.md |
 | `0x1708B` | seg000+0x708B | 256 | 1 | re/00-master-index.md、re/15-character-record.md、re/17-packed-text.md |
@@ -455,6 +459,6 @@
 | `0x17709` | seg000+0x7709 | 58 | 2 |
 | `0x1A430` | seg000+0xA430 | 58 | 1 |
 | `0x160A8` | seg000+0x60A8 | 57 | 1 |
-| `0x1652D` | seg000+0x652D | 56 | 2 |
 | `0x13AAF` | seg000+0x3AAF | 53 | 4 |
 | `0x13697` | seg000+0x3697 | 48 | 2 |
+| `0x16078` | seg000+0x6078 | 48 | 2 |
