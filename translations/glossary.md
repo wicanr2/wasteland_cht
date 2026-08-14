@@ -209,6 +209,20 @@
 | Diana | 黛安娜 | 段落 13 |
 | Crumb | 克朗姆 | 段落 33 |
 | Irwin John Finger | 厄文·約翰·芬格 | 段落 14；同一個人在別處拼成 `Finster`，兩種拼法照原文各自翻 |
+| Dr. Quack | 奎克庸醫 | `game1:1` 的急診所；`quack` 就是庸醫，名字與笑點都要留 |
+| Harry, the Bunny Master | 兔王哈利 | `game1:9`；與加油站那個哈利同名不同人 |
+| Miguel | 米格爾 | 農業中心的農民代表 |
+| Veggies | 菜農 | 農業中心的居民 |
+| Ken St. Andre | **保留原文** | `game1:1:26` 墓碑上的名字；他是原版共同設計者，墓碑是開發團隊的玩笑 |
+| Lester More | **保留原文** | 同上，Boot Hill 真實墓誌銘的引用，笑點在 `No Les, no more` 的雙關 |
+| Richard Pickman | 理查·皮克曼 | 洛夫克拉夫特〈皮克曼的模特兒〉 |
+| Dave Dawkins | 戴夫·道金斯 | 段落 65 那本錯字日記的作者 |
+| Alandriana | 亞蘭德莉安娜 | 火星誘餌線的嚮導 |
+| Serpioids | 蛇形族 | 同上 |
+| Firelance／Flamelance | 火矛 | 原文兩種拼法，同一件武器 |
+| Verchitin armor | 維奇丁甲 | |
+| Ornijetcopter | 鳥噴直升機 | |
+| plasma coupler | 電漿耦合器 | |
 | Atchison／Topeka／Sante Fe | **保留原文** | 鐵路遊牧民族的三個宗族。1990 說明書也保留；那是 AT&SF 鐵路公司的名字拆成三家，同時是玩家要打的關鍵字 |
 
 ## 地點
