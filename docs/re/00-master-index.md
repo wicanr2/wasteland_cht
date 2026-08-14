@@ -68,6 +68,7 @@ SHA-256 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`。
 | 亂數 | 五個 byte 的進位鏈，無乘除，初值全零，熵來自鍵盤輪詢次數 | `tools/rng.py` | [`13`](13-rng.md) |
 | 擲骰 | dN ＝ 遮罩 ＋ 拒絕取樣，回傳 1..N 等機率 | `tools/rng.py` | [`13`](13-rng.md) §3 |
 | 字型繪製 | 主文字 8 bytes 單色；彩色字型 32 bytes、4 平面連續存放 | `tools/dump_font.py` | [`14`](14-fonts-and-text-encoding.md) |
+| **圖片** | packed 4bpp ＋ 列間 XOR delta；**回看距離 ＝ 列的 byte 數** | `tools/decode_pic.py` | [`23`](23-picture-format.md) |
 
 ## 4. 資料結構
 
@@ -238,6 +239,23 @@ rec[+0x32…] ← "PRIVATE" 初始階級字串
 字串內的機制：`\n` 分隔字根／單數字尾／複數字尾；`0x0B` 插入角色名字；
 `0x0C` 夾 his/her 做性別選字；`0x0D` 段內換行。
 
+### 4.10 圖片
+
+```
+解碼（word 為單位，n 由 0 起每次 +2）：
+    out[n + stride] ^= out[n]        ← 讀到的是「已經解過的」內容，順序不能顛倒
+畫素：packed 4bpp，一個 byte 兩個像素，高 4 位在左
+```
+
+| 來源 | 大小 | stride | 尺寸 | 張數 |
+|---|---:|---:|---|---:|
+| `ALLPICS1` | 4,032 | 48 | 96 × 84 | 33 |
+| `ALLPICS2` | 4,032 | 48 | 96 × 84 | 49 |
+| `TITLE.PIC` | 18,432 | 144 | 288 × 128 | 1 |
+| `END.CPA` | 18,432 | 144（推測） | 288 × 128（推測） | 1 |
+
+`ALLPICS` 的子區塊嚴格交錯：一張圖 ＋ 一段變動長度的參數區（430–2,490 bytes，未解）。
+
 ## 5. 位址表
 
 ### 5.1 執行檔內的表（`ds:` 位移，線性 ＝ ＋`0x1CE20`）
@@ -360,6 +378,10 @@ rec[+0x32…] ← "PRIVATE" 初始階級字串
 | `0x17451` | 4 | 畫選單詞（彩色字型，置中） | [`14`](14-fonts-and-text-encoding.md) §5 |
 | `0x17574` | 4 | 選單：按鍵比對字首字母 | [`14`](14-fonts-and-text-encoding.md) §5 |
 | `0x16890` | 2 | **遭遇生成**（讀標頭 `+0x2F/+0x31/+0x32`、擲骰、填 section 15 槽） | 本表 §4.2 |
+| `0x184E8` | — | **載入一張 `ALLPICS` 圖**（解壓 `0xFC0` ＋ 參數區，再叫 slot 2／16） | [`23`](23-picture-format.md) §4 |
+| `0x10144` | — | **圖片 delta 解碼**（overlay slot 2，18 bytes） | [`23`](23-picture-format.md) §2 |
+| `0x10A7A` | — | 拆圖片參數區成兩張指標表（overlay slot 16，內容未解） | [`23`](23-picture-format.md) §5 |
+| `0x186B6` | — | 載入 `ALLHTDS` 大塊到 `seg003:0x2F60`（用途未解） | 盤點 A10 |
 | `0x18744` | — | 存檔載入（兩份輪替，比 32-bit 序號） | [`09`](09-msq-map-structure.md) §4 |
 | `0x1CB75` | — | 掛 `int 08h`，重設 8253 channel 0 | [`04`](04-overlay-wla-bin.md) |
 | `0x1CC76` | — | PC 喇叭發聲（`out 42h` ＋ `out 61h`） | 盤點 F2 |
@@ -381,6 +403,7 @@ rec[+0x32…] ← "PRIVATE" 初始階級字串
 | `tools/decode_block_text.py` | 42 個區塊各自的字串表 | 否 |
 | `tools/decrypt_msq.py`／`split_resources.py`／`huffman.py` | 解密／切資源／解壓 | 否 |
 | `tools/dump_font.py` | 兩套字型畫成文字圖 | 否 |
+| `tools/decode_pic.py` | 圖片 delta 解碼 ＋ 4bpp 畫成文字圖 | 否 |
 | `tools/rng.py` | 亂數與擲骰的參考模型（附自我測試） | 否 |
 | `tools/unpack_exepack.py`／`apply_overlay.py` | 解包／合成分析映像 | 否 |
 | `tools/gen_func_index.py` | 產生 `00-function-index.md` | 否 |
@@ -412,6 +435,7 @@ rec[+0x32…] ← "PRIVATE" 初始階級字串
 | [`20`](20-combat-resolution.md) | 命中判定（d100 對門檻）、武器傷害公式、一次攻擊的完整流程 |
 | [`21`](21-attributes.md) | 七個屬性的記錄位移、屬性→修正值階梯、檢定骰、角色建立 |
 | [`22`](22-shop-and-items.md) | 商店、價格公式、物品資料表（95 筆 × 8 bytes） |
+| [`23`](23-picture-format.md) | 圖片格式：packed 4bpp ＋ 列間 XOR delta、82 張 `ALLPICS` |
 
 ## 9. 引用這份表時的紀律
 
