@@ -506,7 +506,8 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `0x157D6` | 3 | **傷害結算**：CON −= (傷害 − 吸收)；`ds:46EFh` 非 0 就跳過護甲那 N 顆 d6 | [`55`](55-radiation-and-armour-bypass.md) §1 |
 | `0x141FA` | 2 | 對角色記錄的某個欄位加減（`bl` 有號負 ＝ 減）；欄位 `0x1D` 走傷害結算 | [`55`](55-radiation-and-armour-bypass.md) §3 |
 | `0x14410` | — | **輻射格結算**：逐一對隊員擲 `+0x01` 顆 d6 扣 CON ＋ 加 Radiation poisoning | [`55`](55-radiation-and-armour-bypass.md) §3 |
-| `0x19F12` | 1 | **沖出目前這一行**：斷字 → 寫 scrollback（`seg003:0x8CE0`，40 × 256 環形）→ 送畫面 → 續行 | [`67`](67-gate-penalty-and-canteen.md) | 條件閘的獎懲參數（`+0x08` ＝ 欄位／固定或擲骰、`+0x09` ＝ 量／加減）；`sub_14193` 全解 |
+| `0x19F12` | 1 | **沖出目前這一行**：斷字 → 寫 scrollback（`seg003:0x8CE0`，40 × 256 環形）→ 送畫面 → 續行 | [`68`](68-cell-rewrite.md) | `sub_17CFF` 改寫地圖格：條件閘用 `+0x04`／`+0x06`、地形閘用 `+0x01`／`+0x02`；bit7 ＝ 不改 |
+| [`67`](67-gate-penalty-and-canteen.md) | 條件閘的獎懲參數（`+0x08` ＝ 欄位／固定或擲骰、`+0x09` ＝ 量／加減）；`sub_14193` 全解 |
 | [`66`](66-nibble2-event-and-heat.md) | nibble 2 的閘與事件同一支 `sub_13EC9`（踩上去印 `+0x01`）；沙漠高溫的線索 |
 | [`65`](65-third-gate-conditions.md) | 第三道閘 `sub_13E9B`：nibble 2 先判條件串列再決定擋不擋（remake 目前無條件擋 ＝ 近似） |
 | [`64`](64-enter-location-prompt.md) | 第三道閘 `sub_16AD5`：記錄 `+0x00` 的 bit6 → 問 `Enter new location?`（字串表 1 第 103 條），選 No 那一步整個不算 |

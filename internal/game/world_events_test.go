@@ -780,3 +780,52 @@ func TestGatePenaltyBits(t *testing.T) {
 		t.Errorf("金錢扣過頭：%d", c.Money)
 	}
 }
+
+// 驗收（docs/re/68）：條件閘收尾會改寫地圖格——全部人都過用 +0x04、
+// 有人沒過用 +0x06，第一個 byte 的 bit7 設就不改。
+func TestGateRewritesCell(t *testing.T) {
+	rom := openRom(t)
+	b, err := rom.BlockByID(0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// 找一格：站得住、右邊是指到記錄 2 的 nibble 2（+0x06 ＝ 0x0A 傳送）。
+	var px, py = -1, -1
+	for y := 1; y < b.Dim-1 && px < 0; y++ {
+		for x := 1; x < b.Dim-2; x++ {
+			if here, _, _, err := b.At(x, y); err != nil || blocking[here] {
+				continue
+			}
+			if right, rec, _, err := b.At(x+1, y); err == nil && right == 2 && rec == 2 {
+				px, py = x, y
+				break
+			}
+		}
+	}
+	if px < 0 {
+		t.Skip("資源 0 找不到指到記錄 2 的 nibble 2 格")
+	}
+	rec, err := b.SectionRecord(2, 2)
+	if err != nil || len(rec) < 8 {
+		t.Fatalf("記錄 2：%v", err)
+	}
+	if rec[0x06] != 0x0A {
+		t.Fatalf("記錄 2 的 +0x06 是 %#02x，docs/re/68 §3 說是 0x0A", rec[0x06])
+	}
+
+	raw, _ := rom.SkillTableRaw()
+	w := NewWorld(b, &Party{X: uint8(px), Y: uint8(py),
+		Members: []*Character{{CON: 20, MaxCON: 20}}}, rng.New())
+	w.Skills = SkillBytes(raw)
+	if _, err := w.Step(Right); err != nil {
+		t.Fatal(err)
+	}
+	// 條件是「技能 7 難度 6」，出廠角色沒有 → 沒過 → 用 +0x06 改寫。
+	after, _, _, err := b.At(px+1, py)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if after != 0x0A {
+		t.Errorf("(%d, %d) 沒被改寫成 nibble 10，還是 %d", px+1, py, after)
+	}
+}

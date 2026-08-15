@@ -201,6 +201,7 @@ func (w *World) Step(dir Direction) (StepResult, error) {
 	if res.Event.Kind == EventGate && len(res.Event.Data) > 0 &&
 		res.Event.Data[0]&0x40 != 0 {
 		res.Gate = w.Party.EvalGate(w.RNG, res.Event.Data, w.Skills)
+		w.applyCellPatch(nx, ny, res.Event.Data, res.Gate.PatchAt)
 	}
 	return res, nil
 }
@@ -213,6 +214,22 @@ func (w *World) Confirm() { w.confirmed = true }
 // 給驗證工具尋路用（`cmd/wl-play` 的 `path=`）。**不含**傳送與事件的副作用，
 // 所以它回 true 不代表走過去不會發生別的事。
 func (w *World) Passable(x, y int) bool { return w.passable(x, y) }
+
+// applyCellPatch 照條件閘的收尾改寫這一格（原版 sub_17CFF）。
+//
+// 記錄在 `at`／`at+1` 給新的第 1 層與第 2 層。第一個 byte 的 bit7 設 ＝ 不改；
+// `0xFE`／`0xFD` 是「沿用上一次算出來的值」——remake 沒有那個暫存，
+// **一律當成不改**（比亂改安全，docs/re/68 §2）。
+func (w *World) applyCellPatch(x, y int, record []byte, at int) {
+	p, reuse, ok := ParseCellPatch(record, at)
+	if !ok || reuse || p.Skip {
+		return
+	}
+	if p.Terrain > 0x0F {
+		return // 溢出 4 bits 的資料異常，交給 SetCell 擋（這裡先不改）
+	}
+	_ = w.Block.SetCell(x, y, p.Terrain, p.Record)
+}
 
 // blockedMessage 回報擋住這一步的那一格要印的字串編號（0 ＝ 不印）。
 //
