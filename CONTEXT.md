@@ -14,11 +14,17 @@
 **每一輪都照這個順序**：
 
 ```
-讀 docs/re/ 的逆向文件 → 寫 docs/spec/NN（標 READY）→ 實作 ＋ 驗收
+讀 docs/re/ 的逆向文件 → 寫 docs/spec/NN（標 READY）→ 實作 ＋ 驗收 → 登記接線
 ```
 
-這與 `CLAUDE.md` §0 的三道閘門是同一件事，只是把它變成每一輪的固定節奏。
+這與 `CLAUDE.md` §0 的四道閘門是同一件事，只是把它變成每一輪的固定節奏。
 **規格沒標 READY 就不寫那一塊引擎程式碼。**
+
+最後那一步（G4）是後來補上的：前三步各自都會綠，而結論仍然可以躺在筆記裡沒人用。
+命中公式的 Agility 與對手行動值、敵人的目標選擇都解過了，remake 卻一直傳著寫死的常數
+（`docs/re/88`、`89`）。現在每一份筆記都要在
+[`docs/re/00-wiring-status.md`](docs/re/00-wiring-status.md) 登記，
+`TestWiringStatus`／`TestPlaceholders` 雙向守著。
 
 ## 1. 這個專案在做什麼
 
@@ -38,7 +44,7 @@
 
 | 項目 | 狀態 |
 |---|---|
-| 專案規範 | `CLAUDE.md`（三道閘門、IDA 工具鏈、文件政策） |
+| 專案規範 | `CLAUDE.md`（四道閘門、IDA 工具鏈、文件政策） |
 | IDA 工具鏈 | `tools/ida.sh`（build／run／raw），image `ida-pro-9.4-idapython:py312-v1`，IDAPython 實測可用 |
 | 原版身分 | 20 個檔案的 SHA-256 全部記錄（`docs/re/01`） |
 | 打包器識別 | `wl.exe` 是 Microsoft EXEPACK（`docs/re/02`） |
@@ -142,10 +148,11 @@
 
 | 文件 | 內容 |
 |---|---|
-| [`CLAUDE.md`](./CLAUDE.md) | 專案規範：三道閘門、IDA 鐵則、文件與中文化政策、環境硬規則 |
+| [`CLAUDE.md`](./CLAUDE.md) | 專案規範：四道閘門（含 G4 接線）、IDA 鐵則、文件與中文化政策、環境硬規則 |
 | [`docs/re/00-master-index.md`](docs/re/00-master-index.md) | **RE 總表**：位址換算、資料格式、結構佈局、位址表、關鍵函式、工具。**查已知事實先看這份** |
 | [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md) | **RE 完成度檢查表**：remake 需要的每一項知識、狀態與入口 |
-| [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 293）。讀任何 `sub_XXXXX` 前先查 |
+| [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 435）。讀任何 `sub_XXXXX` 前先查 |
+| [`docs/re/00-wiring-status.md`](docs/re/00-wiring-status.md) | **接線狀態**：89 份筆記的結論，remake 有沒有真的用上。`TestWiringStatus` 雙向守著（`CLAUDE.md` §0 的 G4）|
 | [`docs/re/01-binary-identity.md`](docs/re/01-binary-identity.md) | 20 檔 SHA-256、`wl.exe` 的 MZ header、第一份資料庫與「不可用作證據」的結論 |
 | [`docs/re/02-exepack-unpack.md`](docs/re/02-exepack-unpack.md) | EXEPACK 格式、解包器、relocation 起點的坑、解包後基準資料庫 |
 | [`docs/re/03-boot-and-asset-loading.md`](docs/re/03-boot-and-asset-loading.md) | 開機序列、`info` 安裝資訊、檔名表、七個開機素材的載入位址、`TITLE.PIC` XOR 解碼 |

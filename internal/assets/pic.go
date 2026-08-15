@@ -8,6 +8,9 @@ import (
 
 // 圖片與圖磚（docs/re/23、docs/re/24）。
 //
+// 解碼器住在 wla.bin overlay 的 slot 2（`sub_10144`，docs/re/04）——
+// 打包版的執行檔裡看不到它，要先合成 wl.merged.exe 才讀得到。
+//
 //	packed 4bpp：一個 byte 兩個像素，高 4 位在左
 //	列間 XOR delta：out[n+stride] ^= out[n]，以 word 為單位、n 由 0 每次 +2
 //	**回看距離 stride 就是一列的 byte 數**

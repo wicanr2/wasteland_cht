@@ -1,5 +1,6 @@
 package play
 
+// 翻譯覆蓋率的量測與門檻寫在 `docs/re/83`。
 import (
 	"os"
 	"strings"

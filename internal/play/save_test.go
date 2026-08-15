@@ -9,6 +9,7 @@ import (
 	"github.com/wicanr2/wasteland_cht/internal/input"
 )
 
+// 存檔 round-trip 的量測與結論寫在 `docs/re/82`。
 // TestSaveRoundTripsByteForByte 是 CLAUDE.md §4 的硬要求：
 // **讀出再寫回要 byte-for-byte 相同**。
 //

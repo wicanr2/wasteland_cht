@@ -118,7 +118,7 @@ func (s *CombatScene) partyActs(actor game.Combatant) []string {
 
 // enemyActs 是敵人的一次行動。
 //
-// ⚠ **目標選擇是暫代**：這裡用「還能行動的人裡第一個」，原版怎麼選還沒解。
+// 目標是隨機挑的，挑到倒下的人就重抽（`pickEnemyTarget`，docs/re/89 §1）。
 //
 // `sub_15036` **不是**目標表——那一支是敵人在地圖上移動
 //（`move to a better position.`／`run away.`／`run at you.`，docs/re/87）。
@@ -192,9 +192,8 @@ func (s *CombatScene) enemyLabel(e *game.Enemy) string {
 
 // weaponOf 取這個人裝備的武器資料。
 //
-// ⚠ **暫代**：物品表在存檔區、每個存檔槽一份（docs/re/45 §2），
-// 這一層還沒接到那張表，所以沒有裝備時回零值——零值的 Dice ＝ 0，
-// 傷害會是 0 而不是崩掉。接上物品表之後這一支要換掉。
+// 物品表在存檔區、每個存檔槽一份（docs/re/45 §2），開場時載進 `s.Items`。
+// 沒有裝備或查不到就回零值——零值的 Dice ＝ 0，傷害會是 0 而不是崩掉。
 func (s *CombatScene) weaponOf(c *game.Character) game.ItemData {
 	// ⚠ `EquipIndex` 是**背包的槽號**（`Equip(slot)` 存進去的），
 	// 不是物品 ID——要先取那一格的 ID 再查表。
