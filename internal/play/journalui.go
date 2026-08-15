@@ -92,10 +92,10 @@ func (s *Scene) showJournalPage() {
 		case game.SectionAppendix:
 			// 附錄要標明是防拷設計（`docs/spec/19` §4）——
 			// 陷阱段落遊戲永遠不會叫玩家去讀，混在正文裡會誤導。
-			sec = " [appendix]"
+			sec = " (appendix)"
 		}
 		if s.journal.IsTrap(n) {
-			sec = " [decoy]"
+			sec = " (decoy)"
 		}
 	}
 	s.message = fmt.Sprintf("Journal %d/%d%s  (I/K page, ESC close)",

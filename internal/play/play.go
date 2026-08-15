@@ -132,14 +132,24 @@ func (s *Scene) SetCJK(b []byte) {
 // 中文用倚天 16 × 15 直繪（docs/spec/10 §2）。
 //
 // 一個中文字剛好佔原版一個字元格，所以訊息視窗仍然是 6 行 × 38 格。
+// cjkVisible 回報這一幀會不會畫中文（有字型 ＋ 有內容）。
+func (s *Scene) cjkVisible() bool { return s.eten != nil && len(s.cjk) > 0 }
+
 func (s *Scene) HiFrame() *render.HiFrame {
 	h := render.NewHiFrame()
 	h.Upscale(s.Frame())
 	if s.eten == nil || len(s.cjk) == 0 {
 		return h
 	}
+	// 英文訊息占掉第一行時，中文從第二行起——不要疊上去。
 	col, row := render.MsgCol, render.MsgRow
-	for i := 0; i+1 < len(s.cjk); i += 2 {
+	if s.message != "" {
+		row++
+	}
+	// ⚠ **不能整串兩兩配對。** 譯文裡會夾 ASCII（人名、數字、標點），
+	// 把它當成 Big5 的高位元組會讓**之後整行都錯位**——症狀是畫面上
+	// 出現一串看得懂筆畫卻不成字的東西，而不是空白。
+	for i := 0; i < len(s.cjk); {
 		if col >= render.MsgCol+render.MsgWidth {
 			col = render.MsgCol
 			row++
@@ -147,7 +157,25 @@ func (s *Scene) HiFrame() *render.HiFrame {
 		if row > render.MsgRowEnd {
 			break // 訊息視窗滿了；分頁是控制碼的事（docs/re/14 §4）
 		}
-		h.DrawCJK(s.eten, s.cjk[i], s.cjk[i+1], col, row, 15)
+		c := s.cjk[i]
+		switch {
+		case c == '\r' || c == '\n':
+			// 原版的斷行控制碼：換一行、不佔格。
+			col = render.MsgCol
+			row++
+			i++
+			continue
+		case c < 0x80:
+			h.DrawASCIIAt(s.font, c, col, row, 15)
+			i++
+		default:
+			if i+1 >= len(s.cjk) {
+				i++ // 落單的高位元組：跳過，不要拿下一輪的 byte 湊
+				continue
+			}
+			h.DrawCJK(s.eten, s.cjk[i], s.cjk[i+1], col, row, 15)
+			i += 2
+		}
 		col++
 	}
 	return h
@@ -550,8 +578,11 @@ func (s *Scene) walk(dir game.Direction) (bool, error) {
 	s.message = s.describe(res)
 	s.cjk = s.translate(res)
 	// 訊息裡引用了段落就把正文顯示出來（`docs/spec/19` §3）。
-	if res.Event.Kind == game.EventMessage {
-		s.maybeParagraph(lang.BlockKey(s.blockFile, s.blockID, res.Event.Record))
+	// 引用表的 key 與翻譯目錄同一組編號。
+	for _, n := range s.stringSlots(res) {
+		if n > 0 && s.maybeParagraph(lang.BlockKey(s.blockFile, s.blockID, n)) {
+			break
+		}
 	}
 
 	// 走一步的點擊聲（音效 1，`0x16575` 在 `sub_1656D` 裡，docs/re/44 §6）。
@@ -766,12 +797,40 @@ func (s *Scene) Save() *assets.Save { return s.save }
 // translate 查這一步的訊息有沒有中文。查不到就回 nil，顯示原文
 // （docs/spec/11 §7：半成品的中文化要能玩）。
 func (s *Scene) translate(res game.StepResult) []byte {
-	if s.cat == nil || res.Event.Kind != game.EventMessage {
+	if s.cat == nil {
 		return nil
 	}
-	key := lang.BlockKey(s.blockFile, s.blockID, res.Event.Record)
-	if b, ok := s.cat.Lookup(key); ok {
-		return b
+	// ⚠ **key 的 slot 是字串編號，不是記錄編號。** `describe` 印的是
+	// `Event.Strings` 指到的那幾條，翻譯要查同一組編號——
+	// 拿 `Event.Record` 去查會**每次都查不到**，而症狀只是「畫面上是英文」，
+	// 看起來像還沒翻。
+	var out []byte
+	for _, n := range s.stringSlots(res) {
+		if n <= 0 {
+			continue
+		}
+		if b, ok := s.cat.Lookup(lang.BlockKey(s.blockFile, s.blockID, n)); ok {
+			out = append(out, b...)
+		}
+	}
+	return out
+}
+
+// stringSlots 回傳這一步實際印出來的字串編號，與 `describe` 取的是同一組。
+func (s *Scene) stringSlots(res game.StepResult) []int {
+	if !res.Moved {
+		if res.Blocked > 0 {
+			return []int{res.Blocked}
+		}
+		return nil
+	}
+	switch res.Event.Kind {
+	case game.EventMessage, game.EventRadiation:
+		return res.Event.Strings
+	case game.EventGate:
+		if len(res.Event.Strings) > 0 {
+			return res.Event.Strings[:1]
+		}
 	}
 	return nil
 }
@@ -802,7 +861,14 @@ func (s *Scene) Frame() *render.Frame {
 	if s.message != "" {
 		out, err := textlayout.Layout([]byte(s.message), textlayout.Options{Width: render.MsgWidth})
 		if err == nil {
-			_ = f.DrawText(s.font, out.Lines)
+			lines := out.Lines
+			// ⚠ 有中文正文要顯示時，英文訊息**只留第一行當標題**——
+			// 兩者畫在同一個訊息視窗，全部畫出來會疊在一起
+			// （中文是 16 × 15、英文是 8 × 8，疊起來兩邊都讀不了）。
+			if s.cjkVisible() && len(lines) > 1 {
+				lines = lines[:1]
+			}
+			_ = f.DrawText(s.font, lines)
 		}
 	}
 	s.frame = f

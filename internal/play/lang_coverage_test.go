@@ -2,6 +2,7 @@ package play
 
 // 翻譯覆蓋率的量測與門檻寫在 `docs/re/83`。
 import (
+	"github.com/wicanr2/wasteland_cht/internal/input"
 	"os"
 	"strings"
 	"testing"
@@ -114,4 +115,32 @@ func min(a, b int) int {
 		return a
 	}
 	return b
+}
+
+// 走一步之後訊息要真的變成中文——**翻譯目錄有譯文不等於畫面上看得到**。
+//
+// key 的 slot 是**字串編號**（`Event.Strings`），不是記錄編號。
+// 拿錯會每次都查不到，而症狀只是「畫面上是英文」，看起來像還沒翻。
+func TestWalkShowsTranslatedMessage(t *testing.T) {
+	rom := openRom(t)
+	s, err := New(rom)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := s.LoadCatalogue("../../translations/zh-Hant.cat"); err != nil {
+		t.Skipf("沒有翻譯目錄（%v），跳過", err)
+	}
+	if err := s.LoadMap(4, 18, 3); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Update(input.Input{Dir: input.DirUp}); err != nil {
+		t.Fatal(err)
+	}
+	if s.Message() == "" {
+		t.Fatal("走上去沒有任何訊息——這一格應該有")
+	}
+	if len(s.cjk) == 0 {
+		t.Errorf("訊息 %q 在目錄裡有譯文，畫面上卻是英文", s.Message())
+	}
+	t.Logf("英文 %q → 中文 %d bytes", s.Message(), len(s.cjk))
 }
