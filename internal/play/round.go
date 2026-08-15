@@ -115,8 +115,10 @@ func (s *CombatScene) partyActs(actor game.Combatant) []string {
 
 // enemyActs 是敵人的一次行動。
 //
-// ⚠ **目標選擇是暫代**：原版走 `sub_15036` 的目標表（docs/re/51 §8 只讀到
-// 頂層形狀），這裡用「還能行動的人裡第一個」。不假裝已經解了。
+// ⚠ **目標選擇是暫代**：這裡用「還能行動的人裡第一個」，原版怎麼選還沒解。
+//
+// `sub_15036` **不是**目標表——那一支是敵人在地圖上移動
+//（`move to a better position.`／`run away.`／`run at you.`，docs/re/87）。
 func (s *CombatScene) enemyActs(actor game.Combatant) []string {
 	b := s.Battle
 	e := b.Enemy(actor.Slot)
