@@ -65,6 +65,9 @@ func (s *Scene) runCommand(c Command) (bool, error) {
 		return true, nil
 	case CmdView:
 		return s.cmdView()
+	case CmdOrder:
+		s.beginOrder()
+		return true, nil
 	default:
 		// **不猜**：入口已經在 `docs/re/91` §1 定位，行為還沒讀。
 		s.message = fmt.Sprintf("%s: not wired yet", CommandNames[c])
