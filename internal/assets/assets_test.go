@@ -534,3 +534,29 @@ func TestResourceIDIsNotSliceIndex(t *testing.T) {
 		t.Error("不存在的 ID 應該回錯誤")
 	}
 }
+
+// 三張起始清單要與 docs/re/21 §5.1 對得上——那同時是物品編號的獨立驗證。
+func TestStartingKits(t *testing.T) {
+	r := openWithImage(t)
+	kits, err := r.StartingKits()
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := [3][]byte{
+		{13, 30, 30, 30, 30, 30, 30, 30, 30}, // M1911A1 ＋ 45 clip × 8
+		{16, 32, 32, 32, 32, 32, 32, 32, 32}, // VP91Z ＋ 9mm clip × 8
+		{54, 44, 45, 4, 49, 52},              // 繩、水壺、撬棍、刀、鏡子、火柴
+	}
+	for i := range want {
+		if len(kits[i]) != len(want[i]) {
+			t.Errorf("第 %d 張清單有 %d 項，預期 %d：%v", i, len(kits[i]), len(want[i]), kits[i])
+			continue
+		}
+		for j := range want[i] {
+			if kits[i][j] != want[i][j] {
+				t.Errorf("第 %d 張第 %d 項 ＝ %d，預期 %d", i, j, kits[i][j], want[i][j])
+			}
+		}
+	}
+	t.Logf("起始清單：%v", kits)
+}

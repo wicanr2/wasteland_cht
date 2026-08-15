@@ -38,7 +38,7 @@ func TestScriptRecordIsNotFacility(t *testing.T) {
 func TestFacilityPictureNumbers(t *testing.T) {
 	want := map[game.FacilityKind]int{
 		game.FacilityDoctor: 0, game.FacilityShop: 1,
-		game.FacilityTrainer: 2, game.FacilitySave: 3,
+		game.FacilityTrainer: 2, game.FacilityRoster: 3,
 		game.FacilityUnknown: -1, // 這一種原版沒有載圖，不要猜一個
 	}
 	for kind, pic := range want {
@@ -105,7 +105,7 @@ func TestAllFacilityRecordsParse(t *testing.T) {
 	// （多半又只掃了「目前有格子指到」的記錄）。
 	for _, k := range []game.FacilityKind{
 		game.FacilityDoctor, game.FacilityShop,
-		game.FacilityTrainer, game.FacilitySave,
+		game.FacilityTrainer, game.FacilityRoster,
 	} {
 		if seen[k] == 0 {
 			t.Errorf("42 張地圖裡找不到設施種類 %d——掃描漏了", k)
@@ -145,7 +145,7 @@ func TestFacilityPictureGoesToWindowOrigin(t *testing.T) {
 		t.Skip("ALLPICS1 沒載到")
 	}
 	rec := make([]byte, 32)
-	rec[0] = 0x80 | byte(game.FacilitySave)
+	rec[0] = 0x80 | byte(game.FacilityRoster)
 	copy(rec[0x03:], "Ranger Ctr.\x00")
 	if s.EnterFacility(rec) == nil {
 		t.Fatal("進不了設施")
@@ -201,7 +201,7 @@ func TestFacilityAnimationMatchesHardwareShot(t *testing.T) {
 	before := append([]byte(nil), s.pics[3].Pix...)
 
 	rec := make([]byte, 32)
-	rec[0] = 0x80 | byte(game.FacilitySave)
+	rec[0] = 0x80 | byte(game.FacilityRoster)
 	copy(rec[0x03:], "Ranger Ctr.\x00")
 	if s.EnterFacility(rec) == nil {
 		t.Fatal("進不了設施")

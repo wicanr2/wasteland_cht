@@ -18,7 +18,7 @@ var facilityPicture = [game.FacilityCount]int{
 	game.FacilityDoctor:  0,
 	game.FacilityShop:    1,
 	game.FacilityTrainer: 2,
-	game.FacilitySave:    3,
+	game.FacilityRoster:  3,
 	game.FacilityUnknown: -1,
 }
 

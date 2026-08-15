@@ -24,7 +24,7 @@ func TestFacilityCoverage(t *testing.T) {
 	}
 	kindName := map[game.FacilityKind]string{
 		game.FacilityDoctor: "醫生", game.FacilityShop: "商店",
-		game.FacilityTrainer: "訓練", game.FacilitySave: "存檔",
+		game.FacilityTrainer: "訓練", game.FacilityRoster: "角色管理",
 		game.FacilityUnknown: "未定",
 	}
 	byKind := map[game.FacilityKind]int{}
