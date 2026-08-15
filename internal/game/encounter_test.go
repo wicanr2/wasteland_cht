@@ -146,12 +146,7 @@ func TestSpawnedBattlesRunToCompletion(t *testing.T) {
 			if over, _ := b.Over(); over {
 				break
 			}
-			b.BeginRound(func(c Combatant) int {
-				if e := b.Enemy(c.Slot); e != nil {
-					return int(e.Data.Speed)
-				}
-				return 1
-			})
+			b.BeginRound(allAttack)
 			for {
 				c, ok := b.NextActor()
 				if !ok {

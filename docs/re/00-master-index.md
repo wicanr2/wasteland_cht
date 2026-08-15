@@ -552,6 +552,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `0x172AE` | 10 | CON 兩個 byte 都是 0 ＝ **死** | [`89`](89-enemy-target-and-down.md) §2 |
 | `0x172BB` | — | CON **≤ 0** ＝ **倒下**（不能行動、不會被挑中） | [`89`](89-enemy-target-and-down.md) §2 |
 | `0x19D0E` | 10 | 數還有幾個人能行動（ZF ⟺ 全滅） | [`89`](89-enemy-target-and-down.md) §3 |
+| `0x10E9A` | 3 | **`nullsub_1`**：邊框色常式的入口被 patch 成 `retn`，三個呼叫端全部沒作用 | [`23`](23-picture-format.md) §7.1 |
 | `0x19BEC`／`0x19BF8` | — | 把比較暫存 `ds:46BEh`／累加器 `ds:46C0h` 歸零 | [`88`](88-hit-accumulator.md) §4 |
 | `0x1C6C9` | 1 | **角色建立** | [`21`](21-attributes.md) §5 |
 | `0x1CAD1` | 2 | 屬性擲法：5d6 取最高三顆 | [`21`](21-attributes.md) §5.1 |
@@ -717,6 +718,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | [`20`](20-combat-resolution.md) | 命中判定（d100 對門檻）、武器傷害公式、一次攻擊的完整流程 |
 | [`88`](88-hit-accumulator.md) | 命中累加值的四個項（Brawling×3、Agility、對手行動值、基礎值） |
 | [`89`](89-enemy-target-and-down.md) | 敵人隨機挑目標與重抽；CON ≤ 0（倒下）與 CON ＝ 0（死）的分野 |
+| [`90`](90-party-initiative.md) | 隊伍的行動值公式，以及「只有下攻擊令的人才排進行動表」 |
 | [`21`](21-attributes.md) | 七個屬性的記錄位移、屬性→修正值階梯、檢定骰、角色建立 |
 | [`22`](22-shop-and-items.md) | 商店、價格公式、物品資料表（95 筆 × 8 bytes） |
 | [`23`](23-picture-format.md) | 圖片格式：packed 4bpp ＋ 列間 XOR delta、82 張 `ALLPICS` |

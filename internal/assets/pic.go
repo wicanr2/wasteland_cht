@@ -28,8 +28,12 @@ const (
 
 // EGAPalette 是 mode 0Dh 的標準 16 色。
 //
-// ⚠ **暫代**：原版設定調色盤的程式碼還沒找到（盤點 A14），只知道圖片用滿 16 色。
-// 對原版驗收時比索引值，不要比 RGB。
+// **原版從來沒設過調色盤**（docs/re/23 §7）：碰 Attribute Controller（`0x3C0`）
+// 的只有一支設**邊框色**的常式，而且它的入口被 patch 成 `retn`；
+// 那 16 格全檔沒人寫，`int 10h` 也只有設模式的兩處。
+// 所以畫面用的就是 mode 0Dh 的預設 16 色——這一份是**已確認**的值。
+//
+// 對原版驗收時仍比索引值：那擋得住解碼錯位，比 RGB 敏感。
 var EGAPalette = [16]color.RGBA{
 	{0x00, 0x00, 0x00, 0xFF}, {0x00, 0x00, 0xAA, 0xFF},
 	{0x00, 0xAA, 0x00, 0xFF}, {0x00, 0xAA, 0xAA, 0xFF},
@@ -54,14 +58,14 @@ func undelta(buf []byte, stride int) []byte {
 
 // Indexed 是解碼後的圖，一格一個 0–15 的顏色索引。
 //
-// 調色盤未定案，所以解碼層回傳索引而不是 RGBA——驗收要比的是索引
-// （docs/spec/01 §4）。要畫出來時再呼叫 RGBA。
+// 解碼層回傳索引而不是 RGBA：驗收比的是索引（docs/spec/01 §4），
+// 那擋得住解碼錯位。要畫出來時再呼叫 RGBA。
 type Indexed struct {
 	Width, Height int
 	Pix           []byte // len == Width*Height，值 0–15
 }
 
-// RGBA 用 EGAPalette 上色。**顏色是暫代的**，見 EGAPalette 的說明。
+// RGBA 用 EGAPalette 上色（mode 0Dh 的預設 16 色，docs/re/23 §7）。
 func (im *Indexed) RGBA() *image.RGBA {
 	out := image.NewRGBA(image.Rect(0, 0, im.Width, im.Height))
 	for y := 0; y < im.Height; y++ {

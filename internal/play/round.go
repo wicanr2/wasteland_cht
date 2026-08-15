@@ -30,28 +30,13 @@ type RoundResult struct {
 	Won   bool // Over 為 true 才有意義
 }
 
-// speedOf 是行動值那個「單位的一個欄位 × 8」。
-//
-// ⚠ **原版取的是攻擊資料的哪個位移還沒對上**（docs/re/36 §2），
-// 所以這裡用敵人資料 `+0x02`（行動值，已確認）與隊伍的 0，
-// 並且標明隊伍那一邊是暫代——不要當成解出來的。
-func (s *CombatScene) speedOf(c game.Combatant) int {
-	if c.IsParty {
-		return 0 // 暫代
-	}
-	if e := s.Battle.Enemy(c.Slot); e != nil {
-		return int(e.Data.Speed)
-	}
-	return 0
-}
-
 // ResolveRound 把指令階段的結果跑完一回合。
 //
 // 指令是「這一回合」的，不是持續狀態——跑完就回到指令階段重問。
 func (s *CombatScene) ResolveRound() RoundResult {
 	var res RoundResult
 	b := s.Battle
-	b.BeginRound(s.speedOf)
+	b.BeginRound(s.acting)
 
 	for {
 		actor, ok := b.NextActor()
@@ -75,6 +60,14 @@ func (s *CombatScene) ResolveRound() RoundResult {
 	}
 	s.Log = append(s.Log, res.Lines...)
 	return res
+}
+
+// acting 回答第 i 個隊伍成員這回合下的是不是攻擊令。
+//
+// 原版只把下攻擊令的人排進行動表（`0x1AE78` 的 `cmp al, 2`，docs/re/90 §2）——
+// 迴避、換武器、使用物品的人**這一回合根本不會被叫到**。
+func (s *CombatScene) acting(i int) bool {
+	return i >= 0 && i < len(s.Phase.Cmd) && s.Phase.Cmd[i] == game.CmdAttack
 }
 
 // partyActs 是隊伍成員的一次行動。

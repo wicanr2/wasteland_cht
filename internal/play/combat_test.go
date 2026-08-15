@@ -429,6 +429,11 @@ func TestRoundEndsWhenPartyFalls(t *testing.T) {
 func TestRoundOrderIsStable(t *testing.T) {
 	one := mkBattle(t, 100, 0)
 	one.Battle.RNG = rng.New()
+	// **只有下攻擊令的隊員才排進行動表**（docs/re/90 §2），
+	// 所以要先下令——不下令的話行動表裡只會有敵人。
+	for i := range one.Phase.Cmd {
+		one.Phase.Cmd[i] = game.CmdAttack
+	}
 	one.ResolveRound()
 	got := len(one.Battle.Order())
 	if got == 0 {
@@ -437,6 +442,14 @@ func TestRoundOrderIsStable(t *testing.T) {
 	// 兩個隊員 ＋ 一個敵人 ＝ 三個行動者。
 	if got != 3 {
 		t.Errorf("行動表應該有 3 個單位，得到 %d", got)
+	}
+
+	// 反向：沒人下攻擊令時，行動表裡只剩敵人。
+	two := mkBattle(t, 100, 0)
+	two.Battle.RNG = rng.New()
+	two.ResolveRound()
+	if n := len(two.Battle.Order()); n != 1 {
+		t.Errorf("沒下令時只有 1 個敵人該排進去，得到 %d", n)
 	}
 }
 

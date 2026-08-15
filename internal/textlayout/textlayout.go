@@ -125,9 +125,15 @@ func (v *variant) match() bool { return !v.active || v.seg == v.pick }
 
 // Layout 把一段原版字串排版。
 //
-// ⚠ **自動換行目前是硬斷**：超過 Width 就換行，不退到前一個空白。
-// 原版的斷字規則還沒從 `sub_19E53` 讀出來（docs/spec/03 §3），
-// 所以這是暫代行為，不是逆向結論。
+// **自動換行是硬斷**：超過 Width 就換行，不退到前一個空白。
+//
+// 這是**重製決策**（使用者定案 2026-08-15，不追原版）：原版的斷字規則
+// 沒有從 `sub_19E53` 讀出來，也不打算讀——排版是重製版自己的事
+// （`docs/re/00-wiring-status.md`「重製版自訂的地方」）。
+// 中文為主的譯文本來就可以逐字斷行，硬斷不影響可讀性。
+//
+// ⚠ 若之後要改成「英文退到前一個空白」，**Events 的 Line／Col 要一起搬**——
+// 事件記的是行列座標，把行尾的單字移到下一行會讓那一段的事件位置失準。
 func Layout(text []byte, opt Options) (Result, error) {
 	if opt.Width <= 0 {
 		return Result{}, fmt.Errorf("行寬必須大於 0，收到 %d", opt.Width)

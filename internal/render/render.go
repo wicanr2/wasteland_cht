@@ -39,7 +39,13 @@ const (
 	CharHeight       = 8
 	ClockCol         = 28 // 時鐘在外框上緣
 	ClockRow         = 0
-	DefaultTextColor = 15 // ⚠ 暫代：原版單色字型用什麼顏色畫還沒讀出來
+	// DefaultTextColor 是單色字型畫出來的顏色。
+	//
+	// **重製決策**（使用者定案 2026-08-15，不追原版）：EGA 15 ＝ 亮白，
+	// 在 mode 0Dh 的 16 色裡與訊息視窗底色對比最高。
+	// 原版取哪個顏色沒有查證，也不打算查——這是重製版自己決定的事
+	// （`docs/re/00-wiring-status.md`「重製版自訂的地方」）。
+	DefaultTextColor = 15
 )
 
 // Frame 是一張索引畫面。
@@ -184,8 +190,8 @@ func (f *Frame) DrawPicture(im *assets.Indexed) error {
 
 // DrawGlyph 在字元格 (col, row) 畫一個字模。
 //
-// color 是單色字型要用的顏色（暫代 DefaultTextColor）；彩色字型的字模自帶顏色，
-// 這時 color 傳 0 表示照字模的值畫。
+// color 是單色字型要用的顏色（預設 DefaultTextColor，重製決策）；
+// 彩色字型的字模自帶顏色，這時 color 傳 0 表示照字模的值畫。
 func (f *Frame) DrawGlyph(font *assets.Font, index, col, row int, color byte, inverse bool) error {
 	g, err := font.Glyph(index)
 	if err != nil {
@@ -264,7 +270,8 @@ func (f *Frame) ToImage() *image.RGBA {
 	}
 }
 
-// RGBA 用 assets 的（暫代）調色盤上色，給 internal/ui 送上螢幕。
+// RGBA 用 assets 的 EGA 調色盤上色（mode 0Dh 預設 16 色，docs/re/23 §7），
+// 給 internal/ui 送上螢幕。
 func (f *Frame) RGBA() []byte {
 	out := make([]byte, len(f.Pix)*4)
 	for i, v := range f.Pix {
