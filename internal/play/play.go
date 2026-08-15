@@ -241,10 +241,21 @@ func (s *Scene) Update(in input.Input) (bool, error) {
 // updateFacility 是設施模式：只有離開。買賣與治療的選單這一版不接
 // （docs/spec/23 §5、docs/spec/24 §5）。
 func (s *Scene) updateFacility(in input.Input) (bool, error) {
-	if in.Action == input.ActionCancel || in.Action == input.ActionConfirm {
+	k := byte(0)
+	switch {
+	case in.Action == input.ActionCancel:
+		k = 0x1B // ESC：清單 → 主選單 → 離開，一層一層退
+	case in.Char != 0:
+		k = input.Upper(in.Char)
+	}
+	if k == 0 {
+		return true, nil
+	}
+	if !s.facility.Key(k, s.world.Party, s.items) {
 		s.LeaveFacility()
 		s.message = ""
 	}
+	s.dirty = true
 	return true, nil
 }
 
