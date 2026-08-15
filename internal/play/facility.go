@@ -12,14 +12,15 @@ import (
 
 // facilityPicture 是每個設施進場要載的 ALLPICS 圖（docs/re/29 §5.4 那張表）。
 //
-// ⚠ 第五種（FacilityUnknown）**沒有圖**——原版那一支（0x1B4F0）連
-// `sub_190A6` 都沒叫。用 -1 表示「沒有」，不要猜一個編號。
+// ⚠ 第五種（FacilityEnding）**沒有圖**——原版那一支（0x1B4F0）連
+// `sub_190A6` 都沒叫，因為它根本不是設施畫面：走進去就播結局
+// （`docs/re/96`）。用 -1 表示「沒有」，不要猜一個編號。
 var facilityPicture = [game.FacilityCount]int{
 	game.FacilityDoctor:  0,
 	game.FacilityShop:    1,
 	game.FacilityTrainer: 2,
 	game.FacilityRoster:  3,
-	game.FacilityUnknown: -1,
+	game.FacilityEnding: -1,
 }
 
 // FacilityScene 是一個設施畫面的狀態。
@@ -56,6 +57,11 @@ func (s *Scene) EnterFacility(record []byte) *FacilityScene {
 	}
 	// 選單狀態一開始就建好：`Frame()` 與 `Key()` 都會讀它，
 	// 只在 Key 裡懶初始化的話，先畫再按就會踩到 nil。
+	// 第 4 種不是設施，是**結局**（`ds:A4E0h[4]` → `0x1B4F0`）。
+	if f.Kind == game.FacilityEnding {
+		s.BeginEnding()
+		return nil
+	}
 	fs := &FacilityScene{
 		Facility: f,
 		Picture:  facilityPicture[f.Kind],

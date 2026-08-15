@@ -39,7 +39,6 @@ func TestFacilityPictureNumbers(t *testing.T) {
 	want := map[game.FacilityKind]int{
 		game.FacilityDoctor: 0, game.FacilityShop: 1,
 		game.FacilityTrainer: 2, game.FacilityRoster: 3,
-		game.FacilityUnknown: -1, // 這一種原版沒有載圖，不要猜一個
 	}
 	for kind, pic := range want {
 		rec := make([]byte, 32)
@@ -52,6 +51,22 @@ func TestFacilityPictureNumbers(t *testing.T) {
 		if fs.Picture != pic {
 			t.Errorf("設施 %d 的圖應該是 %d，得到 %d", kind, pic, fs.Picture)
 		}
+	}
+}
+
+// 第 4 種不進設施畫面——它是結局（`docs/re/96`）。
+//
+// ⚠ 這一條擋的是「把結局當成第五種店面」：先前它叫 `FacilityUnknown`、
+// 圖片編號 −1，看起來只是一種沒有圖的設施，於是走進去只會出現一個空畫面。
+func TestFacilityFourIsTheEnding(t *testing.T) {
+	rec := make([]byte, 32)
+	rec[0] = 0x80 | byte(game.FacilityEnding)
+	s := &Scene{}
+	if fs := s.EnterFacility(rec); fs != nil {
+		t.Fatalf("設施 4 建出了設施畫面（圖 %d），它應該直接進結局", fs.Picture)
+	}
+	if !s.Ending() {
+		t.Fatal("走進設施 4 沒有進結局")
 	}
 }
 
