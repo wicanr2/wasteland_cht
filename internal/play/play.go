@@ -496,13 +496,13 @@ func (s *Scene) drawRoster(f *render.Frame) {
 // drawFacility 畫設施那一種：地圖視窗換成那張 ALLPICS 圖。
 func (s *Scene) drawFacility(f *render.Frame) {
 	fs := s.facility
-	// ⚠ **擺在哪還沒對拍過。** ALLPICS 是 96 × 84、視窗是 288 × 128
-	// （docs/re/23 §1、docs/re/25），原版怎麼擺筆記裡沒有——
-	// 這裡先放在視窗左上角並標明是暫代，等 DOSBox 逐像素對拍再定。
+	// 位置是**實機對拍量出來的**（docs/re/54）：圖在視窗原點 (8, 8)、
+	// 96 × 84，地圖在右邊照常露出來——**不是整個視窗換成圖**。
 	if fs.Picture >= 0 && s.pics != nil && fs.Picture < len(s.pics) {
-		f.DrawIndexed(s.pics[fs.Picture], render.ViewX, render.ViewY, render.ViewClip())
+		f.DrawIndexed(s.pics[fs.Picture], render.FacilityPicX, render.FacilityPicY,
+			render.ViewClip())
 	}
 	for i, l := range fs.Lines {
-		_ = f.DrawLineAt(s.font, l, 1, render.RosterHeaderRow+i)
+		_ = f.DrawLineAt(s.font, l, render.FacilityNameCol, render.FacilityNameRow+i)
 	}
 }
