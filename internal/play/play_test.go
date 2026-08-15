@@ -341,3 +341,44 @@ func TestPollRNGIsTheOnlyEntropy(t *testing.T) {
 		t.Fatalf("不輪詢卻跑出兩種結果：\n  %s\n  %s", a, b)
 	}
 }
+
+// 驗收（規格 21／22）：整條戰鬥路徑跑得完——開戰 → 逐人下指令 → 結算 →
+// 打完回地圖，而且經驗有進帳。
+//
+// 這一條是 cmd/wl-play 跑出來的路徑固化成測試：單元測試各自驗一塊規則，
+// 這裡驗它們串起來不會卡住。**上限 200 步就是「打不完」的判準**。
+func TestBattleRunsToCompletion(t *testing.T) {
+	s := openScene(t)
+	// 起始地圖沒有靜態遭遇格（docs/re/51），換到有的那一張。
+	if err := s.LoadMap(4, 18, 2); err != nil {
+		t.Fatalf("換地圖：%v", err)
+	}
+	c, err := s.StartEncounter()
+	if err != nil {
+		t.Fatalf("開戰：%v", err)
+	}
+	if c == nil {
+		t.Fatal("地圖 4 的 (18, 2) 開不了戰——docs/re/51 說那裡有遭遇格")
+	}
+	before := uint32(0)
+	for _, m := range s.World().Party.Members {
+		before += m.XP
+	}
+
+	for i := 0; i < 200; i++ {
+		if !s.InCombat() {
+			after := uint32(0)
+			for _, m := range s.World().Party.Members {
+				after += m.XP
+			}
+			if after <= before {
+				t.Fatalf("打完了但經驗沒進帳（%d → %d）", before, after)
+			}
+			return
+		}
+		if _, err := s.Update(input.Input{Dir: input.DirNone, Char: 'A'}); err != nil {
+			t.Fatalf("第 %d 步：%v", i, err)
+		}
+	}
+	t.Fatal("200 步之內戰鬥沒結束——可能卡在某一輪的指令階段")
+}
