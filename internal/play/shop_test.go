@@ -332,3 +332,63 @@ func TestCureRemovesOneDisease(t *testing.T) {
 		t.Error("病治完了應該回主選單")
 	}
 }
+
+// 分頁（docs/re/53、docs/spec/25）。
+
+func TestBuyListPagesWithIAndK(t *testing.T) {
+	f, p, _ := mkShop(t, game.FacilityShop)
+	// 12 件有貨的東西 → 兩頁（一頁 9 件）。
+	items := game.ItemTable{{}}
+	for i := 1; i <= 12; i++ {
+		items = append(items, game.ItemData{Price: uint16(i * 10), Stock: 1})
+	}
+	c := p.Members[0]
+	c.Money = 10000
+
+	f.Key('B', p, items)
+	if f.state.Page != 0 {
+		t.Fatalf("進清單應該從第一頁開始，得到 %d", f.state.Page)
+	}
+	f.Key('K', p, items) // 下一頁
+	if f.state.Page != 9 {
+		t.Errorf("下一頁應該到第 9 列，得到 %d", f.state.Page)
+	}
+	// 第二頁只剩 3 件，再按 K 不該再往前。
+	f.Key('K', p, items)
+	if f.state.Page != 9 {
+		t.Errorf("已經到底不該再翻，得到 %d", f.state.Page)
+	}
+	// 第二頁的「1」是第 10 件（價格 100 → 折價後 50）。
+	before := c.Money
+	f.Key('1', p, items)
+	if got := before - c.Money; got != 50 {
+		t.Errorf("第二頁的第 1 列應該是第 10 件（折價後 50），扣了 %d", got)
+	}
+	f.Key('I', p, items)
+	if f.state.Page != 0 {
+		t.Errorf("上一頁應該回到 0，得到 %d", f.state.Page)
+	}
+}
+
+// 列與索引不是同一件事：濾掉東西之後，列號要經過對應才是資料索引。
+func TestSellListSkipsUnknownItemsWithoutShiftingSelection(t *testing.T) {
+	f, p, _ := mkShop(t, game.FacilityShop)
+	items := game.ItemTable{{}, {Price: 40, Stock: 1}} // 只有物品 1 認得
+	c := p.Members[0]
+	c.Items[0] = game.Slot{ID: 200} // 表裡沒有 → 不列
+	c.Items[1] = game.Slot{ID: 1}   // 列在第 1 列
+	before := c.Money
+
+	f.Key('S', p, items)
+	f.Key('1', p, items)
+
+	if c.Items[1].ID != 0 {
+		t.Error("第 1 列對應的是槽 1，應該被賣掉")
+	}
+	if c.Items[0].ID != 200 {
+		t.Error("沒列出來的那一槽不該被動到")
+	}
+	if c.Money <= before {
+		t.Error("應該收到錢")
+	}
+}
