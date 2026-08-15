@@ -30,8 +30,8 @@
 | [`17-command-handlers.md`](17-command-handlers.md) | **READY**（已實作） | `internal/game` ✅ | 可雇用對象的算法、Use 那個 byte 的欄位配置未解 |
 | [`18-facility-loops.md`](18-facility-loops.md) | **READY**（已實作） | `internal/game` ✅ | 賣價公式、清單框架未解 |
 | [`19-paragraph-journal.md`](19-paragraph-journal.md) | **READY**（已實作） | `internal/game` ✅、`internal/play` ✅ | — |
-| [`20-mouse-input.md`](20-mouse-input.md) | **READY**（已實作） | `internal/input` ✅ | 打字型密語的比對程式碼未定位 |
-| [`08-audio.md`](08-audio.md) | **READY**（已實作） | `internal/audio` ✅ | 音效 3／6／8 的觸發點未定位 |
+| [`20-mouse-input.md`](20-mouse-input.md) | **READY**（已實作） | `internal/input` ✅ | — |
+| [`08-audio.md`](08-audio.md) | **READY**（已實作） | `internal/audio` ✅ | 3／6／8 **沒有呼叫端**（已確認，`docs/re/44` §6）|
 
 **二十一份 READY 規格涵蓋資產層、呈現層、亂數、規則層十一塊、戰鬥畫面、段落手札、中文排版與翻譯管線**——
 走一步、遊戲時鐘、體力隨時間恢復、事件分派，以及**從視野掃出遭遇、生怪、下指令、
