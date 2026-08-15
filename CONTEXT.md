@@ -212,6 +212,7 @@
 | [`docs/re/65-third-gate-conditions.md`](docs/re/65-third-gate-conditions.md) | nibble 2 是**條件式**：bit7 或 ¬bit6 直接放行（2,553 格），只有 146 格要判定 |
 | [`docs/re/66-nibble2-event-and-heat.md`](docs/re/66-nibble2-event-and-heat.md) | nibble 2 的閘與事件是同一支；沙漠高溫的訊息與扣血路徑已定位，入口未解 |
 | [`docs/re/67-gate-penalty-and-canteen.md`](docs/re/67-gate-penalty-and-canteen.md) | 條件閘的獎懲在記錄 `+0x08`／`+0x09`；高溫的條件是物品 44 ＝ `Canteen` |
+| [`docs/re/68-cell-rewrite.md`](docs/re/68-cell-rewrite.md) | 改寫地圖格 `sub_17CFF`：七個呼叫端只差一個位移；**這個遊戲的狀態就是改格子** |
 | [`docs/spec/00-index.md`](docs/spec/00-index.md) | **規格索引與閘門狀態**：哪些可以動工、其餘擋在什麼上 |
 | [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
 | [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |
@@ -322,7 +323,7 @@
 | # | 還沒解的 | 為什麼不擋 |
 |---|---|---|
 | A12b | `CURS` 的**消費端**：哪個圖形對應哪個狀態，以及資料的 16 寬為何與 slot 21 的 24 寬對不上 | 版面已解（8 個 32 × 16，遮罩 ＋ 圖形並排，`docs/re/57`）；遊戲主線不用滑鼠 |
-| — | 條件閘收尾一定會呼叫的 `sub_17CFF`（**改寫地圖格**）沒接，以及記錄 `+0x00` 低位那四個旗標分支（沙漠那批只用到 `& 0x20`，其餘三條沒驗過，`docs/re/67` §4） | 判定與懲罰都接上了；缺的是「開過之後那一格變成什麼」 |
+| — | 記錄 `+0x00` 低位那四個旗標分支（沙漠那批只用到 `& 0x20`，其餘三條沒驗過，`docs/re/67` §4），以及 `0xFE`／`0xFD` 的「沿用上一次」暫存（`docs/re/68` §4 一律當成不改） | 判定、懲罰、改寫地圖格都接上了 |
 | — | 帶「`It is very warm.`」三階段訊息的**記錄 7–12** 仍然沒有格子指到（同機制的 163 格已經接上，實跑每步每人 −1） | 沙漠會消耗人了；缺的是更熱的那一級 |
 | — | **商店與醫生怎麼進去**：23 筆設施記錄只有 2 筆有格子指到，而 nibble 6、44 個 opcode、`sub_12C80` 的呼叫端、商店函式的引用四條路都排除了。下一步是實機走進 Quartz 商店記下地圖與座標，反查那一格（`docs/re/60` §8） | **這一項擋玩得通**：商店、醫生、大部分訓練師目前到不了 |
 | A13 | `TRANSTBL` 的**用途**（形狀已解：50 組 × 16 的索引對照表） | 三層掃描都找不到消費端，與資源 idx 7 同一種遺留（`docs/re/56`） |

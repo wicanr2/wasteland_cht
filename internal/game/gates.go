@@ -12,6 +12,10 @@ import "github.com/wicanr2/wasteland_cht/internal/game/rng"
 const (
 	gateListAt = 0x0A
 	gateEnd    = 0xFF
+
+	// 條件閘收尾改寫地圖格時用的兩個位移（docs/re/68 §1）。
+	gatePatchPass = 0x04 // 全部人都過
+	gatePatchFail = 0x06 // 有人沒過
 )
 
 // 條件型別。1／5／6／7 的判定路徑相同（都是找物品），
@@ -72,6 +76,9 @@ func (p *Party) Eval(r *rng.State, gates []Gate, tbl SkillTable) int {
 type GateResult struct {
 	Blocked bool       // 有人沒通過 → 擋住（原版回傳 ds:A5D1h ≠ 0）
 	Failed  []GateHurt // 沒通過的人，各自已經受罰
+	// PatchAt 是收尾要拿哪個位移去改寫這一格（原版 `sub_17CFF` 的 al）：
+	// 全部人都過 ＝ 4（`0x1406D`）、有人沒過 ＝ 6（`0x14045`）。
+	PatchAt int
 }
 
 // GateHurt 是一個人沒通過條件時受的罰。
@@ -115,6 +122,11 @@ func (p *Party) EvalGate(r *rng.State, record []byte, tbl SkillTable) GateResult
 		out.Failed = append(out.Failed, GateHurt{Member: i, Field: field, Amount: amount})
 	}
 	out.Blocked = len(out.Failed) > 0
+	// 收尾一定會改寫這一格，只是拿哪一對 byte 不同（docs/re/68 §1）。
+	out.PatchAt = gatePatchPass
+	if out.Blocked {
+		out.PatchAt = gatePatchFail
+	}
 	return out
 }
 
