@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/wicanr2/wasteland_cht/internal/assets"
 	"github.com/wicanr2/wasteland_cht/internal/game"
 )
 
@@ -30,12 +31,7 @@ type xpSnapshot map[string]uint32
 //
 // 回 nil 表示掃描說沒有可打的——地圖照舊，畫面不切（docs/re/51 §2）。
 func (s *Scene) StartEncounter() (*CombatScene, error) {
-	var groups [game.QueueGroups]game.PartyGroupState
-	// 只有第 0 組：DISBAND 的分隊管理還沒做（docs/spec/21 §4）。
-	groups[0] = game.PartyGroupState{
-		Present: true,
-		Engage:  game.Engagement(s.world.Party.Members, func(int) bool { return false }),
-	}
+	groups := s.scanGroups()
 	scan := s.world.ScanEncounters(groups)
 	entry, ok := scan.Queue.Nearest(0)
 	if !ok {
@@ -72,6 +68,56 @@ func (s *Scene) StartEncounter() (*CombatScene, error) {
 	c.Log = append(c.Log, "Encounter begins...")
 	s.combat = c
 	return c, nil
+}
+
+// scanGroups 建遭遇掃描要的四組狀態（`docs/re/39` §4）。
+//
+// **只有在同一張地圖上的組才參與**，而且距離要用各組自己的座標算。
+// 目前這一組拿記憶體裡的隊伍（座標可能還沒寫回槽表），其餘組讀槽表。
+func (s *Scene) scanGroups() [game.QueueGroups]game.PartyGroupState {
+	var out [game.QueueGroups]game.PartyGroupState
+	for i, g := range s.save.SlotGroups() {
+		if i >= len(out) {
+			break
+		}
+		if i == s.groupID {
+			out[i] = game.PartyGroupState{
+				Present: true,
+				X:       int(s.world.Party.X),
+				Y:       int(s.world.Party.Y),
+				Engage: game.Engagement(s.world.Party.Members,
+					func(int) bool { return false }),
+			}
+			continue
+		}
+		if groupSize(g) == 0 || int(g.MapID) != s.blockID {
+			continue // 空的、或不在這張地圖上
+		}
+		members := s.groupMembers(g)
+		out[i] = game.PartyGroupState{
+			Present: true,
+			X:       int(g.X),
+			Y:       int(g.Y),
+			Engage:  game.Engagement(members, func(int) bool { return false }),
+		}
+	}
+	return out
+}
+
+// groupMembers 把一組槽表的角色記錄讀出來（只給接戰值用，不建完整隊伍）。
+func (s *Scene) groupMembers(g assets.SlotGroup) []*game.Character {
+	var out []*game.Character
+	for _, id := range g.Members {
+		if id == 0 {
+			continue
+		}
+		raw, err := s.save.Record(int(id))
+		if err != nil {
+			continue
+		}
+		out = append(out, game.LoadCharacter(raw))
+	}
+	return out
 }
 
 // enemyNames 查六個敵人種類的名稱（`0x52 + Kind`，取單數那一段）。

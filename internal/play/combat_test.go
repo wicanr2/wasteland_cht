@@ -242,7 +242,8 @@ func TestNoEncounterCellNoCombat(t *testing.T) {
 	// 出廠位置（Ranger Ctr. 外面）掃一次；有沒有遭遇格由資料決定，
 	// 所以這裡驗的是「掃到的格數 ＝ 0 就一定回 nil」這條蘊含。
 	var groups [game.QueueGroups]game.PartyGroupState
-	groups[0] = game.PartyGroupState{Present: true, Engage: game.EngageFar}
+	groups[0] = game.PartyGroupState{Present: true, Engage: game.EngageFar,
+		X: int(s.World().Party.X), Y: int(s.World().Party.Y)}
 	scan := w.ScanEncounters(groups)
 	c, err := s.StartEncounter()
 	if err != nil {
