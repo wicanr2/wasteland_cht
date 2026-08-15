@@ -86,6 +86,34 @@ func (h *HiFrame) DrawCJK(font *assets.ETenFont, hi, lo byte, col, row int, fg b
 }
 
 // ToImage 把高解畫面轉成 RGBA（調色盤與 320 × 200 那張共用）。
+// DrawASCIIAt 在高解析畫面上畫一個 ASCII 字元（原版 8 × 8 字模放大兩倍）。
+//
+// 中文譯文裡會夾英文與標點（人名、數字、`%s` 之後接的東西），
+// **不能整串當成 Big5 兩兩配對**——錯一個 byte 之後整行都會變亂碼。
+func (h *HiFrame) DrawASCIIAt(font *assets.Font, c byte, col, row int, fg byte) bool {
+	if font == nil || c < font.FirstASCII {
+		return false
+	}
+	g, err := font.Glyph(int(c) - int(font.FirstASCII))
+	if err != nil {
+		return false
+	}
+	x0, y0 := col*HiCellWidth, row*HiCellHeight
+	for y := 0; y < CharHeight; y++ {
+		for x := 0; x < CharWidth; x++ {
+			if g.Pix[y*CharWidth+x] == 0 {
+				continue
+			}
+			for dy := 0; dy < HiScale; dy++ {
+				for dx := 0; dx < HiScale; dx++ {
+					h.Set(x0+x*HiScale+dx, y0+y*HiScale+dy, fg)
+				}
+			}
+		}
+	}
+	return true
+}
+
 func (h *HiFrame) ToImage() *image.RGBA {
 	pix := make([]byte, len(h.Pix)*4)
 	for i, v := range h.Pix {
