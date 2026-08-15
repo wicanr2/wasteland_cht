@@ -7,6 +7,8 @@ import (
 	"github.com/wicanr2/wasteland_cht/internal/input"
 )
 
+// 這一份的量測結果與教訓寫在 `docs/re/81`。
+//
 // TestCombatRunsToCompletion 是戰鬥迴圈的端到端門檻：
 // 從地圖走到遭遇、下令、打到結束、收尾回地圖，整條路要跑得完。
 //

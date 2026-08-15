@@ -3,10 +3,15 @@
 > **這份是逆向結果的速查表。** 要找「某個位址是什麼」「某個格式怎麼解」
 > 「某個機制在哪份筆記」時查這裡，不要翻十八份文件。
 >
-> 三份 `00-*` 各有分工：
+> 四份 `00-*` 各有分工：
 > **本表**＝已知的事實速查；
 > [`00-remake-knowledge-gaps.md`](00-remake-knowledge-gaps.md)＝還缺什麼；
-> [`00-function-index.md`](00-function-index.md)＝641 個函式誰解過。
+> [`00-function-index.md`](00-function-index.md)＝641 個函式誰解過；
+> [`00-wiring-status.md`](00-wiring-status.md)＝**已經解出來的，接上了沒有**。
+>
+> ⚠ **這份表寫的是「原版怎麼做」，不保證 remake 照著做了。**
+> 要回答「這件事接上了沒」一律查接線表——它由 `TestWiringStatus` 守著，
+> 雙向都會紅；本表沒有那道檢查（`CLAUDE.md` §0 的 G4）。
 >
 > 最後更新：2026-08-15
 

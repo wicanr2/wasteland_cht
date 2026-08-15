@@ -2,11 +2,16 @@ package assets
 
 import "fmt"
 
-// MSQ 區塊：資源定址、解密與三層地圖（docs/re/06、08、16、18、24）。
+// MSQ 區塊：資源定址、解密與三層地圖。
+//
+// docs/re/06（資源目錄）、docs/re/07（GAME1／GAME2 切成 42 個區塊）、
+// docs/re/08（XOR 解密）、docs/re/09（地圖層）、docs/re/16、docs/re/18、docs/re/24
+// —— 07 與 09 是最早的兩份，細節後來收攏進 16／18／24。
 
 // 執行檔內的定址表（ds: 位移，docs/re/00-master-index.md §5.1）。
 const (
 	tblDirectory = 0xBEC9 // 資源目錄，逐 byte 到 0xFF；高 2 bits ＝ 哪個檔案
+	// 兩張長度表的差就是 Huffman 尾段（第 3 層）的長度，docs/re/12 §1。
 	tblTotalLen  = 0xBD86 // 區塊總長度
 	tblReadLen   = 0xBD22 // 讀取量（＝ 交給 XOR 解密的長度）
 	tblMapSize   = 0xBF1C // 地圖大小選擇：0x40 → 0x1800，其餘 → 0x600

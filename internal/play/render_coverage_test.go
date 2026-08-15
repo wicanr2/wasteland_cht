@@ -1,5 +1,6 @@
 package play
 
+// 畫面覆蓋率的量測與門檻寫在 `docs/re/84`。
 import (
 	"testing"
 
