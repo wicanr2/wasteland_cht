@@ -6,7 +6,6 @@ func TestControlCodesNeverPrint(t *testing.T) {
 	text := []byte{
 		CodeInverseOn, 'A', 'B', CodeInverseOff,
 		CodeMoveTo, 0x41, // ⚠ 0x41 是參數不是文字
-		CodeUnknown08,
 		'C',
 	}
 	res, err := Layout(text, Options{Width: 38})
@@ -21,23 +20,48 @@ func TestControlCodesNeverPrint(t *testing.T) {
 		t.Fatalf("反白範圍不對：%+v", res.Lines[0].Cells)
 	}
 
-	var moveTo, unknown int
+	moveTo := 0
 	for _, e := range res.Events {
-		switch e.Kind {
-		case EventMoveTo:
+		if e.Kind == EventMoveTo {
 			moveTo++
 			if e.Param != 0x41 {
 				t.Fatalf("0x09 的參數是 %#x，應該是 0x41", e.Param)
 			}
-		case EventUnknownCode:
-			unknown++
-			if e.Code != CodeUnknown08 {
-				t.Fatalf("未解控制碼回報成 %#x", e.Code)
+		}
+		if e.Kind == EventUnknownCode {
+			t.Fatalf("18 個碼都有語意了，不該回報未解碼 %#x", e.Code)
+		}
+	}
+	if moveTo != 1 {
+		t.Fatalf("EventMoveTo 出現 %d 次", moveTo)
+	}
+}
+
+// 驗收（docs/re/58 §3）：0x08 結束這一行但不捲動，而且不印任何字。
+//
+// 三條語料用例都在字串結尾——`Which way?` 的十字圖用 0x0D 收尾會多捲一行。
+func TestFlushLineEndsLineWithoutPrinting(t *testing.T) {
+	res, err := Layout([]byte{'K', CodeFlushLine, 'C'}, Options{Width: 38})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(res.Lines) != 2 {
+		t.Fatalf("0x08 應該結束這一行，得到 %d 行", len(res.Lines))
+	}
+	if res.Lines[0].String() != "K" || res.Lines[1].String() != "C" {
+		t.Fatalf("排出來是 %q／%q", res.Lines[0].String(), res.Lines[1].String())
+	}
+	flush := 0
+	for _, e := range res.Events {
+		if e.Kind == EventFlushLine {
+			flush++
+			if e.Code != CodeFlushLine {
+				t.Fatalf("事件帶的碼是 %#x", e.Code)
 			}
 		}
 	}
-	if moveTo != 1 || unknown != 1 {
-		t.Fatalf("事件數不對：moveTo=%d unknown=%d", moveTo, unknown)
+	if flush != 1 {
+		t.Fatalf("EventFlushLine 出現 %d 次", flush)
 	}
 }
 
