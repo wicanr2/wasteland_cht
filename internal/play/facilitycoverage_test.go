@@ -102,11 +102,9 @@ func TestFacilityCoverage(t *testing.T) {
 	if empty[game.FacilityDoctor] != 0 {
 		t.Errorf("%d 家醫生沒有價格欄位", empty[game.FacilityDoctor])
 	}
-	// ⚠ **已知缺口**：訓練師教什麼不在設施記錄裡（記錄只有 kind、下一步、
-	// 招呼字串 `+0x03` 與 13 bytes 的名稱），`FacilityScene.Skills` 目前
-	// 沒有人填。要解的是 `0x1BBA0` 的選技能那一段（`docs/re/79` §2）。
-	if empty[game.FacilityTrainer] != byKind[game.FacilityTrainer] {
-		t.Errorf("訓練師的清單有 %d 家非空——技能來源接上了？記得更新這個門檻",
-			byKind[game.FacilityTrainer]-empty[game.FacilityTrainer])
+	// 訓練師列的是整張技能資料表（`docs/re/80`）——每家店都一樣，
+	// 篩選發生在選完之後。空的代表技能表讀不到。
+	if empty[game.FacilityTrainer] != 0 {
+		t.Errorf("%d 家訓練師的技能清單是空的", empty[game.FacilityTrainer])
 	}
 }

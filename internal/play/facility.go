@@ -64,6 +64,9 @@ func (s *Scene) EnterFacility(record []byte) *FacilityScene {
 	if f.Name != "" {
 		fs.Lines = append(fs.Lines, f.Name)
 	}
+	if f.Kind == game.FacilityTrainer {
+		fs.Skills = s.trainableSkills()
+	}
 	s.facility = fs
 	// 動畫從頭起：遮罩清空、播放器重建（規格 26 §3）。
 	s.animMask = make([]byte, render.FacilityPicWidth*render.FacilityPicHeight)
@@ -73,6 +76,34 @@ func (s *Scene) EnterFacility(record []byte) *FacilityScene {
 	}
 	s.dirty = true
 	return fs
+}
+
+// trainableSkills 是訓練師列出來的技能。
+//
+// **不是每家店各有一份清單**——訓練師記錄裡只有 kind、下一步、招呼字串與
+// 名稱（`docs/re/79` §2）。原版 `0x1BC30` 用清單框架列完整張技能資料表，
+// 篩選（IQ 需求、費用、角色技能欄還有沒有空位）全都發生在**選完之後**：
+// `0x1BC60` 選好才 `sub_1CA8D` 算費用、跟角色記錄 `+0x20` 的技能點數比。
+//
+// 推論等級：**強證據**（清單框架與選後檢查都直讀，「清單沒有篩選」是
+// 從「篩選在選之後」推出來的）。
+func (s *Scene) trainableSkills() []TrainableSkill {
+	if s.rom == nil {
+		return nil // 沒有映像的場景（單元測試用）就不列
+	}
+	raw, err := s.rom.SkillTableRaw()
+	if err != nil {
+		return nil
+	}
+	out := make([]TrainableSkill, 0, len(raw)/2)
+	for i := 0; i+1 < len(raw); i += 2 {
+		d := game.ParseSkillData(raw[i], raw[i+1])
+		if d.BaseCost == 0 {
+			continue // 費用 0 的槽不是可學的技能
+		}
+		out = append(out, TrainableSkill{ID: byte(i / 2), Data: d})
+	}
+	return out
 }
 
 // LeaveFacility 回地圖。
