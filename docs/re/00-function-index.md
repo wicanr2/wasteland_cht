@@ -126,7 +126,7 @@
 | `0x1C213` | seg000+0xC213 | 15 | 6 | re/17-packed-text.md、re/35-status-and-healing.md、re/42-facility-loops.md |
 | `0x1C22F` | seg000+0xC22F | 36 | 6 | re/42-facility-loops.md |
 | `0x1003F` | seg000+0x3F | 3 | 5 | re/04-overlay-wla-bin.md |
-| `0x1142B` | seg000+0x142B | 13 | 5 | re/34-map-script-opcodes.md、re/44-audio.md、re/60-teleport-and-map-change.md |
+| `0x1142B` | seg000+0x142B | 13 | 5 | re/34-map-script-opcodes.md、re/44-audio.md、re/60-teleport-and-map-change.md、re/76-script-opcode-coverage.md |
 | `0x129E9` | seg000+0x29E9 | 87 | 5 | re/16-msq-block-layout.md、re/47-dosbox-oracle.md |
 | `0x142D7` | seg000+0x42D7 | 11 | 5 | re/65-third-gate-conditions.md、re/67-gate-penalty-and-canteen.md、re/69-gate-flags.md |
 | `0x14B93` | seg000+0x4B93 | 9 | 5 | re/39-encounter-scan.md |
@@ -153,7 +153,7 @@
 | `0x19CAC` | seg000+0x9CAC | 32 | 5 | re/32-skill-checks-and-xp.md |
 | `0x1B7B7` | seg000+0xB7B7 | 3 | 5 | re/29-map-event-handlers.md |
 | `0x1BE31` | seg000+0xBE31 | 15 | 5 | re/17-packed-text.md、re/29-map-event-handlers.md、re/35-status-and-healing.md、re/52-trainer-facility.md |
-| `0x1CBD3` | seg001+0x6C | 86 | 5 | re/00-master-index.md、re/26-movement-and-triggers.md、re/34-map-script-opcodes.md、re/44-audio.md、re/60-teleport-and-map-change.md |
+| `0x1CBD3` | seg001+0x6C | 86 | 5 | re/00-master-index.md、re/26-movement-and-triggers.md、re/34-map-script-opcodes.md、re/44-audio.md、re/60-teleport-and-map-change.md、re/76-script-opcode-coverage.md |
 | `0x1000C` | seg000+0xC | 3 | 4 | re/04-overlay-wla-bin.md、re/48-map-icons.md、re/49-save-roundtrip-on-hardware.md |
 | `0x116AC` | seg000+0x16AC | 132 | 4 | re/03-boot-and-asset-loading.md、re/05-storage-layer.md |
 | `0x1272E` | seg000+0x272E | 6 | 4 | re/51-encounter-driver.md |

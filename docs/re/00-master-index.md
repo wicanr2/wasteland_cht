@@ -724,6 +724,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | [`51`](51-encounter-driver.md) | 遭遇驅動器 `sub_11CD0`：地圖與戰鬥之間那一層、四組一起結算、經驗值前後相減 |
 | [`52`](52-trainer-facility.md) | 技能訓練師的流程：五個設施同一個模板、三條「走不通」都回選人 |
 | [`53`](53-list-framework.md) | 清單框架 `sub_16DB4`／`sub_16D34`：列與索引的對應表、三個回傳值、I／K 翻頁 |
+| [`76`](76-script-opcode-coverage.md) | 腳本 opcode 覆蓋率盤點：37 格缺口 → **0 格**；`Handled ＝ false` 的統計與門檻測試 |
 | [`75`](75-desert-heat-entry.md) | 沙漠高溫 ＝ 腳本 opcode 3 的晝夜分支（白天記錄 7–9、夜間 10–12）；`CF ＝ 0` 表示同一步繼續跑 |
 | [`74`](74-heat-entry-and-gate-display.md) | `sub_142ED` ＝ 暫換時鐘的時 ＋ 印 `+0x03` ＋ 延遲 ＋ 還原；`export_range_refs` 是半開區間（單一位址要寫 `X X+1`） |
 | [`73`](73-shop-and-doctor-entry.md) | **商店與醫生的入口**：`sub_169B1(4)` 用傳送記錄 `+0x04`／`+0x05` 改寫落點成 nibble 6 ＋ 設施（22 筆全中） |
