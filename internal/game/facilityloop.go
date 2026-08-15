@@ -61,8 +61,8 @@ func SellList(items []Slot, sellable func(byte) bool, equipped func(slot int) bo
 
 // Sell 賣掉一件東西：從身上移除、加錢、店家庫存 +1。
 //
-// price 是賣價，由呼叫端提供——**賣價公式（sub_1C1C2）還沒逆向**，
-// 不要拿買價公式硬套（docs/spec/18 §3）。
+// price 是賣價，由呼叫端提供（算法是 Facility.SellPrice：
+// 與買價同一個公式、指數換成商店記錄 +0x04，docs/re/22 §3.1）。
 func Sell(c *Character, slot int, price uint32, stock byte) (byte, bool) {
 	if c == nil || slot < 0 || slot >= len(c.Items) || c.Items[slot].ID == 0 {
 		return stock, false
@@ -86,6 +86,60 @@ func FirstEmptyItemSlot(items []Slot) (int, bool) {
 		}
 	}
 	return 0, false
+}
+
+// BuyListEntry 是「買」的清單裡的一列。
+type BuyListEntry struct {
+	ID    byte // 物品編號
+	Price uint16
+	Stock byte
+}
+
+// BuyList 列出這家店現在賣得出來的東西（`sub_1C140`，docs/re/42 §2）。
+//
+// 原版從索引 1 掃到 0x5E（94），每筆 8 bytes，**庫存 `+0x02` 為 0 就不列**
+// ——那是「缺貨」不是「沒這個東西」（docs/re/42 §4）。
+//
+// ⚠ **物品編號的起點很容易弄錯**：原版的表第 0 筆沒有人定址得到，
+// 所以 `ParseItemTable` 已經把它跳掉了——**這裡的索引 0 就是物品編號 0**
+// （`Fists`），不要再跳一次（docs/re/45 §2、tools/dump_items.py 的說明）。
+func BuyList(t ItemTable, price func(base uint16) uint16, stockOf func(id byte) byte) []BuyListEntry {
+	var out []BuyListEntry
+	for id := 0; id < len(t); id++ {
+		stock := t[id].Stock
+		if stockOf != nil {
+			stock = stockOf(byte(id))
+		}
+		if stock == StockNone {
+			continue
+		}
+		p := t[id].Price
+		if price != nil {
+			p = price(p)
+		}
+		out = append(out, BuyListEntry{ID: byte(id), Price: p, Stock: stock})
+	}
+	return out
+}
+
+// Buy 買一件東西：扣錢、放進第一個空槽、店家庫存 −1。
+//
+// 回傳 ok ＝ false 表示買不成（錢不夠或背包滿了），此時什麼都不改。
+func Buy(c *Character, id byte, price uint32, stock byte) (byte, bool) {
+	if c == nil || uint32(c.Money) < price {
+		return stock, false
+	}
+	slot, ok := FirstEmptyItemSlot(c.Items)
+	if !ok {
+		return stock, false
+	}
+	c.Money -= price
+	c.Items[slot] = Slot{ID: id}
+	// 0xFF 是無限，買再多也不會減（與賣的 +1 對稱，docs/re/42 §4）。
+	if stock != StockUnlimited && stock > 0 {
+		stock--
+	}
+	return stock, true
 }
 
 // HealSession 是逐點治療的一次會話（docs/re/42 §5）。

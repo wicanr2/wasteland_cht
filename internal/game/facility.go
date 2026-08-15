@@ -35,8 +35,27 @@ const (
 	docCure    = 0x06 // 每種疾病
 )
 
-// shopDiscount 是商店的折價指數（docs/re/22）。
-const shopDiscount = 0x03
+// 商店的兩個價格指數在地圖記錄裡的位置（docs/re/22 §3.1）。
+//
+// ⚠ **買與賣是同一個公式，只差指數**（`sub_1C1CC` 與 `sub_1C1C2` 共用
+// `loc_1C1D3`）。不要為賣另寫一套。
+const (
+	shopDiscount = 0x03 // 買價指數 → ds:46C3h
+	shopSellExp  = 0x04 // 賣價指數 → ds:46C2h
+)
+
+// SellExponent 是這家店的賣價指數（地圖記錄 +0x04）。
+func (f Facility) SellExponent() byte {
+	if len(f.Record) <= shopSellExp {
+		return 0
+	}
+	return f.Record[shopSellExp]
+}
+
+// SellPrice 是賣掉一件東西拿到的錢：與買價同一個公式，指數換成 +0x04。
+func (f Facility) SellPrice(base uint16) uint32 {
+	return uint32(ShopPrice(base, f.SellExponent()))
+}
 
 // Facility 是一個設施畫面的資料。
 type Facility struct {

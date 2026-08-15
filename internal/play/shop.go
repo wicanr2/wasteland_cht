@@ -81,6 +81,12 @@ func (f *FacilityScene) shopKey(k byte, p *game.Party, items game.ItemTable) {
 			st.Step = StepMain
 			return
 		}
+		if len(f.buyList(items)) == 0 {
+			// 全部缺貨。原版的 sub_1C140 回 0 之後也是印字串 8 回主迴圈。
+			f.note = "We are temporarily out of stock."
+			st.Step = StepMain
+			return
+		}
 		st.Step = StepBuy
 	case keySell:
 		if len(f.sellable(p, items)) == 0 {
@@ -90,8 +96,13 @@ func (f *FacilityScene) shopKey(k byte, p *game.Party, items game.ItemTable) {
 		}
 		st.Step = StepSell
 	default:
-		if st.Step == StepSell && k >= '1' && k <= '9' {
-			f.sellOne(p, items, int(k-'1'))
+		if k >= '1' && k <= '9' {
+			switch st.Step {
+			case StepSell:
+				f.sellOne(p, items, int(k-'1'))
+			case StepBuy:
+				f.buyOne(p, items, int(k-'1'))
+			}
 		}
 	}
 }
@@ -111,6 +122,36 @@ func (f *FacilityScene) doctorKey(k byte, p *game.Party) {
 			f.note = ""
 		}
 	}
+}
+
+// buyList 是這家店現在賣得出來的東西（含折價後的價格）。
+func (f *FacilityScene) buyList(items game.ItemTable) []game.BuyListEntry {
+	return game.BuyList(items,
+		func(base uint16) uint16 { return game.ShopPrice(base, f.Facility.Record[0x03]) },
+		func(id byte) byte {
+			it, ok := items.Get(id)
+			if !ok {
+				return game.StockNone
+			}
+			return f.stockOf(id, it.Stock)
+		})
+}
+
+// buyOne 買下清單上的第 n 件。
+func (f *FacilityScene) buyOne(p *game.Party, items game.ItemTable, n int) {
+	list := f.buyList(items)
+	if n < 0 || n >= len(list) {
+		return
+	}
+	e := list[n]
+	stock, ok := game.Buy(f.member(p), e.ID, uint32(e.Price), e.Stock)
+	if !ok {
+		// 錢不夠或背包滿了——**不是錯誤，是正常路徑**（docs/spec/25 §2）。
+		f.note = "You don't have enough money."
+		return
+	}
+	f.state.Stock[e.ID] = stock
+	f.note = fmt.Sprintf("Bought for $%d.", e.Price)
 }
 
 // sellable 是這個人身上賣得掉的東西。
@@ -143,7 +184,7 @@ func (f *FacilityScene) sellOne(p *game.Party, items game.ItemTable, n int) {
 	if !ok {
 		return
 	}
-	price := placeholderSellPrice(item)
+	price := f.Facility.SellPrice(item.Price)
 	stock, sold := game.Sell(c, e.Slot, price, f.stockOf(e.Item, item.Stock))
 	if sold {
 		f.state.Stock[e.Item] = stock
@@ -151,16 +192,11 @@ func (f *FacilityScene) sellOne(p *game.Party, items game.ItemTable, n int) {
 	}
 }
 
-// placeholderSellPrice 是**暫代的**賣價。
-//
-// ⚠ 原版的賣價走 `sub_1C1C2`，**那一支還沒逆向**（docs/re/42 §7）。
-// `internal/game`.`Sell` 的註解明寫「不要拿買價公式硬套」，所以這裡也不套——
-// 用物品的基礎價當佔位，並且把「這是佔位」寫在這裡而不是藏在呼叫端。
-// 解出 `sub_1C1C2` 之後換掉這一支，其餘程式碼不用動。
-func placeholderSellPrice(item game.ItemData) uint32 { return uint32(item.Price) }
-
 // stockOf 取這家店目前的庫存（賣過的以會話裡的為準）。
 func (f *FacilityScene) stockOf(id, base byte) byte {
+	if f.state == nil {
+		return base
+	}
 	if v, ok := f.state.Stock[id]; ok {
 		return v
 	}
@@ -217,6 +253,12 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 		}
 	case f.state.Step == StepBuy:
 		f.Lines = append(f.Lines, "   PRICE     ITEM")
+		for i, e := range f.buyList(items) {
+			if i >= 9 {
+				break // 選擇鍵只有 '1'–'9'；分頁是清單框架的事（未解）
+			}
+			f.Lines = append(f.Lines, fmt.Sprintf("%d) $%-6d item %d", i+1, e.Price, e.ID))
+		}
 	default:
 		f.Lines = append(f.Lines, "Do you want to:  Buy / Sell")
 	}
