@@ -77,6 +77,26 @@ type Script struct {
 	World *World
 	// Record 是目前這筆記錄（＝ 直譯器的 PC）。
 	Record []byte
+	// Op 是這一筆的指令編號。**不是 `Record[0]`**——`Record[0]` 是
+	// section `0x10` 的索引，取出來的 word 才是 opcode
+	// （`sub_12C80` 的 `sub_17CB1(bl ＝ 0x10)`，docs/re/75 §2）。
+	// 用 NewScript 建立就會查好。
+	Op int
+}
+
+// NewScript 從記錄 `+0x00` 查出 opcode 並建好上下文。
+//
+// 查不到（沒有 section 0x10 或索引超出）時 Op ＝ −1，`Step` 會回
+// `Handled ＝ false`——**不要當成 nop**。
+func NewScript(w *World, record []byte) *Script {
+	s := &Script{World: w, Record: record, Op: -1}
+	if w == nil || w.Block == nil || len(record) == 0 {
+		return s
+	}
+	if v, err := w.Block.SectionEntry(0x10, int(record[0])); err == nil {
+		s.Op = int(v)
+	}
+	return s
 }
 
 // Step 跑一個指令。回傳 Handled ＝ false 時，呼叫者要當成「還沒做」處理，
@@ -85,8 +105,13 @@ func (s *Script) Step() ScriptResult {
 	if len(s.Record) < 3 {
 		return ScriptResult{Op: -1, Message: -1}
 	}
-	op := int(s.Record[0])
+	op := s.Op
 	res := ScriptResult{Op: op, Continue: true, Handled: true, Message: -1}
+	if op < 0 || op >= OpCount {
+		res.Handled = false
+		res.Continue = false
+		return res
+	}
 	hdr := s.World.Block.Header
 
 	arg := func(i int) byte {

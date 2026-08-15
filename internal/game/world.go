@@ -174,6 +174,8 @@ type StepResult struct {
 	Periodic  bool // 這一步跨過 16 刻，跑過體力處理
 	Encounter bool
 	Event     Event
+	// Script 是 nibble 6 的腳本指令跑完的結果（Op ＝ −1 表示沒跑）。
+	Script ScriptResult
 }
 
 // Step 走一步。順序照原版，不可重排（docs/spec/04 §3）：
@@ -220,22 +222,42 @@ func (w *World) Step(dir Direction) (StepResult, error) {
 	}
 
 	res.Encounter = w.rollEncounter()
-	res.Event = w.trigger(nx, ny)
 
-	// nibble 2 的**事件**那一側：記錄 +0x00 的 bit6 設起來就跑條件串列，
-	// 沒過的人各自受罰（docs/re/67 §3）。移動閘只管 bit7 沒設的格子，
-	// 而沙漠那 163 格是 0xE1——bit7 設所以走得過去，bit6 設所以踩上去有事。
-	if res.Event.Kind == EventGate && len(res.Event.Data) > 0 &&
-		res.Event.Data[0]&0x40 != 0 {
-		res.Gate = w.Party.EvalGate(w.RNG, res.Event.Data, w.Skills)
-		w.applyCellPatch(nx, ny, res.Event.Data, res.Gate.PatchAt)
-	} else if res.Event.PatchAt > 0 {
+	// 事件是**迴圈**：nibble 6 的腳本指令回報 CF ＝ 0（Continue）時，
+	// 原版會把這一格換成「下一步」之後繼續跑（`docs/re/34` §1）。
+	// 沙漠高溫就是這樣的兩段：腳本 opcode 3 依晝夜把格子換成
+	// nibble 2 記錄 7–9 或 10–12，換完立刻跑那一格的條件閘（docs/re/75）。
+	for i := 0; i < maxEventChain; i++ {
+		res.Event = w.trigger(nx, ny)
+
+		// nibble 2 的**事件**那一側：記錄 +0x00 的 bit6 設起來就跑條件串列，
+		// 沒過的人各自受罰（docs/re/67 §3）。移動閘只管 bit7 沒設的格子，
+		// 而沙漠那 163 格是 0xE1——bit7 設所以走得過去，bit6 設所以踩上去有事。
+		if res.Event.Kind == EventGate && len(res.Event.Data) > 0 &&
+			res.Event.Data[0]&0x40 != 0 {
+			res.Gate = w.Party.EvalGate(w.RNG, res.Event.Data, w.Skills)
+			w.applyCellPatch(nx, ny, res.Event.Data, res.Gate.PatchAt)
+			break
+		}
+		if res.Event.PatchAt <= 0 {
+			break
+		}
 		// nibble 12 會先改寫**別的格子**，再改寫自己這一格。
 		if res.Event.Nibble == 12 {
 			w.applyBatchPatch(nx, ny, res.Event.Data)
 		}
+		// nibble 6 的腳本先跑指令（可能改寫 +0x01／+0x02 ＝ 下一步），
+		// 再由下面那一行用位移 1 把這一格換成下一步。
+		chain := false
+		if res.Event.Nibble == 6 {
+			res.Script = w.runScript(res.Event.Data)
+			chain = res.Script.Handled && res.Script.Continue
+		}
 		// nibble 1（位移 ＝ 訊息條數）與 nibble 6（位移 1）跑完都會改寫這一格。
 		w.applyCellPatch(nx, ny, res.Event.Data, res.Event.PatchAt)
+		if !chain {
+			break
+		}
 	}
 	// ds:4716h／4717h：記住這一次觸發的是哪一種格子。
 	w.lastNibble, w.lastRecord = res.Event.Nibble, byte(res.Event.Record)
@@ -244,6 +266,17 @@ func (w *World) Step(dir Direction) (StepResult, error) {
 
 // Confirm 讓下一次 Step 跳過確認閘（玩家答了 Yes，docs/re/64）。
 func (w *World) Confirm() { w.confirmed = true }
+
+// runScript 跑 nibble 6 的腳本指令（設施不走這裡）。
+//
+// 跑完由呼叫端用位移 1 改寫這一格——指令改的 `+0x01`／`+0x02` 就是「下一步」，
+// 而這台直譯器的程式計數器就是地圖格本身（docs/re/71 §5.1）。
+func (w *World) runScript(record []byte) ScriptResult {
+	if len(record) == 0 || record[0]&0x80 != 0 {
+		return ScriptResult{Op: -1, Message: -1} // bit7 設的是設施
+	}
+	return NewScript(w, record).Step()
+}
 
 // PatchHere 用記錄的指定位移改寫**隊伍腳下**那一格（原版 `sub_169B1`）。
 //
@@ -409,6 +442,12 @@ func (w *World) passable(x, y int) bool {
 	}
 	return true
 }
+
+// maxEventChain 是一步之內最多連跑幾個事件。
+//
+// 腳本把這一格換成「下一步」之後會繼續跑，原版靠指令自己回報 CF ＝ 1 收手；
+// remake 加一個上限，資料壞掉時才不會卡死。**正常資料碰不到這個上限**。
+const maxEventChain = 8
 
 // AskEnterString 是「Enter new location?」的字串編號（執行檔字串表 1 第 103 條，
 // `sub_16AD5` 的 `mov al, 67h`）。

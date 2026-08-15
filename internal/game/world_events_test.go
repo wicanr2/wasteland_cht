@@ -225,7 +225,7 @@ func TestScriptEncounterControl(t *testing.T) {
 
 	block.Header[hdrEncounterDenom] = 50
 	run := func(op int) ScriptResult {
-		s := &Script{World: w, Record: []byte{byte(op), 0, 0, 0, 0, 0, 0, 0}}
+		s := &Script{World: w, Record: []byte{byte(op), 0, 0, 0, 0, 0, 0, 0}, Op: op}
 		return s.Step()
 	}
 	if r := run(OpDenomSet0); !r.Handled || block.Header[hdrEncounterDenom] != 0 {
@@ -267,12 +267,12 @@ func TestScriptDayNightBranch(t *testing.T) {
 
 	rec := []byte{OpDayNight, 0, 0, 0xAA, 0xBB, 0xCC, 0xDD, 0}
 	w.Clock.Hour = 12
-	(&Script{World: w, Record: rec}).Step()
+	(&Script{World: w, Record: rec, Op: OpDayNight}).Step()
 	if rec[1] != 0xAA || rec[2] != 0xBB {
 		t.Fatalf("白天應該走 +0x03，得到 %#x %#x", rec[1], rec[2])
 	}
 	w.Clock.Hour = 22
-	(&Script{World: w, Record: rec}).Step()
+	(&Script{World: w, Record: rec, Op: OpDayNight}).Step()
 	if rec[1] != 0xCC || rec[2] != 0xDD {
 		t.Fatalf("夜間應該走 +0x05，得到 %#x %#x", rec[1], rec[2])
 	}
