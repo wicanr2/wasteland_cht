@@ -121,8 +121,8 @@ func (r *Rom) Title() (*Indexed, error) {
 //
 // 卡在**解密參數**：拿 `+0x04` 的 word（`0x0040`）當 checksum 走
 // `docs/re/08` 的 XOR 串流，解出來的開頭不是合法的 Huffman 長度欄
-// （讀到 836,184,663）。下一個入口是 `sub_11AE8` 與 `sub_11B83`——
-// 那兩支是載入器實際讀檔的地方，`docs/re/05` 列為未解。
+// （讀到 836,184,663）。下一個入口是 `sub_11AE8` 與 `sub_11B83`
+// （載入器實際讀檔的兩支），細節見 `docs/re/23` §6。
 func (r *Rom) End() (*Indexed, error) {
 	data, err := r.File("end.cpa")
 	if err != nil {
