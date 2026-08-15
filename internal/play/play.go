@@ -58,6 +58,9 @@ type Scene struct {
 	spawnOK bool
 	// asking 非 DirNone 時畫面停在「Enter new location?」等 Y／N（docs/re/64）。
 	asking input.Direction
+	// order 是 `ORDER` 指令的重排狀態（`docs/re/93` §1）。
+	order orderState
+
 	// use 是 `USE` 指令的三層選單狀態（`docs/re/92`）。
 	use useState
 
@@ -393,6 +396,9 @@ func (s *Scene) Update(in input.Input) (bool, error) {
 	}
 	if s.use.stage != useStageOff {
 		return s.updateUse(in)
+	}
+	if s.order.active {
+		return s.updateOrder(in)
 	}
 	return s.updateMap(in)
 }
