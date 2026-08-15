@@ -156,7 +156,7 @@
 | [`docs/re/00-master-index.md`](docs/re/00-master-index.md) | **RE 總表**：位址換算、資料格式、結構佈局、位址表、關鍵函式、工具。**查已知事實先看這份** |
 | [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md) | **RE 完成度檢查表**：remake 需要的每一項知識、狀態與入口 |
 | [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 435）。讀任何 `sub_XXXXX` 前先查 |
-| [`docs/re/00-wiring-status.md`](docs/re/00-wiring-status.md) | **接線狀態**：89 份筆記的結論，remake 有沒有真的用上。`TestWiringStatus` 雙向守著（`CLAUDE.md` §0 的 G4）|
+| [`docs/re/00-wiring-status.md`](docs/re/00-wiring-status.md) | **接線狀態**：95 份筆記的結論，remake 有沒有真的用上。`TestWiringStatus` 雙向守著（`CLAUDE.md` §0 的 G4）|
 | [`docs/re/01-binary-identity.md`](docs/re/01-binary-identity.md) | 20 檔 SHA-256、`wl.exe` 的 MZ header、第一份資料庫與「不可用作證據」的結論 |
 | [`docs/re/02-exepack-unpack.md`](docs/re/02-exepack-unpack.md) | EXEPACK 格式、解包器、relocation 起點的坑、解包後基準資料庫 |
 | [`docs/re/03-boot-and-asset-loading.md`](docs/re/03-boot-and-asset-loading.md) | 開機序列、`info` 安裝資訊、檔名表、七個開機素材的載入位址、`TITLE.PIC` XOR 解碼 |
@@ -330,6 +330,9 @@
 | `Use` 的三個選項照字串 4 的顯示順序編號（Item 0／Skill 1／Attribute 2） | `docs/re/41` 讀到「字母表在 `ds:A5E8h`」卻沒把它倒出來，直接照顯示文字「Use: Item / Skill / Attribute」編號 | 字母表是 `53 49 41` ＝ **`SIA`**，所以 **Skill 0／Item 1／Attribute 2**。`sub_173B0` 回的是字母表的索引，與顯示順序無關——與 `docs/re/38` §2「選單顯示的順序不是指令碼」同一個坑（`docs/re/92` §2）|
 | 命中累加值裡的技能是「拿什麼武器就用什麼技能」，另外還有一個距離懲罰 | 兩個都是照戰鬥系統的常識填的：`HitChance` 收 `skillID` 與 `distancePenalty` 兩個參數，呼叫端傳 `w.Skill, 0, 0`——**編得過、測得過、玩得動**，沒有人回頭問那兩個零是什麼 | 技能編號**寫死是 1（Brawling）**（`sub_1B0F1` 第一條指令 `mov al, 1`）；被減的是**對手的行動值**（敵人資料 `+0x02`），與距離無關（`docs/re/88`）|
 | MSQ 資源的前 2 bytes 是長度 | 把 `mov cx, [bx]` 當成「取剛讀進來的 header」，其實 `ds:46B0h` 是別處設好的緩衝區位址 | 那 4 bytes 是 magic `msq0`／`msq1`；長度來源仍未解（`docs/re/07` §7） |
+| `END.CPA` 要先跳過 4 bytes 檔頭，再拿 `+0x04` 的 `msq` 當容器解密 | 把長度欄看成檔頭是憑長相猜的；接著猜了六種 checksum／body 起點的組合——**那已經不是推論是試參數** | 整份從第 0 個 byte 起就是 Huffman，`Decompress` 自己會讀那 4 bytes 的長度欄（`0x4800`）。解錯時值域一樣是 0–15，**是顏色分布抓出來的**（最多的一種佔 6% vs 正確的 22%）（`docs/re/23` §9）|
+| `Enc` 是七項指令裡最長的一支，還沒解 | 指令表指的是**中途入口** `0x11CE7`，`docs/re/51` 記的是函式起點 `sub_11CD0`——同一支函式在筆記裡長出兩個身分 | `Enc` 就是遭遇驅動器的手動入口，`docs/re/51` 整份講的就是它。新的只有「不在這張地圖的隊伍要先問一句 Y／N」（`docs/re/94`）|
+| 主選單有「新遊戲／讀檔」兩條路 | 工項名稱是照現代遊戲的習慣寫的，沒去讀 `sub_1630C` 的兩張表 | 標籤字串整個只有 `Start`，兩支處理程式裡第二支是一條 `retn`。存檔就是 `GAME1`／`GAME2` 本身，角色增刪在 Ranger Center（`docs/re/95`）|
 
 ## 7. Worklist
 
@@ -345,7 +348,10 @@
 **Remake 進度**：**二十六份規格全部 READY 並實作完成**（資產、亂數、畫面與文字、移動與時鐘、
 角色與存檔、戰鬥、世界事件、設施、中文排版、翻譯管線、回合結構、遭遇生成、戰鬥指令、
 遭遇掃描、戰鬥畫面、指令處理程式、設施互動迴圈、段落手札、輸入層、音效、遭遇迴圈、回合結算、設施場景、模式路由、設施選單、圖片動畫），
-`cmd/wasteland -mode play` 已經可以從出廠存檔開始走地圖、遇敵進戰鬥（名單畫面下指令、逐回合打完）、踩進設施買賣、治療、學技能、存檔，設施圖上的局部動畫會動。
+`cmd/wasteland -mode play` 從**標題畫面**開場（按 `S` 進遊戲，`docs/re/95`），
+可以走地圖、用指令列七項（`USE`／`ENC`／`ORDER`／`DISBAND`／`VIEW`／`SAVE`／`RADIO` 全部接上）、
+遇敵進戰鬥（名單畫面下指令、逐回合打完）、踩進設施買賣、治療、學技能、在 Ranger Center 建角色（名字可打中文）、存檔，設施圖上的局部動畫會動。
+結局圖也解得出來（`wl-shot -mode end`），還沒接進流程。
 **中文化的文本工作已全部完成**：4,806 條可翻字串 ＋ 段落書 162 段。
 
 ### 7.1 下一輪要做的（照 §0 的節奏：讀 RE → 寫 spec → 實作）
