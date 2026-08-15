@@ -3,6 +3,7 @@ package play
 import (
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/wicanr2/wasteland_cht/internal/assets"
@@ -398,6 +399,16 @@ func TestTeleportChangesMap(t *testing.T) {
 	if _, err := s.Update(input.Input{Dir: input.DirRight}); err != nil {
 		t.Fatalf("往右一步：%v", err)
 	}
+	// 進新地點要先答 Yes（記錄 +0x00 的 bit6，docs/re/64）。
+	if !s.Asking() {
+		t.Fatal("踩上傳送格沒有問「Enter new location?」")
+	}
+	if s.World().Party.X != 20 {
+		t.Fatal("還在問就先動了座標")
+	}
+	if _, err := s.Update(input.Input{Dir: input.DirNone, Char: 'Y'}); err != nil {
+		t.Fatalf("答 Yes：%v", err)
+	}
 	if got := s.MapID(); got != 12 {
 		t.Fatalf("踩上傳送格之後還在地圖 %d，記錄 +0x03 說是 12", got)
 	}
@@ -428,11 +439,63 @@ func TestBuildingInteriorResolvesMapID(t *testing.T) {
 	if _, err := s.Update(input.Input{Dir: input.DirDown}); err != nil {
 		t.Fatalf("踩建築入口：%v", err)
 	}
+	if s.Asking() {
+		if _, err := s.Update(input.Input{Dir: input.DirNone, Char: 'Y'}); err != nil {
+			t.Fatalf("答 Yes：%v", err)
+		}
+	}
 	if got := s.MapID(); got != 5 {
 		t.Fatalf("進建築之後在地圖 %d，編號 130 查表應該換成 5", got)
 	}
 	w := s.World()
 	if w.Party.X != 25 || w.Party.Y != 19 {
 		t.Fatalf("落點 (%d, %d)，記錄說是 (25, 19)", w.Party.X, w.Party.Y)
+	}
+}
+
+// 驗收（docs/re/64）：進新地點要先問 Yes／No，答 No 就留在原地。
+//
+// 判準是記錄 +0x00 的 **bit6**（原版 `shl al,1` 之後看符號）——
+// 不是 bit7。Quartz 入口的 +0x00 是 0x41。
+func TestEnterLocationAsksAndNoStays(t *testing.T) {
+	s := openScene(t)
+	w := s.World()
+	w.Teleport(20, 16)
+	s.Invalidate()
+
+	if _, err := s.Update(input.Input{Dir: input.DirRight}); err != nil {
+		t.Fatal(err)
+	}
+	if !s.Asking() {
+		t.Fatal("沒有問「Enter new location?」")
+	}
+	if got := s.Message(); !strings.Contains(got, "Enter new location") {
+		t.Fatalf("問的訊息是 %q", got)
+	}
+
+	// 答 No：留在原地、地圖不變、時鐘不動。
+	before := w.Clock
+	if _, err := s.Update(input.Input{Dir: input.DirNone, Char: 'N'}); err != nil {
+		t.Fatal(err)
+	}
+	if s.Asking() {
+		t.Fatal("答了 No 還在問")
+	}
+	if w.Party.X != 20 || w.Party.Y != 16 || s.MapID() != 0 {
+		t.Fatalf("答 No 卻動了：地圖 %d (%d, %d)", s.MapID(), w.Party.X, w.Party.Y)
+	}
+	if w.Clock != before {
+		t.Fatal("答 No 卻推進了時鐘")
+	}
+
+	// 再走一次、這次答 Yes。
+	if _, err := s.Update(input.Input{Dir: input.DirRight}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Update(input.Input{Dir: input.DirNone, Char: 'Y'}); err != nil {
+		t.Fatal(err)
+	}
+	if s.MapID() != 12 {
+		t.Fatalf("答 Yes 之後在地圖 %d", s.MapID())
 	}
 }

@@ -41,6 +41,7 @@ func main() {
 	script := flag.String("script", "", "動作腳本，逗號分隔")
 	trace := flag.Bool("trace", false, "每一步印出狀態")
 	stopOnMsg := flag.String("stop-on", "", "訊息含這段字就停下來並回非 0")
+	emitKeys := flag.Bool("emit-keys", false, "把走過的方向印成 tools/dosbox.sh 的 timeline")
 	flag.Parse()
 
 	rom, err := assets.Open(*romDir)
@@ -59,11 +60,14 @@ func main() {
 	if err != nil {
 		fail("腳本：%v", err)
 	}
-	r := &runner{scene: scene, trace: *trace, stopOn: *stopOnMsg}
+	r := &runner{scene: scene, trace: *trace, stopOn: *stopOnMsg, emit: *emitKeys}
 	for i, s := range steps {
 		if err := r.do(s); err != nil {
 			fail("第 %d 步（%s）：%v", i+1, s.raw, err)
 		}
+	}
+	if *emitKeys {
+		fmt.Printf("timeline: %s\n", strings.Join(r.keys, ";"))
 	}
 	fmt.Printf("走完 %d 步：%s\n", len(steps), r.state())
 	if r.tripped != "" {
@@ -89,6 +93,8 @@ type runner struct {
 	stopOn  string
 	tripped string
 	n       int
+	emit    bool
+	keys    []string // -emit-keys：走過的方向，送得進 tools/dosbox.sh
 }
 
 // state 是一行狀態摘要，出事時看它就知道走到哪裡。
@@ -145,6 +151,7 @@ func (r *runner) do(s step) error {
 		if _, err := r.scene.Update(s.in); err != nil {
 			return err
 		}
+		r.record(s.in.Dir)
 	}
 	r.n++
 	if r.trace {
@@ -277,6 +284,21 @@ func (r *runner) walkTo(tx, ty int) error {
 		if int(w.Party.X) == tx && int(w.Party.Y) == ty {
 			return nil
 		}
+		// 停在「進新地點？」上就答 Yes——尋路的目的就是走過去。
+		if r.scene.Asking() {
+			if _, err := r.scene.Update(input.Input{Dir: input.DirNone, Char: 'Y'}); err != nil {
+				return err
+			}
+			r.keysAppend("y")
+			r.n++
+			if r.trace {
+				fmt.Printf("%4d %-8s %s\n", r.n, "yes", r.state())
+			}
+			if r.scene.MapID() != startMap {
+				return nil
+			}
+			continue
+		}
 		dir, ok := r.nextStep(tx, ty)
 		if !ok {
 			return fmt.Errorf("從 (%d, %d) 找不到往 (%d, %d) 的路", w.Party.X, w.Party.Y, tx, ty)
@@ -284,6 +306,7 @@ func (r *runner) walkTo(tx, ty int) error {
 		if _, err := r.scene.Update(input.Input{Dir: dir}); err != nil {
 			return err
 		}
+		r.record(dir)
 		r.n++
 		if r.trace {
 			fmt.Printf("%4d %-8s %s\n", r.n, "path", r.state())
@@ -333,9 +356,38 @@ func (r *runner) nextStep(tx, ty int) (input.Direction, bool) {
 			if _, seen := prev[n]; seen || !w.Passable(nx, ny) {
 				continue
 			}
+			// **繞開沿途的傳送格**：踩上去會換地圖，路就斷了。
+			// 終點自己是傳送格時當然要留著。
+			if !(nx == tx && ny == ty) {
+				if terr, _, _, err := w.Block.At(nx, ny); err == nil && terr == 10 {
+					continue
+				}
+			}
 			prev[n] = cur
 			queue = append(queue, n)
 		}
 	}
 	return input.DirNone, false
+}
+
+// keysAppend 記一個字元鍵（給 -emit-keys 用）。
+func (r *runner) keysAppend(s string) {
+	if r.emit {
+		r.keys = append(r.keys, "type:"+s, "wait:1")
+	}
+}
+
+// record 把一步的方向記成 tools/dosbox.sh 的 timeline 片段。
+func (r *runner) record(d input.Direction) {
+	if !r.emit {
+		return
+	}
+	name := map[input.Direction]string{
+		input.DirUp: "Up", input.DirDown: "Down",
+		input.DirLeft: "Left", input.DirRight: "Right",
+	}[d]
+	if name == "" {
+		return
+	}
+	r.keys = append(r.keys, "key:"+name, "wait:1")
 }
