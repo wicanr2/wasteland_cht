@@ -15,7 +15,22 @@ import (
 // 玩家不必翻紙本、不做編號驗證——讀到編號就直接把正文顯示出來。
 
 // ParagraphCount 是段落書的總段數。
+//
+// **這個數字是紙本那本書的頁數**，後日談不算在裡面——它不在段落書上。
 const ParagraphCount = 162
+
+// EpilogueCount 是後日談的條數：結局字串表（`ds:D18Eh`）的第 6–9 條。
+//
+// ⚠ **原版玩不到這四條**：印它們的那支函式沒有呼叫端，`sub_1B7B7` 的
+// `jmp` 正好跨過整段（`docs/re/96` §7）。文字在執行檔裡、不在段落書也不在手冊裡，
+// 重製版把它收進手札是**保存決定**——所以它自成一區，不混進 1–162。
+const EpilogueCount = 4
+
+// EpilogueFirst 是後日談在結局字串表裡的第一條。
+const EpilogueFirst = 6
+
+// JournalPages 是手札的總頁數：段落書 ＋ 後日談。
+const JournalPages = ParagraphCount + EpilogueCount
 
 // 陷阱段落：段落自己明講「你不該讀到這裡」，用來抓沒買正版的人。
 // 遊戲**永遠不會**叫玩家去讀它們（docs/re/33 §3，一手資料）。
@@ -30,7 +45,17 @@ const (
 	// SectionAppendix 是其餘 80 段（陷阱、沒被用到的變體、火星誘餌）。
 	// **保存**：它們是 1988 年防拷設計的一部分，不能刪。
 	SectionAppendix
+	// SectionEpilogue 是後日談：執行檔裡有、原版玩不到的四條（`docs/re/96` §7）。
+	SectionEpilogue
 )
+
+// EpilogueIndex 把手札頁號換成結局字串表的條號；不是後日談就回 0。
+func EpilogueIndex(page int) int {
+	if page <= ParagraphCount || page > JournalPages {
+		return 0
+	}
+	return EpilogueFirst + (page - ParagraphCount - 1)
+}
 
 // ParagraphRefs 是「字串 key → 段落編號」的引用表。
 //
@@ -97,6 +122,9 @@ func (j *Journal) Refs() ParagraphRefs { return j.refs }
 
 // Section 回報某一段收在哪一區。
 func (j *Journal) Section(n int) JournalSection {
+	if n > ParagraphCount {
+		return SectionEpilogue
+	}
 	if j.used[n] {
 		return SectionMain
 	}
@@ -120,7 +148,7 @@ func (j *Journal) Entries(s JournalSection) []int {
 
 // MarkRead 記下玩家讀過某一段。
 func (j *Journal) MarkRead(n int) {
-	if n >= 1 && n <= ParagraphCount {
+	if n >= 1 && n <= JournalPages {
 		j.read[n] = true
 	}
 }

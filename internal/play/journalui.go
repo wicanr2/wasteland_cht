@@ -11,6 +11,7 @@ import (
 
 	"github.com/wicanr2/wasteland_cht/internal/game"
 	"github.com/wicanr2/wasteland_cht/internal/input"
+	"github.com/wicanr2/wasteland_cht/internal/lang"
 )
 
 // JournalKey 是打開手札的按鍵。
@@ -75,8 +76,8 @@ func (s *Scene) openJournal(n int) {
 	if n < 1 {
 		n = 1
 	}
-	if n > game.ParagraphCount {
-		n = game.ParagraphCount
+	if n > game.JournalPages {
+		n = game.JournalPages
 	}
 	s.journalAt = n
 	s.journalOpen = true
@@ -86,6 +87,12 @@ func (s *Scene) openJournal(n int) {
 // showJournalPage 把目前這一頁畫進訊息視窗。
 func (s *Scene) showJournalPage() {
 	n := s.journalAt
+	// 後日談自成一區：正文不在段落書裡，在執行檔的結局字串表
+	// （`docs/re/96` §7）。原版玩不到，重製版收進手札保存。
+	if i := game.EpilogueIndex(n); i != 0 {
+		s.showEpiloguePage(n, i)
+		return
+	}
 	sec := ""
 	if s.journal != nil {
 		switch s.journal.Section(n) {
@@ -127,10 +134,39 @@ func (s *Scene) updateJournal(in input.Input) (bool, error) {
 			s.showJournalPage()
 		}
 	case in.Dir == input.DirDown || in.Dir == input.DirRight:
-		if s.journalAt < game.ParagraphCount {
+		if s.journalAt < game.JournalPages {
 			s.journalAt++
 			s.showJournalPage()
 		}
 	}
 	return true, nil
+}
+
+// showEpiloguePage 畫後日談的一頁。
+//
+// 正文是結局字串表（`ExeStrings()` 第 4 張）的第 i 條：
+// 中文走一般的執行檔字串翻譯（key `exe:4:<i>`），沒有翻譯就顯示英文原文。
+func (s *Scene) showEpiloguePage(page, i int) {
+	s.message = fmt.Sprintf("Journal %d/%d (epilogue)  (I/K page, ESC close)",
+		page, game.JournalPages)
+	s.cjk = nil
+	if s.cat != nil {
+		if b, ok := s.cat.Lookup(lang.ExeKey(EndingTable, i)); ok {
+			s.cjk = b
+		}
+	}
+	if len(s.cjk) == 0 {
+		// 沒有中文就把英文原文放進訊息視窗——**這一區不會有「未翻譯」的空白頁**，
+		// 因為原文一定在執行檔裡拿得到。
+		if en := s.endingText(i); en != "" {
+			s.message = en
+		} else {
+			s.message = fmt.Sprintf("Journal %d/%d (epilogue)  (not translated)",
+				page, game.JournalPages)
+		}
+	}
+	if s.journal != nil {
+		s.journal.MarkRead(page)
+	}
+	s.dirty = true
 }
