@@ -110,6 +110,13 @@ func (s *Scene) trainableSkills() []TrainableSkill {
 //
 // 座標、時鐘、地圖都不用還原——踩到設施格之前隊伍就已經走完那一步了
 // （規格 07 §6），設施只是接在後面跑。
+// enterRosterIfNeeded 讓設施 3 走角色管理那條路（`docs/re/72` §3）。
+func (s *Scene) enterRosterIfNeeded() {
+	if s.facility != nil && s.facility.Facility.Kind == game.FacilityRoster {
+		s.beginRoster()
+	}
+}
+
 func (s *Scene) LeaveFacility() {
 	s.facility = nil
 	s.player, s.animMask = nil, nil

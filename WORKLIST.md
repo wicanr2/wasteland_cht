@@ -101,7 +101,7 @@
 | 5.1 | 從出廠存檔開始玩 | **完成** | `cmd/wasteland -mode play` |
 | 5.2 | 標題畫面 | **部分** | `-mode title` 畫得出來，**不是遊戲流程的一部分** |
 | 5.3 | 主選單（新遊戲／讀檔） | **未開始** | 設施 3 ＝ `CREATE DELETE PLAY`（`docs/re/72` §3）。**remake 先前把它當成存檔處**（`FacilitySave`），已改名 `FacilityRoster` |
-| 5.4 | 角色建立 | **部分** | 規則層完成：`RollAttribute`（5d6 取最高三顆，實測平均 13.41／原版 13.43）、`CreateCharacter`、`Rom.StartingKits`（三張清單與 `docs/re/21` §5.1 逐項對上）。**缺 play 層流程**：名字輸入、寫進存檔的角色記錄槽、加進隊伍槽表 |
+| 5.4 | 角色建立 | **完成** | Ranger Center 的 `CREATE`／`DELETE`／`PLAY`；名字**可以打中文**（Big5，13 bytes ＝ 6 個字），建完寫進空的角色記錄槽並加進隊伍槽表 |
 | 5.5 | 結局畫面 | **未開始** | 依賴 1.13 |
 | 5.6 | 存讀檔選單 | **未開始** | 存檔本身完成（1.11、4.1） |
 
@@ -116,6 +116,7 @@
 | 6.5 | 官方英文手冊 markdown ＋ 繁中 | **部分** | `docs/manual/` |
 | 6.6 | 社群攻略繁中化 | **未開始** | `docs/walkthrough/` |
 | 6.7 | 譯名表 | **完成** | `translations/glossary.md` |
+| 6.9 | 中文角色名字 | **完成** | `lang.ToBig5`／`TextEntry.KeyRune`；`input.Input` 加 `Runes` 保留 IME 提交的完整字元（`Char` 是單一 byte，中文進不去）|
 
 ## 6.8 展示
 

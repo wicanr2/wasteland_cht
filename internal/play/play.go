@@ -58,6 +58,9 @@ type Scene struct {
 	spawnOK bool
 	// asking 非 DirNone 時畫面停在「Enter new location?」等 Y／N（docs/re/64）。
 	asking input.Direction
+	// roster 是 Ranger Center 角色管理畫面的狀態（`docs/re/72` §3）。
+	roster rosterState
+
 	// disband 為 true 時停在「誰要離隊」的選擇上。
 	disband bool
 
@@ -401,6 +404,9 @@ func (s *Scene) Update(in input.Input) (bool, error) {
 	// F10 任何模式都能離開。
 	if in.Action == input.ActionQuit {
 		return false, nil
+	}
+	if s.roster.active {
+		return s.updateRoster(in)
 	}
 	if s.facility != nil {
 		return s.updateFacility(in)
