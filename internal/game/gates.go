@@ -350,3 +350,45 @@ func (c *Character) UseItem(id byte) bool {
 	}
 	return false
 }
+
+
+// UseGate 是 `USE` 指令的規則層：拿指定的技能／物品／屬性去試這一格的條件串列。
+//
+// 與走上去自動評估（`Eval`）的差別是**只試吻合的那一條**——
+// 原版 `sub_140DD`／`sub_14090`／`sub_14126` 三支各自逐筆掃條件串列，
+// 找型別與編號都對上的那一筆，找到就跑它的判定，找不到就失敗
+//（`docs/re/92` §4）。自動評估是逐條試到成功為止，兩者不一樣。
+//
+// ⚠ **物品只認型別 1**（`sub_14090` 的 `cmp al, 1`），
+// 而自動評估把 1／5／6／7 都當成找物品（`docs/re/32` §6）。
+// 照原版保留這個差別，不要統一。
+//
+// 回傳命中的條列索引（−1 ＝ 沒有吻合的條件）與判定結果。
+func (p *Party) UseGate(r *rng.State, record []byte, c *Character,
+	kind UseKind, id byte, tbl SkillTable) (hit int, passed bool) {
+	if c == nil || c.Down() {
+		return -1, false
+	}
+	for i, g := range ParseGates(record) {
+		if !matchUse(g, kind, id) {
+			continue
+		}
+		return i, p.evalOne(r, c, g, tbl)
+	}
+	return -1, false
+}
+
+// matchUse 是「這一條條件吃不吃這個東西」。
+func matchUse(g Gate, kind UseKind, id byte) bool {
+	switch kind {
+	case UseSkill:
+		return g.Type == GateSkill && g.Param == id
+	case UseItem:
+		return g.Type == 1 && g.Param == id
+	case UseAttribute:
+		// 屬性那條的參數是**角色記錄位移**（0x0E–0x14），不是屬性索引
+		// （`docs/re/32` §4 的 `sub_1820C(難度, 位移)`）。
+		return g.Type == GateAttribute && g.Param == id
+	}
+	return false
+}

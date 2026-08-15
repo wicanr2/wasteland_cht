@@ -107,13 +107,19 @@ func HandleLoad(armed bool, ammoType byte, items []byte) HandlerResult {
 	return accept(byte(slot))
 }
 
-// UseKind 是 Use 的第一層選擇（原版字串 4：Item／Skill／Attribute）。
+// UseKind 是 Use 的第一層選擇。
+//
+// ⚠ **順序照字母表 `ds:A5E8h`（`53 49 41` ＝ `SIA`），不是字串 4 的顯示順序。**
+// 字串 4 印的是「Use: Item / Skill / Attribute」，而按鍵是拿大寫化的鍵去線性掃
+// 那張字母表、回傳**索引**（`sub_173B0`，`docs/re/46` §4）——
+// 兩者順序不同，照顯示文字編號會把三條路全部對錯人
+// （與 `docs/re/38` §2「選單顯示的順序不是指令碼」同一個坑）。
 type UseKind byte
 
 const (
-	UseItem UseKind = iota
-	UseSkill
-	UseAttribute
+	UseSkill UseKind = iota // 'S'
+	UseItem                 // 'I'
+	UseAttribute            // 'A'
 )
 
 // UseChoices 是每個角色一格的「這回合要用什麼」（原版 ds:A9FDh + 角色編號）。
