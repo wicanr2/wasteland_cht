@@ -46,11 +46,44 @@ const (
 // nibble 11 佔 42 張地圖的第二多（20,495 格）——**山、牆、水**。
 // 漏掉它玩家會穿山，而症狀是「路線與原版不同」而不是明顯的錯誤。
 //
-// ⚠ **nibble 2 在原版是條件式的**（門、鎖、檢定：`sub_13E9B` 先判條件串列，
-// 通過就放行，docs/re/65）。這裡無條件擋住是**近似**——門永遠打不開，
-// `EventGate` 因此是死碼。要改就得一併接上 `gates.go` 的 `Eval`；
-// **只把它從這張表拿掉會變成門永遠開著**，比現在更糟。
-var blocking = map[byte]bool{2: true, 3: true, 11: true, 15: true}
+// **nibble 2 不在這裡**：它是條件式的，見 gateBlocks（docs/re/65）。
+var blocking = map[byte]bool{3: true, 11: true, 15: true}
+
+// nibble 2 是條件式的障礙（門、鎖、檢定）。
+const nibbleCondition = 2
+
+// gateBlocks 回報這一格的條件閘擋不擋（原版 sub_13E9B → sub_13EC9）。
+//
+// 三條路，前兩條是直讀的：
+//
+//	記錄 +0x00 的 bit7 設 → **放行**（sub_1407E 的 `js`）
+//	bit6 沒設             → **放行**（sub_13EC9 的 `shl` ＋ `js`）
+//	兩者都不成立          → 跑條件串列（記錄 +0x0A 起，0xFF 結束）
+//
+// 資料面：2,699 格裡 1,522 格走第一條、1,031 格走第二條，
+// **只有 146 格真的要判定**。
+//
+// ⚠ 條件串列的判定還沒接上（`gates.go` 的 `Eval` 只試目前這一個角色，
+// 而原版是**逐個隊員試**，docs/re/65 §3），所以那 146 格**維持擋住**——
+// 與接上之前的行為相同，不會更糟。
+func (w *World) gateBlocks(x, y int) (blocked bool, msg int) {
+	terrain, record, _, err := w.Block.At(x, y)
+	if err != nil || terrain != nibbleCondition {
+		return false, 0
+	}
+	rec, err := w.Block.SectionRecord(int(terrain), int(record))
+	if err != nil || len(rec) == 0 {
+		return false, 0
+	}
+	if rec[0]&0x80 != 0 || rec[0]&0x40 == 0 {
+		return false, 0
+	}
+	// 擋住時印的是記錄 **+0x01**（sub_13EC9 的 `mov bl, 1`），不是 +0x00。
+	if len(rec) > 1 {
+		return true, int(rec[1])
+	}
+	return true, 0
+}
 
 // nibble 10 是傳送，但記錄 +0x00 的 bit7 設起來時要先問玩家。
 const nibbleTeleport = 10
@@ -182,6 +215,12 @@ func (w *World) blockedMessage(x, y int) int {
 	if err != nil {
 		return 0
 	}
+	if terrain == nibbleCondition {
+		// 條件閘的訊息在 +0x01（docs/re/65 §1）。
+		if b, msg := w.gateBlocks(x, y); b {
+			return msg
+		}
+	}
 	rec, err := w.Block.SectionRecord(int(terrain), int(record))
 	if err != nil || len(rec) == 0 {
 		return 0
@@ -229,6 +268,9 @@ func (w *World) passable(x, y int) bool {
 		return false
 	}
 	if blocking[terrain] {
+		return false
+	}
+	if b, _ := w.gateBlocks(x, y); b {
 		return false
 	}
 	if terrain == nibbleBarrier {

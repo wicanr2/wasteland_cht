@@ -590,3 +590,58 @@ func TestNibble11BlocksMovement(t *testing.T) {
 	}
 	t.Logf("(%d, %d) 往右被擋，訊息：%q", px, py, b.Strings[res.Blocked])
 }
+
+// 驗收（docs/re/65）：nibble 2 是條件式的，三條路各自要對。
+//
+// 資料面：2,699 格裡 1,522 格 bit7 設（直接放行）、1,031 格 bit6 沒設（放行）、
+// 只有 146 格要判定。**把整個 nibble 2 當成牆會擋掉 94% 本該能走的格子。**
+func TestNibble2IsConditional(t *testing.T) {
+	rom := openRom(t)
+	res, err := rom.Resources()
+	if err != nil {
+		t.Fatal(err)
+	}
+	var pass7, pass6, judged int
+	for _, r := range res {
+		b, err := rom.BlockByID(r.ID)
+		if err != nil {
+			continue
+		}
+		w := &World{Block: b, Party: &Party{Members: []*Character{{CON: 10}}}, RNG: rng.New()}
+		for y := 0; y < b.Dim; y++ {
+			for x := 0; x < b.Dim; x++ {
+				terr, rec, _, err := b.At(x, y)
+				if err != nil || terr != 2 {
+					continue
+				}
+				d, err := b.SectionRecord(2, int(rec))
+				if err != nil || len(d) == 0 {
+					continue
+				}
+				blocked, _ := w.gateBlocks(x, y)
+				switch {
+				case d[0]&0x80 != 0:
+					pass7++
+					if blocked {
+						t.Fatalf("(%d,%d) 的 +0x00 是 %#02x（bit7 設）卻被擋", x, y, d[0])
+					}
+				case d[0]&0x40 == 0:
+					pass6++
+					if blocked {
+						t.Fatalf("(%d,%d) 的 +0x00 是 %#02x（bit6 沒設）卻被擋", x, y, d[0])
+					}
+				default:
+					judged++
+					if !blocked {
+						t.Fatalf("(%d,%d) 的 +0x00 是 %#02x 要判定，卻直接放行", x, y, d[0])
+					}
+				}
+			}
+		}
+	}
+	if pass7 != 1522 || pass6 != 1031 || judged != 146 {
+		t.Errorf("分布變了：bit7 %d（1522）、bit6 沒設 %d（1031）、要判定 %d（146）",
+			pass7, pass6, judged)
+	}
+	t.Logf("nibble 2：直接放行 %d ＋ %d，要判定 %d", pass7, pass6, judged)
+}
