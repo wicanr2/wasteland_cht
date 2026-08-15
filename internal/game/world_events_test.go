@@ -699,3 +699,84 @@ func mustRecord(t *testing.T, b *assets.Block, x, y int) int {
 	}
 	return int(rec)
 }
+
+// 驗收（docs/re/67 §3）：條件閘是**每個能行動的人都要過才放行**，
+// 沒過的各自受罰——不是「有人過就好」。
+func TestEvalGateShape(t *testing.T) {
+	// 條件：隊伍人數 ＝ 1（型別 3）；懲罰：CON 固定減 1。
+	rec := make([]byte, 16)
+	rec[0x00] = 0xE1
+	rec[0x08] = 0x80 | 0x1D // CON、固定值
+	rec[0x09] = 0x80 | 1    // 減 1
+	rec[0x0A] = byte(GatePartySize << 5)
+	rec[0x0B] = 1
+	rec[0x0C] = 0xFF
+
+	// 兩個人：條件要求 1 人 → 兩個都沒過 → 擋住、兩個都扣 1。
+	p := &Party{Members: []*Character{
+		{CON: 10, MaxCON: 10}, {CON: 10, MaxCON: 10},
+	}}
+	g := p.EvalGate(rng.New(), rec, nil)
+	if !g.Blocked || len(g.Failed) != 2 {
+		t.Fatalf("兩個人都該沒過：Blocked=%v Failed=%+v", g.Blocked, g.Failed)
+	}
+	for i, c := range p.Members {
+		if c.CON != 9 {
+			t.Errorf("第 %d 個人的 CON 是 %d，該扣成 9", i, c.CON)
+		}
+	}
+
+	// 一個人：通過 → 不擋、不扣。
+	p = &Party{Members: []*Character{{CON: 10, MaxCON: 10}}}
+	g = p.EvalGate(rng.New(), rec, nil)
+	if g.Blocked || len(g.Failed) != 0 {
+		t.Fatalf("一個人該通過：Blocked=%v Failed=%+v", g.Blocked, g.Failed)
+	}
+	if p.Members[0].CON != 10 {
+		t.Errorf("通過卻扣了血：CON ＝ %d", p.Members[0].CON)
+	}
+
+	// 不能行動的人跳過，不算沒過。
+	p = &Party{Members: []*Character{{CON: 10, MaxCON: 10}, {CON: 0}}}
+	g = p.EvalGate(rng.New(), rec, nil)
+	if len(g.Failed) != 1 || g.Failed[0].Member != 0 {
+		t.Fatalf("CON ＝ 0 的人不該被算進去：%+v", g.Failed)
+	}
+}
+
+// 驗收（docs/re/67 §1）：+0x08 的 bit7 決定固定或擲骰、+0x09 的 bit7 決定加減。
+func TestGatePenaltyBits(t *testing.T) {
+	mk := func(f, q byte) []byte {
+		rec := make([]byte, 16)
+		rec[0x08], rec[0x09] = f, q
+		rec[0x0A] = 0xFF
+		return rec
+	}
+	// 固定值減 3。
+	c := &Character{CON: 20, MaxCON: 20}
+	if _, amt := applyGatePenalty(rng.New(), c, mk(0x80|0x1D, 0x80|3)); amt != -3 || c.CON != 17 {
+		t.Errorf("固定減 3：量 %d、CON %d", amt, c.CON)
+	}
+	// 固定值加 3。
+	c = &Character{CON: 20, MaxCON: 20}
+	if _, amt := applyGatePenalty(rng.New(), c, mk(0x80|0x1D, 3)); amt != 3 || c.CON != 23 {
+		t.Errorf("固定加 3：量 %d、CON %d", amt, c.CON)
+	}
+	// 擲骰：2 顆 d6 減，落在 2–12。
+	c = &Character{CON: 100, MaxCON: 100}
+	_, amt := applyGatePenalty(rng.New(), c, mk(0x1D, 0x80|2))
+	if amt > -2 || amt < -12 {
+		t.Errorf("2 顆 d6 減，得到 %d", amt)
+	}
+	// 欄位 0 ＝ 什麼都不做。
+	c = &Character{CON: 20, MaxCON: 20}
+	if f, amt := applyGatePenalty(rng.New(), c, mk(0, 0x80|5)); f != 0 || amt != 0 || c.CON != 20 {
+		t.Errorf("欄位 0 卻動了：%d %d %d", f, amt, c.CON)
+	}
+	// 金錢不會扣成負的。
+	c = &Character{Money: 2}
+	applyGatePenalty(rng.New(), c, mk(0x80|0x15, 0x80|10))
+	if c.Money != 0 {
+		t.Errorf("金錢扣過頭：%d", c.Money)
+	}
+}

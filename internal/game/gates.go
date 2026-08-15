@@ -68,36 +68,94 @@ func (p *Party) Eval(r *rng.State, gates []Gate, tbl SkillTable) int {
 	return -1
 }
 
-// EvalParty 逐個隊員試整串條件，任何一個人過就算過。
+// GateResult 是一格條件閘跑完的結果。
+type GateResult struct {
+	Blocked bool       // 有人沒通過 → 擋住（原版回傳 ds:A5D1h ≠ 0）
+	Failed  []GateHurt // 沒通過的人，各自已經受罰
+}
+
+// GateHurt 是一個人沒通過條件時受的罰。
+type GateHurt struct {
+	Member int  // 隊伍裡的序號
+	Field  byte // 改到的欄位（0x1D ＝ CON、0x15 ＝ 金錢）
+	Amount int  // 已經套用的量（負數是扣）
+}
+
+// EvalGate 照原版的形狀跑一格條件閘（`sub_13EC9`）。
 //
-// ⚠ **這是近似**：原版是逐個角色各自判定、**沒過的各自受罰**
-// （`sub_13EC9` 的 `ds:A5D3h` 迴圈裡有 `sub_14193`，docs/re/67 §3）。
-// 對「開門」兩者結果相同，對「每個人都要扣血」完全不同——
-// 要接懲罰之前得先把迴圈改成原版的形狀。
+// 迴圈是 `ds:A5D3h` 從 1 數到 `ds:4653h`：**每個能行動的人都跑一次整串條件**，
 //
-// 原本的說明：**逐個隊員試整串條件**，任何一個人過就算過
-// （`sub_13EC9` 的 `ds:A5D3h` 從 1 數到 `ds:4653h`）。
+//	通過   → 換下一個人（不計數）
+//	沒通過 → 用記錄 +0x08／+0x09 罰那個人，並記一筆
 //
-// ⚠ **不能只試目前選中的那個人。** 開鎖的是隊上的鎖匠、扛得動的是力氣大的，
-// 原版讓每個「能行動的人」都試一遍；只試一個人會讓大半的門打不開。
+// 全部跑完之後「沒過的人數」非 0 就擋住——**所以是每個人都要過才放行**，
+// 不是「有人過就好」。對開門這條路很嚴，對沙漠高溫（每個沒水壺的人都扣血）
+// 才是正確的形狀（docs/re/67 §3）。
 //
-// ⚠ **這一支有副作用**：技能檢定會擲骰、物品條件會消耗一次
-// （`sub_19A58`，鑰匙用完會消失）。所以它只能在**真的要通過**的時候呼叫一次，
-// 不可以拿來當「這裡走不走得過去」的查詢。
-//
-// 回傳通過的隊員序號與條件序號，都失敗時回 (−1, −1)。
-func (p *Party) EvalParty(r *rng.State, gates []Gate, tbl SkillTable) (member, cond int) {
+// ⚠ **有副作用**：技能檢定會擲骰、物品條件會消耗一次（鑰匙、水壺），
+// 失敗還會改角色欄位。只能在真的要通過時呼叫一次。
+func (p *Party) EvalGate(r *rng.State, record []byte, tbl SkillTable) GateResult {
+	gates := ParseGates(record)
+	var out GateResult
 	for i, c := range p.Members {
 		if !CanCommand(c) {
-			continue // sub_172BB：不能行動的人跳過，換下一個
+			continue // sub_172BB：不能行動的人跳過，不算沒過
 		}
-		for j, g := range gates {
+		passed := false
+		for _, g := range gates {
 			if p.evalOne(r, c, g, tbl) {
-				return i, j
+				passed = true
+				break
 			}
 		}
+		if passed {
+			continue
+		}
+		field, amount := applyGatePenalty(r, c, record)
+		out.Failed = append(out.Failed, GateHurt{Member: i, Field: field, Amount: amount})
 	}
-	return -1, -1
+	out.Blocked = len(out.Failed) > 0
+	return out
+}
+
+// applyGatePenalty 套用記錄 +0x08／+0x09 的獎懲（原版 sub_14193）。
+//
+//	+0x08 低 7 位 ＝ 角色記錄的欄位位移（0x1D ＝ CON、0x15 ＝ 金錢）
+//	+0x08 的 bit7 ＝ 1 固定值／0 擲 (+0x09 & 0x7F) 顆 d6
+//	+0x09 低 7 位 ＝ 量或骰數；**它的 bit7 ＝ 1 減、0 加**
+//
+// 欄位是 0 就什麼都不做（原版 `0x141A4` 的 `jz`）。
+func applyGatePenalty(r *rng.State, c *Character, record []byte) (field byte, amount int) {
+	if len(record) < 10 {
+		return 0, 0
+	}
+	f, q := record[0x08], record[0x09]
+	if f == 0 {
+		return 0, 0
+	}
+	amount = int(q & 0x7F)
+	if f&0x80 == 0 {
+		amount = rollD6(r, int(q&0x7F)) // 擲骰
+	}
+	if q&0x80 != 0 {
+		amount = -amount
+	}
+	switch f & 0x7F {
+	case 0x1D: // CON，可以為負（docs/spec/09）
+		c.PreHurt = c.CON
+		c.CON += int16(amount)
+	case 0x15: // 金錢，24-bit，不會變負
+		switch {
+		case amount >= 0:
+			c.Money += uint32(amount)
+		case uint32(-amount) > c.Money:
+			c.Money = 0
+		default:
+			c.Money -= uint32(-amount)
+		}
+	}
+	// 其餘欄位還沒對上語意（docs/re/67 §4），照原版**不動**比亂改安全。
+	return f & 0x7F, amount
 }
 
 // SkillBytes 是技能資料表的原始 bytes（36 筆 × 2），實作 SkillTable。

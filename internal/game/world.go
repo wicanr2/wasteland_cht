@@ -140,7 +140,9 @@ type StepResult struct {
 	// Blocked 是被擋住時要印的字串編號（0 ＝ 沒有訊息或沒被擋）。
 	Blocked int
 	// Ask 非 0 時這一步**停在原地等玩家回答**（進新地點的確認）。
-	Ask       int
+	Ask int
+	// Gate 是踩上 nibble 2 之後條件閘跑出來的結果（沒過的人已經受罰）。
+	Gate      GateResult
 	Moved     bool // 被擋住時是 false，而且時鐘與遭遇都不會動
 	Periodic  bool // 這一步跨過 16 刻，跑過體力處理
 	Encounter bool
@@ -165,7 +167,7 @@ func (w *World) Step(dir Direction) (StepResult, error) {
 	w.confirmed = false
 	// 條件閘：真的要走過去時才判定一次（會擲骰、會消耗物品）。
 	if need, rec := w.gateNeedsCheck(nx, ny); need {
-		if member, _ := w.Party.EvalParty(w.RNG, ParseGates(rec), w.Skills); member < 0 {
+		if g := w.Party.EvalGate(w.RNG, rec, w.Skills); g.Blocked {
 			if len(rec) > 1 {
 				res.Blocked = int(rec[1])
 			}
@@ -192,6 +194,14 @@ func (w *World) Step(dir Direction) (StepResult, error) {
 
 	res.Encounter = w.rollEncounter()
 	res.Event = w.trigger(nx, ny)
+
+	// nibble 2 的**事件**那一側：記錄 +0x00 的 bit6 設起來就跑條件串列，
+	// 沒過的人各自受罰（docs/re/67 §3）。移動閘只管 bit7 沒設的格子，
+	// 而沙漠那 163 格是 0xE1——bit7 設所以走得過去，bit6 設所以踩上去有事。
+	if res.Event.Kind == EventGate && len(res.Event.Data) > 0 &&
+		res.Event.Data[0]&0x40 != 0 {
+		res.Gate = w.Party.EvalGate(w.RNG, res.Event.Data, w.Skills)
+	}
 	return res, nil
 }
 
