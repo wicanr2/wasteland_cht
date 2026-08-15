@@ -507,6 +507,8 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `0x141FA` | 2 | 對角色記錄的某個欄位加減（`bl` 有號負 ＝ 減）；欄位 `0x1D` 走傷害結算 | [`55`](55-radiation-and-armour-bypass.md) §3 |
 | `0x14410` | — | **輻射格結算**：逐一對隊員擲 `+0x01` 顆 d6 扣 CON ＋ 加 Radiation poisoning | [`55`](55-radiation-and-armour-bypass.md) §3 |
 | `0x13EC9` | 1 | **條件閘的主體**：逐個角色跑條件串列，收尾由記錄 `+0x00` 低位的四個旗標決定 | [`69`](69-gate-flags.md) §2 |
+| `0x12BD0` | 1 | **nibble 12**：印記錄 `+0x00`，跑 `+0x01` 起的批次改寫表，最後改寫腳下 | [`71`](71-nibble12-batch-patch.md) §1 |
+| `0x15160` | 1 | **nibble 8** 問答；答對的改寫位移 ＝ `3 + 答案數 + 2 × 序號`（`0x1522F`） | [`71`](71-nibble12-batch-patch.md) §5 |
 | `0x16CD0` | 1 | **nibble 1**：印記錄開頭的訊息串列（bit7 結束），條數當位移改寫這一格 | [`70`](70-nibble1-and-facility-entry.md) §1 |
 | `0x169B1` | 6 | 改寫**隊伍腳下**那一格（`sub_17CFF(al, ds:46A6h, ds:46A7h)`） | [`70`](70-nibble1-and-facility-entry.md) §1 |
 | `0x12C80` | 2 | 設施／腳本分派：bit7 設 → `ds:A4E0h` 跳表，沒設 → `ds:A4EAh`（**同一張表差 5 個 word**） | [`70`](70-nibble1-and-facility-entry.md) §4.1 |
@@ -721,6 +723,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | [`51`](51-encounter-driver.md) | 遭遇驅動器 `sub_11CD0`：地圖與戰鬥之間那一層、四組一起結算、經驗值前後相減 |
 | [`52`](52-trainer-facility.md) | 技能訓練師的流程：五個設施同一個模板、三條「走不通」都回選人 |
 | [`53`](53-list-framework.md) | 清單框架 `sub_16DB4`／`sub_16D34`：列與索引的對應表、三個回傳值、I／K 翻頁 |
+| [`71`](71-nibble12-batch-patch.md) | nibble 12 ＝ 遠端批次改寫（`+0x01` 起每 5 bytes：旗標／x／y／新第 1 層／新第 2 層）；nibble 8 答對的改寫位移 ＝ `3 + 答案數 + 2n` |
 | [`70`](70-nibble1-and-facility-entry.md) | nibble 1 ＝ 氛圍敘述串列（bit7 結束）＋ 收尾改寫；設施跳表 `ds:A4E0h` 與腳本跳表差 5 個 word；商店入口的程式碼側已封閉 |
 | [`69`](69-gate-flags.md) | 條件閘的四個旗標（記錄 `+0x00` 低位）：`& 4` 有人過就算過、`& 8` 有人過就收尾且改寫位移依條件而定、`& 0x10` 全隊各罰一次、`& 0x20` 逐個角色跑；`0xFE`／`0xFD` ＝ 沿用上一格改寫前的值 |
 | [`68`](68-cell-rewrite.md) | `sub_17CFF` 改寫地圖格：條件閘用 `+0x04`／`+0x06`、地形閘用 `+0x01`／`+0x02`；bit7 ＝ 不改 |
