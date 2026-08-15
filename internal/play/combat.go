@@ -190,9 +190,24 @@ type CombatScene struct {
 	// Items 是物品資料表（存檔區那一份，docs/re/45 §2）。
 	// 沒接上時是 nil，武器一律當成零值——傷害 0 而不是崩掉。
 	Items game.ItemTable
+	// Names 是六個敵人種類的名稱，訊息要用（`docs/re/85`）。
+	Names EnemyNames
 }
 
 // NewCombatScene 開一場戰鬥的畫面：模式切成名單，開一個新的指令階段。
+// EnemyNames 是六個敵人種類的單數名稱（執行檔字串表 1 的 `0x52 + Kind`，
+// `docs/re/85`）。原文是 `Animal\n\ns\n` 這種單複數格式（控制碼 `0x0A`），
+// 這裡只取單數那一段。
+type EnemyNames [6]string
+
+// Name 回某個種類的名稱；查不到回空字串（呼叫端自己決定要不要留空白）。
+func (n EnemyNames) Name(k game.EnemyKind) string {
+	if int(k) < len(n) {
+		return n[k]
+	}
+	return ""
+}
+
 func NewCombatScene(b *game.Battle) *CombatScene {
 	s := &CombatScene{Mode: ModeRoster, Battle: b}
 	s.BeginCommands()

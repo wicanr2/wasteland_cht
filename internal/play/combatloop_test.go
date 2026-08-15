@@ -1,6 +1,7 @@
 package play
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/wicanr2/wasteland_cht/internal/input"
@@ -142,4 +143,64 @@ func TestCombatManyBattles(t *testing.T) {
 	if stuck != 0 {
 		t.Errorf("%d 場在 200 回合內結束不了", stuck)
 	}
+}
+
+// TestCombatMessagesHaveSubjects 驗戰鬥訊息都有主詞與受詞（docs/re/86）。
+//
+// 原本敵人的訊息是 `misses.`／`hits X for N`——沒有主詞；
+// 隊伍打敵人是 `hits for N`／`died!`——沒有受詞。
+// 玩家看到的是一串不知道誰打誰的句子，而**沒有任何測試會紅**。
+func TestCombatMessagesHaveSubjects(t *testing.T) {
+	rom := openRom(t)
+	s, err := New(rom)
+	if err != nil {
+		t.Fatalf("開場失敗：%v", err)
+	}
+	if err := s.LoadMap(0, 12, 2); err != nil {
+		t.Fatal(err)
+	}
+	dir := input.DirRight
+	for i := 0; i < 400 && !s.InCombat(); i++ {
+		if _, err := s.Update(input.Input{Dir: dir}); err != nil {
+			t.Fatal(err)
+		}
+		if dir == input.DirRight {
+			dir = input.DirLeft
+		} else {
+			dir = input.DirRight
+		}
+	}
+	if !s.InCombat() {
+		t.Skip("沒打起來")
+	}
+	c := s.Combat()
+	if c.Names[1] == "" {
+		t.Error("敵人名稱表是空的——exeString(0x52+Kind) 沒讀到")
+	}
+	lines := 0
+	for n := 0; n < 20; n++ {
+		c.BeginCommands()
+		for !c.Done() {
+			if !c.Choose('A', true) {
+				c.Choose(' ', true)
+			}
+		}
+		res := c.ResolveRound()
+		for _, l := range res.Lines {
+			lines++
+			// 每一行都要以名字開頭：不能是空白，也不能直接是動詞。
+			for _, bad := range []string{" ", "misses", "hits", "died"} {
+				if strings.HasPrefix(l, bad) {
+					t.Errorf("訊息缺主詞：%q", l)
+				}
+			}
+		}
+		if res.Over {
+			break
+		}
+	}
+	if lines == 0 {
+		t.Error("一行訊息都沒有")
+	}
+	t.Logf("檢查了 %d 行戰鬥訊息", lines)
 }
