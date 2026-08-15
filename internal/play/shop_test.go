@@ -222,3 +222,57 @@ func TestSellUsesItsOwnExponent(t *testing.T) {
 		t.Errorf("賣價應該用 +0x04 的指數（62），得到 %d", got)
 	}
 }
+
+// 訓練師（docs/spec/25 §3.1、docs/re/52）。
+
+func TestTrainerRefusesWithoutSkillPoints(t *testing.T) {
+	f, p, items := mkShop(t, game.FacilityTrainer)
+	f.Skills = []TrainableSkill{{ID: 3, Data: game.SkillData{BaseCost: 2, IQ: 3}}}
+	c := p.Members[0]
+	c.SkillPts = 0
+	c.Attributes[game.AttrIQ] = 20
+
+	if !f.Key('1', p, items) {
+		t.Fatal("點數不夠不該離開設施")
+	}
+	if c.SkillLevel(3) != 0 {
+		t.Error("點數 0 不該學得起來")
+	}
+	if !hasLine(f.Lines, "no skill points") {
+		t.Errorf("應該印沒有技能點數，得到 %v", f.Lines)
+	}
+}
+
+func TestTrainerLearnsAndDeductsPoints(t *testing.T) {
+	f, p, items := mkShop(t, game.FacilityTrainer)
+	f.Skills = []TrainableSkill{{ID: 3, Data: game.SkillData{BaseCost: 2, IQ: 3}}}
+	c := p.Members[0]
+	c.SkillPts = 5
+	c.Attributes[game.AttrIQ] = 20
+	c.Skills = make([]game.Slot, game.ItemSlots)
+
+	f.Key('1', p, items)
+	if c.SkillLevel(3) != 1 {
+		t.Errorf("應該學到等級 1，得到 %d", c.SkillLevel(3))
+	}
+	if c.SkillPts != 3 { // 基礎費用 2
+		t.Errorf("技能點應該剩 3，得到 %d", c.SkillPts)
+	}
+}
+
+// 費用大於點數時不扣點也不升級，而且**留在選單裡**。
+func TestTrainerKeepsMenuWhenTooExpensive(t *testing.T) {
+	f, p, items := mkShop(t, game.FacilityTrainer)
+	f.Skills = []TrainableSkill{{ID: 3, Data: game.SkillData{BaseCost: 7, IQ: 3}}}
+	c := p.Members[0]
+	c.SkillPts = 1
+	c.Attributes[game.AttrIQ] = 20
+	c.Skills = make([]game.Slot, game.ItemSlots)
+
+	if !f.Key('1', p, items) {
+		t.Fatal("費用不夠不該離開設施")
+	}
+	if c.SkillPts != 1 || c.SkillLevel(3) != 0 {
+		t.Error("費用不夠時不該扣點也不該升級")
+	}
+}
