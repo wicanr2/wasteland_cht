@@ -78,6 +78,15 @@ func (w *World) ViewIcons() []VisibleIcon {
 			if err != nil {
 				continue
 			}
+			// nibble 15 是**遭遇生成器放上去的敵人格**（docs/re/78）。
+			// 圖示要走「section 15 記錄的種類 → 敵人資料表 +0x06 → ds:AA17h」
+			// 這一鏈（`0x147BA`），不是由 nibble 直接決定。
+			if terrain == nibbleEnemy {
+				if icon, ok := w.enemyIcon(x, y); ok {
+					out = append(out, VisibleIcon{Col: col, Row: row, Icon: icon})
+				}
+				continue
+			}
 			var rec1 byte
 			if terrain == 4 {
 				// nibble 4 才需要記錄；其他型別不去讀，省得無謂的錯誤。
@@ -91,6 +100,33 @@ func (w *World) ViewIcons() []VisibleIcon {
 		}
 	}
 	return out
+}
+
+// enemyIcon 算敵人格要疊哪一張圖（`0x147BA`）。
+//
+//	section 15 記錄的 +0x03 ＝ 敵人種類編號
+//	→ 敵人資料表第 n 筆的 +0x06（＝ EnemyData.Kind）
+//	→ ds:AA17h[那個值]（＝ KindIcon）
+//
+// 任何一步取不到就不疊圖——原版在 `0x147D3` 的 `js` 也是遇到 bit7 就跳過。
+func (w *World) enemyIcon(x, y int) (byte, bool) {
+	_, idx, _, err := w.Block.At(x, y)
+	if err != nil {
+		return 0, false
+	}
+	rec, err := w.Block.SectionRecord(15, int(idx))
+	if err != nil || len(rec) < 4 {
+		return 0, false
+	}
+	kind := int(rec[0x03])
+	if kind == 0 {
+		return 0, false
+	}
+	raw, err := w.Block.EnemyData()
+	if err != nil || kind*8+8 > len(raw) {
+		return 0, false
+	}
+	return KindIcon(ParseEnemyData(raw[kind*8 : kind*8+8]).Kind), true
 }
 
 // CellIcon 回這一格要疊哪一張圖。
