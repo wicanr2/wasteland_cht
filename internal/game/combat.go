@@ -130,17 +130,39 @@ func AttrModifier(v byte) int {
 	}
 }
 
-// HitChance 累加出命中判定要比的那個值（sub_1B108 的形狀）。
+// SkillBrawling 是命中累加值固定用的技能編號（`sub_1B0F1` 的 `mov al, 1`）。
+//
+// ⚠ **不是「拿什麼武器就用什麼技能」**：`sub_1B108` 把 1 寫死在指令裡，
+// 所以拿步槍的人命中也是加 Brawling 等級（docs/re/88 §2）。
+const SkillBrawling byte = 1
+
+// HitChance 累加出命中判定要比的那個值（`sub_1B108`，docs/re/88）。
+//
+//	base ＋ Brawling×3 ＋ Agility − 對手行動值（近戰類別 ×4，否則另加 5），夾在 100
 //
 // base 由目標的一個欄位決定（40／50／60），那個欄位的語意未解，
 // 所以當參數收進來（docs/spec/06 §6）。
-func HitChance(c *Character, base int, skillID byte, fieldValue int, distancePenalty int) uint16 {
+//
+// c 永遠是**隊伍成員**：兩條攻擊路徑共用這一支，累加的都是隊伍那一邊的本事，
+// 方向靠比較符號翻轉（docs/re/20 §2）。foe 是那一組敵人——隊伍攻擊時它是目標，
+// 敵方攻擊時它是攻擊者，但原版讀的都是 `ds:CF80h` 指的同一組。
+func HitChance(c *Character, base int, foe EnemyData) uint16 {
 	acc := SatAdd(0, base)
-	acc = SatAdd(acc, int(c.SkillLevel(skillID))*3)
-	acc = SatAdd(acc, fieldValue)
-	acc = SatAdd(acc, -distancePenalty)
+	acc = SatAdd(acc, int(c.SkillLevel(SkillBrawling))*3)
+	acc = SatAdd(acc, int(c.Attributes[AttrAgility]))
+
+	// ⚠ `shl al, 1` 兩次是 **8-bit** 位移（0x1B139），高位直接丟掉：
+	// 行動值 64 以上乘 4 會繞回小數字。照抄，不要改成 int 乘法。
+	evade := int(foe.Speed)
+	if foe.Weapon == ClassMelee {
+		evade = int(foe.Speed << 2)
+	} else {
+		acc = SatAdd(acc, 5)
+	}
+	acc = SatAdd(acc, -evade)
+
 	if acc > 100 {
-		acc = 100 // 原版夾在 100（sub_19C72）
+		acc = 100 // 原版夾在 100（sub_19C72 → sub_19BF8 歸零再加 100）
 	}
 	return acc
 }
