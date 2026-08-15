@@ -165,9 +165,11 @@ type SlotGroup struct {
 	Members  [8]byte // 角色記錄編號，0 ＝ 空槽
 	X, Y     byte
 	MapID    byte
-	TeleX    byte
-	TeleY    byte
-	Unknown  byte // +0x0D，語意未解
+	// +0x0B–+0x0D 是**回程**的座標與地圖，不是傳送目的地——
+	// 踩上傳送格的第一件事就是把目前位置寫進去（docs/re/60 §3）。
+	BackX    byte
+	BackY    byte
+	BackMap  byte
 	RawIndex int
 }
 
@@ -180,7 +182,7 @@ func (s *Save) SlotGroups() [gblSlotGroups]SlotGroup {
 		g := SlotGroup{RawIndex: base}
 		copy(g.Members[:], raw[0:8])
 		g.X, g.Y, g.MapID = raw[8], raw[9], raw[10]
-		g.TeleX, g.TeleY, g.Unknown = raw[11], raw[12], raw[13]
+		g.BackX, g.BackY, g.BackMap = raw[11], raw[12], raw[13]
 		out[i] = g
 	}
 	return out

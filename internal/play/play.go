@@ -49,6 +49,8 @@ type Scene struct {
 	// 所以要留一張至今播過的遮罩，重畫一幀時整張再疊一次。
 	player   *render.PicPlayer
 	animMask []byte
+	// back 是傳送的回程位置（隊伍槽表 +0x0B–+0x0D，docs/re/60 §3）。
+	back game.Return
 	// items 是物品資料表（存檔區那一份，docs/re/45 §2）。
 	// **武器傷害要靠它**——沒有它每個人的傷害都是 0，戰鬥永遠打不完。
 	items game.ItemTable
@@ -181,6 +183,9 @@ func New(rom *assets.Rom) (*Scene, error) {
 		s.message = "ITEM TABLE: " + err.Error()
 	}
 	s.blockFile, s.blockID = block.Resource.File, block.Resource.ID
+	// 回程從存檔的隊伍槽表讀（+0x0B–+0x0D，docs/re/60 §3）。
+	g := save.SlotGroups()[0]
+	s.back = game.Return{X: g.BackX, Y: g.BackY, MapID: g.BackMap}
 	return s, nil
 }
 
@@ -371,6 +376,15 @@ func (s *Scene) updateMap(in input.Input) (bool, error) {
 	s.dirty = true
 	s.message = s.describe(res)
 	s.cjk = s.translate(res)
+
+	// 踩到傳送格就換地圖（docs/spec/07 §6.7）。**這一步到此為止**——
+	// 原版換完地圖回 CF ＝ 1，不捲動也不掃遭遇。
+	if res.Moved && res.Event.Kind == game.EventTeleport {
+		if err := s.doTeleport(res.Event.Data); err != nil {
+			s.message = "ERROR: " + err.Error()
+		}
+		return true, nil
+	}
 
 	// 踩到輻射格就結算（docs/spec/07 §6.4）。訊息已經在 describe 裡了，
 	// 這裡只補傷害那一句——**扣血是規則層做的，這裡不重算**。
@@ -573,3 +587,24 @@ func (s *Scene) drawFacility(f *render.Frame) {
 		_ = f.DrawLineAt(s.font, l, render.FacilityNameCol, render.FacilityNameRow+i)
 	}
 }
+
+// doTeleport 執行一次傳送（docs/spec/07 §6.7）。
+//
+// 回程資訊存在隊伍槽表的 +0x0B–+0x0D。remake 把它放在 Scene 上：
+// 存檔寫回時再落到那三個 byte（規格 05）。
+func (s *Scene) doTeleport(rec []byte) error {
+	w := s.world
+	here := game.Return{X: w.Party.X, Y: w.Party.Y, MapID: uint8(s.mapID())}
+	target, back := game.ResolveTeleport(rec, here, s.back)
+	s.back = back
+	if int(target.MapID) == s.mapID() {
+		// 同一張地圖：只搬座標，不重載。
+		w.Teleport(target.X, target.Y)
+		s.dirty = true
+		return nil
+	}
+	return s.LoadMap(int(target.MapID), target.X, target.Y)
+}
+
+// mapID 是目前這張地圖的資源編號。
+func (s *Scene) mapID() int { return s.blockID }
