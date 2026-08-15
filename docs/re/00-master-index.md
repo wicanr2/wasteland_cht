@@ -507,7 +507,8 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `0x141FA` | 2 | 對角色記錄的某個欄位加減（`bl` 有號負 ＝ 減）；欄位 `0x1D` 走傷害結算 | [`55`](55-radiation-and-armour-bypass.md) §3 |
 | `0x14410` | — | **輻射格結算**：逐一對隊員擲 `+0x01` 顆 d6 扣 CON ＋ 加 Radiation poisoning | [`55`](55-radiation-and-armour-bypass.md) §3 |
 | `0x13EC9` | 1 | **條件閘的主體**：逐個角色跑條件串列，收尾由記錄 `+0x00` 低位的四個旗標決定 | [`69`](69-gate-flags.md) §2 |
-| `0x16890` | — | **遭遇生成器**：擲 1／標頭 `+0x2F` → 找 section 15 空槽 → 擲種類 → 沿方向走 N 步找空地 → 放 nibble 15 | [`78`](78-encounter-spawn.md) |
+| `0x16890` | — | **遭遇生成器**：擲 1／標頭 `+0x2F` → 找 section 15 空槽 → 擲種類 → 沿方向走 N 步找空地 → 放 nibble 15 | [`79`](79-facility-coverage.md) | 設施 `+0x00 & 0x7F` **≥ 5 就是 opcode −5**（`ds:A4E0h` 沒有上限檢查）；設施覆蓋率門檻 |
+| [`78`](78-encounter-spawn.md) |
 | `0x1A526` | — | **opcode 3**：`6 ≤ ds:465Ah < 18` → 用記錄 `+0x03`／`+0x04`，否則 `+0x05`／`+0x06`，搬進 `+0x01`／`+0x02` | [`75`](75-desert-heat-entry.md) §2 |
 | `0x12BD0` | 1 | **nibble 12**：印記錄 `+0x00`，跑 `+0x01` 起的批次改寫表，最後改寫腳下 | [`71`](71-nibble12-batch-patch.md) §1 |
 | `0x15160` | 1 | **nibble 8** 問答；答對的改寫位移 ＝ `3 + 答案數 + 2 × 序號`（`0x1522F`） | [`71`](71-nibble12-batch-patch.md) §5 |

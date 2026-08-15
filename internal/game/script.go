@@ -87,14 +87,30 @@ type Script struct {
 	Op int
 }
 
+// FacilityKindCount 是 `ds:A4E0h` 跳表前面那幾個設施項的數量。
+//
+// 索引 `FacilityKindCount + n` 就是 **opcode n**（`ds:A4EAh` 只是
+// `ds:A4E0h + 10`，`docs/re/79` §1）。
+const FacilityKindCount = 5
+
 // NewScript 從記錄 `+0x00` 查出 opcode 並建好上下文。
 //
-// 查不到（沒有 section 0x10 或索引超出）時 Op ＝ −1，`Step` 會回
-// `Handled ＝ false`——**不要當成 nop**。
+// 兩條路（`sub_12C80`）：
+//
+//	bit7 沒設 → `+0x00` 是 section 0x10 的索引，取出的 word 才是 opcode
+//	bit7 設   → `+0x00 & 0x7F` **直接**索引 `ds:A4E0h`；≥ 5 就是 opcode −5
+//
+// 查不到時 Op ＝ −1，`Step` 會回 `Handled ＝ false`——**不要當成 nop**。
 func NewScript(w *World, record []byte) *Script {
 	s := &Script{World: w, Record: record, Op: -1}
 	if w == nil || w.Block == nil || len(record) == 0 {
 		return s
+	}
+	if record[0]&0x80 != 0 {
+		if kind := int(record[0] & 0x7F); kind >= FacilityKindCount {
+			s.Op = kind - FacilityKindCount
+		}
+		return s // kind < 5 是設施，不走直譯器
 	}
 	if v, err := w.Block.SectionEntry(0x10, int(record[0])); err == nil {
 		s.Op = int(v)
