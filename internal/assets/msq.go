@@ -152,6 +152,21 @@ func decryptMSQ(raw []byte, checksum uint16, headerAt int) ([]byte, int, error) 
 	return out, length, nil
 }
 
+// decryptStream 是 MSQ 的 XOR 串流（`docs/re/08`），整段解到底。
+//
+// 與 decryptMSQ 的差別：那一支只解到「記錄區標頭第一個 word」為止再看長度，
+// 因為地圖區塊的加密長度寫在標頭裡；這一支給沒有那個標頭的容器用
+// （`END.CPA`，`docs/re/23` §6）。
+func decryptStream(raw []byte, checksum uint16) []byte {
+	out := make([]byte, len(raw))
+	key := byte(checksum&0xFF) ^ byte(checksum>>8)
+	for i := range raw {
+		out[i] = raw[i] ^ key
+		key += 0x1F
+	}
+	return out
+}
+
 // Block 是一個解開的 MSQ 區塊。
 type Block struct {
 	Resource Resource

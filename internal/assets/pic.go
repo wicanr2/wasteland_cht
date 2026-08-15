@@ -109,6 +109,32 @@ func (r *Rom) Title() (*Indexed, error) {
 	return unpack4bpp(undelta(data, titleStride), titleWidth, titleHeight, titleStride)
 }
 
+// End 解結局畫面 `END.CPA`（`docs/re/23` §6、`sub_1B7FE`）。
+//
+// **還解不出來**，這一支目前只回錯誤。已經確定的事實：
+//
+//   - 檔頭 4 bytes 是 `0x4800` ＝ 18,432 ＝ 288 × 128 的 packed 4bpp，
+//     與 `sub_1B7FE` 的 `cx ← 4800h` 對上，也與 `TITLE.PIC` 同尺寸。
+//   - 接著是 `msq` magic（第 4 個 byte 是 `0x00`，不是地圖區塊的 `'0'`／`'1'`）。
+//   - 載入器讀兩塊：`0x4800` 到 `seg003:0x920`、`0x3A98` 到 `seg003:0x5120`，
+//     兩塊在記憶體裡相連；第二塊多半是結局敘述（`ds:D18Eh` 的字串表）。
+//
+// 卡在**解密參數**：拿 `+0x04` 的 word（`0x0040`）當 checksum 走
+// `docs/re/08` 的 XOR 串流，解出來的開頭不是合法的 Huffman 長度欄
+// （讀到 836,184,663）。下一個入口是 `sub_11AE8` 與 `sub_11B83`——
+// 那兩支是載入器實際讀檔的地方，`docs/re/05` 列為未解。
+func (r *Rom) End() (*Indexed, error) {
+	data, err := r.File("end.cpa")
+	if err != nil {
+		return nil, err
+	}
+	if len(data) < 10 || string(data[4:7]) != "msq" {
+		return nil, fmt.Errorf("end.cpa 的形狀不對（%d bytes）", len(data))
+	}
+	return nil, fmt.Errorf("end.cpa 的解密參數未解（docs/re/23 §6）：" +
+		"長度欄與 msq magic 都對得上，但 XOR 串流解出來不是合法的 Huffman 流")
+}
+
 // Pictures 解一個 ALLPICS 檔裡的所有圖片（96 × 84）。
 //
 // 子區塊嚴格交錯：一張圖 ＋ 一段變動長度的參數區（局部動畫，見
