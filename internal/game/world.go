@@ -105,6 +105,22 @@ type Event struct {
 	Choices []int // 選單選項的字串編號
 	To      [2]uint8
 	Data    []byte // 這一格的 section 記錄（取不到時是 nil）
+	// PatchAt 是這一類事件收尾要拿記錄的哪個位移去改寫這一格
+	// （原版 `sub_169B1(al)` → `sub_17CFF`）；0 ＝ 這一類不改寫。
+	PatchAt int
+}
+
+// messageListLen 回報記錄開頭那串訊息編號有幾條（`sub_16CD0` 的迴圈）。
+//
+// 從 +0x00 起逐 byte，**bit7 設的那一條是最後一條**；
+// 個數同時就是收尾改寫要用的位移。
+func messageListLen(record []byte) int {
+	for i, b := range record {
+		if b&0x80 != 0 {
+			return i + 1
+		}
+	}
+	return len(record)
 }
 
 // World 是「目前在哪張地圖、隊伍在哪、幾點了」。
@@ -125,6 +141,11 @@ type World struct {
 	// 給記錄裡的 `0xFE`／`0xFD` 沿用（docs/re/69 §9）。
 	carryTerrain byte
 	carryRecord  byte
+
+	// lastNibble／lastRecord 是原版的 `ds:4716h`／`4717h`：上一次觸發的
+	// (nibble, 記錄)。nibble 1 拿它避免連續踩同一種格子重複印訊息。
+	lastNibble byte
+	lastRecord byte
 	// Skills 是技能資料表（條件閘的技能型別要用）。
 	Skills SkillTable
 }
@@ -208,7 +229,12 @@ func (w *World) Step(dir Direction) (StepResult, error) {
 		res.Event.Data[0]&0x40 != 0 {
 		res.Gate = w.Party.EvalGate(w.RNG, res.Event.Data, w.Skills)
 		w.applyCellPatch(nx, ny, res.Event.Data, res.Gate.PatchAt)
+	} else if res.Event.PatchAt > 0 {
+		// nibble 1（位移 ＝ 訊息條數）與 nibble 6（位移 1）跑完都會改寫這一格。
+		w.applyCellPatch(nx, ny, res.Event.Data, res.Event.PatchAt)
 	}
+	// ds:4716h／4717h：記住這一次觸發的是哪一種格子。
+	w.lastNibble, w.lastRecord = res.Event.Nibble, byte(res.Event.Record)
 	return res, nil
 }
 
@@ -368,8 +394,20 @@ func (w *World) trigger(x, y int) Event {
 
 	switch terrain {
 	case 1:
-		// 遠看才顯示的描述——站上去反而不印（0x16CD0 比對隊伍座標）。
-		ev.Kind = EventNone
+		// 氛圍敘述（`sub_16CD0`，docs/re/70）：訊息**可以有很多條**，
+		// 從記錄 +0x00 起逐 byte，bit7 設的那一條是最後一條。
+		// 連續踩到同一種 (nibble, 記錄) 就不重印——原版比對 ds:4716h／4717h。
+		ev.Kind = EventMessage
+		n := messageListLen(ev.Data)
+		if w.lastNibble != terrain || w.lastRecord != record {
+			for i := 0; i < n; i++ {
+				if s := ev.Data[i] & 0x7F; s != 0 {
+					ev.Strings = append(ev.Strings, int(s))
+				}
+			}
+		}
+		// 訊息串列的長度就是收尾改寫要用的位移（`sub_169B1(al ＝ 個數)`）。
+		ev.PatchAt = n
 	case 2:
 		// nibble 2 的事件處理與移動閘是**同一支**（sub_13EC9）：走得過去的格子
 		// 踩上去還是會印記錄 +0x01 的訊息（沙漠高溫就是這樣，docs/re/66）。
@@ -389,13 +427,20 @@ func (w *World) trigger(x, y int) Event {
 			ev.Kind = EventRadiation
 		}
 	case 12:
-		// nibble 12 的處理函式還沒讀，先照舊拿第 2 層值當編號（docs/spec/07 §7）。
+		// 字串編號是**記錄 +0x00**（`0x12BD0` 的 `mov bl,0` → `sub_17920`），
+		// 不是這一格的第 2 層值。
 		ev.Kind = EventMessage
-		ev.Strings = []int{int(record)}
+		if len(ev.Data) > 0 && ev.Data[0] != 0 {
+			ev.Strings = []int{int(ev.Data[0])}
+		}
 	case 5:
 		ev.Kind = EventChest
 	case 6:
+		// 跑完設施／腳本之後用**位移 1** 改寫這一格（`0x12C70` 的
+		// `mov al,1` → `sub_169B1`）。設施記錄那 30 筆幾乎都是 `fd fd`，
+		// 也就是「改回原樣」——這是 0xFD 在出貨資料裡最大的用戶。
 		ev.Kind = EventFacility
+		ev.PatchAt = 1
 	case 8:
 		ev.Kind = EventMenu
 	case nibbleTeleport:
