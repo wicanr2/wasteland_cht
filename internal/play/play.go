@@ -67,6 +67,9 @@ type Scene struct {
 	// encAsk 非 0 時停在 `ENC` 的「別組要不要打」Y／N 上，值 ＝ 組號 ＋ 1。
 	encAsk int
 
+	// ending 是結局播放的狀態（`docs/re/96`）。
+	ending endingState
+
 	// title 為 true 時停在標題畫面的主選單（`docs/re/95`）。
 	title    bool
 	titlePic *assets.Indexed
@@ -414,6 +417,9 @@ func (s *Scene) Update(in input.Input) (bool, error) {
 	}
 	if s.title {
 		return s.updateTitle(in)
+	}
+	if s.ending.active {
+		return s.updateEnding(in)
 	}
 	if s.roster.active {
 		return s.updateRoster(in)
@@ -892,6 +898,9 @@ func (s *Scene) Frame() *render.Frame {
 		s.dirty = false
 		return f
 	}
+	if s.ending.active {
+		s.drawEnding(f)
+	} else {
 	switch {
 	case s.facility != nil:
 		s.drawFacility(f)
@@ -900,6 +909,7 @@ func (s *Scene) Frame() *render.Frame {
 		s.drawRoster(f)
 	default:
 		s.drawMap(f)
+	}
 	}
 	// 時鐘在外框上緣，不屬於地圖視窗——切模式不影響它（docs/re/27 §4）。
 	_ = f.DrawClock(s.font, int(s.world.Clock.Hour), int(s.world.Clock.Minute))

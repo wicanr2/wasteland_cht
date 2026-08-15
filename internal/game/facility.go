@@ -16,7 +16,10 @@ const (
 	// （`ds:CE12h` 的選單字串，`docs/re/72` §3）。
 	// ⚠ **不是存檔處**——存檔走指令列的 `Save`（`docs/re/91`）。
 	FacilityRoster FacilityKind = 3
-	FacilityUnknown FacilityKind = 4 // 身分未定（docs/spec/09 §6）
+	// FacilityEnding 是**結局**：`ds:A4E0h` 第 4 格指向 `0x1B4F0`，
+	// 那一支載 `END.CPA` 並播完四段敘述（`docs/re/96`）。
+	// 它沒有店面也沒有圖——走進去遊戲就結束。
+	FacilityEnding FacilityKind = 4
 	FacilityCount                = 5
 )
 
@@ -26,7 +29,7 @@ var facilityNameAt = [FacilityCount]int{
 	FacilityShop:    0x07,
 	FacilityTrainer: 0x04,
 	FacilityRoster:  0x03,
-	FacilityUnknown: 0x03,
+	FacilityEnding:  0x03,
 }
 
 const facilityNameLen = 13
