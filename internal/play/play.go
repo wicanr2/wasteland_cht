@@ -58,6 +58,13 @@ type Scene struct {
 	spawnOK bool
 	// asking 非 DirNone 時畫面停在「Enter new location?」等 Y／N（docs/re/64）。
 	asking input.Direction
+	// journal 是段落手札（`docs/spec/19`）。載不到就是 nil——
+	// 沒有正文時遊戲照跑，只是讀不到段落。
+	journal *Journal
+	// journalOpen／journalAt 是手札模式的狀態（重製版的畫面，原版沒有）。
+	journalOpen bool
+	journalAt   int
+
 	// sound 是下一幀要播的 PC 喇叭音效編號（`docs/re/44` §6），−1 ＝ 沒有。
 	// `TakeSound` 取走就清掉，所以同一個觸發不會播兩次。
 	sound int
@@ -71,6 +78,19 @@ type Scene struct {
 	facility *FacilityScene
 	// snapshot 是打之前每個角色的經驗值，收尾時相減用。
 	snapshot xpSnapshot
+}
+
+// LoadJournal 載入段落手札：引用表（編譯期產物）與中文正文目錄。
+//
+// 兩個都可以載不到——那時讀到編號只會顯示原本那句英文，遊戲照跑
+// （`docs/spec/19` §6：**沒翻的段落不能變成空白頁**）。
+func (s *Scene) LoadJournal(refsPath, catPath string) error {
+	refs, err := game.LoadParagraphRefs(refsPath)
+	if err != nil {
+		return err
+	}
+	s.journal = NewJournal(refs, nil)
+	return s.journal.LoadParagraphs(catPath)
 }
 
 // LoadCatalogue 載入翻譯目錄；載不到就維持英文，不當成錯誤。
@@ -177,6 +197,9 @@ func New(rom *assets.Rom) (*Scene, error) {
 		sound: -1,
 	}
 	s.world.Clock = clock
+	// 手札預設是空的（沒有引用表、沒有正文），由呼叫端 LoadJournal 載入——
+	// **路徑不寫死在這裡**，與 LoadCatalogue／LoadFont 一致。
+	s.journal = NewJournal(game.ParagraphRefs{}, nil)
 	// 物品表跟著存檔走（每個存檔槽一份）。載不到就維持空表——
 	// 傷害會是 0，但遊戲跑得動，而且下面這行的錯誤會留在訊息裡。
 	// 設施畫面的圖。載不到就不畫圖，其餘照跑。
@@ -321,6 +344,9 @@ func (s *Scene) Update(in input.Input) (bool, error) {
 	if s.combat != nil {
 		return s.updateCombat(in)
 	}
+	if s.journalOpen {
+		return s.updateJournal(in)
+	}
 	return s.updateMap(in)
 }
 
@@ -425,6 +451,10 @@ func (s *Scene) updateMap(in input.Input) (bool, error) {
 		// 不是方向就看是不是指令列的一項（`docs/re/91`）。
 		// **順序不能顛倒**：原版的 IKJL 是方向鍵，而指令的首字母
 		// （U E O D V S R）與它們不重疊，所以先問方向再問指令。
+		if input.Upper(in.Char) == JournalKey {
+			s.openJournal(s.journalAt)
+			return true, nil
+		}
 		if c := CommandFor(in.Char); c >= 0 {
 			return s.runCommand(c)
 		}
@@ -487,6 +517,10 @@ func (s *Scene) walk(dir game.Direction) (bool, error) {
 	s.dirty = true
 	s.message = s.describe(res)
 	s.cjk = s.translate(res)
+	// 訊息裡引用了段落就把正文顯示出來（`docs/spec/19` §3）。
+	if res.Event.Kind == game.EventMessage {
+		s.maybeParagraph(lang.BlockKey(s.blockFile, s.blockID, res.Event.Record))
+	}
 
 	// 走一步的點擊聲（音效 1，`0x16575` 在 `sub_1656D` 裡，docs/re/44 §6）。
 	// **只有真的移動了才響**——被擋住時原版走的是別條路。
