@@ -23,6 +23,10 @@ const (
 	recPreHurt    = 0x26 // 16-bit
 	recStatus     = 0x28
 	recRank       = 0x32
+	// recMission 是「參與過摧毀 Base Cochise」，recPraised 是「總部已經表揚過」。
+	// 兩個 byte 都只用 bit0（`docs/re/96` §5）。
+	recMission = 0x4B
+	recPraised = 0x4C
 	recSkills     = 0x80 // 30 × 2
 	recItems      = 0xBD // 30 × 2
 	slotCount     = 30
@@ -70,6 +74,8 @@ func LoadCharacter(raw []byte) *Character {
 		Nation:     raw[recNation],
 		EquipIndex: raw[recEquip],
 		Rank:       cstring(raw[recRank : recRank+14]),
+		Mission:    raw[recMission]&1 != 0,
+		Praised:    raw[recPraised]&1 != 0,
 	}
 	for i := 0; i < AttrCount; i++ {
 		c.Attributes[i] = raw[recAttributes+i]
@@ -98,6 +104,9 @@ func (c *Character) StoreTo(raw []byte) {
 	put16(raw, recPreHurt, uint16(c.PreHurt))
 	raw[recStatus] = c.Status
 	putCString(raw[recRank:recRank+14], c.Rank)
+	// **只動 bit0**：這兩個 byte 的其餘七位未解，一個都不能碰。
+	raw[recMission] = raw[recMission]&^1 | boolBit(c.Mission)
+	raw[recPraised] = raw[recPraised]&^1 | boolBit(c.Praised)
 	writeSlots(raw, recSkills, c.Skills)
 	writeSlots(raw, recItems, c.Items)
 }
@@ -162,4 +171,11 @@ func put16(b []byte, at int, v uint16) {
 
 func put24(b []byte, at int, v uint32) {
 	b[at], b[at+1], b[at+2] = byte(v), byte(v>>8), byte(v>>16)
+}
+
+func boolBit(b bool) byte {
+	if b {
+		return 1
+	}
+	return 0
 }

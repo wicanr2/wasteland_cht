@@ -102,14 +102,31 @@ func (s *Scene) cmdSave() (bool, error) {
 
 // cmdRadio 是 `Radio`（`0x15260` → `loc_1B8AD`）：呼叫總部升級。
 //
-// 只做第二輪（經驗值 → 等級，`docs/re/31` §1、§2）。
-// **第一輪沒做**：那一段看角色記錄 `+0x4B`／`+0x4C` 的 bit0，
-// 兩個欄位的語意未解（`docs/re/91` §2.1），不猜。
+// 兩輪都做（`docs/re/91` §2.1、`docs/re/96` §5）：
 //
-// 倒下的人跳過（`loc_172BE` ＝ CON ≤ 0，`docs/re/89` §2）。
+//	第一輪 —— 參與過摧毀 Base Cochise（`+0x4B` bit0）而還沒被表揚過
+//	          （`+0x4C` bit0）的人，總部念一次賀詞，然後把 `+0x4C` 設起來
+//	第二輪 —— 經驗值夠就升級（`docs/re/31` §1、§2），可以連升
+//
+// 倒下的人兩輪都跳過（`loc_172BE` ＝ CON ≤ 0，`docs/re/89` §2）。
 func (s *Scene) cmdRadio() (bool, error) {
 	var lines []string
 	total := 0
+
+	// 第一輪：表揚。原版的賀詞是階級表（`ds:D622h`）的第 0x3D 條，
+	// **一個人只聽得到一次**——`ds:D436h` 讓它整場只印一次。
+	praise := 0
+	for _, m := range s.world.Party.Members {
+		if m == nil || m.Down() || !m.Mission || m.Praised {
+			continue
+		}
+		m.Praised = true
+		praise++
+	}
+	if praise > 0 {
+		lines = append(lines, s.rankString(RadioPraiseString))
+		s.playSound(4)
+	}
 	for _, m := range s.world.Party.Members {
 		if m == nil || m.Down() {
 			continue
@@ -119,7 +136,9 @@ func (s *Scene) cmdRadio() (bool, error) {
 			lines = append(lines, fmt.Sprintf("%s is now level %d.", m.Name, m.Level))
 		}
 	}
-	if total == 0 {
+	if total == 0 && praise == 0 {
+		s.message = "HQ: nothing to report."
+	} else if len(lines) == 0 {
 		s.message = "HQ: nothing to report."
 	} else {
 		s.message = lines[0]
@@ -207,6 +226,21 @@ func (s *Scene) updateDisband(in input.Input) (bool, error) {
 	}
 	s.dirty = true
 	return true, nil
+}
+
+// RadioPraiseString 是總部的賀詞在**階級表**（`ds:D622h`，`ExeStrings()`
+// 第 5 張）裡的編號。`sub_1BB5D` 印之前會把 `ds:4692h` 換成那張表——
+// ⚠ 拿第 1 張表去查 0x3D 會取到 `"That doesn't seem to work."`，
+// 而那句在畫面上完全說得通（`docs/re/96` §5）。
+const RadioPraiseString = 0x3D
+
+// rankString 取階級表（`ds:D622h`）的第 n 條。
+func (s *Scene) rankString(n int) string {
+	tables, err := s.rom.ExeStrings()
+	if err != nil || len(tables) < 6 || n < 0 || n >= len(tables[5]) {
+		return ""
+	}
+	return tables[5][n]
 }
 
 // commandBar 是要畫在畫面底部的那一行。
