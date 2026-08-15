@@ -25,6 +25,7 @@ func main() {
 	romDir := flag.String("rom", "workplace/orig/wastland", "原版資料目錄（玩家自備）")
 	imagePath := flag.String("image", "workplace/analysis/unpacked/wl.merged.exe", "解包合成映像")
 	mode := flag.String("mode", "play", "play｜map｜title｜pic")
+	skipTitle := flag.Bool("skip-title", false, "跳過標題畫面直接進地圖（測試與截圖用）")
 	langFile := flag.String("lang", "translations/zh-Hant.cat", "翻譯目錄（空字串 ＝ 英文）")
 	fontDir := flag.String("font", "workplace/eten", "倚天點陣字目錄（玩家自備）")
 	refsFile := flag.String("refs", "docs/re/generated/paragraph-refs.tsv", "段落引用表")
@@ -46,6 +47,11 @@ func main() {
 			var s *play.Scene
 			s, err = play.New(rom)
 			scene, title = s, "Wasteland（荒野遊俠）"
+			// 原版開機是「標題畫面 → Start → 地圖」（`docs/re/95`）。
+			// **沒有新遊戲／讀檔**：存檔就是 GAME1／GAME2 本身。
+			if err == nil && !*skipTitle {
+				s.BeginTitle()
+			}
 			// 中文化的三條路徑：翻譯目錄、倚天點陣字、段落手札。
 			// **三個都載不到也照跑**，只是顯示英文、翻不開手札
 			// （`docs/spec/11` §7：半成品的中文化要能玩）。
