@@ -222,6 +222,23 @@ func loadParty(save *assets.Save) (*game.Party, int, error) {
 	return p, int(g.MapID), nil
 }
 
+// PollRNG 推進一次亂數產生器，等同原版的鍵盤輪詢（規格 02 §1.1）。
+//
+// ⚠ **這是熵的唯一來源。** 原版 `sub_18EFE` 每輪詢一次就推進一次，
+// 所以序列取決於玩家花多久按鍵；不叫它的話**每一局的遭遇序列會完全相同**
+// （產生器沒有種子，初值全零）。呈現層每幀叫一次。
+//
+// 無頭工具（`cmd/wl-shot`、`cmd/wl-play`）刻意不叫，保持可重現。
+func (s *Scene) PollRNG() {
+	if w := s.world; w != nil && w.RNG != nil {
+		w.RNG.Next()
+	}
+}
+
+// Message 是訊息視窗這一步顯示的字（英文路徑）。
+// 中文走 cjk，兩者不會同時空著。
+func (s *Scene) Message() string { return s.message }
+
 // World 讓測試與 cmd/wl-shot 拿得到規則層的狀態。
 func (s *Scene) World() *game.World { return s.world }
 
