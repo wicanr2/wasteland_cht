@@ -628,6 +628,7 @@ func (s *Scene) StoreTo(save *assets.Save) error {
 	slot := save.Plain[g.RawIndex : g.RawIndex+14]
 	slot[8] = s.world.Party.X
 	slot[9] = s.world.Party.Y
+	slot[10] = byte(s.blockID) // 所在地圖（docs/re/60 §3 的槽表 +0x0A）
 
 	// 時鐘與視窗原點（ds:464Eh–465Bh 的副本）。
 	gl := save.Globals()
