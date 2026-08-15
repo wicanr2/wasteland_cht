@@ -60,3 +60,84 @@ func TestEndingPlaysThrough(t *testing.T) {
 	}
 	t.Logf("四段：%q", seen)
 }
+
+// 清算：只有在 Base Cochise 裡（地圖 0x10–0x14）的隊伍會死（`docs/re/96` §2.1）。
+//
+// ⚠ 這一條同時擋住「全隊一律陣亡」那種簡化——原版是**依地圖判定**的，
+// 留在外面的巡守員活著回去領表揚，而那正是 `+0x4B` 那個 bit 存在的理由。
+func TestEndingTollOnlyInsideBaseCochise(t *testing.T) {
+	for _, tc := range []struct {
+		mapID int
+		dies  bool
+	}{
+		{BaseCochiseFirst - 1, false},
+		{BaseCochiseFirst, true},
+		{BaseCochiseEnd - 1, true},
+		{BaseCochiseEnd, false},
+	} {
+		rom := openRom(t)
+		s, err := New(rom)
+		if err != nil {
+			t.Fatalf("開場失敗：%v", err)
+		}
+		groups := s.save.SlotGroups()
+		slot := s.save.Plain[groups[0].RawIndex : groups[0].RawIndex+14]
+		slot[10] = byte(tc.mapID)
+
+		s.BeginEnding()
+		s.collectToll()
+		got := len(s.Killed()) > 0
+		if got != tc.dies {
+			t.Errorf("地圖 %#x：死了 %v，應該是 %v（名單 %q）", tc.mapID, got, tc.dies, s.Killed())
+		}
+		if tc.dies {
+			if !strings.Contains(s.Killed()[0], "killed in the blast") {
+				t.Errorf("地圖 %#x 的死訊不對：%q", tc.mapID, s.Killed()[0])
+			}
+			if strings.Contains(s.Killed()[0], "\v") {
+				t.Errorf("名字佔位符 \\v 沒有換掉：%q", s.Killed()[0])
+			}
+		}
+	}
+}
+
+// 結局逐人設「參與過摧毀 Base Cochise」，Radio 靠它發表揚（`docs/re/96` §5）。
+func TestEndingSetsMissionFlagAndRadioPraises(t *testing.T) {
+	rom := openRom(t)
+	s, err := New(rom)
+	if err != nil {
+		t.Fatalf("開場失敗：%v", err)
+	}
+	m := s.World().Party.Members[0]
+	if m.Mission {
+		t.Fatal("一開始就有 Mission 旗標")
+	}
+	// 還沒去過結局：Radio 不該有賀詞。
+	if _, err := s.cmdRadio(); err != nil {
+		t.Fatalf("cmdRadio：%v", err)
+	}
+	if strings.Contains(s.Message(), "Congratulations") {
+		t.Fatalf("沒去過結局就被表揚了：%q", s.Message())
+	}
+
+	s.BeginEnding()
+	if !m.Mission {
+		t.Fatal("結局沒有設 Mission 旗標")
+	}
+	if _, err := s.cmdRadio(); err != nil {
+		t.Fatalf("cmdRadio：%v", err)
+	}
+	if !strings.Contains(s.Message(), "Congratulations") {
+		t.Fatalf("Radio 沒念賀詞：%q", s.Message())
+	}
+	if !m.Praised {
+		t.Fatal("表揚完沒有設 Praised 旗標")
+	}
+	// 第二次不該再念（原版 +0x4C 就是為了這個）。
+	if _, err := s.cmdRadio(); err != nil {
+		t.Fatalf("cmdRadio 第二次：%v", err)
+	}
+	if strings.Contains(s.Message(), "Congratulations") {
+		t.Fatalf("賀詞念了第二次：%q", s.Message())
+	}
+}

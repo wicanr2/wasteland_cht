@@ -45,6 +45,12 @@ type Character struct {
 	XP         uint32          // +0x21–+0x23，24-bit
 	Level      byte            // +0x24
 	Rank       string          // +0x32…
+	// Mission 是記錄 `+0x4B` 的 bit0：**參與過摧毀 Base Cochise**。
+	// 結局那一段逐人設起來（`0x1B4FB`），Radio 的第一輪讀它。
+	Mission bool
+	// Praised 是記錄 `+0x4C` 的 bit0：**總部已經表揚過**。
+	// Radio 第一輪設起來，所以那段賀詞一個人只聽得到一次（`docs/re/96` §5）。
+	Praised bool
 	Skills     []Slot          // +0x80，30 格
 	Items      []Slot          // +0xBD，30 格
 }

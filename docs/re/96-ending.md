@@ -46,7 +46,7 @@ remake 先前把第 4 種叫 `FacilityUnknown`「身分未定」，圖片編號 
 ## 2. 播放序列（`0x1B4F0`）
 
 ```
-逐人：角色記錄 +0x4B 的 bit0 ← 1          ; 語意未解，見 §5
+逐人：角色記錄 +0x4B 的 bit0 ← 1          ; 參與過摧毀 Base Cochise，見 §5
 sub_1B7FE                                  ; 載 END.CPA 兩段
 ds:D168h ← 0
 dx ← 3Ch；sub_1B735                        ; 播 60 tick，**按鍵不中斷**
@@ -67,8 +67,40 @@ ds:D168h ← 1                               ; 之後按鍵可以跳過
 [4] "You can almost imagine robots\rscreaming as they realize they, too,\rare mortal.\r\r"
 ```
 
-同一張表的第 5 條是 `"\v was killed in the blast.\r\r\r"`——**結局會點名死者**，
-`sub_1B735` 在 `0x1B5C3` 的第五個呼叫端就在那條路上。
+同一張表的第 5 條是 `"\v was killed in the blast.\r\r\r"`——**結局會點名死者**，見 §2.1。
+
+### 2.1 清算：Base Cochise 裡的人全部死在爆炸裡
+
+四段敘述之後（`0x1B571`）逐組清算：
+
+```
+ds:D171h ← ds:4654h              ; 記住目前是哪一組
+逐組（ds:4654h 從 0 到 ds:4657h）：
+  al ← [ds:46B7h + 0Ah]          ; **那一組的地圖編號**（槽表 +0x0A）
+  al ＜ 10h → 跳過
+  al ≥ 15h → 跳過
+loc_1B595:                       ; 這一組在 Base Cochise 裡
+  ds:4653h ← 那組人數（sub_171E3）
+  loc_1B5A6（逐人）:
+      al ← 34h；sub_190A8        ; 載圖 52
+      sub_19614(1)               ; 選第 1 個人
+      [記錄 +1Dh] ← 0；[+1Eh] ← 0 ; **CON 歸零**
+      sub_1B7B7(5)               ; 「\v was killed in the blast.」
+      dx ← 69h；sub_1B735        ; 停 105 tick
+      sub_172D4(1)               ; 把他移出隊伍
+      ds:4653h ≠ 0 → 再來一個
+  sub_1B7EC                      ; 槽表 14 bytes 全歸零
+  ds:4657h−−                     ; 少一組
+```
+
+**判準是地圖編號 `0x10` ≤ 地圖 ＜ `0x15`**（`0x1B58A` 的兩個 `cmp`）——
+Base Cochise 的五張地圖。留在外面的隊伍活下來。
+
+⚠ **不是「全隊一律陣亡」。** 依地圖判定這件事看起來像細節，
+但它正是 §5 那個 `+0x4B` 旗標存在的理由：活著回去的人才有人可以表揚。
+
+刪掉一組之後 `0x1B5F2` 會把後面的組往前搬（`bl` 從 `0x1B` 數到 `0x0D`，
+15 bytes 一組），並修正 `ds:D171h`——**記住的那一組可能已經被往前搬過**。
 
 ## 3. 第二段 ＝ 動畫腳本
 
@@ -138,17 +170,44 @@ sub_10FD3: 讀 4 bytes ＝ 8 個 nibble，位切片成四個平面
 會讓結局用三倍速播完——而畫面看起來只是「動畫比較快」，不像壞掉。
 這裡每 3 幀推一個 tick。
 
-## 5. 還沒解的
+## 5. `+0x4B`／`+0x4C`：任務旗標與表揚旗標
 
-- **角色記錄 `+0x4B` 的 bit0**：結局逐人把它設起來，Radio 的第一輪讀它
-  （`docs/re/91` §2.1）。兩處都碰到同一個 byte，語意仍未解——
-  角色結構沒有對應欄位，remake 兩邊都不做。
-  下一個入口：全檔掃 `+0x4B` 的其他讀寫點。
-- `0x1B571` 之後那一大段（`ds:4654h` 換組、隊伍槽表 `+0x0A` 比 `0x10`／`0x15`）
-  ——結局似乎會依隊伍所在位置分支，還沒讀。
-- `sub_1142B`、`sub_162C7`、`sub_1785E` 三支輔助函式。
+`docs/re/91` §2.1 把這兩個 byte 記成未解。兩邊的用法擺在一起就看得出來：
 
-## 6. 可重跑的完整指令
+| 欄位 | 誰設 | 誰讀 | 是什麼 |
+|---|---|---|---|
+| `+0x4B` bit0 | **結局**（`0x1B4FB`，逐人） | Radio 第一輪（`0x1B8D4`） | **參與過摧毀 Base Cochise** |
+| `+0x4C` bit0 | Radio 第一輪 | Radio 第一輪 | **總部已經表揚過**（所以只聽得到一次）|
+
+決定性的證據是 Radio 第一輪印的那條字串。`sub_1BB5D` 印之前會
+`ds:4692h ← 0D622h`——**換成階級表**（`ExeStrings()` 的第 5 張），
+第 `0x3D` 條是：
+
+```
+"Congratulations Rangers on a mission well done."
+"Since you embarked on your mission we had reports from other rangers
+ about the horrible strength contained in Base Cochise." …
+```
+
+⚠ **拿第 1 張表去查 `0x3D` 會取到 `"That doesn't seem to work."`**——
+那句話出現在無線電畫面上完全說得通，而它會讓整段結論反過來。
+`sub_1B7B7` 換 `ds:46B0h`、`sub_1BB5D` 換 `ds:4692h`，**兩支換的是不同的全域**；
+看到「印字串 N」先確認那一刻的表基址是哪一個。
+
+推論等級：**已確認**（兩處的讀寫點與字串內容都讀到）。
+
+remake 因此把 Radio 的兩輪都接上了（`internal/play/command.go`）：
+第一輪表揚、第二輪升級。先前只做第二輪，理由就是這兩個 byte 未解。
+
+## 6. 還沒解的
+
+- `sub_1142B`、`sub_162C7`、`sub_1785E` 三支輔助函式（進場那兩段的畫面切換）。
+- 結局表（`ds:D18Eh`）第 6–9 條是 *The History of the Rangers* 的後日談，
+  **沒有人在結局流程裡印它們**——`sub_1B7B7` 只被叫了 1–5。
+  下一個入口：掃還有誰把 `ds:46B0h` 換成 `0xD173`。
+- 載圖 `0x34`（清算時每個人都載一次）是哪一張。
+
+## 7. 可重跑的完整指令
 
 ```bash
 WL_IDA_TARGET="$PWD/workplace/analysis/unpacked/wl.merged.exe" \
@@ -177,7 +236,7 @@ tools/go.sh test ./internal/assets/ -run TestEndAnimation -v
 tools/go.sh test ./internal/play/ -run 'TestEnding|TestFacilityFourIsTheEnding' -v
 ```
 
-## 7. 這一輪學到的（寫成規則）
+## 8. 這一輪學到的（寫成規則）
 
 - **「零呼叫端」有第三種可能：它在表裡。** 先掃 `E8`／`E9`／`EB` 全空、
   正對照又證明掃描沒問題，剩下的就是**位址以資料的形式存在**。
@@ -186,5 +245,13 @@ tools/go.sh test ./internal/play/ -run 'TestEnding|TestFacilityFourIsTheEnding' 
   圖片編號 `-1`、測試寫著「這一種原版沒有載圖，不要猜一個」——
   三處都正確、都誠實，而且**看起來像已經處理過了**，於是沒有人回頭問它是什麼。
   它是整個遊戲的終點。**把未解的東西命名成「未解」，會讓它從缺口變成一個條目。**
+- **兩支「印字串」的函式可能換的是不同的表基址。** `sub_1B7B7` 換
+  `ds:46B0h`、`sub_1BB5D` 換 `ds:4692h`，而拿錯表查出來的句子
+  （`"That doesn't seem to work."`）在畫面上完全說得通。
+  **看到「印字串 N」先問「這一刻的表基址是哪一個」**，不要預設是第 1 張。
+- **一個欄位的語意，常常要兩個使用點才看得出來。** `+0x4B` 單看結局只知道
+  「結局會設它」，單看 Radio 只知道「它擋著一段賀詞」；
+  兩邊擺在一起才是「參與過摧毀 Base Cochise」。
+  **未解的欄位要找齊讀寫點再下結論，不要在第一個使用點就命名。**
 - **版面對不對，用等式驗不要用抽樣。** 15 格 × 4 ＋ 2,433 × 6 ＋ 2 剛好等於
   14,660，這比「前幾筆看起來合理」強得多——欄位少讀一個就對不齊。
