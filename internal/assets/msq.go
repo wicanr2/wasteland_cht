@@ -418,6 +418,23 @@ func (b *Block) CellRecord(x, y int) ([]byte, byte, error) {
 
 // SectionCount 回傳指標陣列有幾筆。
 // 陣列長度不另外存——**第一個非空指標指到哪，陣列就到哪為止**（docs/re/16 §3.1）。
+// SectionPointers 回傳指標陣列從 base 起的前 n 個原始 word（給逆向驗證用）。
+func (b *Block) SectionPointers(typ, n int) ([]uint16, int, bool) {
+	base, ok := b.SectionBase(typ)
+	if !ok {
+		return nil, 0, false
+	}
+	var out []uint16
+	for i := 0; i < n; i++ {
+		at := base + i*2
+		if at+1 >= len(b.Raw) {
+			break
+		}
+		out = append(out, le16(b.Raw, at))
+	}
+	return out, base, true
+}
+
 func (b *Block) SectionCount(typ int) int {
 	base, ok := b.SectionBase(typ)
 	if !ok {
