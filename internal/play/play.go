@@ -58,6 +58,10 @@ type Scene struct {
 	spawnOK bool
 	// asking 非 DirNone 時畫面停在「Enter new location?」等 Y／N（docs/re/64）。
 	asking input.Direction
+	// sound 是下一幀要播的 PC 喇叭音效編號（`docs/re/44` §6），−1 ＝ 沒有。
+	// `TakeSound` 取走就清掉，所以同一個觸發不會播兩次。
+	sound int
+
 	// items 是物品資料表（存檔區那一份，docs/re/45 §2）。
 	// **武器傷害要靠它**——沒有它每個人的傷害都是 0，戰鬥永遠打不完。
 	items game.ItemTable
@@ -170,6 +174,7 @@ func New(rom *assets.Rom) (*Scene, error) {
 		world: game.NewWorld(block, party, rng.New()),
 		save:  save,
 		dirty: true,
+		sound: -1,
 	}
 	s.world.Clock = clock
 	// 物品表跟著存檔走（每個存檔槽一份）。載不到就維持空表——
@@ -259,6 +264,19 @@ func (s *Scene) LoadMap(id int, x, y uint8) error {
 	s.blockFile, s.blockID = b.Resource.File, b.Resource.ID
 	s.dirty = true
 	return nil
+}
+
+// playSound 排一個音效給呈現層。
+//
+// 一幀只留最後一個：原版的呼叫端之間隔著計時器中斷，同一幀連觸發兩個
+// 在原版是聽不到前一個的。
+func (s *Scene) playSound(n int) { s.sound = n }
+
+// TakeSound 取走這一幀要播的音效編號（`ui.Sounder`），−1 ＝ 沒有。
+func (s *Scene) TakeSound() int {
+	n := s.sound
+	s.sound = -1
+	return n
 }
 
 // Asking 回報畫面是不是停在「Enter new location?」等 Y／N。
@@ -404,6 +422,12 @@ func (s *Scene) updateMap(in input.Input) (bool, error) {
 	case input.DirRight:
 		dir = game.Right
 	default:
+		// 不是方向就看是不是指令列的一項（`docs/re/91`）。
+		// **順序不能顛倒**：原版的 IKJL 是方向鍵，而指令的首字母
+		// （U E O D V S R）與它們不重疊，所以先問方向再問指令。
+		if c := CommandFor(in.Char); c >= 0 {
+			return s.runCommand(c)
+		}
 		return true, nil
 	}
 
@@ -463,6 +487,16 @@ func (s *Scene) walk(dir game.Direction) (bool, error) {
 	s.dirty = true
 	s.message = s.describe(res)
 	s.cjk = s.translate(res)
+
+	// 走一步的點擊聲（音效 1，`0x16575` 在 `sub_1656D` 裡，docs/re/44 §6）。
+	// **只有真的移動了才響**——被擋住時原版走的是別條路。
+	if res.Moved {
+		s.playSound(1)
+	}
+	// 腳本指令自己要求的音效（op 26／35 走 `sub_1142B` 播 7）蓋過腳步聲。
+	if res.Script.Sound >= 0 {
+		s.playSound(res.Script.Sound)
+	}
 
 	// 條件閘的收尾訊息：通過印記錄 +0x02、沒過且沒人受罰印 +0x03（docs/re/69）。
 	if res.Gate.Message > 0 && res.Gate.Message < len(s.world.Block.Strings) {
@@ -692,6 +726,11 @@ func (s *Scene) Frame() *render.Frame {
 	}
 	// 時鐘在外框上緣，不屬於地圖視窗——切模式不影響它（docs/re/27 §4）。
 	_ = f.DrawClock(s.font, int(s.world.Clock.Hour), int(s.world.Clock.Minute))
+
+	// 地圖模式才有指令列（`docs/re/91`）——戰鬥與設施有自己的選單。
+	if s.facility == nil && s.combat == nil {
+		_ = f.DrawLineAt(s.font, commandBar(), 0, render.CmdRow)
+	}
 
 	if s.message != "" {
 		out, err := textlayout.Layout([]byte(s.message), textlayout.Options{Width: render.MsgWidth})

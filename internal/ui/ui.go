@@ -13,9 +13,12 @@ package ui
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	wlaudio "github.com/wicanr2/wasteland_cht/internal/audio"
 	"github.com/wicanr2/wasteland_cht/internal/input"
 	"github.com/wicanr2/wasteland_cht/internal/render"
 )
@@ -63,9 +66,17 @@ type Scene interface {
 // Poller 是有亂數產生器要跟著輪詢推進的場景（規格 02 §1.1）。
 type Poller interface{ PollRNG() }
 
+// Sounder 是會發出 PC 喇叭音效的場景。
+//
+// TakeSound 回這一幀要播的音效編號（0–8，`docs/re/44` §6），−1 表示沒有；
+// **取走就清掉**，同一個觸發不會播兩次。沒實作也照跑。
+type Sounder interface{ TakeSound() int }
+
 // Animator 是會隨時間變化的場景（設施圖的局部動畫，規格 26）。
 // 沒實作也照跑——檢視器場景就沒有。
 type Animator interface{ TickAnim() bool }
+
+
 
 // animTicksPerFrame 是幾幀推一拍動畫。60 TPS ÷ 3 ＝ 20 Hz，
 // 是整數分頻裡最接近原版 18.2 Hz 的一檔。
@@ -75,6 +86,7 @@ const animTicksPerFrame = 3
 type Game struct {
 	scene Scene
 	img   *ebiten.Image
+	synth *wlaudio.Synth
 	keys  []ebiten.Key
 	runes []rune
 	buf   []input.Key
@@ -82,12 +94,36 @@ type Game struct {
 	animTick int
 }
 
-// New 建立一個 Game。
+// New 建立一個 Game。**不開音訊**——測試與檢視器用這一支。
 func New(scene Scene) *Game {
 	return &Game{
 		scene: scene,
 		img:   ebiten.NewImage(render.ScreenWidth, render.ScreenHeight),
 	}
+}
+
+// NewWithAudio 建立一個會發聲的 Game。
+//
+// synth 為 nil 就跟 New 一樣。**音訊裝置在另一個執行緒讀 synth**，
+// 所以場景那一側只准透過 Trigger 排隊（`internal/audio/pcm.go`）。
+func NewWithAudio(scene Scene, synth *wlaudio.Synth) (*Game, error) {
+	g := New(scene)
+	if synth == nil {
+		return g, nil
+	}
+	ctx := audio.CurrentContext()
+	if ctx == nil {
+		ctx = audio.NewContext(wlaudio.SampleRate)
+	}
+	pl, err := ctx.NewPlayer(synth)
+	if err != nil {
+		return nil, fmt.Errorf("開音訊：%w", err)
+	}
+	// 緩衝區太大時觸發到出聲會有明顯延遲；50 ms 在 60 fps 下是三幀。
+	pl.SetBufferSize(50 * time.Millisecond)
+	pl.Play()
+	g.synth = synth
+	return g, nil
 }
 
 // Update 是 Ebiten 的每幀更新。
@@ -113,6 +149,13 @@ func (g *Game) Update() error {
 		g.animTick = 0
 		if a, ok := g.scene.(Animator); ok {
 			a.TickAnim()
+		}
+	}
+	// 音效在輸入之後、Update 之前取：這一幀觸發的音效由下一幀送出，
+	// 與原版「呼叫端設好狀態、計時器中斷再播」的時序一致。
+	if s, ok := g.scene.(Sounder); ok && g.synth != nil {
+		if n := s.TakeSound(); n >= 0 {
+			g.synth.Trigger(n)
 		}
 	}
 	keep, err := g.scene.Update(input.Read(g.buf, g.runes))
@@ -141,11 +184,17 @@ func (g *Game) Layout(int, int) (int, int) {
 }
 
 // Run 開視窗跑起來。**無頭環境不能呼叫。**
-func Run(scene Scene, title string, scale int) error {
+//
+// synth 非 nil 時一併開音訊；場景要實作 Sounder 才會有聲音。
+func Run(scene Scene, title string, scale int, synth *wlaudio.Synth) error {
 	if scale < 1 {
 		return fmt.Errorf("縮放倍率要 ≥ 1，收到 %d", scale)
 	}
 	ebiten.SetWindowSize(render.ScreenWidth*scale, render.ScreenHeight*scale)
 	ebiten.SetWindowTitle(title)
-	return ebiten.RunGame(New(scene))
+	g, err := NewWithAudio(scene, synth)
+	if err != nil {
+		return err
+	}
+	return ebiten.RunGame(g)
 }

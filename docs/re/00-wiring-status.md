@@ -47,7 +47,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 
 ## 統計
 
-筆記 **90** 份：已接 **87**、未接 **0**、不適用 **3**。
+筆記 **91** 份：已接 **88**、未接 **0**、不適用 **3**。
 
 | # | 筆記 | 狀態 | 接在哪／為什麼 |
 |---:|---|---|---|
@@ -73,7 +73,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 20 | [命中判定與武器傷害](20-combat-resolution.md) | 已接 | `internal/game/combat.go`、`internal/game/commands.go`（共 6 處） |
 | 21 | [七個屬性、修正值階梯與檢定骰](21-attributes.md) | 已接 | `internal/game/character.go`、`internal/game/combat.go`（共 6 處） |
 | 22 | [商店、價格公式與物品資料表](22-shop-and-items.md) | 已接 | `internal/game/facility.go`、`internal/game/facilityloop.go`（共 3 處） |
-| 23 | [圖片格式 —— packed 4bpp ＋ 列間 XOR delta](23-picture-format.md) | 已接 | `internal/assets/pic.go`、`internal/render/picanim.go`（共 6 處） |
+| 23 | [圖片格式 —— packed 4bpp ＋ 列間 XOR delta](23-picture-format.md) | 已接 | `internal/assets/pic.go`、`internal/render/picanim.go`（共 7 處） |
 | 24 | [地圖的三層結構與 `ALLHTDS` 圖磚](24-map-layers-and-tiles.md) | 已接 | `internal/assets/msq.go`、`internal/assets/pic.go`（共 7 處） |
 | 25 | [畫面版面 —— 座標系統與五個視窗](25-screen-layout.md) | 已接 | `cmd/wl-save/main.go`、`internal/game/world.go`（共 7 處） |
 | 26 | [移動、捲動與地圖事件觸發](26-movement-and-triggers.md) | 已接 | `internal/game/mapicons.go`、`internal/game/world.go`（共 6 處） |
@@ -81,7 +81,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 28 | [文字的變形機制 —— 單複數、性別、數量](28-text-variants.md) | 已接 | `internal/textlayout/textlayout.go`、`tools/build_lang.py`（共 6 處） |
 | 29 | [地圖事件處理函式 —— 八個 nibble 全解](29-map-event-handlers.md) | 已接 | `internal/game/facility.go`、`internal/game/world.go`（共 6 處） |
 | 30 | [存檔的內部結構](30-save-layout.md) | 已接 | `internal/assets/save.go`、`tools/dump_save.py`（共 4 處） |
-| 31 | [經驗值、升級與技能學習](31-experience-and-skills.md) | 已接 | `internal/game/levels.go`、`internal/audio/audio_test.go`（共 4 處） |
+| 31 | [經驗值、升級與技能學習](31-experience-and-skills.md) | 已接 | `internal/game/levels.go`、`internal/play/command.go`（共 5 處） |
 | 32 | [檢定、技能成長與經驗值來源](32-skill-checks-and-xp.md) | 已接 | `internal/assets/rom.go`、`internal/game/checks.go`（共 8 處） |
 | 33 | [段落編號在遊戲裡怎麼出現](33-paragraph-references.md) | 已接 | `internal/game/journal.go`、`tools/extract_paragraph_refs.py`（共 6 處） |
 | 34 | [地圖腳本的 44 個指令](34-map-script-opcodes.md) | 已接 | `internal/assets/msq.go`、`internal/game/script.go`（共 5 處） |
@@ -90,13 +90,13 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 37 | [敵方記錄、血量的來源，與距離表](37-enemy-records-and-hp.md) | 已接 | `internal/assets/msq.go`、`internal/game/combat.go`（共 6 處） |
 | 38 | [戰鬥的指令階段與逃跑](38-combat-commands-and-flee.md) | 已接 | `internal/game/commands.go`、`internal/play/combat.go`（共 3 處） |
 | 39 | [遭遇怎麼冒出來——視窗掃描與遭遇佇列](39-encounter-scan.md) | 已接 | `internal/game/encounterscan.go`、`internal/game/world.go` |
-| 40 | [戰鬥畫面——名單模式與訊息序列](40-combat-screen.md) | 已接 | `internal/play/combat.go`、`internal/play/play.go`（共 5 處） |
+| 40 | [戰鬥畫面——名單模式與訊息序列](40-combat-screen.md) | 已接 | `internal/play/combat.go`、`internal/play/command.go`（共 6 處） |
 | 41 | [四支指令處理程式（Hire／Weapon／Use／Load）](41-command-handlers.md) | 已接 | `internal/game/handlers.go` |
 | 42 | [設施的互動迴圈（商店與醫生）](42-facility-loops.md) | 已接 | `internal/game/facility.go`、`internal/game/facilityloop.go`（共 5 處） |
 | 43 | [按鍵從哪來——鍵盤、滑鼠熱區，與 `\x10` 的真正用途](43-input-and-hotkeys.md) | 已接 | `internal/assets/save.go`、`internal/input/mouse.go`（共 9 處） |
-| 44 | [音效——PC 喇叭、四個聲部與位元組碼直譯器](44-audio.md) | 已接 | `internal/assets/rom.go`、`internal/audio/audio.go`（共 8 處） |
+| 44 | [音效——PC 喇叭、四個聲部與位元組碼直譯器](44-audio.md) | 已接 | `cmd/wasteland/main.go`、`internal/assets/rom.go`（共 14 處） |
 | 45 | [物品資料表全解，與隊伍傷害的第一項](45-item-data-and-weapon-damage.md) | 已接 | `internal/assets/save.go`、`internal/game/combat.go`（共 10 處） |
-| 46 | [打字回答、文字輸入與字串比對](46-typed-answers-and-text-input.md) | 已接 | `internal/assets/msq.go`、`internal/game/answers.go`（共 10 處） |
+| 46 | [打字回答、文字輸入與字串比對](46-typed-answers-and-text-input.md) | 已接 | `internal/assets/msq.go`、`internal/game/answers.go`（共 11 處） |
 | 47 | [DOSBox 參考環境，與第一批實機對拍](47-dosbox-oracle.md) | 已接 | `internal/game/world.go`、`internal/play/play.go`（共 4 處） |
 | 48 | [`IC0_9.WLF` 十張疊圖各自是什麼](48-map-icons.md) | 已接 | `internal/assets/rom.go`、`internal/game/mapicons.go`（共 7 處） |
 | 49 | [存檔改寫的實機驗收](49-save-roundtrip-on-hardware.md) | 已接 | `internal/assets/assets_test.go` |
@@ -110,7 +110,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 57 | [`CURS` 是 8 個滑鼠游標（遮罩 ＋ 圖形並排）](57-curs.md) | 已接 | `tools/dump_curs.py` |
 | 58 | [控制碼 `0x08` ＝ 沖出一行不捲動；順帶解出 scrollback](58-line-flush-and-scrollback.md) | 已接 | `internal/game/world.go`、`internal/textlayout/textlayout.go`（共 3 處） |
 | 59 | [正常玩家路徑對原版驗收（第一輪）](59-playtest-against-original.md) | 不適用 | 實機對拍的驗收紀錄與方法，不產生程式碼 |
-| 60 | [傳送與換地圖（nibble 10）](60-teleport-and-map-change.md) | 已接 | `internal/assets/save.go`、`internal/game/teleport.go`（共 4 處） |
+| 60 | [傳送與換地圖（nibble 10）](60-teleport-and-map-change.md) | 已接 | `internal/assets/save.go`、`internal/game/teleport.go`（共 5 處） |
 | 61 | [地圖編號表 —— 建築內部怎麼進去](61-map-id-table.md) | 已接 | `internal/assets/mapid.go`、`internal/play/play.go`（共 3 處） |
 | 62 | [第四道閘 —— nibble 11 是山與牆](62-fourth-gate-terrain-blocking.md) | 已接 | `internal/game/world.go`、`internal/play/play.go`（共 5 處） |
 | 63 | [資源編號與切片索引是兩件事](63-resource-id-vs-index.md) | 已接 | `internal/play/play.go`、`internal/assets/assets_test.go` |
@@ -122,7 +122,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 69 | [條件閘的四個旗標（記錄 `+0x00` 的低位）](69-gate-flags.md) | 已接 | `internal/game/answers.go`、`internal/game/gates.go`（共 5 處） |
 | 70 | [nibble 1 的氛圍敘述，與商店入口的排除紀錄](70-nibble1-and-facility-entry.md) | 已接 | `internal/game/world.go`、`internal/play/nibble1_test.go` |
 | 71 | [nibble 12 是遠端批次改寫器](71-nibble12-batch-patch.md) | 已接 | `internal/game/world.go`、`internal/play/nibble12_test.go` |
-| 72 | [進地點的完整路徑，與地圖指令列](72-facility-entry-and-command-bar.md) | 已接 | `internal/play/rangerctr_test.go` |
+| 72 | [進地點的完整路徑，與地圖指令列](72-facility-entry-and-command-bar.md) | 已接 | `internal/play/command.go`、`internal/render/render.go`（共 3 處） |
 | 73 | [商店與醫生的入口 —— 傳送記錄的 `+0x04`／`+0x05`](73-shop-and-doctor-entry.md) | 已接 | `internal/game/world.go`、`internal/play/play.go`（共 4 處） |
 | 74 | [高溫記錄的入口（再排除三條）與 `sub_142ED` 的顯示層](74-heat-entry-and-gate-display.md) | 已接 | `internal/play/heat_test.go` |
 | 75 | [沙漠高溫的入口 —— 腳本 opcode 3 的晝夜分支](75-desert-heat-entry.md) | 已接 | `internal/game/script.go`、`internal/game/world.go`（共 3 處） |
@@ -139,5 +139,6 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 86 | [戰鬥訊息的主詞與受詞](86-combat-messages.md) | 已接 | `internal/play/combatloop_test.go` |
 | 87 | [`sub_15036` 是敵人在地圖上移動，不是目標選擇](87-enemy-map-movement.md) | 已接 | `internal/play/round.go` |
 | 88 | [命中累加值 `sub_1B108` 的四個項全部落地](88-hit-accumulator.md) | 已接 | `internal/game/combat.go`、`internal/play/round.go`（共 3 處） |
-| 89 | [敵人打誰是隨機重抽，以及「倒下」與「死亡」是兩個判準](89-enemy-target-and-down.md) | 已接 | `internal/game/party.go`、`internal/play/round.go`（共 3 處） |
+| 89 | [敵人打誰是隨機重抽，以及「倒下」與「死亡」是兩個判準](89-enemy-target-and-down.md) | 已接 | `internal/game/party.go`、`internal/play/command.go`（共 5 處） |
 | 90 | [隊伍的行動值，以及誰會被排進行動表](90-party-initiative.md) | 已接 | `internal/game/rounds.go`、`internal/play/round.go`（共 4 處） |
+| 91 | [地圖指令列的七個處理程式 —— 升級的入口是 RADIO](91-map-command-bar.md) | 已接 | `internal/play/command.go`、`internal/play/play.go`（共 4 處） |
