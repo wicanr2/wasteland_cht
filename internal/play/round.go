@@ -81,7 +81,7 @@ func (s *CombatScene) ResolveRound() RoundResult {
 func (s *CombatScene) partyActs(actor game.Combatant) []string {
 	b := s.Battle
 	m := b.Member(actor)
-	if m == nil || m.Dead() {
+	if m == nil || m.Down() {
 		return nil
 	}
 	i := actor.Slot - game.EnemySlots
@@ -128,14 +128,7 @@ func (s *CombatScene) enemyActs(actor game.Combatant) []string {
 	if e == nil || e.HP == 0 {
 		return nil
 	}
-	var target *game.Character
-	targetIdx := -1
-	for i, m := range b.Party.Members {
-		if m != nil && !m.Dead() {
-			target, targetIdx = m, i
-			break
-		}
-	}
+	target, targetIdx := s.pickEnemyTarget()
 	if target == nil {
 		return nil
 	}
@@ -152,10 +145,40 @@ func (s *CombatScene) enemyActs(actor game.Combatant) []string {
 	applied := target.TakeDamage(b.RNG, dmg)
 	out := []string{fmt.Sprintf("%s hits %s for %d",
 		s.enemyLabel(e), target.Name, applied)}
-	if target.Dead() {
+	if target.Down() {
+		// 原版這裡印的是傷勢等級（`sub_157D6`，docs/re/19 §4）；
+		// remake 目前只報一句，條件照原版用 CON ≤ 0。
 		out = append(out, target.Name+" died!")
 	}
 	return out
+}
+
+// pickEnemyTarget 挑敵人這一下打誰（`0x1B054`，docs/re/89）。
+//
+//	al ← 隊伍人數；sub_18E41 ＝ roll(1..人數)
+//	ds:CF84h ← al；sub_172BB → CF 設就 jb 回去**重抽**
+//
+// `sub_172BB` 是「CON 兩個 byte 不全為 0 且高位不為負」——**倒下的人打不到**。
+// 重抽沒有次數上限：原版靠進這條路之前的 `sub_19D0E`（還有沒有可打的目標）
+// 擋住死迴圈，這裡先數一次活人，數到 0 就直接回。
+func (s *CombatScene) pickEnemyTarget() (*game.Character, int) {
+	b := s.Battle
+	alive := 0
+	for _, m := range b.Party.Members {
+		if m != nil && !m.Down() {
+			alive++
+		}
+	}
+	if alive == 0 {
+		return nil, -1
+	}
+	for {
+		// roll(1..人數) 是 1-based（原版的成員編號從 1 數）。
+		i := b.RNG.Roll(len(b.Party.Members)) - 1
+		if m := b.Party.Members[i]; m != nil && !m.Down() {
+			return m, i
+		}
+	}
 }
 
 // enemyLabel 是敵人在訊息裡的稱呼（種類名稱，`docs/re/85`）。
