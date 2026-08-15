@@ -197,6 +197,27 @@ func (r *Rom) SkillTableRaw() ([]byte, error) {
 // dsOffset 把 ds: 位移換成分析映像裡的檔案位移。
 func (r *Rom) dsOffset(off int) (int, error) { return r.fileOffset(dsBase + off) }
 
+// 遭遇生成用的三張 13 項表（`ds:AA60h`／`AA6Dh`／`AA7Ah`，docs/re/78）。
+const (
+	tblSpawnNear = 0xAA60
+	tblSpawnFar  = 0xAA6D
+	tblSpawnDist = 0xAA7A
+	spawnTableN  = 13
+)
+
+// SpawnTablesRaw 回遭遇生成的三張表（各 13 bytes，順序：近、遠、距離）。
+func (r *Rom) SpawnTablesRaw() ([3][]byte, error) {
+	var out [3][]byte
+	for i, at := range []int{tblSpawnNear, tblSpawnFar, tblSpawnDist} {
+		b, err := r.DsBytes(at, spawnTableN)
+		if err != nil {
+			return out, err
+		}
+		out[i] = b
+	}
+	return out, nil
+}
+
 // DsBytes 取資料段某個位移起的 n 個 byte（給逆向驗證用，不是遊戲規則）。
 func (r *Rom) DsBytes(off, n int) ([]byte, error) {
 	at, err := r.dsOffset(off)

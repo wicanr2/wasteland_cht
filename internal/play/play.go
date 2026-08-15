@@ -52,6 +52,10 @@ type Scene struct {
 	animMask []byte
 	// back 是傳送的回程位置（隊伍槽表 +0x0B–+0x0D，docs/re/60 §3）。
 	back game.Return
+
+	// spawn 是遭遇生成的三張表（`docs/re/78`），第一次用到才從映像讀。
+	spawn   game.SpawnTables
+	spawnOK bool
 	// asking 非 DirNone 時畫面停在「Enter new location?」等 Y／N（docs/re/64）。
 	asking input.Direction
 	// items 是物品資料表（存檔區那一份，docs/re/45 §2）。
@@ -505,6 +509,15 @@ func (s *Scene) walk(dir game.Direction) (bool, error) {
 		s.EnterFacility(res.Event.Data)
 	}
 
+	// 走一步先跑**遭遇生成**（`sub_16890`，docs/re/78）：擲中就在附近的空地
+	// 放一格 nibble 15。沒有這一步，下面的掃描永遠掃不到東西——
+	// 出貨地圖上一格敵人都沒有。
+	if res.Moved && !s.InFacility() {
+		if tbl, ok := s.spawnTables(); ok {
+			s.world.SpawnEncounter(tbl)
+		}
+	}
+
 	// 走一步之後掃遭遇（docs/re/51 §2）。掃描說沒有可打的就什麼都不做——
 	// **擲骰說「觸發」不等於真的打得起來**，還要視窗裡有敵人格、
 	// 距離過得了記錄的兩道門檻（docs/spec/15）。
@@ -516,6 +529,22 @@ func (s *Scene) walk(dir game.Direction) (bool, error) {
 		}
 	}
 	return true, nil
+}
+
+// spawnTables 是遭遇生成的三張表，從執行檔映像讀一次就好。
+func (s *Scene) spawnTables() (game.SpawnTables, bool) {
+	if s.spawnOK {
+		return s.spawn, true
+	}
+	raw, err := s.rom.SpawnTablesRaw()
+	if err != nil {
+		return game.SpawnTables{}, false
+	}
+	copy(s.spawn.Near[:], raw[0])
+	copy(s.spawn.Far[:], raw[1])
+	copy(s.spawn.Dist[:], raw[2])
+	s.spawnOK = true
+	return s.spawn, true
 }
 
 // enterFacilityHere 在傳送收尾之後檢查腳下那一格，是設施就進去。

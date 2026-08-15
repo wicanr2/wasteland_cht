@@ -507,6 +507,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `0x141FA` | 2 | 對角色記錄的某個欄位加減（`bl` 有號負 ＝ 減）；欄位 `0x1D` 走傷害結算 | [`55`](55-radiation-and-armour-bypass.md) §3 |
 | `0x14410` | — | **輻射格結算**：逐一對隊員擲 `+0x01` 顆 d6 扣 CON ＋ 加 Radiation poisoning | [`55`](55-radiation-and-armour-bypass.md) §3 |
 | `0x13EC9` | 1 | **條件閘的主體**：逐個角色跑條件串列，收尾由記錄 `+0x00` 低位的四個旗標決定 | [`69`](69-gate-flags.md) §2 |
+| `0x16890` | — | **遭遇生成器**：擲 1／標頭 `+0x2F` → 找 section 15 空槽 → 擲種類 → 沿方向走 N 步找空地 → 放 nibble 15 | [`78`](78-encounter-spawn.md) |
 | `0x1A526` | — | **opcode 3**：`6 ≤ ds:465Ah < 18` → 用記錄 `+0x03`／`+0x04`，否則 `+0x05`／`+0x06`，搬進 `+0x01`／`+0x02` | [`75`](75-desert-heat-entry.md) §2 |
 | `0x12BD0` | 1 | **nibble 12**：印記錄 `+0x00`，跑 `+0x01` 起的批次改寫表，最後改寫腳下 | [`71`](71-nibble12-batch-patch.md) §1 |
 | `0x15160` | 1 | **nibble 8** 問答；答對的改寫位移 ＝ `3 + 答案數 + 2 × 序號`（`0x1522F`） | [`71`](71-nibble12-batch-patch.md) §5 |
@@ -724,6 +725,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | [`51`](51-encounter-driver.md) | 遭遇驅動器 `sub_11CD0`：地圖與戰鬥之間那一層、四組一起結算、經驗值前後相減 |
 | [`52`](52-trainer-facility.md) | 技能訓練師的流程：五個設施同一個模板、三條「走不通」都回選人 |
 | [`53`](53-list-framework.md) | 清單框架 `sub_16DB4`／`sub_16D34`：列與索引的對應表、三個回傳值、I／K 翻頁 |
+| [`78`](78-encounter-spawn.md) | 遭遇生成器全解：方向跳表 `ds:AAB1h` 九向、三張 13 項表、`+0x05 & 0x0F` 當索引 |
 | [`77`](77-encounter-spawn-gap.md) | 敵人格是 `sub_16890` 每步生成的（section 15 是槽）；remake 缺生成器 → 隨機遭遇 0 次 |
 | [`76`](76-script-opcode-coverage.md) | 腳本 opcode 覆蓋率盤點：37 格缺口 → **0 格**；`Handled ＝ false` 的統計與門檻測試 |
 | [`75`](75-desert-heat-entry.md) | 沙漠高溫 ＝ 腳本 opcode 3 的晝夜分支（白天記錄 7–9、夜間 10–12）；`CF ＝ 0` 表示同一步繼續跑 |

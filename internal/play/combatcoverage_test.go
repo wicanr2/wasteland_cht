@@ -71,12 +71,10 @@ func TestEncounterTableCoverage(t *testing.T) {
 	}
 }
 
-// TestNoEnemyCellsInShippedMaps 記錄一個**已知缺口**：
-// 出貨的 42 張地圖上一格 nibble 15（敵人）都沒有。
+// TestNoEnemyCellsInShippedMaps 驗出貨的 42 張地圖上一格 nibble 15（敵人）都沒有。
 //
-// 敵人格是 `sub_16890` 每走一步擲骰生出來的（docs/re/77），
-// remake 目前只有 `rollEncounter` 擲那一下，沒有生成器——
-// 所以隨機遭遇永遠打不起來。實作生成器之後這個測試要跟著改。
+// 敵人格是 `sub_16890` 每走一步擲骰生出來的（docs/re/78），
+// 不是躺在地圖資料裡的——這個測試守著那個前提。
 func TestNoEnemyCellsInShippedMaps(t *testing.T) {
 	rom := openRom(t)
 	resources, _ := rom.Resources()
