@@ -494,3 +494,43 @@ func TestSaveChecksumIsRecomputed(t *testing.T) {
 		t.Fatalf("寫回去的 checksum 不一致：%#04x／%#04x", sum, le16(after, 4))
 	}
 }
+
+// 驗收（docs/re/63）：資源目錄的 ID 與 Resources() 切片的索引**不是同一件事**。
+//
+// 遊戲裡的地圖編號（存檔 +0x0A、傳送記錄 +0x03）一律是 ID。
+// 拿索引去載入會**安靜地載到別張地圖**——沒有錯誤、只是走進錯的城鎮。
+func TestResourceIDIsNotSliceIndex(t *testing.T) {
+	rom := openWithImage(t)
+	res, err := rom.Resources()
+	if err != nil {
+		t.Fatal(err)
+	}
+	mismatch := 0
+	for i, r := range res {
+		if r.ID != i {
+			mismatch++
+		}
+	}
+	if mismatch == 0 {
+		t.Fatal("索引與 ID 全部相同——那 BlockByID 就沒有存在的理由，" +
+			"八成是 Resources() 不再跳過非 MSQ 的目錄項了")
+	}
+	t.Logf("%d 個區塊裡有 %d 個索引 ≠ ID", len(res), mismatch)
+
+	// BlockByID 要真的按 ID 找。
+	for _, r := range res {
+		if r.ID == r.ID && r.ID != 0 {
+			b, err := rom.BlockByID(r.ID)
+			if err != nil {
+				t.Fatalf("BlockByID(%d)：%v", r.ID, err)
+			}
+			if b.Resource.ID != r.ID {
+				t.Fatalf("BlockByID(%d) 拿到 ID %d", r.ID, b.Resource.ID)
+			}
+			break
+		}
+	}
+	if _, err := rom.BlockByID(255); err == nil {
+		t.Error("不存在的 ID 應該回錯誤")
+	}
+}

@@ -139,7 +139,7 @@ func New(rom *assets.Rom) (*Scene, error) {
 	}
 	clock := loadClock(save)
 
-	block, err := rom.Block(mapID)
+	block, err := rom.BlockByID(mapID)
 	if err != nil {
 		return nil, fmt.Errorf("載入地圖 %d：%w", mapID, err)
 	}
@@ -232,7 +232,8 @@ func loadParty(save *assets.Save) (*game.Party, int, error) {
 // 給驗證工具用（`cmd/wl-play` 的 `map=N`）：起始地圖沒有靜態遭遇格，
 // 要驗戰鬥流程得換到有的那幾張（`docs/re/51`）。
 func (s *Scene) LoadMap(id int, x, y uint8) error {
-	b, err := s.rom.Block(id)
+	// **用 ID 不是切片索引**：遊戲裡的地圖編號是資源目錄的 ID（docs/re/63）。
+	b, err := s.rom.BlockByID(id)
 	if err != nil {
 		return err
 	}
