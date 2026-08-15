@@ -561,27 +561,36 @@ func TestStartingKits(t *testing.T) {
 	t.Logf("起始清單：%v", kits)
 }
 
-// END.CPA 還解不出來——這一條記的是**已經確定的部分**，
-// 以及「解碼確實還沒通」這個事實（docs/re/23 §6）。
+// END.CPA 是 288 × 128 的 packed 4bpp，整份走 Huffman（docs/re/23 §6）。
 //
-// ⚠ 不要因為它是紅的就把 End() 拿掉：檔頭與 magic 都對得上，
-// 缺的只是解密參數，下一個入口在註解裡。
-func TestEndPictureNotDecodedYet(t *testing.T) {
+// ⚠ 門檻是**顏色分布**不是值域：解錯的時候值域一樣是 0–15，
+// 但最多的一種顏色只佔 6%（雜訊）。真正的圖會有大面積同色。
+func TestEndPicture(t *testing.T) {
 	r := openRom(t)
-	data, err := r.File("end.cpa")
+	im, err := r.End()
 	if err != nil {
-		t.Skipf("沒有 end.cpa：%v", err)
+		t.Fatal(err)
 	}
-	// 檔頭 4 bytes ＝ 0x4800 ＝ 288 × 128 的 packed 4bpp。
-	if n := int(le32(data, 0)); n != 288*128/2 {
-		t.Errorf("長度欄應該是 %d，得到 %d", 288*128/2, n)
+	if im.Width != 288 || im.Height != 128 {
+		t.Fatalf("尺寸應該是 288 × 128，得到 %d × %d", im.Width, im.Height)
 	}
-	if got := string(data[4:7]); got != "msq" {
-		t.Errorf("magic 應該是 msq，得到 %q", got)
+	hist := map[byte]int{}
+	for _, v := range im.Pix {
+		if v > 15 {
+			t.Fatalf("像素值 %d 超出 0–15", v)
+		}
+		hist[v]++
 	}
-	// 解碼還沒通——通了就把這一條換成真正的值域檢查。
-	if _, err := r.End(); err == nil {
-		t.Error("End() 不再回錯誤了——解碼通了？那要把這個測試換成值域檢查")
+	top := 0
+	for _, n := range hist {
+		if n > top {
+			top = n
+		}
+	}
+	share := 100 * float64(top) / float64(len(im.Pix))
+	t.Logf("用到 %d 種顏色，最多的一種佔 %.0f%%", len(hist), share)
+	// 解錯時分布很平（實測 6%）；真正的圖有大片背景。
+	if share < 20 {
+		t.Errorf("最多的顏色只佔 %.0f%%——解出來像雜訊不像圖", share)
 	}
 }
-

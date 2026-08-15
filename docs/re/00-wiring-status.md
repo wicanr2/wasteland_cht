@@ -47,7 +47,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 
 ## 統計
 
-筆記 **93** 份：已接 **91**、未接 **0**、不適用 **2**。
+筆記 **93** 份：已接 **90**、未接 **0**、不適用 **3**。
 
 | # | 筆記 | 狀態 | 接在哪／為什麼 |
 |---:|---|---|---|
@@ -55,7 +55,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 02 | [`wl.exe` 是 EXEPACK 打包的，解包後才是真正的分析對象](02-exepack-unpack.md) | 已接 | `internal/assets/rom.go` |
 | 03 | [開機序列、檔名表與資產載入](03-boot-and-asset-loading.md) | 已接 | `tools/apply_overlay.py`、`tools/decode_pic.py`（共 3 處） |
 | 04 | [`wla.bin` overlay 與它提供的繪圖層](04-overlay-wla-bin.md) | 已接 | `internal/assets/pic.go` |
-| 05 | [雙模式儲存層 —— 磁片絕對磁區 vs 硬碟 DOS 檔案](05-storage-layer.md) | 已接 | `internal/assets/pic.go`（§7.1 的 8 bytes 段標頭——`END.CPA` 的解碼方向靠它）|
+| 05 | [雙模式儲存層 —— 磁片絕對磁區 vs 硬碟 DOS 檔案](05-storage-layer.md) | 不適用 | 讀檔層的考證。`sub_11AE8`／`sub_11B83`（8 bytes 段標頭 ＋ Huffman 解壓）已解，但 remake 用自己的 `Decompress`，不重現原版的緩衝管理與磁區讀取 |
 | 06 | [`GAME1`／`GAME2` 的資源目錄，與文字輸出層](06-resource-directory.md) | 已接 | `internal/assets/msq.go`、`tools/split_resources.py` |
 | 07 | [`GAME1`／`GAME2` 切開了 —— 42 個 MSQ 區塊](07-msq-blocks.md) | 已接 | `internal/assets/msq.go` |
 | 08 | [MSQ 區塊的加密解開了 —— 42/42 通過原版自己的驗證](08-msq-encryption.md) | 已接 | `internal/assets/msq.go`、`tools/decrypt_msq.py`（共 3 處） |
