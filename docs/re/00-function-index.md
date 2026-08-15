@@ -6,8 +6,8 @@
 輸入：`wl.merged.exe（解包映像＋wla.bin overlay，本專案合成）`，SHA-256 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`
 
 - 自動辨識函式：**641**
-- 已在筆記中出現：**389**
-- 尚未碰過：**252**
+- 已在筆記中出現：**391**
+- 尚未碰過：**250**
 
 ## 已分析（依呼叫端數量排序）
 
@@ -42,7 +42,7 @@
 | `0x16D34` | seg000+0x6D34 | 128 | 13 | re/22-shop-and-items.md、re/41-command-handlers.md、re/42-facility-loops.md |
 | `0x176A2` | seg000+0x76A2 | 6 | 13 | re/28-text-variants.md |
 | `0x17AE0` | seg000+0x7AE0 | 16 | 13 | re/00-master-index.md、re/21-attributes.md、re/22-shop-and-items.md、re/29-map-event-handlers.md、re/32-skill-checks-and-xp.md、re/37-enemy-records-and-hp.md、re/41-command-handlers.md、re/42-facility-loops.md、re/45-item-data-and-weapon-damage.md |
-| `0x17C20` | seg000+0x7C20 | 73 | 13 | re/00-master-index.md、re/24-map-layers-and-tiles.md、re/26-movement-and-triggers.md、re/39-encounter-scan.md |
+| `0x17C20` | seg000+0x7C20 | 73 | 13 | re/00-master-index.md、re/24-map-layers-and-tiles.md、re/26-movement-and-triggers.md、re/39-encounter-scan.md、re/48-map-icons.md |
 | `0x19D2F` | seg000+0x9D2F | 30 | 13 | re/00-master-index.md、re/37-enemy-records-and-hp.md、re/39-encounter-scan.md、re/45-item-data-and-weapon-damage.md |
 | `0x1789C` | seg000+0x789C | 4 | 12 | re/06-resource-directory.md、re/14-fonts-and-text-encoding.md、re/40-combat-screen.md、re/41-command-handlers.md |
 | `0x178A3` | seg000+0x78A3 | 22 | 12 | re/00-master-index.md、re/17-packed-text.md |
@@ -138,7 +138,7 @@
 | `0x17D50` | seg000+0x7D50 | 42 | 5 | re/46-typed-answers-and-text-input.md |
 | `0x17FC8` | seg000+0x7FC8 | 38 | 5 | re/00-master-index.md、re/12-msq-tail-and-text-model.md、re/24-map-layers-and-tiles.md |
 | `0x17FEE` | seg000+0x7FEE | 40 | 5 | re/00-master-index.md、re/24-map-layers-and-tiles.md、re/25-screen-layout.md |
-| `0x18024` | seg000+0x8024 | 171 | 5 | re/00-master-index.md、re/16-msq-block-layout.md、re/25-screen-layout.md、re/27-game-clock.md |
+| `0x18024` | seg000+0x8024 | 171 | 5 | re/00-master-index.md、re/16-msq-block-layout.md、re/25-screen-layout.md、re/27-game-clock.md、re/48-map-icons.md |
 | `0x183B1` | seg000+0x83B1 | 110 | 5 | re/05-storage-layer.md、re/06-resource-directory.md、re/07-msq-blocks.md、re/10-huffman-compression.md、re/27-game-clock.md |
 | `0x18860` | seg000+0x8860 | 200 | 5 | re/43-input-and-hotkeys.md |
 | `0x189B1` | seg000+0x89B1 | 158 | 5 | re/04-overlay-wla-bin.md |
@@ -148,9 +148,9 @@
 | `0x1B7B7` | seg000+0xB7B7 | 3 | 5 | re/29-map-event-handlers.md |
 | `0x1BE31` | seg000+0xBE31 | 15 | 5 | re/17-packed-text.md、re/29-map-event-handlers.md、re/35-status-and-healing.md |
 | `0x1CBD3` | seg001+0x6C | 86 | 5 | re/00-master-index.md、re/26-movement-and-triggers.md、re/44-audio.md |
-| `0x1000C` | seg000+0xC | 3 | 4 | re/04-overlay-wla-bin.md |
+| `0x1000C` | seg000+0xC | 3 | 4 | re/04-overlay-wla-bin.md、re/48-map-icons.md |
 | `0x116AC` | seg000+0x16AC | 132 | 4 | re/03-boot-and-asset-loading.md、re/05-storage-layer.md |
-| `0x12A4C` | seg000+0x2A4C | 42 | 4 | re/16-msq-block-layout.md、re/28-text-variants.md、re/32-skill-checks-and-xp.md、re/37-enemy-records-and-hp.md |
+| `0x12A4C` | seg000+0x2A4C | 42 | 4 | re/16-msq-block-layout.md、re/28-text-variants.md、re/32-skill-checks-and-xp.md、re/37-enemy-records-and-hp.md、re/48-map-icons.md |
 | `0x14085` | seg000+0x4085 | 11 | 4 | re/26-movement-and-triggers.md |
 | `0x1417F` | seg000+0x417F | 11 | 4 | re/26-movement-and-triggers.md、re/32-skill-checks-and-xp.md |
 | `0x1418A` | seg000+0x418A | 9 | 4 | re/32-skill-checks-and-xp.md |
@@ -200,7 +200,7 @@
 | `0x163C1` | seg000+0x63C1 | 3 | 3 | re/26-movement-and-triggers.md |
 | `0x1649E` | seg000+0x649E | 57 | 3 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/26-movement-and-triggers.md |
 | `0x166D3` | seg000+0x66D3 | 67 | 3 | re/06-resource-directory.md |
-| `0x16716` | seg000+0x6716 | 70 | 3 | re/24-map-layers-and-tiles.md、re/47-dosbox-oracle.md |
+| `0x16716` | seg000+0x6716 | 70 | 3 | re/00-master-index.md、re/47-dosbox-oracle.md、re/48-map-icons.md |
 | `0x1676A` | seg000+0x676A | 99 | 3 | re/00-master-index.md、re/26-movement-and-triggers.md、re/27-game-clock.md |
 | `0x16F35` | seg000+0x6F35 | 23 | 3 | re/41-command-handlers.md |
 | `0x17533` | seg000+0x7533 | 49 | 3 | re/14-fonts-and-text-encoding.md |
@@ -240,7 +240,7 @@
 | `0x138B0` | seg000+0x38B0 | 17 | 2 | re/37-enemy-records-and-hp.md、re/39-encounter-scan.md |
 | `0x13AE4` | seg000+0x3AE4 | 366 | 2 | re/21-attributes.md、re/41-command-handlers.md |
 | `0x141FA` | seg000+0x41FA | 156 | 2 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/19-effects-and-damage.md、re/35-status-and-healing.md |
-| `0x14664` | seg000+0x4664 | 915 | 2 | re/00-master-index.md、re/24-map-layers-and-tiles.md、re/37-enemy-records-and-hp.md、re/38-combat-commands-and-flee.md、re/39-encounter-scan.md |
+| `0x14664` | seg000+0x4664 | 915 | 2 | re/00-master-index.md、re/24-map-layers-and-tiles.md、re/37-enemy-records-and-hp.md、re/38-combat-commands-and-flee.md、re/39-encounter-scan.md、re/48-map-icons.md |
 | `0x149F7` | seg000+0x49F7 | 110 | 2 | re/00-master-index.md、re/39-encounter-scan.md |
 | `0x14A65` | seg000+0x4A65 | 35 | 2 | re/00-master-index.md、re/39-encounter-scan.md |
 | `0x14AAA` | seg000+0x4AAA | 29 | 2 | re/39-encounter-scan.md |
@@ -258,9 +258,10 @@
 | `0x15CC0` | seg000+0x5CC0 | 17 | 2 | re/20-combat-resolution.md |
 | `0x15CD1` | seg000+0x5CD1 | 14 | 2 | re/20-combat-resolution.md |
 | `0x162E1` | seg000+0x62E1 | 43 | 2 | re/00-master-index.md、re/44-audio.md |
+| `0x16428` | seg000+0x6428 | 118 | 2 | re/00-master-index.md、re/48-map-icons.md |
 | `0x164E8` | seg000+0x64E8 | 5 | 2 | re/26-movement-and-triggers.md |
 | `0x1652D` | seg000+0x652D | 56 | 2 | re/26-movement-and-triggers.md |
-| `0x167CE` | seg000+0x67CE | 105 | 2 | re/00-master-index.md、re/26-movement-and-triggers.md |
+| `0x167CE` | seg000+0x67CE | 105 | 2 | re/00-master-index.md、re/26-movement-and-triggers.md、re/48-map-icons.md |
 | `0x16890` | seg000+0x6890 | 280 | 2 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/26-movement-and-triggers.md |
 | `0x16B17` | seg000+0x6B17 | 13 | 2 | re/43-input-and-hotkeys.md |
 | `0x16CBD` | seg000+0x6CBD | 10 | 2 | re/17-packed-text.md、re/40-combat-screen.md |
@@ -270,6 +271,7 @@
 | `0x17BC7` | seg000+0x7BC7 | 64 | 2 | re/00-master-index.md、re/17-packed-text.md |
 | `0x17D34` | seg000+0x7D34 | 14 | 2 | re/46-typed-answers-and-text-input.md |
 | `0x17D47` | seg000+0x7D47 | 9 | 2 | re/46-typed-answers-and-text-input.md |
+| `0x180CF` | seg000+0x80CF | 15 | 2 | re/48-map-icons.md |
 | `0x180F0` | seg000+0x80F0 | 68 | 2 | re/00-master-index.md、re/32-skill-checks-and-xp.md |
 | `0x18146` | seg000+0x8146 | 72 | 2 | re/00-master-index.md、re/32-skill-checks-and-xp.md |
 | `0x1820C` | seg000+0x820C | 124 | 2 | re/00-master-index.md、re/32-skill-checks-and-xp.md |
@@ -324,7 +326,7 @@
 | `0x10088` | seg000+0x88 | 188 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/04-overlay-wla-bin.md、re/24-map-layers-and-tiles.md |
 | `0x10144` | seg000+0x144 | 18 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/04-overlay-wla-bin.md、re/23-picture-format.md |
 | `0x10156` | seg000+0x156 | 325 | 1 | re/00-master-index.md、re/04-overlay-wla-bin.md |
-| `0x1029B` | seg000+0x29B | 881 | 1 | re/00-master-index.md、re/04-overlay-wla-bin.md、re/24-map-layers-and-tiles.md |
+| `0x1029B` | seg000+0x29B | 881 | 1 | re/00-master-index.md、re/04-overlay-wla-bin.md、re/24-map-layers-and-tiles.md、re/48-map-icons.md |
 | `0x1060C` | seg000+0x60C | 189 | 1 | re/00-master-index.md、re/04-overlay-wla-bin.md、re/14-fonts-and-text-encoding.md |
 | `0x10762` | seg000+0x762 | 118 | 1 | re/00-master-index.md、re/04-overlay-wla-bin.md、re/25-screen-layout.md |
 | `0x107D8` | seg000+0x7D8 | 161 | 1 | re/04-overlay-wla-bin.md |
@@ -430,7 +432,6 @@
 | `0x173D2` | seg000+0x73D2 | 122 | 9 |
 | `0x1B43C` | seg000+0xB43C | 120 | 4 |
 | `0x114BE` | seg000+0x14BE | 118 | 2 |
-| `0x16428` | seg000+0x6428 | 118 | 2 |
 | `0x18A4F` | seg000+0x8A4F | 117 | 2 |
 | `0x19506` | seg000+0x9506 | 115 | 2 |
 | `0x19814` | seg000+0x9814 | 114 | 2 |
@@ -469,3 +470,4 @@
 | `0x1718B` | seg000+0x718B | 46 | 1 |
 | `0x13086` | seg000+0x3086 | 43 | 2 |
 | `0x10879` | seg000+0x879 | 42 | 1 |
+| `0x157AD` | seg000+0x57AD | 41 | 4 |

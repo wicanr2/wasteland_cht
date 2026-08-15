@@ -196,3 +196,26 @@ func le16(b []byte, at int) uint16 { return uint16(b[at]) | uint16(b[at+1])<<8 }
 func le32(b []byte, at int) uint32 {
 	return uint32(b[at]) | uint32(b[at+1])<<8 | uint32(b[at+2])<<16 | uint32(b[at+3])<<24
 }
+
+// kindIconTable 是 ds:AA17h：敵人種類 → 疊圖編號（docs/re/48 §3）。
+const (
+	kindIconTable = 0xAA17
+	kindIconLen   = 6 // 種類 0–5；資料裡實際用到的是 1–5
+)
+
+// KindIconTable 取出敵人種類 → 疊圖編號的對照表。
+//
+// 讓規則層拿它與自己寫死的常數對過，**寫死的值才有人守著**——
+// 抄一份數字進 Go 而沒有東西比對它，改壞了不會有人知道。
+func (r *Rom) KindIconTable() ([]byte, error) {
+	off, err := r.dsOffset(kindIconTable)
+	if err != nil {
+		return nil, fmt.Errorf("種類→疊圖表：%w", err)
+	}
+	if off+kindIconLen > len(r.image) {
+		return nil, fmt.Errorf("種類→疊圖表超出映像（%#x）", off)
+	}
+	out := make([]byte, kindIconLen)
+	copy(out, r.image[off:off+kindIconLen])
+	return out, nil
+}

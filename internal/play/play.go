@@ -191,6 +191,9 @@ func loadParty(save *assets.Save) (*game.Party, int, error) {
 // World 讓測試與 cmd/wl-shot 拿得到規則層的狀態。
 func (s *Scene) World() *game.World { return s.world }
 
+// Invalidate 讓下一次 Frame 重畫。外部直接改了世界狀態時要叫它。
+func (s *Scene) Invalidate() { s.dirty = true }
+
 // Update 走一步。ESC 取消、F10 離開（docs/spec/03 的按鍵模型）。
 func (s *Scene) Update(in input.Input) (bool, error) {
 	if in.Action == input.ActionQuit {
@@ -319,6 +322,12 @@ func (s *Scene) Frame() *render.Frame {
 	f := render.NewFrame()
 	if err := f.DrawMap(s.world.Block, s.gfx, s.world.ViewX, s.world.ViewY); err != nil {
 		s.message = "ERROR: " + err.Error()
+	}
+	// 地形畫完之後才疊圖：寶箱、輻射區、nibble 4 的格（docs/spec/03 §2.9）。
+	for _, ic := range s.world.ViewIcons() {
+		if err := f.DrawIcon(s.gfx, ic.Icon, ic.Col, ic.Row); err != nil {
+			s.message = "ERROR: " + err.Error()
+		}
 	}
 	// 隊伍圖示疊在地圖上（docs/re/47 §5 對拍抓出來的缺口）。
 	if err := f.DrawParty(s.gfx); err != nil {

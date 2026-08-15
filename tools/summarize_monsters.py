@@ -40,6 +40,18 @@ def decrypt(data: bytes, key: int) -> bytearray:
 
 
 def blocks(exe: bytes, g1: bytes, g2: bytes):
+    """區塊解析（只到解密後的 body）。多份工具共用這一支，不要各寫一份。"""
+    for res_id, label, body, map_size, _tail in blocks_with_tail(exe, g1, g2):
+        yield res_id, label, body, map_size
+
+
+def blocks_with_tail(exe: bytes, g1: bytes, g2: bytes):
+    """同上，但多回一個**還沒解壓的 Huffman 尾段**（地圖第 3 層在裡面）。
+
+    尾段是 `span[read:]`——載入器讀進來解密的只到 `read`，剩下的是壓縮資料。
+    ⚠ 第 3 層**不在 body 裡**。拿 `body[-D*D:]` 當第 3 層會得到一組看起來
+    像樣、實際上是別的東西的數字（`docs/re/48` §3 記過這個坑）。
+    """
     header_bytes = struct.unpack_from("<H", exe, 8)[0] * 16
 
     def at(off: int) -> int:
@@ -66,7 +78,7 @@ def blocks(exe: bytes, g1: bytes, g2: bytes):
         checksum = struct.unpack_from("<H", span, 4)[0]
         body = decrypt(span[6 : read[res_id]], (checksum & 0xFF) ^ (checksum >> 8))
         map_size = 0x1800 if selector[res_id] == 0x40 else 0x600
-        yield res_id, label, body, map_size
+        yield res_id, label, body, map_size, span[read[res_id] :]
 
 
 def main() -> None:
