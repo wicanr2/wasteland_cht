@@ -15,7 +15,7 @@
 |---|---|---:|---:|---|
 | `0x16CB2` | seg000+0x6CB2 | 11 | 88 | re/19-effects-and-damage.md、re/21-attributes.md、re/38-combat-commands-and-flee.md、re/40-combat-screen.md、re/43-input-and-hotkeys.md、re/64-enter-location-prompt.md、re/87-enemy-map-movement.md |
 | `0x10039` | seg000+0x39 | 3 | 71 | re/04-overlay-wla-bin.md、re/06-resource-directory.md |
-| `0x19614` | seg000+0x9614 | 38 | 43 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/15-character-record.md、re/19-effects-and-damage.md、re/28-text-variants.md、re/38-combat-commands-and-flee.md、re/55-radiation-and-armour-bypass.md、re/67-gate-penalty-and-canteen.md |
+| `0x19614` | seg000+0x9614 | 38 | 43 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/15-character-record.md、re/19-effects-and-damage.md、re/28-text-variants.md、re/38-combat-commands-and-flee.md、re/55-radiation-and-armour-bypass.md、re/67-gate-penalty-and-canteen.md、re/89-enemy-target-and-down.md |
 | `0x17208` | seg000+0x7208 | 19 | 29 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/15-character-record.md |
 | `0x1786E` | seg000+0x786E | 46 | 28 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/03-boot-and-asset-loading.md、re/06-resource-directory.md、re/14-fonts-and-text-encoding.md、re/46-typed-answers-and-text-input.md |
 | `0x18E90` | seg000+0x8E90 | 29 | 28 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/13-rng.md、re/21-attributes.md、re/26-movement-and-triggers.md、re/46-typed-answers-and-text-input.md、re/72-facility-entry-and-command-bar.md |
@@ -25,12 +25,12 @@
 | `0x19EFC` | seg000+0x9EFC | 22 | 26 | re/00-master-index.md、re/14-fonts-and-text-encoding.md、re/28-text-variants.md、re/51-encounter-driver.md、re/55-radiation-and-armour-bypass.md、re/58-line-flush-and-scrollback.md、re/87-enemy-map-movement.md |
 | `0x13A56` | seg000+0x3A56 | 28 | 25 | re/20-combat-resolution.md、re/32-skill-checks-and-xp.md、re/37-enemy-records-and-hp.md、re/88-hit-accumulator.md |
 | `0x1728C` | seg000+0x728C | 34 | 25 | re/25-screen-layout.md、re/29-map-event-handlers.md、re/38-combat-commands-and-flee.md、re/40-combat-screen.md、re/41-command-handlers.md、re/42-facility-loops.md、re/51-encounter-driver.md、re/52-trainer-facility.md、re/72-facility-entry-and-command-bar.md |
-| `0x18E41` | seg000+0x8E41 | 30 | 24 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/13-rng.md、re/20-combat-resolution.md、re/29-map-event-handlers.md、re/37-enemy-records-and-hp.md、re/77-encounter-spawn-gap.md、re/78-encounter-spawn.md |
+| `0x18E41` | seg000+0x8E41 | 30 | 24 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/13-rng.md、re/20-combat-resolution.md、re/29-map-event-handlers.md、re/37-enemy-records-and-hp.md、re/77-encounter-spawn-gap.md、re/78-encounter-spawn.md、re/89-enemy-target-and-down.md |
 | `0x163C4` | seg000+0x63C4 | 50 | 22 | re/25-screen-layout.md、re/29-map-event-handlers.md、re/38-combat-commands-and-flee.md、re/40-combat-screen.md、re/51-encounter-driver.md、re/64-enter-location-prompt.md |
 | `0x1785E` | seg000+0x785E | 7 | 20 | re/14-fonts-and-text-encoding.md、re/40-combat-screen.md |
 | `0x17ACE` | seg000+0x7ACE | 17 | 20 | re/17-packed-text.md |
 | `0x17CB1` | seg000+0x7CB1 | 33 | 19 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/16-msq-block-layout.md、re/24-map-layers-and-tiles.md、re/71-nibble12-batch-patch.md、re/74-heat-entry-and-gate-display.md、re/77-encounter-spawn-gap.md |
-| `0x172BB` | seg000+0x72BB | 25 | 18 | re/00-master-index.md、re/20-combat-resolution.md、re/26-movement-and-triggers.md、re/34-map-script-opcodes.md、re/38-combat-commands-and-flee.md、re/39-encounter-scan.md、re/42-facility-loops.md、re/45-item-data-and-weapon-damage.md、re/51-encounter-driver.md、re/52-trainer-facility.md、re/69-gate-flags.md |
+| `0x172BB` | seg000+0x72BB | 25 | 18 | re/00-master-index.md、re/20-combat-resolution.md、re/26-movement-and-triggers.md、re/34-map-script-opcodes.md、re/38-combat-commands-and-flee.md、re/39-encounter-scan.md、re/42-facility-loops.md、re/45-item-data-and-weapon-damage.md、re/51-encounter-driver.md、re/52-trainer-facility.md、re/69-gate-flags.md、re/89-enemy-target-and-down.md |
 | `0x19BF8` | seg000+0x9BF8 | 4 | 17 | re/00-master-index.md、re/20-combat-resolution.md、re/21-attributes.md、re/32-skill-checks-and-xp.md、re/36-combat-rounds.md、re/45-item-data-and-weapon-damage.md、re/88-hit-accumulator.md |
 | `0x1C561` | seg000+0xC561 | 15 | 16 | re/17-packed-text.md、re/29-map-event-handlers.md、re/35-status-and-healing.md、re/42-facility-loops.md |
 | `0x13787` | seg000+0x3787 | 16 | 15 | re/20-combat-resolution.md、re/37-enemy-records-and-hp.md、re/87-enemy-map-movement.md、re/88-hit-accumulator.md |
@@ -62,12 +62,12 @@
 | `0x1001B` | seg000+0x1B | 3 | 10 | re/04-overlay-wla-bin.md、re/14-fonts-and-text-encoding.md |
 | `0x118C3` | seg000+0x18C3 | 15 | 10 | re/05-storage-layer.md、re/06-resource-directory.md |
 | `0x12A8D` | seg000+0x2A8D | 16 | 10 | re/20-combat-resolution.md、re/32-skill-checks-and-xp.md、re/37-enemy-records-and-hp.md、re/77-encounter-spawn-gap.md、re/78-encounter-spawn.md、re/88-hit-accumulator.md |
-| `0x172AE` | seg000+0x72AE | 13 | 10 | re/15-character-record.md、re/42-facility-loops.md |
+| `0x172AE` | seg000+0x72AE | 13 | 10 | re/00-master-index.md、re/15-character-record.md、re/42-facility-loops.md、re/89-enemy-target-and-down.md |
 | `0x17857` | seg000+0x7857 | 7 | 10 | re/14-fonts-and-text-encoding.md |
 | `0x17C69` | seg000+0x7C69 | 9 | 10 | re/20-combat-resolution.md、re/45-item-data-and-weapon-damage.md |
 | `0x19720` | seg000+0x9720 | 7 | 10 | re/64-enter-location-prompt.md、re/67-gate-penalty-and-canteen.md、re/69-gate-flags.md、re/74-heat-entry-and-gate-display.md |
 | `0x198CD` | seg000+0x98CD | 35 | 10 | re/00-master-index.md、re/15-character-record.md、re/20-combat-resolution.md、re/32-skill-checks-and-xp.md、re/65-third-gate-conditions.md、re/88-hit-accumulator.md |
-| `0x19D0E` | seg000+0x9D0E | 33 | 10 | re/20-combat-resolution.md、re/38-combat-commands-and-flee.md、re/39-encounter-scan.md、re/51-encounter-driver.md |
+| `0x19D0E` | seg000+0x9D0E | 33 | 10 | re/00-master-index.md、re/20-combat-resolution.md、re/38-combat-commands-and-flee.md、re/39-encounter-scan.md、re/51-encounter-driver.md、re/89-enemy-target-and-down.md |
 | `0x19D4D` | seg000+0x9D4D | 57 | 10 | re/00-master-index.md、re/37-enemy-records-and-hp.md、re/39-encounter-scan.md |
 | `0x11384` | seg000+0x1384 | 37 | 9 | re/03-boot-and-asset-loading.md、re/05-storage-layer.md、re/56-transtbl.md |
 | `0x113A9` | seg000+0x13A9 | 9 | 9 | re/03-boot-and-asset-loading.md |

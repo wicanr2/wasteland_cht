@@ -82,7 +82,7 @@ func (b *Battle) BeginRound(speedOf func(c Combatant) int) []Combatant {
 		add(Combatant{Slot: slot})
 	}
 	for i, m := range b.Party.Members {
-		if m == nil || m.Dead() {
+		if m == nil || m.Down() {
 			continue
 		}
 		add(Combatant{Slot: EnemySlots + i, IsParty: true})
@@ -135,7 +135,7 @@ func (b *Battle) EnemiesLeft() int {
 func (b *Battle) PartyLeft() int {
 	n := 0
 	for _, m := range b.Party.Members {
-		if m != nil && !m.Dead() {
+		if m != nil && !m.Down() {
 			n++
 		}
 	}

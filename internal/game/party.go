@@ -49,8 +49,18 @@ type Character struct {
 	Items      []Slot          // +0xBD，30 格
 }
 
-// Dead 照原版的判定：CON 兩個 byte 都是 0（sub_172AE）。
+// Dead 照原版的判定：CON 兩個 byte 都是 0（`sub_172AE`）。**不看正負**。
+// 它的 10 個呼叫端都在體力處理與角色管理那條路上（`docs/re/35` §2）。
 func (c *Character) Dead() bool { return c.CON == 0 }
+
+// Down 是「倒下」：CON ≤ 0（`sub_172BB` ＝ 高位為負 → CF；兩 byte 為 0 → CF）。
+//
+// ⚠ **戰鬥的每一個判斷都用這個，不是 `Dead`**：CON 可以是負的
+// （負到 −40 以下有五級傷勢，`docs/re/19`），而重傷倒下的人不能行動、
+// 不會被敵人挑中，也不算在「還有沒有人能打」裡（`sub_19D0E`）。
+// 用 `Dead` 會讓 CON 負值的人被當成好手好腳——症狀是**戰鬥永遠打不完**：
+// 全隊倒下但誰都下不了令，指令階段空轉（`docs/re/89` §3）。
+func (c *Character) Down() bool { return c.CON <= 0 }
 
 // Party 是目前這一組隊伍。
 type Party struct {

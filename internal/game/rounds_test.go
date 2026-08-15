@@ -232,3 +232,38 @@ func TestFullBattlesAreStable(t *testing.T) {
 		}
 	}
 }
+
+// CON 負值的人是**倒下**：不能行動、不被敵人挑中、不算在「還有誰能打」裡。
+//
+// `Dead()`（CON ＝ 0，`sub_172AE`）與 `Down()`（CON ≤ 0，`sub_172BB`）
+// 是兩個不同的判準，戰鬥全部走後者（`docs/re/89` §2）。
+// 混用的症狀是**戰鬥永遠打不完**：全隊倒下卻誰都下不了令，
+// 而 `Over()` 認為隊伍還有人——沒有任何斷言會紅，只有回合數會爆掉。
+func TestNegativeConIsDownNotDead(t *testing.T) {
+	hurt := &Character{Name: "Hurt", CON: -5}
+	if hurt.Dead() {
+		t.Error("CON −5 不是死（sub_172AE 比的是兩個 byte 都 0）")
+	}
+	if !hurt.Down() {
+		t.Fatal("CON −5 應該算倒下（sub_172BB 的 js 分支）")
+	}
+
+	b := &Battle{RNG: rng.New(), Party: &Party{Members: []*Character{
+		hurt,
+		{Name: "Fine", CON: 20},
+		{Name: "Zero", CON: 0},
+	}}}
+	if n := b.PartyLeft(); n != 1 {
+		t.Errorf("三個人裡只有一個能打，PartyLeft 得到 %d", n)
+	}
+	b.BeginRound(func(Combatant) int { return 0 })
+	for {
+		a, ok := b.NextActor()
+		if !ok {
+			break
+		}
+		if a.IsParty && b.Party.Members[a.Slot-EnemySlots].Down() {
+			t.Errorf("倒下的人被排進行動順序：槽 %d", a.Slot)
+		}
+	}
+}
