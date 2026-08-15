@@ -50,7 +50,8 @@ SHA-256 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`。
 | `allpics1/2` | 82 張 96 × 84 packed 4bpp 圖，與參數區交錯 | 圖已解，參數區未解 | [`23`](23-picture-format.md) |
 | `allhtds1/2` | 9 組圖磚，每組 66–163 張 16 × 16 packed 4bpp | 已解 | [`24`](24-map-layers-and-tiles.md) §3 |
 | `end.cpa` | Huffman 容器 | 容器已解 | [`11`](11-huffman-decoder.md) |
-| `curs`／`masks.wlf`／`ic0_9.wlf`／`transtbl` | 未加密，載入位址已知 | 內容未解 | [`03`](03-boot-and-asset-loading.md) §5 |
+| `masks.wlf` | 10 張 16 × 16 **1-bit 遮罩**（32 bytes 一張），與 `ic0_9.wlf` 一一對應 | 已解 | [`47`](47-dosbox-oracle.md) §6.4 |
+| `curs`／`ic0_9.wlf`／`transtbl` | 未加密，載入位址已知；`ic0_9` 的第 7 張 ＝ 隊伍圖示 | 部分已解 | [`03`](03-boot-and-asset-loading.md) §5、[`47`](47-dosbox-oracle.md) |
 | `info` | 2 bytes 安裝資訊 | 已解 | [`03`](03-boot-and-asset-loading.md) §3 |
 | `paragraphs.txt`／`manual.txt` | 明文 | 已轉錄 | `docs/paragraphs/`、`docs/manual/` |
 
@@ -550,6 +551,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `0x16619`／`0x16646` | 各 1 | 畫一欄（9 格）／畫一列（19 格） | [`25`](25-screen-layout.md) §2.1 |
 | `0x169CF` | 1 | 座標在不在地圖視窗內（19 × 9） | [`25`](25-screen-layout.md) §2.1 |
 | `0x16149` | 1 | 算視窗原點 ＝ 隊伍座標 − (9, 4) | [`25`](25-screen-layout.md) §2.1 |
+| `0x16716` | — | **畫隊伍圖示**：疊圖編號 7 ＋ overlay slot 4 | [`47`](47-dosbox-oracle.md) §6.4 |
 | `0x197BB` | 2 | 畫外框（欄 0–37、字元列 0–17） | [`25`](25-screen-layout.md) §2.3 |
 | `0x10762` | 10 | 清除矩形（同時定義了兩套座標單位） | [`25`](25-screen-layout.md) §1 |
 | `0x1651A` | 4 | **走一步**（方向 0 上／1 下／2 左／3 右） | [`26`](26-movement-and-triggers.md) §1 |

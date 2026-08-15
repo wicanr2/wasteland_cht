@@ -80,9 +80,14 @@ func TestMapViewportGeometry(t *testing.T) {
 			}
 		}
 	}
-	if minX != ViewX || minY != ViewY || maxX != ViewX+ViewWidth-1 || maxY != ViewY+ViewHeight-1 {
+	// ⚠ 上緣是 ViewY+1 不是 ViewY：**原版地圖視窗最上面那一列留黑**，
+	// 內容從 y = 9 開始。這是實機逐像素對拍抓出來的（docs/re/47 §5），
+	// 不是我們的裁切寫錯——把它改回 ViewY，對拍會多出 288 個不同的像素。
+	// 圖片視窗沒有這一列（TITLE.PIC 在 (8, 8) 滿 128 列 100% 吻合）。
+	c := MapClip()
+	if minX != c.X || minY != c.Y || maxX != c.X+c.W-1 || maxY != c.Y+c.H-1 {
 		t.Fatalf("畫到的範圍是 x %d–%d、y %d–%d，應該是 x %d–%d、y %d–%d",
-			minX, maxX, minY, maxY, ViewX, ViewX+ViewWidth-1, ViewY, ViewY+ViewHeight-1)
+			minX, maxX, minY, maxY, c.X, c.X+c.W-1, c.Y, c.Y+c.H-1)
 	}
 }
 

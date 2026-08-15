@@ -207,3 +207,30 @@ func planarToIndexed(raw []byte, width, height int) *Indexed {
 	}
 	return &Indexed{Width: width, Height: height, Pix: pix}
 }
+
+// Masks 解 MASKS.WLF 的十個 16 × 16 遮罩。
+//
+// 一張 32 bytes ＝ 16 列 × 2 bytes，**一個位元一個像素**（不是 4 平面）。
+// 320 ÷ 32 ＝ 10，與 IC0_9.WLF 的十張疊圖一一對應（docs/re/24 §2.3）。
+//
+// 合成規則是 `螢幕 ← (背景 AND 遮罩) OR 疊圖`：位元 1 ＝ 保留背景、
+// 0 ＝ 清掉再讓疊圖蓋上去。
+func (r *Rom) Masks() ([][]bool, error) {
+	data, err := r.File("masks.wlf")
+	if err != nil {
+		return nil, err
+	}
+	const maskBytes = tileHeight * (tileWidth / 8) // 16 × 2
+	out := make([][]bool, 0, len(data)/maskBytes)
+	for i := 0; i+maskBytes <= len(data); i += maskBytes {
+		m := make([]bool, tileWidth*tileHeight)
+		for y := 0; y < tileHeight; y++ {
+			for x := 0; x < tileWidth; x++ {
+				b := data[i+y*(tileWidth/8)+x/8]
+				m[y*tileWidth+x] = (b>>(7-uint(x%8)))&1 == 1
+			}
+		}
+		out = append(out, m)
+	}
+	return out, nil
+}
