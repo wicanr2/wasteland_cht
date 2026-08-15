@@ -230,6 +230,10 @@ func (w *World) Step(dir Direction) (StepResult, error) {
 		res.Gate = w.Party.EvalGate(w.RNG, res.Event.Data, w.Skills)
 		w.applyCellPatch(nx, ny, res.Event.Data, res.Gate.PatchAt)
 	} else if res.Event.PatchAt > 0 {
+		// nibble 12 會先改寫**別的格子**，再改寫自己這一格。
+		if res.Event.Nibble == 12 {
+			w.applyBatchPatch(nx, ny, res.Event.Data)
+		}
 		// nibble 1（位移 ＝ 訊息條數）與 nibble 6（位移 1）跑完都會改寫這一格。
 		w.applyCellPatch(nx, ny, res.Event.Data, res.Event.PatchAt)
 	}
@@ -271,6 +275,52 @@ func (w *World) applyCellPatch(x, y int, record []byte, at int) {
 		w.carryTerrain, w.carryRecord = now, rec
 	}
 	_ = w.Block.SetCell(x, y, p.Terrain, p.Record)
+}
+
+// batchPatchStride 是 nibble 12 批次改寫表的一筆長度（旗標、x、y、第 1 層、第 2 層）。
+const batchPatchStride = 5
+
+// batchPatchEnd 回報 nibble 12 的批次表結束在哪個位移。
+//
+// 表從 +0x01 起，每筆 5 bytes，**旗標的 bit7 設起來的那一筆是最後一筆**；
+// 結束位移同時就是「改寫自己這一格」要用的位移（`0x12C48` 的 `al ← bl + 5`）。
+func batchPatchEnd(record []byte) int {
+	at := 1
+	for at+batchPatchStride-1 < len(record) {
+		flags := record[at]
+		at += batchPatchStride
+		if flags&0x80 != 0 {
+			break
+		}
+	}
+	return at
+}
+
+// applyBatchPatch 跑 nibble 12 的批次改寫（`0x12BE5`–`0x12C46`，docs/re/71）。
+//
+// 每筆 5 bytes：
+//
+//	+0 旗標：bit0 ＝ 座標相對**隊伍**（否則相對地圖原點）、bit7 ＝ 最後一筆
+//	+1／+2 目標座標（要加上基準）
+//	+3／+4 新的第 1 層與第 2 層（走 sub_17CFF，所以 0xFE／0xFD 一樣適用）
+//
+// 踩一格可以改寫地圖上任意多格——**遠端改寫**是這個遊戲少數不作用在腳下的機制。
+func (w *World) applyBatchPatch(px, py int, record []byte) {
+	for at := 1; at+batchPatchStride-1 < len(record); at += batchPatchStride {
+		flags := record[at]
+		baseX, baseY := 0, 0
+		if flags&1 != 0 {
+			baseX, baseY = px, py
+		}
+		x := baseX + int(record[at+1])
+		y := baseY + int(record[at+2])
+		if x >= 0 && y >= 0 && x < w.Block.Dim && y < w.Block.Dim {
+			w.applyCellPatch(x, y, record, at+3)
+		}
+		if flags&0x80 != 0 {
+			return
+		}
+	}
 }
 
 // blockedMessage 回報擋住這一步的那一格要印的字串編號（0 ＝ 不印）。
@@ -433,6 +483,8 @@ func (w *World) trigger(x, y int) Event {
 		if len(ev.Data) > 0 && ev.Data[0] != 0 {
 			ev.Strings = []int{int(ev.Data[0])}
 		}
+		// +0x01 起是**批次改寫表**，跑完之後再改寫自己這一格（docs/re/71）。
+		ev.PatchAt = batchPatchEnd(ev.Data)
 	case 5:
 		ev.Kind = EventChest
 	case 6:
