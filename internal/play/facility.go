@@ -24,6 +24,11 @@ type FacilityScene struct {
 	Facility game.Facility
 	Picture  int // ALLPICS 的圖片編號；-1 ＝ 這種設施沒有圖
 	Lines    []string
+
+	// state 是選單的狀態（docs/spec/25）。離開設施就整個丟掉——
+	// 原版也沒有跨場次保留的東西。
+	state *shopState
+	note  string // 這一步要多印的一行（「背包滿了」那類）
 }
 
 // EnterFacility 從地圖進設施。

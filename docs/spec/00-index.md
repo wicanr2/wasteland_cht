@@ -35,9 +35,10 @@
 | [`21-encounter-loop.md`](21-encounter-loop.md) | **READY**（已實作） | `internal/play` ✅ | 只做第 0 組；多組的兩個 Yes／No 提示不實作 |
 | [`22-round-resolution.md`](22-round-resolution.md) | **READY**（已實作） | `internal/play` ✅ | 命中基礎值的選擇欄位、敵方目標選擇、隊伍行動值欄位都是暫代 |
 | [`23-facility-scene.md`](23-facility-scene.md) | **READY**（已實作） | `internal/play` ✅ | 訓練師選單、`0x1A2C0`／`0x1B4F0` 兩支的身分未定 |
-| [`24-scene-modes.md`](24-scene-modes.md) | **READY**（已實作） | `internal/play` ✅ | 設施圖片在視窗裡的位置還沒對拍；設施選單不接 |
+| [`24-scene-modes.md`](24-scene-modes.md) | **READY**（已實作） | `internal/play` ✅ | 設施圖片在視窗裡的位置還沒對拍 |
+| [`25-facility-menus.md`](25-facility-menus.md) | **READY**（已實作） | `internal/play` ✅ | 賣價公式（`sub_1C1C2`）未解，用基礎價當佔位；買的清單與訓練師下一輪 |
 
-**二十五份 READY 規格涵蓋資產層、呈現層、亂數、規則層十一塊、戰鬥畫面、段落手札、中文排版與翻譯管線**——
+**二十六份 READY 規格涵蓋資產層、呈現層、亂數、規則層十一塊、戰鬥畫面、段落手札、中文排版與翻譯管線**——
 走一步、遊戲時鐘、體力隨時間恢復、事件分派，以及**從視野掃出遭遇、生怪、下指令、
 排行動順序到打完一場戰鬥或逃走**的整條路。
 **規格全部 READY，沒有未寫的了。**
