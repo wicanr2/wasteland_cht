@@ -57,27 +57,49 @@ stc retn
 出貨資料沒踩到，`ParseCellPatch` 也因此**只去掉 bit7、不遮成 4 bits**，
 讓 `SetCell` 有機會出聲而不是靜靜吃掉。
 
-## 3. 實跑：沙漠格踩壞會變成傳送格
+## 3. 實跑：游不過河會被沖到下游
 
-資源 0 的 section 2 記錄 2（64 格指到）：
-
-```
-+0x04／+0x05 ＝ ff ff   ; 全部人都過 → bit7 設 → 不改
-+0x06／+0x07 ＝ 0a 22   ; 有人沒過 → 改成 **nibble 10（傳送）、記錄 0x22**
-```
+資源 0 的 section 2 記錄 **2**（河流，64 格；`+0x03` ＝
+`You are caught by the river's current.`，條件是技能 7 難度 6）：
 
 ```
-tools/go.sh run ./cmd/wl-play -script "@58:1,right,right,left,right" -trace
-   2 right  (59, 1)  The party gets hurt for 4 point of damage.
-   3 right  (60, 1)  The party gets hurt for 4 point of damage.
-   4 left   (59, 2)  TELEPORT.        ← 剛剛走過的那一格已經變成傳送格
++0x04／+0x05 ＝ ff ff   ; 游過去了 → bit7 設 → 不改
++0x06／+0x07 ＝ 0a 22   ; 沒游過 → 改成 **nibble 10（傳送）記錄 0x22**
 ```
 
-資料、程式碼與實跑三邊一致。
+傳送記錄 `0x22`：
 
-⚠ **還沒與原版對拍。** 這一格的改寫是條件失敗才觸發，而失敗需要隊伍缺那個
-技能——實機要重現得先走到同一格並確認隊伍狀態相同。
-機制本身是直讀的，但「沙漠走壞會被傳送」這個**遊戲性結果**值得實機確認一次。
+```
+80 00 01 00 …
++0x00 ＝ 0x80  bit7 設 → +0x01／+0x02 是**相對目前座標**的位移
++0x01／+0x02 ＝ (0, +1)   ; 往下游沖一格
++0x03 ＝ 0                ; 同一張地圖
+```
+
+**所以「被水流帶走」就是往下沖一格**，而下游那一格（(31,60)）是記錄 6
+＝ `As calm as the water is here…`——平靜的水。
+
+```
+tools/go.sh run ./cmd/wl-play -script "path=31:59,down,up,down,up" -trace
+  27 path  (31,59)  The party gets hurt for 4 point of damage.   ← 條件失敗，全隊各 −1
+  29 up    (31,60)  TELEPORT.                                     ← 那一格已經變成傳送格
+```
+
+### 3.1 實機對拍
+
+同一串鍵送進 DOSBox（`-emit-keys` 的 timeline，每個按鍵後補一次 `Return`
+清訊息視窗）：
+
+| | 原版 | remake |
+|---|---|---|
+| 踩上 (31,59) | `You are caught by the river's current.` ＋ 四人各 `gets hurt for 1` | 同一組判定（訊息合成一行：`The party gets hurt for 4`） |
+| 之後 | `As calm as the water is here…`（下游那一格） | 走到 (31,60) 的記錄 6，同一句 |
+
+資料、程式碼、remake 實跑與實機四邊一致。
+
+⚠ **工具限制**：訊息視窗填滿時 DOSBox 停在 `ENTER`，後續按鍵全部失效。
+長路徑的 timeline 要在**每個**按鍵後補 `key:Return`——每 4 個補一次不夠。
+補 `Return` 會順帶叫出訊息速度滑桿（`SLOW ─── FAST`），但不影響移動。
 
 ## 4. remake 的取捨
 
