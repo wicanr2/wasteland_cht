@@ -506,6 +506,8 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `0x157D6` | 3 | **傷害結算**：CON −= (傷害 − 吸收)；`ds:46EFh` 非 0 就跳過護甲那 N 顆 d6 | [`55`](55-radiation-and-armour-bypass.md) §1 |
 | `0x141FA` | 2 | 對角色記錄的某個欄位加減（`bl` 有號負 ＝ 減）；欄位 `0x1D` 走傷害結算 | [`55`](55-radiation-and-armour-bypass.md) §3 |
 | `0x14410` | — | **輻射格結算**：逐一對隊員擲 `+0x01` 顆 d6 扣 CON ＋ 加 Radiation poisoning | [`55`](55-radiation-and-armour-bypass.md) §3 |
+| `0x19F12` | 1 | **沖出目前這一行**：斷字 → 寫 scrollback（`seg003:0x8CE0`，40 × 256 環形）→ 送畫面 → 續行 | [`58`](58-line-flush-and-scrollback.md) |
+| `0x19EFC` | 多 | 換行（`0x0D`）：`ds:46F0h` 非 0 就整支跳過，否則 `sub_19F12` ＋ `sub_1A0C5`（捲動與延遲） | [`58`](58-line-flush-and-scrollback.md) §3 |
 | `0x19D86` | 3 | `base + Nd6` | [`13`](13-rng.md) §3.3 |
 | `0x19C84` | 11 | 2d6 逢同點續擲（通用**檢定骰**） | [`13`](13-rng.md) §3.4、[`21`](21-attributes.md) §3 |
 | `0x14193` | 3 | **讀效果記錄**（`+0x08`／`+0x09`）並算出值 | [`19`](19-effects-and-damage.md) §2 |
@@ -707,6 +709,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | [`51`](51-encounter-driver.md) | 遭遇驅動器 `sub_11CD0`：地圖與戰鬥之間那一層、四組一起結算、經驗值前後相減 |
 | [`52`](52-trainer-facility.md) | 技能訓練師的流程：五個設施同一個模板、三條「走不通」都回選人 |
 | [`53`](53-list-framework.md) | 清單框架 `sub_16DB4`／`sub_16D34`：列與索引的對應表、三個回傳值、I／K 翻頁 |
+| [`58`](58-line-flush-and-scrollback.md) | 控制碼 `0x08` ＝ 沖出一行不捲動（`0x0D` 多包一層 `sub_19EFC`）；scrollback 40 × 256 環形 |
 | [`57`](57-curs.md) | `CURS` ＝ 8 個 32 × 16 的滑鼠游標（左半遮罩、右半 2 色圖形）；平面連續不是逐列交錯 |
 | [`56`](56-transtbl.md) | `TRANSTBL` ＝ 50 組 × 16 對照表；三層掃描都找不到消費端；順帶接上滑鼠初始化 |
 | [`55`](55-radiation-and-armour-bypass.md) | 輻射結算迴圈（`0x14410`）、`ds:46EFh` ＝ 跳過護甲吸收、`sub_141FA` 的加減欄位分派 |

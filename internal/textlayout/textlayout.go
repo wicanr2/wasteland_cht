@@ -3,7 +3,7 @@
 // 這一層**不認識畫面**（docs/spec/03 §2.0）：輸入是 assets 解出來的字串，
 // 輸出是格子與事件，所以控制碼的處理可以在無頭環境完整測試。
 //
-// 控制碼共 18 個（`0x00`–`0x11`，docs/re/14 §4.1），其中 14 個已對上語意。
+// 控制碼共 18 個（`0x00`–`0x11`，docs/re/14 §4.1），**全部已對上語意**。
 // **沒對上的碼一律回報成事件，絕不當文字印出去**——那會讓整行位移全錯，
 // 而且症狀是「畫面上多了奇怪的字」，很難回推是哪個碼。
 package textlayout
@@ -20,7 +20,7 @@ const (
 	CodeWaitKey    = 0x05
 	CodeWaitKey2   = 0x06
 	CodeNewFrame   = 0x07 // 開一個新的文字框（強證據）
-	CodeUnknown08  = 0x08 // 唯一還沒解的碼（語料裡 7 次）
+	CodeFlushLine  = 0x08 // 結束這一行但**不捲動**（docs/re/58）
 	CodeMoveTo     = 0x09 // ⚠ 帶一個 byte 參數
 	CodePlural     = 0x0A // 單複數二選一
 	CodeInsertName = 0x0B
@@ -65,6 +65,7 @@ const (
 	EventCapture                      // 0x10
 	EventNewFrame                     // 0x07
 	EventEnd                          // 0x00
+	EventFlushLine                    // 0x08，結束這一行但不捲動
 	EventUnknownCode                  // 還沒解出語意的控制碼
 )
 
@@ -220,6 +221,12 @@ func Layout(text []byte, opt Options) (Result, error) {
 			inverse = false
 		case CodeNewline:
 			flush()
+		case CodeFlushLine:
+			// 0x08 與 0x0D 都結束這一行，差別是**不捲動也不延遲**
+			// （0x0D 走 sub_19EFC，0x08 直接進 sub_19F12，docs/re/58 §3）。
+			// 三條用例都在字串結尾——用 0x0D 收尾畫面會多捲一行。
+			emit(EventFlushLine, c, 0)
+			flush()
 		case CodeInsertName:
 			if opt.Name != nil {
 				putString(opt.Name())
@@ -251,7 +258,7 @@ func Layout(text []byte, opt Options) (Result, error) {
 		case CodeEnd:
 			emit(EventEnd, c, 0)
 		default:
-			// 只剩 0x08 未解（語料裡 7 次）。**回報，不印**——
+			// 18 個碼都有語意了；真的遇到別的碼要**回報，不印**——
 			// 印出來就會變成畫面上的怪字。
 			emit(EventUnknownCode, c, 0)
 		}

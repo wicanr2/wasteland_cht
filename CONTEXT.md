@@ -202,6 +202,7 @@
 | [`docs/re/55-radiation-and-armour-bypass.md`](docs/re/55-radiation-and-armour-bypass.md) | 輻射結算：每人 `+0x01` 顆 d6 扣 CON ＋ 中毒；`ds:46EFh` ＝ 這次跳過護甲吸收 |
 | [`docs/re/56-transtbl.md`](docs/re/56-transtbl.md) | `TRANSTBL` ＝ 50 組 × 16 對照表，載入之後沒有人讀；滑鼠初始化 |
 | [`docs/re/57-curs.md`](docs/re/57-curs.md) | `CURS` ＝ 8 個 32 × 16 的滑鼠游標，左半遮罩右半圖形；EGA 平面連續 |
+| [`docs/re/58-line-flush-and-scrollback.md`](docs/re/58-line-flush-and-scrollback.md) | 控制碼 `0x08` ＝ 沖出這一行不捲動；scrollback ＝ `seg003:0x8CE0` 的 40 × 256 環形 |
 | [`docs/spec/00-index.md`](docs/spec/00-index.md) | **規格索引與閘門狀態**：哪些可以動工、其餘擋在什麼上 |
 | [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
 | [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |
@@ -308,6 +309,5 @@
 |---|---|---|
 | A12b | `CURS` 的**消費端**：哪個圖形對應哪個狀態，以及資料的 16 寬為何與 slot 21 的 24 寬對不上 | 版面已解（8 個 32 × 16，遮罩 ＋ 圖形並排，`docs/re/57`）；遊戲主線不用滑鼠 |
 | A13 | `TRANSTBL` 的**用途**（形狀已解：50 組 × 16 的索引對照表） | 三層掃描都找不到消費端，與資源 idx 7 同一種遺留（`docs/re/56`） |
-| B7 | 文字控制碼 `0x08`（語料裡 7 次） | 其餘 17 個都已對上，排版器照做 |
 | — | 物品 `+0x03` 低 3 位、敵人 `+0x04` 高 4 位**都沒有讀取端** | 資料裡有值但程式沒讀；原樣 round-trip，不給語意 |
 | — | 物品 70／71／72 原本是什麼（`docs/re/50`） | 名字是被清空的、資料完整、字母序把開頭夾在 H–M。**這份 DOS 版問不出更多**；要答案得看別的平台版本 |
