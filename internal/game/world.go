@@ -273,7 +273,7 @@ func (w *World) Confirm() { w.confirmed = true }
 // 而這台直譯器的程式計數器就是地圖格本身（docs/re/71 §5.1）。
 func (w *World) runScript(record []byte) ScriptResult {
 	if len(record) == 0 || record[0]&0x80 != 0 {
-		return ScriptResult{Op: -1, Message: -1} // bit7 設的是設施
+		return ScriptResult{Op: -1, Message: -1, Sound: -1} // bit7 設的是設施
 	}
 	return NewScript(w, record).Step()
 }

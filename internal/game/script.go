@@ -36,7 +36,7 @@ const (
 	OpKindsInc11   = 23
 	OpKindsInc12   = 24
 	OpKindsInc17   = 25
-	OpWait         = 26 // jmp sub_1142B，語意未解
+	OpBeep         = 26 // jmp sub_1142B ＝ 播音效 7（docs/re/44 §6）
 	OpDenomSet20   = 27
 	OpDenomAdd10   = 28
 	OpFillRange    = 29
@@ -69,6 +69,9 @@ type ScriptResult struct {
 	Continue bool // 對應原版的 CF ＝ 0
 	Handled  bool // false 表示這個指令還沒實作
 	Message  int  // 要顯示的字串編號，−1 表示沒有
+	// Sound 是要播的音效編號（0–8，`docs/re/44` §6），−1 表示沒有。
+	// 規則層只回報編號，**要不要播由呈現層決定**。
+	Sound int
 }
 
 // Script 是一次腳本執行的上下文。規則層不碰畫面，
@@ -103,10 +106,10 @@ func NewScript(w *World, record []byte) *Script {
 // 不要當成 nop——那會讓遊戲安靜地跑錯。
 func (s *Script) Step() ScriptResult {
 	if len(s.Record) < 3 {
-		return ScriptResult{Op: -1, Message: -1}
+		return ScriptResult{Op: -1, Message: -1, Sound: -1}
 	}
 	op := s.Op
-	res := ScriptResult{Op: op, Continue: true, Handled: true, Message: -1}
+	res := ScriptResult{Op: op, Continue: true, Handled: true, Message: -1, Sound: -1}
 	if op < 0 || op >= OpCount {
 		res.Handled = false
 		res.Continue = false
@@ -137,6 +140,55 @@ func (s *Script) Step() ScriptResult {
 	switch op {
 	case OpNop:
 		// 什麼都不做。
+
+	case OpFillRange, OpFillOne, OpFillOnes, OpFillFirst10:
+		// section 3 的一段記錄，每筆 `+0x09` 換成一個值（docs/re/34 §2）：
+		//
+		//	op 29 → 第 0x10–0x21 筆 ← 記錄 +0x03
+		//	op 30 → 第 0x22 筆      ← 記錄 +0x03
+		//	op 33 → 第 0x21–0x28 筆 ← **常數 1**
+		//	op 38 → 第 0–9 筆       ← 記錄 +0x03
+		lo, hi, val := 0, 0, arg(0)
+		switch op {
+		case OpFillRange:
+			lo, hi = 0x10, 0x21
+		case OpFillOne:
+			lo, hi = 0x22, 0x22
+		case OpFillOnes:
+			lo, hi, val = 0x21, 0x28, 1
+		case OpFillFirst10:
+			lo, hi = 0, 9
+		}
+		for i := lo; i <= hi; i++ {
+			r, err := s.World.Block.SectionRecord(3, i)
+			if err != nil || len(r) < 10 {
+				continue
+			}
+			r[9] = val
+		}
+
+	case OpCopyRecord:
+		// 把 section 5 的第 `+0x03` 筆整筆複製到第 `+0x04` 筆
+		//（逐 byte，遇 `0x5E`／`0xDE`／`0xFF` 收尾，docs/re/34 §2）。
+		src, err1 := s.World.Block.SectionRecord(5, int(arg(0)))
+		dst, err2 := s.World.Block.SectionRecord(5, int(arg(1)))
+		if err1 != nil || err2 != nil {
+			res.Handled = false
+			break
+		}
+		for i := 0; i < len(src) && i < len(dst); i++ {
+			b := src[i]
+			dst[i] = b
+			if b == 0x5E || b == 0xDE || b == 0xFF {
+				break
+			}
+		}
+
+	case OpBeep:
+		// `jmp sub_1142B` ＝ `sub_1CBD3(al ＝ 7)`：高低雙音 ×6
+		// （`docs/re/44` §6 的音效 7）。出貨資料裡 30 格指到它，
+		// 是**有格子指到的未實作 opcode 裡最多的一個**。
+		res.Sound = 7
 
 	case OpAbort:
 		res.Continue = false
