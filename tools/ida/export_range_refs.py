@@ -9,6 +9,10 @@ xref 圖只涵蓋 IDA 認得出來的參考，把位址當純數字算的程式�
 
 用法（由 tools/ida.sh 呼叫）：
     tools/ida.sh run tools/ida/export_range_refs.py <輸出.json> 0x800 0x900
+
+⚠ 範圍是**半開區間** [lo, hi)。要查單一位址得寫 `0xA5C5 0xA5C6`——
+寫成 `0xA5C5 0xA5C5` 會回零命中，而那和「真的沒人碰」長得一模一樣。
+下界 ≥ 上界時本腳本直接拒絕產出，不讓它變成安靜的假零。
 """
 
 from __future__ import annotations
@@ -43,6 +47,11 @@ def main() -> None:
     out_path = Path(sys.argv[1])
     lo = int(sys.argv[2], 0)
     hi = int(sys.argv[3], 0)
+    if hi <= lo:
+        raise SystemExit(
+            f"範圍 [{lo:#x}, {hi:#x}) 是空的——半開區間，"
+            f"查單一位址要寫 {lo:#x} {lo + 1:#x}"
+        )
 
     ida_auto.auto_wait()
     sha = ida_nalt.retrieve_input_file_sha256()
