@@ -912,10 +912,13 @@ func (s *Scene) Frame() *render.Frame {
 	}
 	}
 	// 時鐘在外框上緣，不屬於地圖視窗——切模式不影響它（docs/re/27 §4）。
-	_ = f.DrawClock(s.font, int(s.world.Clock.Hour), int(s.world.Clock.Minute))
+	// **結局沒有時鐘也沒有指令列**：那時候已經不在遊戲裡了。
+	if !s.ending.active {
+		_ = f.DrawClock(s.font, int(s.world.Clock.Hour), int(s.world.Clock.Minute))
+	}
 
 	// 地圖模式才有指令列（`docs/re/91`）——戰鬥與設施有自己的選單。
-	if s.facility == nil && s.combat == nil {
+	if s.facility == nil && s.combat == nil && !s.ending.active {
 		_ = f.DrawLineAt(s.font, commandBar(), 0, render.CmdRow)
 	}
 

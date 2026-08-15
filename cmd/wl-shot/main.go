@@ -39,11 +39,15 @@ func main() {
 	// keys 是要送進去的按鍵（每個字元一次 Update），用來截到選單／戰鬥／手札。
 	keys := flag.String("keys", "", "play 模式：依序送這些按鍵")
 	mapID := flag.Int("map", -1, "play 模式：先切到這張地圖（資源編號）")
+	journal := flag.Int("journal", 0, "play 模式：打開手札停在這一頁（1 起算，0 ＝ 不開）")
+	ending := flag.Bool("ending", false, "play 模式：直接進結局")
+	endingTicks := flag.Int("ending-ticks", 130, "結局播到第幾個 tick 再截圖")
 	flag.Parse()
 
 	opt := shotOptions{
 		lang: *langFile, font: *fontDir, refs: *refsFile,
 		paragraphs: *paraFile, keys: *keys, mapID: *mapID,
+		journal: *journal, ending: *ending, endingTicks: *endingTicks,
 	}
 	if err := run(*romDir, *imagePath, *mode, *block, *pic, *out, *at, *hour, opt); err != nil {
 		fmt.Fprintln(os.Stderr, "錯誤：", err)
@@ -81,6 +85,9 @@ type shotOptions struct {
 	lang, font, refs, paragraphs string
 	keys                         string
 	mapID                        int
+	journal                      int
+	ending                       bool
+	endingTicks                  int
 }
 
 func run(romDir, imagePath, mode string, blockID, picID int,
@@ -118,6 +125,15 @@ func run(romDir, imagePath, mode string, blockID, picID int,
 			}
 		} else if err := place(scene, at, hour); err != nil {
 			return err
+		}
+		if opt.ending {
+			scene.BeginEnding()
+			for i := 0; i < opt.endingTicks; i++ {
+				scene.TickEnding()
+			}
+		}
+		if opt.journal > 0 {
+			scene.OpenJournal(opt.journal)
 		}
 		for i := 0; i < len(opt.keys); i++ {
 			// `IKJL` 是原版的方向鍵（`docs/re/72` §4），其餘當字元送。

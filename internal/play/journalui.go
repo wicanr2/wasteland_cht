@@ -71,6 +71,9 @@ func (s *Scene) maybeParagraph(key string) bool {
 	return true
 }
 
+// OpenJournal 讓外部（截圖工具、測試）直接翻到某一頁。
+func (s *Scene) OpenJournal(n int) { s.openJournal(n) }
+
 // openJournal 打開手札，停在指定段落（超出範圍就夾回來）。
 func (s *Scene) openJournal(n int) {
 	if n < 1 {
