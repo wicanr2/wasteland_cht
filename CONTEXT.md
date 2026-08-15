@@ -45,6 +45,7 @@
 | 項目 | 狀態 |
 |---|---|
 | 專案規範 | `CLAUDE.md`（四道閘門、IDA 工具鏈、文件政策） |
+| remake 工項 | [`WORKLIST.md`](WORKLIST.md)（含已完成的） |
 | IDA 工具鏈 | `tools/ida.sh`（build／run／raw），image `ida-pro-9.4-idapython:py312-v1`，IDAPython 實測可用 |
 | 原版身分 | 20 個檔案的 SHA-256 全部記錄（`docs/re/01`） |
 | 打包器識別 | `wl.exe` 是 Microsoft EXEPACK（`docs/re/02`） |
@@ -329,6 +330,9 @@
 | MSQ 資源的前 2 bytes 是長度 | 把 `mov cx, [bx]` 當成「取剛讀進來的 header」，其實 `ds:46B0h` 是別處設好的緩衝區位址 | 那 4 bytes 是 magic `msq0`／`msq1`；長度來源仍未解（`docs/re/07` §7） |
 
 ## 7. Worklist
+
+> **remake 的工項清單搬到 [`WORKLIST.md`](WORKLIST.md)**（含已完成的，逐項標狀態與證據）。
+> 這一節只留 RE 側的完成度與還沒解的逆向。
 
 **RE 完成度**：資料格式、文字與資產層打通；規則層（戰鬥判定、回合結構、指令與逃跑、
 遭遇生成與敵人血量、屬性、效果、商店、升級、檢定與技能成長）與世界互動層
