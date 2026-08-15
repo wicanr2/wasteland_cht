@@ -9,10 +9,11 @@ import "github.com/wicanr2/wasteland_cht/internal/game/rng"
 
 // RadiationHit 是一個隊員這一次受到的輻射傷害。
 type RadiationHit struct {
-	Member  int // 隊伍裡的序號
-	Rolled  int // 擲出來的傷害
-	Absorb  int // 護甲吸收（無視護甲時是 0）
-	Applied int // 實際扣掉的 CON
+	Member  int  // 隊伍裡的序號
+	Rolled  int  // 擲出來的傷害
+	Absorb  int  // 護甲吸收（無視護甲時是 0）
+	Applied int  // 實際扣掉的 CON
+	Immune  bool // 穿著 Rad suit，整個跳過
 }
 
 // RadiationBypassesArmour 回報這一格的傷害無不無視護甲。
@@ -22,6 +23,25 @@ type RadiationHit struct {
 // 為什麼是訊息編號的奇偶，原版沒有交代；**照抄，不要統一成其中一種**。
 func RadiationBypassesArmour(rec []byte) bool {
 	return len(rec) > 0 && rec[0]&1 == 1
+}
+
+// ItemRadSuit 是 Rad suit 的物品編號（原版 0x14432 的 `cmp al, 29h`，
+// 物品表第 41 筆就叫 `Rad suit`）。
+//
+// ⚠ 判準是**裝備中的護甲是不是這一件**，不是背包裡有沒有——
+// 原版取的是護甲槽（+0x25）指到的那一格（docs/re/55 §3）。
+const ItemRadSuit = 41
+
+// ImmuneToRadiation 回報這個人穿的護甲擋不擋輻射。
+func (c *Character) ImmuneToRadiation() bool {
+	if c.ArmorIndex == 0 {
+		return false // 沒穿護甲：原版的 sub_196C4 回 0，直接受傷
+	}
+	i := int(c.ArmorIndex)
+	if i >= len(c.Items) {
+		return false
+	}
+	return c.Items[i].ID == ItemRadSuit
 }
 
 // RadiationDice 是這一格要擲幾顆 d6（記錄 +0x01）。
@@ -40,6 +60,11 @@ func (w *World) ApplyRadiation(rec []byte) []RadiationHit {
 	bypass := RadiationBypassesArmour(rec)
 	out := make([]RadiationHit, 0, len(w.Party.Members))
 	for i, c := range w.Party.Members {
+		// 穿著 Rad suit 的人整個跳過——不扣血也不中毒（原版 0x14432 的 jz）。
+		if c.ImmuneToRadiation() {
+			out = append(out, RadiationHit{Member: i, Immune: true})
+			continue
+		}
 		hit := RadiationHit{Member: i, Rolled: rollD6(w.RNG, int(n))}
 		if !bypass {
 			hit.Absorb = Absorb(w.RNG, c.AC)

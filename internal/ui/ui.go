@@ -60,6 +60,9 @@ type Scene interface {
 	Frame() *render.Frame
 }
 
+// Poller 是有亂數產生器要跟著輪詢推進的場景（規格 02 §1.1）。
+type Poller interface{ PollRNG() }
+
 // Animator 是會隨時間變化的場景（設施圖的局部動畫，規格 26）。
 // 沒實作也照跑——檢視器場景就沒有。
 type Animator interface{ TickAnim() bool }
@@ -97,6 +100,12 @@ func (g *Game) Update() error {
 			g.buf = append(g.buf, mapped)
 		}
 	}
+	// 每幀推進一次亂數產生器 ＝ 原版的鍵盤輪詢（規格 02 §1.1）。
+	// **不叫它每一局的遭遇序列都會一樣**——產生器沒有種子。
+	if p, ok := g.scene.(Poller); ok {
+		p.PollRNG()
+	}
+
 	// 設施圖的動畫一拍 ≈ 55 ms，Ebiten 是 60 TPS——三幀一拍 ＝ 20 Hz，
 	// 是整數分頻裡最接近的（規格 26 §5，實際頻率還沒與實機錄影對過）。
 	g.animTick++

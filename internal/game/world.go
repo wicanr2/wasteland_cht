@@ -55,8 +55,8 @@ const (
 	EventMenu
 	EventTeleport
 	EventEncounter
-	EventChest    // nibble 5，內容生成留給規格 05
-	EventGate     // nibble 2，條件串列留給規格 06
+	EventChest     // nibble 5，內容生成留給規格 05
+	EventGate      // nibble 2，條件串列留給規格 06
 	EventFacility  // nibble 6，設施與腳本留給規格 07
 	EventRadiation // nibble 9，結算在 ApplyRadiation（docs/spec/07 §6.4）
 )

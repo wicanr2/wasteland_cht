@@ -95,7 +95,7 @@ func TestHealStopsWhenMoneyRunsOut(t *testing.T) {
 	f, p, items := mkShop(t, game.FacilityDoctor)
 	c := p.Members[0]
 	c.CON, c.MaxCON = 10, 30
-	c.Money = 10 // 每點 5 元 → 只夠兩點
+	c.Money = 10         // 每點 5 元 → 只夠兩點
 	f.Key('H', p, items) // 主選單的 Healing → 進治療迴圈
 	for i := 0; i < 5; i++ {
 		f.Key('H', p, items) // 迴圈裡的 Heal 1 point
@@ -148,9 +148,9 @@ func hasLine(lines []string, want string) bool {
 func TestBuyListSkipsOutOfStock(t *testing.T) {
 	f, _, _ := mkShop(t, game.FacilityShop)
 	items := game.ItemTable{
-		{Price: 10, Stock: 0},                    // 缺貨：不列
-		{Price: 20, Stock: 2},                    // 列
-		{Price: 30, Stock: game.StockUnlimited},  // 列
+		{Price: 10, Stock: 0},                   // 缺貨：不列
+		{Price: 20, Stock: 2},                   // 列
+		{Price: 30, Stock: game.StockUnlimited}, // 列
 	}
 	list := f.buyList(items)
 	if len(list) != 2 {

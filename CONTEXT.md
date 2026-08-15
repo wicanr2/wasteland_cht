@@ -203,6 +203,7 @@
 | [`docs/re/56-transtbl.md`](docs/re/56-transtbl.md) | `TRANSTBL` ＝ 50 組 × 16 對照表，載入之後沒有人讀；滑鼠初始化 |
 | [`docs/re/57-curs.md`](docs/re/57-curs.md) | `CURS` ＝ 8 個 32 × 16 的滑鼠游標，左半遮罩右半圖形；EGA 平面連續 |
 | [`docs/re/58-line-flush-and-scrollback.md`](docs/re/58-line-flush-and-scrollback.md) | 控制碼 `0x08` ＝ 沖出這一行不捲動；scrollback ＝ `seg003:0x8CE0` 的 40 × 256 環形 |
+| [`docs/re/59-playtest-against-original.md`](docs/re/59-playtest-against-original.md) | 正常玩家路徑對原版驗收：輻射帶團滅是原版行為、Rad suit 免疫、熵沒接上 |
 | [`docs/spec/00-index.md`](docs/spec/00-index.md) | **規格索引與閘門狀態**：哪些可以動工、其餘擋在什麼上 |
 | [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
 | [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |
@@ -266,6 +267,7 @@
 | 捲動跳表 `ds:AAA7h` 有 4 筆（四個方向） | 只數了「四個方向處理程式」就回頭認表，沒用下一張表的位址去定邊界 | **5 筆**：`0xAAA7 + 5 × 2 ＝ 0xAAB1` 正好是下一張表。第 5 筆（索引 4）是 `clc; retn`，給「原地不動的一步」用（`docs/re/26` §1.1）|
 | `ds:46EFh` ＝「踩在輻射上」的旗標，而且只有一支寫它 | 只掃到一個寫入點就下結論。實際有三處，漏掉的兩處（設定與清除）正是決定語意的那兩處 | 它是**參數不是狀態**：設 → 呼叫結算 → 清。效果是**這一次結算跳過護甲吸收**，值來自地圖記錄 `+0x00` 的 bit0（`docs/re/55`）|
 | nibble 4／9 的訊息編號 ＝ 這一格的第 2 層值 | 第 2 層是「第幾筆記錄」，訊息編號在**記錄 `+0x00`**。兩者值域差很遠，但都是小整數，錯了只會印到別條訊息、不會噴錯 | `sub_16D1A` 讀 `[ds:46AEh + 0]`，0 就不印。資源 0 的輻射格編號是 23 ＝ `The ground seems to glow here.`（`docs/re/29` §2、§5.1）|
+| 輻射結算的 `cmp al, 29h` 是拿角色記錄 `+0x01` 比 `0x29`，用意未解 | 只讀了那三行，沒追 `bl` 從哪來——`sub_196C4` 先把 `bl` 設成護甲槽指到的位移 | 比的是**護甲的物品編號**：41 ＝ `Rad suit`，穿著的人整個跳過，不扣血也不中毒（`docs/re/59` §2.2）|
 | 敵人資料 `+0x07` ＝ 代名詞索引 | 只追了一個消費者（`sub_12A4C` → `ds:A920h` → 文字碼 `0x0E`）就命名，漏掉 `0x1268F` 那一個 | **肖像圖編號**（`ALLPICS`）：`sub_190A8` → `sub_184E8` 就是圖片載入器，而 `ds:A920h[肖像編號]` 決定 him／her／it——一個編號兩個用途，講的是同一件事（`docs/re/37` §3.2）|
 | 資源表 idx 7（無檔名、只有磁區座標）很可能是存檔區 | 依據是「唯一只能走磁區路徑的一筆」＋「`int 26h` 只有一個呼叫端」，兩個都是旁證，沒有去看**誰在用索引 7** | **沒有人用**。`sub_11445` 的 10 個呼叫端傳的索引只有 `{0,1,2,6}`，`+3` 切換也只把 0–2 變成 3–5。存檔在 `GAME1`／`GAME2` 檔尾的 MSQ 資源（`docs/re/30`）；idx 7 是磁片版的遺留（`docs/re/05` §3）|
 | MSQ 資源的前 2 bytes 是長度 | 把 `mov cx, [bx]` 當成「取剛讀進來的 header」，其實 `ds:46B0h` 是別處設好的緩衝區位址 | 那 4 bytes 是 magic `msq0`／`msq1`；長度來源仍未解（`docs/re/07` §7） |

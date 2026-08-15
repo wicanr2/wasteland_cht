@@ -104,8 +104,8 @@ func DecodePicAnim(raw []byte) (PicAnim, error) {
 			px = append(px, b>>4, b&0x0F) // 高 nibble 在左
 		}
 		cur = append(cur, AnimElem{
-			X: col*8 + 2*int(w&3), // 相位 ＝ 左邊缺幾對像素
-			Y: row,
+			X:      col*8 + 2*int(w&3), // 相位 ＝ 左邊缺幾對像素
+			Y:      row,
 			Pixels: px,
 		})
 		k += 2 + length

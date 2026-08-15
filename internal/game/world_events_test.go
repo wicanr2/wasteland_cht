@@ -508,3 +508,36 @@ func TestRadiationMessageComesFromRecord(t *testing.T) {
 		t.Fatal("資源 0 找不到 nibble 9 的格子——docs/re/48 §6 說有 36 格")
 	}
 }
+
+// 驗收（規格 07 §6.4）：穿著 Rad suit（物品 41）的人完全不受輻射影響。
+//
+// 這一條是**實跑出來的**：沒有它，走進資源 0 的輻射帶三步全隊倒地，
+// 那條帶子有 36 格連續——遊戲會變成走不過去（docs/re/55 §3）。
+func TestRadSuitBlocksRadiation(t *testing.T) {
+	suited := &Character{CON: 30, MaxCON: 30, ArmorIndex: 3,
+		Items: []Slot{{}, {}, {}, {ID: ItemRadSuit}}}
+	bare := &Character{CON: 30, MaxCON: 30}
+	robed := &Character{CON: 30, MaxCON: 30, ArmorIndex: 3,
+		Items: []Slot{{}, {}, {}, {ID: 42}}} // Robe：一樣是護甲，但擋不了輻射
+
+	w := &World{Party: &Party{Members: []*Character{suited, bare, robed}}, RNG: rng.New()}
+	hits := w.ApplyRadiation([]byte{23, 10}) // 訊息 23 ＝ 奇數 → 無視護甲
+
+	if !hits[0].Immune || hits[0].Applied != 0 {
+		t.Errorf("穿 Rad suit 的人受了 %d 點傷", hits[0].Applied)
+	}
+	if suited.Status&StatusRadiation != 0 {
+		t.Error("穿 Rad suit 的人不該中輻射毒——原版整個人跳過")
+	}
+	if suited.CON != 30 {
+		t.Errorf("穿 Rad suit 的人 CON 變成 %d", suited.CON)
+	}
+	for i, c := range []*Character{bare, robed} {
+		if c.CON >= 30 {
+			t.Errorf("第 %d 個沒穿 Rad suit 的人竟然沒掉血", i)
+		}
+		if c.Status&StatusRadiation == 0 {
+			t.Errorf("第 %d 個沒穿 Rad suit 的人沒中毒", i)
+		}
+	}
+}

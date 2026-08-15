@@ -1,6 +1,7 @@
 package play
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -311,4 +312,32 @@ func mustLookup(t *testing.T, s *Scene, key string) []byte {
 		t.Fatalf("查不到 %s", key)
 	}
 	return b
+}
+
+// 驗收（規格 02 §1.1）：輪詢會推進產生器，沒輪詢就完全決定性。
+//
+// 這一條是實跑出來的：wl-play 跑三次 200 步，結果一模一樣——
+// 產生器沒有種子，**不輪詢就等於每一局的遭遇序列都相同**。
+func TestPollRNGIsTheOnlyEntropy(t *testing.T) {
+	s := openScene(t)
+	before := s.World().RNG.Snapshot()
+	s.PollRNG()
+	if s.World().RNG.Snapshot() == before {
+		t.Fatal("PollRNG 沒有推進產生器")
+	}
+
+	// 不輪詢：同一串輸入兩次，結果要完全一樣（無頭工具靠這個可重現）。
+	run := func() string {
+		sc := openScene(t)
+		for i := 0; i < 40; i++ {
+			if _, err := sc.Update(input.Input{Dir: input.DirUp}); err != nil {
+				t.Fatal(err)
+			}
+		}
+		w := sc.World()
+		return fmt.Sprintf("%d,%d,%v", w.Party.X, w.Party.Y, w.RNG.Snapshot())
+	}
+	if a, b := run(), run(); a != b {
+		t.Fatalf("不輪詢卻跑出兩種結果：\n  %s\n  %s", a, b)
+	}
 }
