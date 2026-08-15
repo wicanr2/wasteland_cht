@@ -78,6 +78,32 @@ func (t *TextEntry) Key(key byte) EntryResult {
 	return EntryContinue
 }
 
+// KeyRune 收一個字元，**中文編成 Big5 存進緩衝區**（重製版的擴充）。
+//
+// 原版的輸入只收 ASCII 並且大寫化（`sub_18EFE`），角色名字欄是 13 bytes；
+// 中文一個字 2 bytes，所以 13 bytes 放得下 6 個中文字。
+// 編不出 Big5 的字**直接忽略**——不要塞問號進去，玩家會看到自己沒打過的名字。
+//
+// encode 由呼叫端提供（`internal/lang` 有 Big5 編碼器），
+// 這一層不認識任何編碼表。
+func (t *TextEntry) KeyRune(r rune, encode func(rune) ([]byte, bool)) EntryResult {
+	if r < 0x80 {
+		return t.Key(byte(r))
+	}
+	if encode == nil {
+		return EntryContinue
+	}
+	b, ok := encode(r)
+	if !ok {
+		return EntryContinue
+	}
+	if len(t.Buf)+len(b) > t.Max {
+		return EntryContinue // 放不下就不收，與 ASCII 那條一致
+	}
+	t.Buf = append(t.Buf, b...)
+	return EntryContinue
+}
+
 // Text 回目前輸入的內容。
 func (t *TextEntry) Text() []byte { return t.Buf }
 

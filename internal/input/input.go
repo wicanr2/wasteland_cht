@@ -56,6 +56,8 @@ type Input struct {
 	Action Action
 	// Char 是這一幀按下的可列印字元（選單用字首字母選項，docs/re/14 §5）。
 	Char byte
+	// Runes 是這一幀輸入的完整字元（含中文）。
+	Runes []rune
 }
 
 // Bindings 是預設對應。
@@ -92,10 +94,14 @@ func Read(justPressed []Key, runes []rune) Input {
 		}
 	}
 	for _, r := range runes {
-		if r >= 0x20 && r < 0x7F {
+		if r >= 0x20 && r < 0x7F && in.Char == 0 {
 			in.Char = byte(r)
-			break
 		}
+	}
+	// Runes 保留這一幀的完整輸入。**中文名字要用它**——`Char` 是單一 byte，
+	// 一個中文字進不去（重製版的擴充，原版只收 ASCII）。
+	if len(runes) > 0 {
+		in.Runes = append(in.Runes[:0], runes...)
 	}
 	return in
 }
