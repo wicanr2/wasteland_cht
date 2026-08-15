@@ -1,6 +1,7 @@
 package game
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/wicanr2/wasteland_cht/internal/assets"
@@ -358,5 +359,152 @@ func TestIdleStepDoesNotMoveButAdvancesTime(t *testing.T) {
 	}
 	if w.Party.PlayerStepped {
 		t.Fatal("原地一步之後不該還算玩家步——那會讓站著不動也能刷經驗值")
+	}
+}
+
+// 驗收（規格 07 §6.4）：42 張地圖的 nibble 9 格子，記錄的兩個 byte 都拿得到，
+// 而且統計與 docs/re/55 §4 的獨立計數相同（211 格、84 格無視護甲）。
+//
+// 數字寫死是刻意的：這一批是**資料**，換了解析方式就會變，
+// 變了要當成解析錯而不是「資料本來就這樣」。
+func TestRadiationRecordsAcrossAllMaps(t *testing.T) {
+	rom := openRom(t)
+	res, err := rom.Resources()
+	if err != nil {
+		t.Fatalf("列資源失敗：%v", err)
+	}
+	cells, bypass := 0, 0
+	dice := map[byte]int{}
+	for i := range res {
+		b, err := rom.Block(i)
+		if err != nil {
+			t.Fatalf("區塊 %d：%v", i, err)
+		}
+		dim := int(b.Dim)
+		for y := 0; y < dim; y++ {
+			for x := 0; x < dim; x++ {
+				terrain, record, _, err := b.At(x, y)
+				if err != nil || terrain != 9 {
+					continue
+				}
+				cells++
+				rec, err := b.SectionRecord(9, int(record))
+				if err != nil || len(rec) < 2 {
+					t.Fatalf("資源 %d (%d, %d)：nibble 9 的記錄取不到（%v）", i, x, y, err)
+				}
+				if RadiationBypassesArmour(rec) {
+					bypass++
+				}
+				dice[RadiationDice(rec)]++
+			}
+		}
+	}
+	if cells != 211 {
+		t.Errorf("nibble 9 有 %d 格，docs/re/48 §6 與 docs/re/55 §4 都是 211", cells)
+	}
+	if bypass != 84 {
+		t.Errorf("無視護甲的有 %d 格，docs/re/55 §4 是 84", bypass)
+	}
+	for n := range dice {
+		if n < 2 || n > 10 {
+			t.Errorf("骰數 %d 落在 2–10 之外", n)
+		}
+	}
+	t.Logf("211 格、%d 格無視護甲、骰數分布 %v", bypass, dice)
+}
+
+// 驗收（規格 07 §6.4）：無視護甲時吸收是 0；不論扣多少血，每個人都會中毒。
+func TestApplyRadiation(t *testing.T) {
+	newWorld := func() *World {
+		return &World{
+			Party: &Party{Members: []*Character{
+				{CON: 5, MaxCON: 20, AC: 200}, // AC 高到吸收幾乎必然大於傷害
+				{CON: 5, MaxCON: 20, AC: 200},
+			}},
+			RNG: rng.New(),
+		}
+	}
+
+	// +0x00 bit0 ＝ 1 → 無視護甲：AC 再高也擋不住。
+	w := newWorld()
+	hits := w.ApplyRadiation([]byte{23, 10})
+	for _, h := range hits {
+		if h.Absorb != 0 {
+			t.Errorf("無視護甲時吸收應該是 0，得到 %d", h.Absorb)
+		}
+		if h.Applied != h.Rolled || h.Applied < 10 {
+			t.Errorf("10 顆 d6 應該全額扣：擲 %d、扣 %d", h.Rolled, h.Applied)
+		}
+	}
+	if w.Party.Members[0].CON >= 5 {
+		t.Error("無視護甲卻沒扣到 CON")
+	}
+	if w.Party.Members[0].CON > 0 {
+		t.Logf("CON 扣到 %d（可以是負的）", w.Party.Members[0].CON)
+	}
+
+	// +0x00 bit0 ＝ 0 → 照常吸收：AC 200 顆 d6 幾乎不可能被打穿。
+	w = newWorld()
+	hits = w.ApplyRadiation([]byte{22, 2})
+	for _, h := range hits {
+		if h.Absorb == 0 {
+			t.Error("沒有無視護甲卻沒算吸收")
+		}
+		if h.Applied != 0 {
+			t.Errorf("AC 200 對 2 顆 d6 竟然扣了 %d", h.Applied)
+		}
+	}
+	// **扣不扣血與中不中毒無關**——這一條最容易寫成「有扣血才中毒」。
+	for i, c := range w.Party.Members {
+		if c.Status&StatusRadiation == 0 {
+			t.Errorf("第 %d 個人沒有中輻射毒", i)
+		}
+		if c.CON != 5 {
+			t.Errorf("第 %d 個人不該掉血，CON ＝ %d", i, c.CON)
+		}
+	}
+}
+
+// 驗收：nibble 9 的訊息編號是**記錄 +0x00**，不是第 2 層的記錄編號。
+//
+// 對照 docs/re/48 §5：資源 0 的輻射格訊息是 `The ground seems to glow here.`。
+// 拿第 2 層值當編號會查到完全不相干的字串——這一條就是在擋那個。
+func TestRadiationMessageComesFromRecord(t *testing.T) {
+	rom := openRom(t)
+	b, err := rom.Block(0)
+	if err != nil {
+		t.Fatalf("區塊 0：%v", err)
+	}
+	w := &World{Block: b, Party: &Party{Members: []*Character{{CON: 10}}}, RNG: rng.New()}
+	dim := int(b.Dim)
+	found := 0
+	for y := 0; y < dim && found == 0; y++ {
+		for x := 0; x < dim; x++ {
+			terrain, _, _, err := b.At(x, y)
+			if err != nil || terrain != 9 {
+				continue
+			}
+			ev := w.trigger(x, y)
+			if ev.Kind != EventRadiation {
+				t.Fatalf("(%d, %d) 的 nibble 9 沒有走輻射那條：%v", x, y, ev.Kind)
+			}
+			if len(ev.Strings) != 1 {
+				t.Fatalf("(%d, %d) 沒有訊息編號", x, y)
+			}
+			if n := ev.Strings[0]; n != int(ev.Data[0]) {
+				t.Fatalf("訊息編號 %d ≠ 記錄 +0x00 的 %d", n, ev.Data[0])
+			}
+			// 原版的字串前後帶 \r（換行控制碼），比對內容不比對外框。
+			s := b.Strings[ev.Strings[0]]
+			if !strings.Contains(s, "The ground seems to glow here.") {
+				t.Fatalf("資源 0 的輻射訊息是 %q，docs/re/48 §5 是 "+
+					"`The ground seems to glow here.`", s)
+			}
+			found++
+			break
+		}
+	}
+	if found == 0 {
+		t.Fatal("資源 0 找不到 nibble 9 的格子——docs/re/48 §6 說有 36 格")
 	}
 }

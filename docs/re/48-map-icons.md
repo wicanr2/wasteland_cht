@@ -171,12 +171,12 @@ python3 tools/compare_screen.py icons <截圖.ppm> \
 | 31 | 1 | `A broken radioactive waste container is lying here buried in the trash.` |
 | 38 | 16 | 字串編號 0（不印訊息） |
 
-nibble 9 的處理函式（`0x14410`，`docs/re/29` §2）做的是「印記錄指定的訊息、
-設 `ds:46EFh`」，看起來是通用機制；**加上這一節的資料與圖形，它的語意就是輻射區**，
-`ds:46EFh` 是踩在輻射上的旗標（強證據：只有這支寫它，而這支只處理輻射格）。
+nibble 9 的處理函式是 `0x14410`：印記錄 `+0x00` 指的訊息，然後**對每個隊員
+擲 `+0x01` 顆 d6 扣 CON，並加上 Radiation poisoning 的狀態位元**。
+整條結算與 `ds:46EFh`（這一次結算跳不跳過護甲吸收）在
+[`55`](55-radiation-and-armour-bypass.md)。
 
-推論等級：nibble 9 ＝ 輻射區 **已確認**（六張地圖的資料、圖形、實機訊息三邊一致）；
-`ds:46EFh` 的用途 **強證據**（讀取端還沒追）。
+推論等級：nibble 9 ＝ 輻射區 **已確認**（六張地圖的資料、圖形、實機訊息三邊一致）。
 
 ## 6. 資料面的統計
 

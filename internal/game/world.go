@@ -57,7 +57,8 @@ const (
 	EventEncounter
 	EventChest    // nibble 5，內容生成留給規格 05
 	EventGate     // nibble 2，條件串列留給規格 06
-	EventFacility // nibble 6，設施與腳本留給規格 07
+	EventFacility  // nibble 6，設施與腳本留給規格 07
+	EventRadiation // nibble 9，結算在 ApplyRadiation（docs/spec/07 §6.4）
 )
 
 // Event 是規則層交給呈現層的結果。字串一律以編號表示，規則層不碰文字。
@@ -208,7 +209,19 @@ func (w *World) trigger(x, y int) Event {
 		ev.Kind = EventNone
 	case 2:
 		ev.Kind = EventGate
-	case 4, 9, 12:
+	case 4, 9:
+		// 字串編號是**記錄 +0x00**，不是這一格的第 2 層值——
+		// 第 2 層是「第幾筆記錄」，兩者的值域差很遠（docs/re/29 §2、§5.1）。
+		// 編號 0 ＝ 不印（sub_16D1A 的 `test al,al`）。
+		ev.Kind = EventMessage
+		if len(ev.Data) > 0 && ev.Data[0] != 0 {
+			ev.Strings = []int{int(ev.Data[0])}
+		}
+		if terrain == 9 {
+			ev.Kind = EventRadiation
+		}
+	case 12:
+		// nibble 12 的處理函式還沒讀，先照舊拿第 2 層值當編號（docs/spec/07 §7）。
 		ev.Kind = EventMessage
 		ev.Strings = []int{int(record)}
 	case 5:
