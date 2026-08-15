@@ -721,6 +721,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | [`90`](90-party-initiative.md) | 隊伍的行動值公式，以及「只有下攻擊令的人才排進行動表」 |
 | [`91`](91-map-command-bar.md) | 地圖指令列的七個處理程式；**升級的入口是 RADIO** |
 | [`92`](92-use-command.md) | `USE` 的第一層：Skill／Item／Attribute 三選一 |
+| [`93`](93-order-disband-view.md) | `ORDER`／`DISBAND`／`VIEW`；後兩支的前置是多隊伍 |
 | [`21`](21-attributes.md) | 七個屬性的記錄位移、屬性→修正值階梯、檢定骰、角色建立 |
 | [`22`](22-shop-and-items.md) | 商店、價格公式、物品資料表（95 筆 × 8 bytes） |
 | [`23`](23-picture-format.md) | 圖片格式：packed 4bpp ＋ 列間 XOR delta、82 張 `ALLPICS` |

@@ -47,7 +47,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 
 ## 統計
 
-筆記 **92** 份：已接 **89**、未接 **0**、不適用 **3**。
+筆記 **93** 份：已接 **90**、未接 **0**、不適用 **3**。
 
 | # | 筆記 | 狀態 | 接在哪／為什麼 |
 |---:|---|---|---|
@@ -67,11 +67,11 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 14 | [字型、字元編碼與文字控制碼](14-fonts-and-text-encoding.md) | 已接 | `internal/assets/font.go`、`internal/input/input.go`（共 6 處） |
 | 15 | [角色記錄的定址與欄位](15-character-record.md) | 已接 | `internal/game/character.go`、`internal/game/combat.go`（共 6 處） |
 | 16 | [MSQ 區塊的整體佈局與記錄區](16-msq-block-layout.md) | 已接 | `internal/assets/msq.go`、`tools/summarize_msq_layout.py` |
-| 17 | [5-bit 打包文字與執行檔的字串表](17-packed-text.md) | 已接 | `internal/assets/text.go`、`internal/game/combat.go`（共 5 處） |
+| 17 | [5-bit 打包文字與執行檔的字串表](17-packed-text.md) | 已接 | `internal/assets/text.go`、`internal/game/combat.go`（共 7 處） |
 | 18 | [地圖區塊的文字 —— 4,401 條全部解出](18-block-text.md) | 已接 | `internal/assets/msq.go`、`internal/assets/text.go`（共 3 處） |
 | 19 | [資料驅動的效果系統與傷害計算](19-effects-and-damage.md) | 已接 | `internal/game/combat.go`、`internal/game/party.go`（共 3 處） |
 | 20 | [命中判定與武器傷害](20-combat-resolution.md) | 已接 | `internal/game/combat.go`、`internal/game/commands.go`（共 6 處） |
-| 21 | [七個屬性、修正值階梯與檢定骰](21-attributes.md) | 已接 | `internal/game/character.go`、`internal/game/combat.go`（共 6 處） |
+| 21 | [七個屬性、修正值階梯與檢定骰](21-attributes.md) | 已接 | `internal/game/character.go`、`internal/game/combat.go`（共 8 處） |
 | 22 | [商店、價格公式與物品資料表](22-shop-and-items.md) | 已接 | `internal/game/facility.go`、`internal/game/facilityloop.go`（共 3 處） |
 | 23 | [圖片格式 —— packed 4bpp ＋ 列間 XOR delta](23-picture-format.md) | 已接 | `internal/assets/pic.go`、`internal/play/encounter.go`（共 10 處） |
 | 24 | [地圖的三層結構與 `ALLHTDS` 圖磚](24-map-layers-and-tiles.md) | 已接 | `internal/assets/msq.go`、`internal/assets/pic.go`（共 7 處） |
@@ -82,13 +82,13 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 29 | [地圖事件處理函式 —— 八個 nibble 全解](29-map-event-handlers.md) | 已接 | `internal/game/facility.go`、`internal/game/world.go`（共 6 處） |
 | 30 | [存檔的內部結構](30-save-layout.md) | 已接 | `internal/assets/save.go`、`tools/dump_save.py`（共 4 處） |
 | 31 | [經驗值、升級與技能學習](31-experience-and-skills.md) | 已接 | `internal/game/levels.go`、`internal/play/command.go`（共 5 處） |
-| 32 | [檢定、技能成長與經驗值來源](32-skill-checks-and-xp.md) | 已接 | `internal/assets/rom.go`、`internal/game/checks.go`（共 8 處） |
+| 32 | [檢定、技能成長與經驗值來源](32-skill-checks-and-xp.md) | 已接 | `internal/assets/rom.go`、`internal/game/checks.go`（共 10 處） |
 | 33 | [段落編號在遊戲裡怎麼出現](33-paragraph-references.md) | 已接 | `internal/game/journal.go`、`tools/extract_paragraph_refs.py`（共 6 處） |
 | 34 | [地圖腳本的 44 個指令](34-map-script-opcodes.md) | 已接 | `internal/assets/msq.go`、`internal/game/script.go`（共 5 處） |
 | 35 | [狀態、疾病與隨時間的恢復](35-status-and-healing.md) | 已接 | `internal/game/facility.go`、`internal/game/party.go`（共 4 處） |
 | 36 | [戰鬥的回合與行動順序](36-combat-rounds.md) | 已接 | `internal/game/rounds.go`、`internal/game/rounds_test.go` |
 | 37 | [敵方記錄、血量的來源，與距離表](37-enemy-records-and-hp.md) | 已接 | `internal/assets/msq.go`、`internal/game/combat.go`（共 9 處） |
-| 38 | [戰鬥的指令階段與逃跑](38-combat-commands-and-flee.md) | 已接 | `internal/game/commands.go`、`internal/play/combat.go`（共 3 處） |
+| 38 | [戰鬥的指令階段與逃跑](38-combat-commands-and-flee.md) | 已接 | `internal/game/commands.go`、`internal/game/handlers.go`（共 4 處） |
 | 39 | [遭遇怎麼冒出來——視窗掃描與遭遇佇列](39-encounter-scan.md) | 已接 | `internal/game/encounterscan.go`、`internal/game/world.go` |
 | 40 | [戰鬥畫面——名單模式與訊息序列](40-combat-screen.md) | 已接 | `internal/play/combat.go`、`internal/play/command.go`（共 6 處） |
 | 41 | [四支指令處理程式（Hire／Weapon／Use／Load）](41-command-handlers.md) | 已接 | `internal/game/handlers.go` |
@@ -96,7 +96,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 43 | [按鍵從哪來——鍵盤、滑鼠熱區，與 `\x10` 的真正用途](43-input-and-hotkeys.md) | 已接 | `internal/assets/save.go`、`internal/input/mouse.go`（共 9 處） |
 | 44 | [音效——PC 喇叭、四個聲部與位元組碼直譯器](44-audio.md) | 已接 | `cmd/wasteland/main.go`、`internal/assets/rom.go`（共 14 處） |
 | 45 | [物品資料表全解，與隊伍傷害的第一項](45-item-data-and-weapon-damage.md) | 已接 | `internal/assets/save.go`、`internal/game/combat.go`（共 10 處） |
-| 46 | [打字回答、文字輸入與字串比對](46-typed-answers-and-text-input.md) | 已接 | `internal/assets/msq.go`、`internal/game/answers.go`（共 11 處） |
+| 46 | [打字回答、文字輸入與字串比對](46-typed-answers-and-text-input.md) | 已接 | `internal/assets/msq.go`、`internal/game/answers.go`（共 12 處） |
 | 47 | [DOSBox 參考環境，與第一批實機對拍](47-dosbox-oracle.md) | 已接 | `internal/game/world.go`、`internal/play/play.go`（共 4 處） |
 | 48 | [`IC0_9.WLF` 十張疊圖各自是什麼](48-map-icons.md) | 已接 | `internal/assets/rom.go`、`internal/game/mapicons.go`（共 7 處） |
 | 49 | [存檔改寫的實機驗收](49-save-roundtrip-on-hardware.md) | 已接 | `internal/assets/assets_test.go` |
@@ -129,7 +129,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 76 | [腳本 opcode 的覆蓋率盤點](76-script-opcode-coverage.md) | 已接 | `internal/play/combatloop_test.go` |
 | 77 | [遭遇覆蓋率盤點 —— 敵人格是生出來的，而 remake 沒有生成器](77-encounter-spawn-gap.md) | 已接 | `internal/play/combatcoverage_test.go`、`internal/play/combatloop_test.go`（共 3 處） |
 | 78 | [遭遇生成器 `sub_16890`](78-encounter-spawn.md) | 已接 | `internal/assets/rom.go`、`internal/game/encounter.go`（共 9 處） |
-| 79 | [設施覆蓋率盤點 —— 跳表索引 ≥ 5 就是 opcode](79-facility-coverage.md) | 已接 | `internal/game/script.go`、`internal/game/world.go`（共 5 處） |
+| 79 | [設施覆蓋率盤點 —— 跳表索引 ≥ 5 就是 opcode](79-facility-coverage.md) | 已接 | `internal/game/script.go`、`internal/game/world.go`（共 6 處） |
 | 80 | [訓練師的技能清單](80-trainer-skill-list.md) | 已接 | `internal/play/facilitycoverage_test.go`、`internal/play/trainer_test.go` |
 | 81 | [戰鬥迴圈的端到端門檻，與一個槽號當 ID 的 bug](81-combat-loop-coverage.md) | 已接 | `internal/play/combatloop_test.go` |
 | 82 | [存檔的三道門檻](82-save-round-trip.md) | 已接 | `internal/play/save_test.go` |
@@ -142,4 +142,5 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 89 | [敵人打誰是隨機重抽，以及「倒下」與「死亡」是兩個判準](89-enemy-target-and-down.md) | 已接 | `internal/game/party.go`、`internal/play/command.go`（共 5 處） |
 | 90 | [隊伍的行動值，以及誰會被排進行動表](90-party-initiative.md) | 已接 | `internal/game/rounds.go`、`internal/play/round.go`（共 4 處） |
 | 91 | [地圖指令列的七個處理程式 —— 升級的入口是 RADIO](91-map-command-bar.md) | 已接 | `internal/play/command.go`、`internal/play/play.go`（共 4 處） |
-| 92 | [`USE` 指令的第一層 —— Skill／Item／Attribute 三選一](92-use-command.md) | 已接 | `internal/game/gates.go`（`UseGate`；play 層的選單還沒接，`WORKLIST.md` 4.3）|
+| 92 | [`USE` 指令 —— Skill／Item／Attribute 三選一，與施用的骨架](92-use-command.md) | 已接 | `internal/game/gates.go`、`internal/play/play.go`（共 5 處） |
+| 93 | [`ORDER`／`DISBAND`／`VIEW` —— 兩支要多隊伍，一支不用](93-order-disband-view.md) | 已接 | `internal/play/command.go`、`internal/play/command_test.go` |

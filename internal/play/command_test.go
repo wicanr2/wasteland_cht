@@ -117,3 +117,24 @@ func TestSaveCommandWritesSave(t *testing.T) {
 		t.Errorf("存檔裡的地圖編號應該是 4，得到 %d", got)
 	}
 }
+
+// 只有一支隊伍時 View 什麼都不做——那是原版「繞一圈回起點」的自然結果，
+// 不是特例分支（docs/re/93 §3）。
+func TestViewWithSingleParty(t *testing.T) {
+	rom := openRom(t)
+	s, err := New(rom)
+	if err != nil {
+		t.Fatal(err)
+	}
+	x, y := s.World().Party.X, s.World().Party.Y
+	if _, err := s.Update(input.Input{Dir: input.DirNone, Char: 'V'}); err != nil {
+		t.Fatal(err)
+	}
+	if s.Message() != "No other party." {
+		t.Errorf("訊息不對：%q", s.Message())
+	}
+	// 不能有副作用——座標、地圖都不該動。
+	if s.World().Party.X != x || s.World().Party.Y != y {
+		t.Error("View 動到了隊伍座標")
+	}
+}
