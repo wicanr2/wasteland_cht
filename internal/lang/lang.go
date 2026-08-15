@@ -103,3 +103,9 @@ func ExeKey(table, slot int) string {
 func ParagraphKey(n int) string {
 	return fmt.Sprintf("para:%d", n)
 }
+
+// UIKey 是重製版自己的介面文字（`translations/*/ui.tsv`）。
+//
+// 原版把指令列與幾個選單寫成 ASCII 字面值、不走字串表，所以抽不出 key；
+// 但它們玩家看得到，一樣要進語言資料檔（`CLAUDE.md` §3.3）。
+func UIKey(name string) string { return "ui:" + name }

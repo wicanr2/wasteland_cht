@@ -92,7 +92,21 @@ func TestTranslationCoverage(t *testing.T) {
 	t.Logf("合計：%d／%d 條（%.1f%%），目錄共 %d 條",
 		hit, total, 100*float64(hit)/float64(total), cat.Len())
 
-	orphans := cat.Len() - hit
+	// `ui:` 那組是**重製版自己的介面文字**，原版寫成 ASCII 字面值不走字串表，
+	// 所以對不上任何原文——它們不是孤兒。逐條列出來檢查，
+	// **不要整個前綴放行**：打錯一個字的 `ui:` key 一樣查不到，
+	// 而症狀只是畫面上那一處是英文。
+	uiKeys := 0
+	for _, k := range uiCatalogueKeys {
+		if _, ok := cat.Lookup(lang.UIKey(k)); !ok {
+			t.Errorf("介面文字 ui:%s 沒有翻譯", k)
+			continue
+		}
+		uiKeys++
+	}
+
+	orphans := cat.Len() - hit - uiKeys
+	t.Logf("介面文字（ui:）：%d 條", uiKeys)
 	t.Logf("目錄裡對不上任何原文的 key：%d 條", orphans)
 	if orphans < 0 {
 		t.Fatalf("hit(%d) 超過目錄長度(%d)——key 算法有重複", hit, cat.Len())
@@ -143,4 +157,15 @@ func TestWalkShowsTranslatedMessage(t *testing.T) {
 		t.Errorf("訊息 %q 在目錄裡有譯文，畫面上卻是英文", s.Message())
 	}
 	t.Logf("英文 %q → 中文 %d bytes", s.Message(), len(s.cjk))
+}
+
+// uiCatalogueKeys 是重製版介面文字的完整清單（`translations/*/ui.tsv`）。
+//
+// 這一份與 tsv 是兩份要一起改的東西——**多一條會被當成孤兒、少一條會漏檢**。
+var uiCatalogueKeys = []string{
+	"cmd.bar",
+	"journal.header", "journal.hint",
+	"journal.decoy", "journal.appendix", "journal.epilogue",
+	"journal.untranslated",
+	"use.which", "use.kind", "use.nothing", "use.nobody",
 }
