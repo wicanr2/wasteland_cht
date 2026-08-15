@@ -142,8 +142,13 @@ func Engagement(members []*Character, far func(int) bool) int {
 // 該組沒有敵人可打）。這三件事 remake 目前只有玩家那一組算得出來，
 // 其餘三組由呼叫端提供——**不要在這裡編一個出來**。
 type PartyGroupState struct {
+	// Present ＝ 這一組**在這張地圖上**（`docs/re/39` §4 的第一道判斷）。
+	// 不在同一張地圖的組整個不參與這次掃描。
 	Present bool
-	Engage  int // 該組成員接戰值的最大值（EngageNone／EngageClose／EngageFar）
+	// X／Y 是這一組的座標。**距離要用各組自己的座標算**——
+	// 拿目前這組的座標去算所有組，別組永遠會得到錯的距離。
+	X, Y   int
+	Engage int // 該組成員接戰值的最大值（EngageNone／EngageClose／EngageFar）
 }
 
 // ScanResult 是一次掃描的結果。
@@ -189,20 +194,25 @@ func (w *World) ScanEncounters(groups [QueueGroups]PartyGroupState) ScanResult {
 			if err != nil || len(rec) <= recActiveRange {
 				continue
 			}
-			dist, ok := Distance(x-int(w.Party.X), y-int(w.Party.Y))
-			if !ok || dist > int(rec[recNoticeRange]) {
-				continue // 超出察覺距離（視窗外也算）
-			}
-			if groups := ReadSpawnGroups(rec); groups[0].Count == 0 &&
-				groups[1].Count == 0 && groups[2].Count == 0 {
+			if g := ReadSpawnGroups(rec); g[0].Count == 0 &&
+				g[1].Count == 0 && g[2].Count == 0 {
 				continue // 這一格沒有敵人
 			}
 
 			// 對四組各評一次，挑距離最近的那一組（sub_14A65 從 0xFF 起跳）。
+			//
+			// ⚠ **距離對每一組各算一次**（`docs/re/39` §4）：
+			// 原版寫進 `[0x7111 + 組]` 的是「該組到這一格的距離」，
+			// 不在這張地圖或太遠的組寫 `0xFF`。拿目前這組的座標去算全部，
+			// 別組的判斷會整個錯掉，而症狀只是「別組不會遇敵」。
 			best, bestDist := -1, 0x100
 			for g, st := range groups {
 				if !st.Present {
 					continue
+				}
+				dist, ok := Distance(x-st.X, y-st.Y)
+				if !ok || dist > int(rec[recNoticeRange]) {
+					continue // 超出察覺距離（視窗外也算）
 				}
 				if dist > int(rec[recActiveRange]) && dist >= st.Engage {
 					continue // 這一組吃不到這場遭遇

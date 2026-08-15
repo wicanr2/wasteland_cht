@@ -115,7 +115,7 @@ func TestScanStaysInsideWindowAndMap(t *testing.T) {
 	p := &Party{X: 0, Y: 0} // 視窗原點會是 (−9, −4)，左上大半在地圖外
 	w := NewWorld(b, p, nil)
 
-	got := w.ScanEncounters([QueueGroups]PartyGroupState{{Present: true, Engage: EngageClose}})
+	got := w.ScanEncounters([QueueGroups]PartyGroupState{{Present: true, X: 10, Y: 10, Engage: EngageClose}})
 	// 視窗 19 × 9，隊伍在 (0,0) → x ∈ [−9, 9]、y ∈ [−4, 4]，
 	// 地圖內的只有 x ∈ [0, 9]（10 行）、y ∈ [0, 4]（5 列）。
 	if want := 10 * 5; got.Scanned != want {
@@ -148,7 +148,7 @@ func TestScanDistanceGates(t *testing.T) {
 		})
 		setCells(b, cells)
 		w := NewWorld(b, &Party{X: 10, Y: 10}, nil)
-		got := w.ScanEncounters([QueueGroups]PartyGroupState{{Present: tc.present, Engage: tc.engage}})
+		got := w.ScanEncounters([QueueGroups]PartyGroupState{{Present: tc.present, X: 10, Y: 10, Engage: tc.engage}})
 		_, ok := got.Queue.Find(byte(b.Resource.ID), 12, 10)
 		if ok != tc.want {
 			t.Errorf("%s：進佇列 ＝ %v，預期 %v", tc.name, ok, tc.want)
@@ -164,7 +164,7 @@ func TestScanSkipsCellWithNoEnemies(t *testing.T) {
 	})
 	setCells(b, map[[2]int]byte{{12, 10}: 3})
 	w := NewWorld(b, &Party{X: 10, Y: 10}, nil)
-	got := w.ScanEncounters([QueueGroups]PartyGroupState{{Present: true, Engage: EngageFar}})
+	got := w.ScanEncounters([QueueGroups]PartyGroupState{{Present: true, X: 10, Y: 10, Engage: EngageFar}})
 	if got.Hits != 1 {
 		t.Fatalf("應該命中 1 格 nibble 3，得到 %d", got.Hits)
 	}
@@ -212,5 +212,44 @@ func testBlock(t *testing.T, dim int, fill func(rec []byte)) *assets.Block {
 func setCells(b *assets.Block, cells map[[2]int]byte) {
 	for at, n := range cells {
 		b.Terrain[at[1]*b.Dim+at[0]] = n
+	}
+}
+
+// 距離要用**各組自己的座標**算（docs/re/39 §4）。
+//
+// 拿目前這組的座標去算全部，別組的判斷會整個錯掉，
+// 而症狀只是「別組不會遇敵」——沒有任何斷言會紅。
+func TestScanUsesEachGroupOwnPosition(t *testing.T) {
+	// 遭遇格在 (12, 10)。第 0 組站在很遠的 (0, 0)，第 1 組就站在旁邊 (11, 10)。
+	cells := map[[2]int]byte{{12, 10}: 3}
+	b := testBlock(t, 32, func(rec []byte) {
+		rec[recNoticeRange], rec[recActiveRange] = 30, 20
+		rec[0x03], rec[0x04] = 1, 2
+	})
+	setCells(b, cells)
+	// 視窗要涵蓋到那一格，所以隊伍（畫面）擺在附近。
+	w := NewWorld(b, &Party{X: 10, Y: 10}, nil)
+
+	groups := [QueueGroups]PartyGroupState{
+		{Present: true, X: 0, Y: 0, Engage: EngageNone},   // 太遠
+		{Present: true, X: 11, Y: 10, Engage: EngageNone}, // 就在旁邊
+	}
+	got := w.ScanEncounters(groups)
+	if _, ok := got.Queue.Nearest(0); ok {
+		t.Error("第 0 組在 (0,0)，不該吃到 (12,10) 的遭遇")
+	}
+	e, ok := got.Queue.Nearest(1)
+	if !ok {
+		t.Fatal("第 1 組就站在旁邊，應該吃到這場遭遇")
+	}
+	t.Logf("第 1 組拿到 (%d,%d) 距離 %d", e.X, e.Y, e.Distance)
+
+	// 反向：把第 1 組挪遠，就沒有任何一組吃得到。
+	groups[1].X, groups[1].Y = 0, 0
+	got = w.ScanEncounters(groups)
+	for g := 0; g < QueueGroups; g++ {
+		if _, ok := got.Queue.Nearest(g); ok {
+			t.Errorf("兩組都很遠時第 %d 組不該有東西", g)
+		}
 	}
 }
