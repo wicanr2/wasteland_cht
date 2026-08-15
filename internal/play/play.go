@@ -8,6 +8,7 @@ package play
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/wicanr2/wasteland_cht/internal/assets"
 	"github.com/wicanr2/wasteland_cht/internal/game"
@@ -526,12 +527,16 @@ func (s *Scene) describe(res game.StepResult) string {
 	switch res.Event.Kind {
 	case game.EventMessage, game.EventRadiation:
 		// 字串編號在 Event.Strings（nibble 4／9 是記錄 +0x00，可能是 0 ＝ 不印）。
-		if len(res.Event.Strings) > 0 {
-			if n := res.Event.Strings[0]; n >= 0 && n < len(s.world.Block.Strings) {
-				return s.world.Block.Strings[n]
+		// nibble 1 的訊息**可以有很多條**，原版逐條印出來。
+		var out []string
+		for _, n := range res.Event.Strings {
+			if n >= 0 && n < len(s.world.Block.Strings) {
+				if line := s.world.Block.Strings[n]; line != "" {
+					out = append(out, line)
+				}
 			}
 		}
-		return ""
+		return strings.Join(out, "")
 	case game.EventTeleport:
 		return "TELEPORT."
 	case game.EventChest:

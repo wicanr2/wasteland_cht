@@ -197,6 +197,18 @@ func (r *Rom) SkillTableRaw() ([]byte, error) {
 // dsOffset 把 ds: 位移換成分析映像裡的檔案位移。
 func (r *Rom) dsOffset(off int) (int, error) { return r.fileOffset(dsBase + off) }
 
+// DsBytes 取資料段某個位移起的 n 個 byte（給逆向驗證用，不是遊戲規則）。
+func (r *Rom) DsBytes(off, n int) ([]byte, error) {
+	at, err := r.dsOffset(off)
+	if err != nil {
+		return nil, err
+	}
+	if at+n > len(r.image) {
+		return nil, fmt.Errorf("ds:%#x + %d 超出映像", off, n)
+	}
+	return r.image[at : at+n], nil
+}
+
 // 音效資料段（docs/re/44 §5）。九首音效的表與位元組碼都在這裡，
 // 不在任何外部檔案裡。
 const (
