@@ -11,11 +11,14 @@ import (
 	"github.com/wicanr2/wasteland_cht/internal/game"
 )
 
-// 命中判定的基礎值（docs/re/20 §1.2、§1.3）。
+// 隊伍攻擊敵方的命中基礎值（`0x1AF40`，docs/re/20 §1.2）。
 //
-// 兩條路徑各有 60／50（隊伍）與 60／50／40（敵方）兩三種，
-// 挑哪一種由目標的一個欄位決定，**那個欄位的語意未解**（docs/spec/06 §6）。
-// 這一版一律用「否則」那一支的 60，並且標明是暫代——
+// 原版查 `ds:711Dh` 那張表：回 `0xFF` 用 50，否則 60。**那張表還沒解**，
+// 所以這一版一律用「否則」那一支的 60。
+//
+// 敵方打隊伍那條不走這個常數——它的基礎值已經解完，
+// 是被打者這回合的指令（`Phase.Defence`）。
+//
 // ⚠ **不要用 0**：累加值 0 等於永遠打不中，而症狀是「戰鬥打不完」，
 // 看起來像回合迴圈壞了。
 const baseHitDefault = 60
@@ -92,10 +95,10 @@ func (s *CombatScene) partyActs(actor game.Combatant) []string {
 	if target == nil {
 		return nil
 	}
-	// ⚠ 命中累加值要武器技能與射程；裝備欄還沒解到能自動判斷（規格 22 §5），
-	// 所以這一版用「已裝備槽的物品資料」＋ 距離 0。**這是暫代。**
+	// 命中累加值只跟隊伍成員的 Brawling 與 Agility、以及目標的行動值有關
+	// （docs/re/88）——**裝備不進命中**，只進傷害。
 	w := s.weaponOf(m)
-	acc := game.HitChance(m, baseHitDefault, w.Skill, 0, 0)
+	acc := game.HitChance(m, baseHitDefault, target.Data)
 	if !game.PartyHits(b.RNG, acc) {
 		return []string{m.Name + " misses."}
 	}
@@ -126,9 +129,10 @@ func (s *CombatScene) enemyActs(actor game.Combatant) []string {
 		return nil
 	}
 	var target *game.Character
-	for _, m := range b.Party.Members {
+	targetIdx := -1
+	for i, m := range b.Party.Members {
 		if m != nil && !m.Dead() {
-			target = m
+			target, targetIdx = m, i
 			break
 		}
 	}
@@ -136,7 +140,12 @@ func (s *CombatScene) enemyActs(actor game.Combatant) []string {
 		return nil
 	}
 	// 敵方命中要 ≥（docs/re/20 §2）——方向與隊伍相反，別寫反了。
-	if !game.EnemyHits(b.RNG, game.HitChance(target, baseHitDefault, 0, 0, 0)) {
+	// 累加的仍是**被打的那個隊伍成員**的本事，敵人資料是攻擊者這一邊。
+	//
+	// 基礎值取的是**被打的那個人這回合下了什麼令**（`0x1B06D`，docs/re/20 §1.1）：
+	// 迴避 60、攻擊 50、其餘 40。迴避的處理程式是空的，效果全在這一個數字上。
+	base := s.Phase.Defence(targetIdx)
+	if !game.EnemyHits(b.RNG, game.HitChance(target, base, e.Data)) {
 		return []string{s.enemyLabel(e) + " misses."}
 	}
 	dmg := game.EnemyDamage(b.RNG, e.Data)

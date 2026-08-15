@@ -142,14 +142,68 @@ func TestHitDirectionsAreOpposite(t *testing.T) {
 	}
 }
 
+// 迴避要真的降低被命中率：基礎值 60（迴避）／50（攻擊）／40（其餘）
+// 在敵方判定裡是「被打中的機率」由低到高（docs/re/20 §1.1、docs/re/38 §2）。
+//
+// `DefenceBase` 的對照早就有單元測試，但那只證明常數對；
+// **這一條證明常數接到判定上之後方向沒有寫反**——
+// 敵方是 `roll ≥ acc` 命中，acc 越大越安全，容易寫成相反。
+func TestEvadeLowersIncomingHitRate(t *testing.T) {
+	c := &Character{Skills: []Slot{{ID: SkillBrawling, Value: 0}}}
+	foe := EnemyData{Speed: 5, Weapon: ClassRifle}
+
+	const iter = 20000
+	rate := func(cmd Command) float64 {
+		r := rng.New()
+		acc := HitChance(c, cmd.DefenceBase(), foe)
+		hits := 0
+		for i := 0; i < iter; i++ {
+			if EnemyHits(r, acc) {
+				hits++
+			}
+		}
+		return float64(hits) / iter
+	}
+	evade, attack, none := rate(CmdEvade), rate(CmdAttack), rate(CmdNone)
+	t.Logf("被命中率：迴避 %.3f、攻擊 %.3f、其餘 %.3f", evade, attack, none)
+	if !(evade < attack && attack < none) {
+		t.Errorf("被命中率應該是迴避 < 攻擊 < 其餘，得到 %.3f / %.3f / %.3f",
+			evade, attack, none)
+	}
+	// 每一階差 10 點，機率差大約 0.10——差太小表示基礎值沒真的接進去。
+	if attack-evade < 0.06 || none-attack < 0.06 {
+		t.Errorf("每一階應該差大約 0.10，得到 %.3f 與 %.3f",
+			attack-evade, none-attack)
+	}
+}
+
 // 命中累加值夾在 100。
 func TestHitChanceClamps(t *testing.T) {
-	c := &Character{Level: 9, Skills: []Slot{{ID: 1, Value: 30}}}
-	if got := HitChance(c, 60, 1, 50, 0); got != 100 {
+	c := &Character{Level: 9, Skills: []Slot{{ID: SkillBrawling, Value: 30}}}
+	c.Attributes[AttrAgility] = 20
+	if got := HitChance(c, 60, EnemyData{}); got != 100 {
 		t.Fatalf("累加值應該夾在 100，得到 %d", got)
 	}
-	if got := HitChance(c, 60, 1, 0, 1000); got != 0 {
+	// 對手行動值 250 且不是近戰 → 60+90+20+5−250 < 0，夾在 0。
+	if got := HitChance(c, 60, EnemyData{Speed: 250}); got != 0 {
 		t.Fatalf("扣過頭應該夾在 0，得到 %d", got)
+	}
+}
+
+// 近戰對手的行動值 ×4 走的是 8-bit 位移（0x1B139），會溢位丟高位。
+func TestHitChanceMeleeShiftIsEightBit(t *testing.T) {
+	c := &Character{Skills: []Slot{{ID: SkillBrawling, Value: 0}}}
+	// 行動值 64：8-bit ×4 ＝ 0，扣不到東西；換成 int 乘法會是 −256。
+	if got := HitChance(c, 60, EnemyData{Speed: 64, Weapon: ClassMelee}); got != 60 {
+		t.Fatalf("行動值 64 的近戰對手應該一點都扣不到（8-bit 溢位），得到 %d", got)
+	}
+	// 行動值 10：×4 ＝ 40，而且**不加那個 5**。
+	if got := HitChance(c, 60, EnemyData{Speed: 10, Weapon: ClassMelee}); got != 20 {
+		t.Fatalf("60−40 應該是 20，得到 %d", got)
+	}
+	// 同樣行動值但不是近戰：只扣 10，另外加 5。
+	if got := HitChance(c, 60, EnemyData{Speed: 10, Weapon: ClassRifle}); got != 55 {
+		t.Fatalf("60+5−10 應該是 55，得到 %d", got)
 	}
 }
 
