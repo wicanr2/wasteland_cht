@@ -101,9 +101,10 @@ func (s *CombatScene) partyActs(actor game.Combatant) []string {
 	}
 	dmg := int(game.PartyDamage(b.RNG, m, w, 0))
 	applied, killed := target.TakeDamage(b.RNG, dmg, 0)
-	out := []string{fmt.Sprintf("%s hits for %d", m.Name, applied)}
+	out := []string{fmt.Sprintf("%s hits %s for %d",
+		m.Name, s.enemyLabel(target), applied)}
 	if killed {
-		out = append(out, "died!")
+		out = append(out, s.enemyLabel(target)+" died!")
 		xp := target.Data.KillXP()
 		m.AddXP(xp)
 		out = append(out, fmt.Sprintf("%s gains %d experience.", m.Name, xp))
@@ -134,15 +135,25 @@ func (s *CombatScene) enemyActs(actor game.Combatant) []string {
 	}
 	// 敵方命中要 ≥（docs/re/20 §2）——方向與隊伍相反，別寫反了。
 	if !game.EnemyHits(b.RNG, game.HitChance(target, baseHitDefault, 0, 0, 0)) {
-		return []string{"misses."}
+		return []string{s.enemyLabel(e) + " misses."}
 	}
 	dmg := game.EnemyDamage(b.RNG, e.Data)
 	applied := target.TakeDamage(b.RNG, dmg)
-	out := []string{fmt.Sprintf("hits %s for %d", target.Name, applied)}
+	out := []string{fmt.Sprintf("%s hits %s for %d",
+		s.enemyLabel(e), target.Name, applied)}
 	if target.Dead() {
 		out = append(out, target.Name+" died!")
 	}
 	return out
+}
+
+// enemyLabel 是敵人在訊息裡的稱呼（種類名稱，`docs/re/85`）。
+// 查不到名稱時回 "It"——**不留空白**，不然訊息會變成 " misses."。
+func (s *CombatScene) enemyLabel(e *game.Enemy) string {
+	if n := s.Names.Name(e.Data.Kind); n != "" {
+		return n
+	}
+	return "It"
 }
 
 // weaponOf 取這個人裝備的武器資料。

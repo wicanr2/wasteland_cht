@@ -7,6 +7,7 @@ package play
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/wicanr2/wasteland_cht/internal/game"
 )
@@ -57,9 +58,23 @@ func (s *Scene) StartEncounter() (*CombatScene, error) {
 	s.snapshot = s.takeXP()
 	c := NewCombatScene(b)
 	c.Items = s.items
+	c.Names = s.enemyNames()
 	c.Log = append(c.Log, "Encounter begins...")
 	s.combat = c
 	return c, nil
+}
+
+// enemyNames 查六個敵人種類的名稱（`0x52 + Kind`，取單數那一段）。
+func (s *Scene) enemyNames() EnemyNames {
+	var out EnemyNames
+	for k := range out {
+		raw := s.exeString(0x52 + k)
+		if i := strings.IndexByte(raw, 0x0A); i >= 0 {
+			raw = raw[:i]
+		}
+		out[k] = strings.TrimSpace(raw)
+	}
+	return out
 }
 
 // takeXP 抄一份每個角色的經驗值。

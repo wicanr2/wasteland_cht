@@ -507,7 +507,8 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `0x141FA` | 2 | 對角色記錄的某個欄位加減（`bl` 有號負 ＝ 減）；欄位 `0x1D` 走傷害結算 | [`55`](55-radiation-and-armour-bypass.md) §3 |
 | `0x14410` | — | **輻射格結算**：逐一對隊員擲 `+0x01` 顆 d6 扣 CON ＋ 加 Radiation poisoning | [`55`](55-radiation-and-armour-bypass.md) §3 |
 | `0x13EC9` | 1 | **條件閘的主體**：逐個角色跑條件串列，收尾由記錄 `+0x00` 低位的四個旗標決定 | [`69`](69-gate-flags.md) §2 |
-| `0x16890` | — | **遭遇生成器**：擲 1／標頭 `+0x2F` → 找 section 15 空槽 → 擲種類 → 沿方向走 N 步找空地 → 放 nibble 15 | [`85`](85-enemy-map-icon.md) | 敵人圖示 ＝ `ds:A5B1h`（03 05 07）→ 敵人資料 `+0x06` → `ds:AA17h`；三段都在別的筆記解過 |
+| `0x16890` | — | **遭遇生成器**：擲 1／標頭 `+0x2F` → 找 section 15 空槽 → 擲種類 → 沿方向走 N 步找空地 → 放 nibble 15 | [`86`](86-combat-messages.md) | 敵人名稱 ＝ 執行檔字串表 1 的 `0x52 + Kind`（`Animal\n\ns\n` 取單數） |
+| [`85`](85-enemy-map-icon.md) | 敵人圖示 ＝ `ds:A5B1h`（03 05 07）→ 敵人資料 `+0x06` → `ds:AA17h`；三段都在別的筆記解過 |
 | [`84`](84-render-coverage.md) | 呈現層門檻：42 張地圖 ＋ 23 家設施 ＋ 戰鬥畫面；像素值域必須在 EGA 16 色內 |
 | [`83`](83-translation-coverage.md) | 中文化覆蓋率門檻：缺的必須在 untranslatable 清單裡、孤兒 key ＝ 0 |
 | [`82`](82-save-round-trip.md) | 存檔三道門檻（byte-for-byte／改動限縮／存讀一致）；`+0x0A` 所在地圖還沒存 |
