@@ -176,6 +176,11 @@ func New(rom *assets.Rom) (*Scene, error) {
 	if anims, err := rom.PictureAnims("allpics1"); err == nil {
 		s.anims = anims
 	}
+	// 技能資料表：條件閘的技能型別要用（docs/re/32 §2）。
+	// 載不到就讓技能型別的條件一律失敗，其餘照跑。
+	if raw, err := rom.SkillTableRaw(); err == nil {
+		s.world.Skills = game.SkillBytes(raw)
+	}
 	s.message = save.Place()
 	if raw, err := rom.LoadItemTable(save.File, 0); err == nil {
 		s.items = game.ParseItemTable(raw)

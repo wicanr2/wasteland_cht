@@ -46,43 +46,33 @@ const (
 // nibble 11 佔 42 張地圖的第二多（20,495 格）——**山、牆、水**。
 // 漏掉它玩家會穿山，而症狀是「路線與原版不同」而不是明顯的錯誤。
 //
-// **nibble 2 不在這裡**：它是條件式的，見 gateBlocks（docs/re/65）。
+// **nibble 2 不在這裡**：它是條件式的，見 gateNeedsCheck（docs/re/65）。
 var blocking = map[byte]bool{3: true, 11: true, 15: true}
 
 // nibble 2 是條件式的障礙（門、鎖、檢定）。
 const nibbleCondition = 2
 
-// gateBlocks 回報這一格的條件閘擋不擋（原版 sub_13E9B → sub_13EC9）。
+// Skills 是技能資料表，判定條件閘要用（呼叫端載入，規則層不讀執行檔）。
+// 沒設的話技能型別的條件一律失敗。
+type SkillSource = SkillTable
+
+// gateNeedsCheck 回報這一格要不要跑條件判定（原版 sub_13E9B 的前兩道分支）。
 //
-// 三條路，前兩條是直讀的：
-//
-//	記錄 +0x00 的 bit7 設 → **放行**（sub_1407E 的 `js`）
-//	bit6 沒設             → **放行**（sub_13EC9 的 `shl` ＋ `js`）
-//	兩者都不成立          → 跑條件串列（記錄 +0x0A 起，0xFF 結束）
-//
-// 資料面：2,699 格裡 1,522 格走第一條、1,031 格走第二條，
-// **只有 146 格真的要判定**。
-//
-// ⚠ 條件串列的判定還沒接上（`gates.go` 的 `Eval` 只試目前這一個角色，
-// 而原版是**逐個隊員試**，docs/re/65 §3），所以那 146 格**維持擋住**——
-// 與接上之前的行為相同，不會更糟。
-func (w *World) gateBlocks(x, y int) (blocked bool, msg int) {
+// 三條路見 docs/re/65 §1.1；這一支只回答「要不要判定」，**不判定**——
+// 判定有副作用（擲骰、消耗鑰匙），只能在真的要走過去時做一次。
+func (w *World) gateNeedsCheck(x, y int) (need bool, rec []byte) {
 	terrain, record, _, err := w.Block.At(x, y)
 	if err != nil || terrain != nibbleCondition {
-		return false, 0
+		return false, nil
 	}
-	rec, err := w.Block.SectionRecord(int(terrain), int(record))
-	if err != nil || len(rec) == 0 {
-		return false, 0
+	r, err := w.Block.SectionRecord(int(terrain), int(record))
+	if err != nil || len(r) == 0 {
+		return false, nil
 	}
-	if rec[0]&0x80 != 0 || rec[0]&0x40 == 0 {
-		return false, 0
+	if r[0]&0x80 != 0 || r[0]&0x40 == 0 {
+		return false, nil
 	}
-	// 擋住時印的是記錄 **+0x01**（sub_13EC9 的 `mov bl, 1`），不是 +0x00。
-	if len(rec) > 1 {
-		return true, int(rec[1])
-	}
-	return true, 0
+	return true, r
 }
 
 // nibble 10 是傳送，但記錄 +0x00 的 bit7 設起來時要先問玩家。
@@ -129,6 +119,8 @@ type World struct {
 	ViewX, ViewY int
 	// confirmed ＝ 玩家剛對「進新地點？」答了 Yes，下一步跳過確認閘。
 	confirmed bool
+	// Skills 是技能資料表（條件閘的技能型別要用）。
+	Skills SkillTable
 }
 
 // NewWorld 把隊伍放到指定座標並對齊視窗原點。
@@ -171,6 +163,15 @@ func (w *World) Step(dir Direction) (StepResult, error) {
 		return res, nil
 	}
 	w.confirmed = false
+	// 條件閘：真的要走過去時才判定一次（會擲骰、會消耗物品）。
+	if need, rec := w.gateNeedsCheck(nx, ny); need {
+		if member, _ := w.Party.EvalParty(w.RNG, ParseGates(rec), w.Skills); member < 0 {
+			if len(rec) > 1 {
+				res.Blocked = int(rec[1])
+			}
+			return res, nil
+		}
+	}
 	if !w.passable(nx, ny) {
 		// 被擋住：什麼都不推進，但**原版會印那一格記錄的訊息**
 		// （`This mountain is in your way.`，docs/re/62 §2）——
@@ -215,11 +216,8 @@ func (w *World) blockedMessage(x, y int) int {
 	if err != nil {
 		return 0
 	}
-	if terrain == nibbleCondition {
-		// 條件閘的訊息在 +0x01（docs/re/65 §1）。
-		if b, msg := w.gateBlocks(x, y); b {
-			return msg
-		}
+	if need, rec := w.gateNeedsCheck(x, y); need && len(rec) > 1 {
+		return int(rec[1]) // 條件閘的訊息在 +0x01（docs/re/65 §1）
 	}
 	rec, err := w.Block.SectionRecord(int(terrain), int(record))
 	if err != nil || len(rec) == 0 {
@@ -270,9 +268,10 @@ func (w *World) passable(x, y int) bool {
 	if blocking[terrain] {
 		return false
 	}
-	if b, _ := w.gateBlocks(x, y); b {
-		return false
-	}
+	// ⚠ **條件格在這裡一律當成可走。** 判定有副作用（擲骰、消耗鑰匙），
+	// 而 passable 會被尋路等唯讀路徑呼叫——判定放在 Step 裡做一次
+	// （docs/re/65 §1.1）。
+
 	if terrain == nibbleBarrier {
 		// nibble 4：記錄 +0x01 的 bit7 設起來才擋（門、關卡），
 		// 沒設的是一般的疊圖格，可以走（docs/re/62 §1）。
