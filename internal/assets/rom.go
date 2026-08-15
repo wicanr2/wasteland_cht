@@ -62,7 +62,17 @@ type Rom struct {
 // Open 讀入一個目錄裡的原版檔案並逐一驗 SHA-256。
 //
 // 檔名一律以小寫比對——原版是 DOS 大寫檔名，解壓工具給的大小寫不一定一致。
-func Open(dir string) (*Rom, error) {
+func Open(dir string) (*Rom, error) { return open(dir, true) }
+
+// OpenModified 開一個**已經被改過**的資料目錄副本，跳過 SHA-256 驗證。
+//
+// 只有一個正當用途：`cmd/wl-save` 這種「寫回存檔再讓原版讀」的驗收流程——
+// 寫過一次之後檔案雜湊當然就不對了，再驗下去這條路只能走一次。
+// ⚠ 一般載入一律用 Open。**跳過驗證等於放棄「拿到的是正版資料」這個保證**，
+// 所以這支不接受原版目錄以外的任何用法，錯了要看得出來是誰跳過的。
+func OpenModified(dir string) (*Rom, error) { return open(dir, false) }
+
+func open(dir string, verify bool) (*Rom, error) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, fmt.Errorf("讀取原版資料目錄：%w", err)
@@ -85,11 +95,13 @@ func Open(dir string) (*Rom, error) {
 			problems = append(problems, fmt.Sprintf("%s：讀不到（%v）", name, err))
 			continue
 		}
-		sum := sha256.Sum256(data)
-		if got := hex.EncodeToString(sum[:]); got != want.Hash {
-			problems = append(problems,
-				fmt.Sprintf("%s：SHA-256 是 %s，應該是 %s", name, got, want.Hash))
-			continue
+		if verify {
+			sum := sha256.Sum256(data)
+			if got := hex.EncodeToString(sum[:]); got != want.Hash {
+				problems = append(problems,
+					fmt.Sprintf("%s：SHA-256 是 %s，應該是 %s", name, got, want.Hash))
+				continue
+			}
 		}
 		rom.files[name] = data
 	}

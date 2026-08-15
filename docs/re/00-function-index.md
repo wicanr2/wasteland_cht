@@ -148,7 +148,7 @@
 | `0x1B7B7` | seg000+0xB7B7 | 3 | 5 | re/29-map-event-handlers.md |
 | `0x1BE31` | seg000+0xBE31 | 15 | 5 | re/17-packed-text.md、re/29-map-event-handlers.md、re/35-status-and-healing.md |
 | `0x1CBD3` | seg001+0x6C | 86 | 5 | re/00-master-index.md、re/26-movement-and-triggers.md、re/44-audio.md |
-| `0x1000C` | seg000+0xC | 3 | 4 | re/04-overlay-wla-bin.md、re/48-map-icons.md |
+| `0x1000C` | seg000+0xC | 3 | 4 | re/04-overlay-wla-bin.md、re/48-map-icons.md、re/49-save-roundtrip-on-hardware.md |
 | `0x116AC` | seg000+0x16AC | 132 | 4 | re/03-boot-and-asset-loading.md、re/05-storage-layer.md |
 | `0x12A4C` | seg000+0x2A4C | 42 | 4 | re/16-msq-block-layout.md、re/28-text-variants.md、re/32-skill-checks-and-xp.md、re/37-enemy-records-and-hp.md、re/48-map-icons.md |
 | `0x14085` | seg000+0x4085 | 11 | 4 | re/26-movement-and-triggers.md |
@@ -200,7 +200,7 @@
 | `0x163C1` | seg000+0x63C1 | 3 | 3 | re/26-movement-and-triggers.md |
 | `0x1649E` | seg000+0x649E | 57 | 3 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/26-movement-and-triggers.md |
 | `0x166D3` | seg000+0x66D3 | 67 | 3 | re/06-resource-directory.md |
-| `0x16716` | seg000+0x6716 | 70 | 3 | re/00-master-index.md、re/47-dosbox-oracle.md、re/48-map-icons.md |
+| `0x16716` | seg000+0x6716 | 70 | 3 | re/00-master-index.md、re/47-dosbox-oracle.md、re/48-map-icons.md、re/49-save-roundtrip-on-hardware.md |
 | `0x1676A` | seg000+0x676A | 99 | 3 | re/00-master-index.md、re/26-movement-and-triggers.md、re/27-game-clock.md |
 | `0x16F35` | seg000+0x6F35 | 23 | 3 | re/41-command-handlers.md |
 | `0x17533` | seg000+0x7533 | 49 | 3 | re/14-fonts-and-text-encoding.md |
