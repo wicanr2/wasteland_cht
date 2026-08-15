@@ -62,6 +62,8 @@ func (f *FacilityScene) Key(k byte, p *game.Party, items game.ItemTable) bool {
 		f.shopKey(k, p, items)
 	case game.FacilityDoctor:
 		f.doctorKey(k, p)
+	case game.FacilityTrainer:
+		f.trainerKey(k, p)
 	default:
 		// 訓練師與其餘兩支還沒解流程（docs/re/42 §7）——
 		// 任何鍵都不做事，ESC 才離開。**不要發明選單。**
@@ -154,6 +156,42 @@ func (f *FacilityScene) buyOne(p *game.Party, items game.ItemTable, n int) {
 	f.note = fmt.Sprintf("Bought for $%d.", e.Price)
 }
 
+// trainerKey 是訓練師（docs/re/52 §2）。
+//
+// ⚠ **三條「走不通」都回到選人，不是離開設施**：不能行動、技能點數 0、
+// 沒有可學的。寫成錯誤分支會讓玩家莫名其妙被踢出去。
+func (f *FacilityScene) trainerKey(k byte, p *game.Party) {
+	st := f.state
+	switch {
+	case k == keyNextChar:
+		st.Who = nextAble(p, st.Who)
+	case k >= '1' && k <= '9':
+		f.learnOne(p, int(k-'1'))
+	}
+}
+
+// learnOne 學清單上的第 n 個技能。
+func (f *FacilityScene) learnOne(p *game.Party, n int) {
+	c := f.member(p)
+	if c == nil {
+		return
+	}
+	if c.SkillPts == 0 {
+		f.note = "You have no skill points."
+		return
+	}
+	list := f.Skills
+	if n < 0 || n >= len(list) {
+		return
+	}
+	ok, reason := c.LearnSkill(list[n].ID, list[n].Data)
+	if !ok {
+		f.note = reason
+		return
+	}
+	f.note = fmt.Sprintf("Learned skill %d.", list[n].ID)
+}
+
 // sellable 是這個人身上賣得掉的東西。
 func (f *FacilityScene) sellable(p *game.Party, items game.ItemTable) []game.SellListEntry {
 	c := f.member(p)
@@ -238,6 +276,16 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 	f.Lines = append(f.Lines, fmt.Sprintf("%s  You have $%d", c.Name, c.Money))
 
 	switch {
+	case f.Facility.Kind == game.FacilityTrainer:
+		f.Lines = append(f.Lines, fmt.Sprintf("Skill points: %d", c.SkillPts))
+		for i, sk := range f.Skills {
+			if i >= 9 {
+				break
+			}
+			f.Lines = append(f.Lines,
+				fmt.Sprintf("%d) skill %d  cost %d", i+1, sk.ID,
+					game.SkillCost(sk.Data.BaseCost, int(c.SkillLevel(sk.ID))+1)))
+		}
 	case f.Facility.Kind == game.FacilityDoctor:
 		h := game.HealSession{Facility: f.Facility, Char: c}
 		f.Lines = append(f.Lines,

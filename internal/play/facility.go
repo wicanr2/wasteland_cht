@@ -29,6 +29,17 @@ type FacilityScene struct {
 	// 原版也沒有跨場次保留的東西。
 	state *shopState
 	note  string // 這一步要多印的一行（「背包滿了」那類）
+
+	// Skills 是訓練師教得了的技能。**這家店教什麼由呼叫端給**——
+	// 原版的清單走 `sub_1BDFF`，那一支與商店的清單框架同源、還沒逆向
+	// （docs/re/52 §4），所以不在這裡假裝算得出來。
+	Skills []TrainableSkill
+}
+
+// TrainableSkill 是訓練師教得了的一個技能。
+type TrainableSkill struct {
+	ID   byte
+	Data game.SkillData
 }
 
 // EnterFacility 從地圖進設施。

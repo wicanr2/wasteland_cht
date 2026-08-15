@@ -195,6 +195,7 @@
 | [`docs/re/49-save-roundtrip-on-hardware.md`](docs/re/49-save-roundtrip-on-hardware.md) | 存檔改寫的實機驗收：寫得回去、原版讀得進去、兩張畫面各 0 個不同的像素 |
 | [`docs/re/50-unnamed-items.md`](docs/re/50-unnamed-items.md) | 物品 70／71／72 的空名字：被清空不是遺失、字母序夾出 H–M、哪些欄位不算證據 |
 | [`docs/re/51-encounter-driver.md`](docs/re/51-encounter-driver.md) | 遭遇驅動器 `sub_11CD0`：地圖與戰鬥之間那一層、四組一起結算、經驗值前後相減 |
+| [`docs/re/52-trainer-facility.md`](docs/re/52-trainer-facility.md) | 技能訓練師的流程：五個設施同一個模板、三條「走不通」都回選人 |
 | [`docs/spec/00-index.md`](docs/spec/00-index.md) | **規格索引與閘門狀態**：哪些可以動工、其餘擋在什麼上 |
 | [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
 | [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |
@@ -270,7 +271,7 @@
 **Remake 進度**：**二十六份規格全部 READY 並實作完成**（資產、亂數、畫面與文字、移動與時鐘、
 角色與存檔、戰鬥、世界事件、設施、中文排版、翻譯管線、回合結構、遭遇生成、戰鬥指令、
 遭遇掃描、戰鬥畫面、指令處理程式、設施互動迴圈、段落手札、輸入層、音效、遭遇迴圈、回合結算、設施場景、模式路由、設施選單），
-`cmd/wasteland -mode play` 已經可以從出廠存檔開始走地圖、遇敵進戰鬥（名單畫面下指令、逐回合打完）、踩進設施買賣與治療、存檔。
+`cmd/wasteland -mode play` 已經可以從出廠存檔開始走地圖、遇敵進戰鬥（名單畫面下指令、逐回合打完）、踩進設施買賣、治療、學技能、存檔。
 **中文化的文本工作已全部完成**：4,806 條可翻字串 ＋ 段落書 162 段。
 
 ### 7.1 下一輪要做的（照 §0 的節奏：讀 RE → 寫 spec → 實作）
