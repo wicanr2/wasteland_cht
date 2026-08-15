@@ -594,10 +594,17 @@ func (s *Scene) drawFacility(f *render.Frame) {
 // 存檔寫回時再落到那三個 byte（規格 05）。
 func (s *Scene) doTeleport(rec []byte) error {
 	w := s.world
-	here := game.Return{X: w.Party.X, Y: w.Party.Y, MapID: uint8(s.mapID())}
+	here := game.Return{X: w.Party.X, Y: w.Party.Y, MapID: uint8(s.MapID())}
 	target, back := game.ResolveTeleport(rec, here, s.back)
 	s.back = back
-	if int(target.MapID) == s.mapID() {
+	// 編號 bit7 設起來的是**建築內部**，要先查表換成真正的資源編號
+	// （docs/re/61）。忘了換會拿 130 這種值去索引 42 個區塊。
+	id, err := s.rom.ResolveMapID(target.MapID)
+	if err != nil {
+		return err
+	}
+	target.MapID = id
+	if int(target.MapID) == s.MapID() {
 		// 同一張地圖：只搬座標，不重載。
 		w.Teleport(target.X, target.Y)
 		s.dirty = true
@@ -606,5 +613,5 @@ func (s *Scene) doTeleport(rec []byte) error {
 	return s.LoadMap(int(target.MapID), target.X, target.Y)
 }
 
-// mapID 是目前這張地圖的資源編號。
-func (s *Scene) mapID() int { return s.blockID }
+// MapID 是目前這張地圖的資源編號。
+func (s *Scene) MapID() int { return s.blockID }
