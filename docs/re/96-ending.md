@@ -166,9 +166,19 @@ sub_10FD3: 讀 4 bytes ＝ 8 個 nibble，位切片成四個平面
 `Scene.BeginEnding`／`TickEnding`（`internal/play/ending.go`），
 `FacilityEnding`（原本叫 `FacilityUnknown`）走進去直接進結局。
 
+清算照原版依地圖判定（`Scene.collectToll`），旗標寫進角色記錄
+（`Mission`／`Praised`，`StoreTo` **只動 bit0**，其餘七位未解不碰）。
+
 ⚠ **BIOS 一個 tick 是 1/18.2 秒，Ebiten 一幀是 1/60。** 每幀推一個 tick
 會讓結局用三倍速播完——而畫面看起來只是「動畫比較快」，不像壞掉。
 這裡每 3 幀推一個 tick。
+
+**兩處與原版不同，都是簡化不是未解**：
+
+| 原版 | 這一版 |
+|---|---|
+| 清算逐人停 105 tick，每個死者載一次肖像（圖 52） | 一次算完，名單走 `Killed()` |
+| 刪掉一組之後把後面的組往前搬（15 bytes 一組） | 直接把那一組的槽表歸零，不搬 |
 
 ## 5. `+0x4B`／`+0x4C`：任務旗標與表揚旗標
 
@@ -199,15 +209,43 @@ sub_10FD3: 讀 4 bytes ＝ 8 個 nibble，位切片成四個平面
 remake 因此把 Radio 的兩輪都接上了（`internal/play/command.go`）：
 第一輪表揚、第二輪升級。先前只做第二輪，理由就是這兩個 byte 未解。
 
-## 6. 還沒解的
+## 6. 三支輔助函式與那張肖像
 
-- `sub_1142B`、`sub_162C7`、`sub_1785E` 三支輔助函式（進場那兩段的畫面切換）。
-- 結局表（`ds:D18Eh`）第 6–9 條是 *The History of the Rangers* 的後日談，
-  **沒有人在結局流程裡印它們**——`sub_1B7B7` 只被叫了 1–5。
-  下一個入口：掃還有誰把 `ds:46B0h` 換成 `0xD173`。
-- 載圖 `0x34`（清算時每個人都載一次）是哪一張。
+| 位址 | 是什麼 |
+|---|---|
+| `sub_1142B` | `sub_1CBD3(ax ＝ 7)` ＝ **播音效 7**（`docs/re/44`）|
+| `sub_162C7` | `ds:46FEh ← 0` 之後 `jmp sub_17A6B` ＝ 清訊息視窗 |
+| `sub_1785E` | 一行：`ds:B265h ← 9E53h`，20 個呼叫端共用的輸出鉤子 |
+| 圖 `0x34`（52） | **巡守員肖像**：紅底、戴帽、扛槍的人形，96 × 84。清算時每個死者載一次 |
 
-## 7. 可重跑的完整指令
+## 7. 後日談那四條沒有人印
+
+結局表（`ds:D18Eh`）第 6–9 條是 *The History of the Rangers, Vol. II*
+的獻詞——「高踞鄰山，巡守員看著烈火吞沒 Base Cochise」那一段。
+**遊戲裡走不到它們**：
+
+- `sub_1B7B7` 在結局流程裡只被叫了 1–5（四段敘述 ＋ 死訊）。
+- `ds:D18Eh` 這個立即數在全檔只出現一次，在 `0x1B7C0`——
+  而那一行屬於 **`0x1B7BA` 這個沒有人呼叫的區塊**：
+
+```
+0x1B7B7  e9 0f 00   jmp sub_1B7C9      ; ← **跳過下面這一段**
+0x1B7BA  50         push ax            ; 沒有呼叫端；0xB7BA 這個 word
+0x1B7BB  e8 …       call sub_1785E     ;   在全檔一次都沒出現
+0x1B7BF  b9 8e d1   mov cx, 0D18Eh     ; 換 ds:4692h（另一個表基址全域）
+0x1B7C2  89 0e 92 46
+0x1B7C6  e9 …       jmp sub_178A3
+0x1B7C9  50         push ax            ; ← 活著的那一支（換 ds:46B0h）
+```
+
+`sub_1B7B7` 的 `jmp` 正好跨過整段——**兩支功能相同、只差換哪個全域的印字函式，
+新的那支寫在舊的後面，入口用一個 jmp 跳過去**。這是改版留下的形狀。
+
+那四條文字也不在 `paragraphs.txt` 或 `manual.txt` 裡（都 grep 過）。
+**它是只存在於執行檔、玩不到的文字**——保存價值高於實作價值。
+重製版要不要把它放進手札是一個編輯決定，不是 RE 結論，先不做。
+
+## 8. 可重跑的完整指令
 
 ```bash
 WL_IDA_TARGET="$PWD/workplace/analysis/unpacked/wl.merged.exe" \
@@ -234,9 +272,20 @@ while True:
 
 tools/go.sh test ./internal/assets/ -run TestEndAnimation -v
 tools/go.sh test ./internal/play/ -run 'TestEnding|TestFacilityFourIsTheEnding' -v
+tools/go.sh run ./cmd/wl-shot -mode pic -pic 52 -out workplace/shots/pic52.png
+
+# 後日談的印字函式沒有人呼叫：位址與立即數兩種形式都掃過
+python3 -c "
+d=open('workplace/analysis/unpacked/wl.merged.exe','rb').read()
+for w in (b'\xba\xb7', b'\x8e\xd1'):
+    i=-1
+    while True:
+        i=d.find(w,i+1)
+        if i<0: break
+        print(w.hex(), hex(i+0xFF50))"
 ```
 
-## 8. 這一輪學到的（寫成規則）
+## 9. 這一輪學到的（寫成規則）
 
 - **「零呼叫端」有第三種可能：它在表裡。** 先掃 `E8`／`E9`／`EB` 全空、
   正對照又證明掃描沒問題，剩下的就是**位址以資料的形式存在**。
@@ -253,5 +302,9 @@ tools/go.sh test ./internal/play/ -run 'TestEnding|TestFacilityFourIsTheEnding' 
   「結局會設它」，單看 Radio 只知道「它擋著一段賀詞」；
   兩邊擺在一起才是「參與過摧毀 Base Cochise」。
   **未解的欄位要找齊讀寫點再下結論，不要在第一個使用點就命名。**
+- **一個 `jmp` 跳過一整段，多半是改版留下的。** `0x1B7B7` 跳過
+  `0x1B7BA`–`0x1B7C8` 直接到 `0x1B7C9`，而被跳過的那段是同一支函式的舊版本。
+  **看到「跳過去的距離剛好等於下一個區塊」，先假設那是死碼再驗**——
+  驗法是掃它的位址有沒有以 word 的形式出現在任何地方。
 - **版面對不對，用等式驗不要用抽樣。** 15 格 × 4 ＋ 2,433 × 6 ＋ 2 剛好等於
   14,660，這比「前幾筆看起來合理」強得多——欄位少讀一個就對不齊。
