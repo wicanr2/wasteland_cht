@@ -63,6 +63,8 @@ func (s *Scene) runCommand(c Command) (bool, error) {
 	case CmdUse:
 		s.beginUse()
 		return true, nil
+	case CmdView:
+		return s.cmdView()
 	default:
 		// **不猜**：入口已經在 `docs/re/91` §1 定位，行為還沒讀。
 		s.message = fmt.Sprintf("%s: not wired yet", CommandNames[c])
@@ -123,6 +125,30 @@ func (s *Scene) cmdRadio() (bool, error) {
 	s.dirty = true
 	return true, nil
 }
+
+// cmdView 是 `View`（`0x160A8`）：切到下一支隊伍。
+//
+// 原版從目前這一組往後找下一組能切的，**繞回起點就把畫面切回原本那組**
+// ——也就是「什麼都沒發生」（`docs/re/93` §3）。remake 只有第 0 組
+// （`docs/spec/21` §4），所以永遠走那條路；接上多隊伍之後這一支不用改。
+func (s *Scene) cmdView() (bool, error) {
+	groups := s.partyGroups()
+	if groups <= 1 {
+		s.message = "No other party."
+		s.dirty = true
+		return true, nil
+	}
+	// 多隊伍接上之後在這裡輪替；現在到不了。
+	s.message = "View: not wired yet"
+	s.dirty = true
+	return true, nil
+}
+
+// partyGroups 回報目前有幾支隊伍。
+//
+// remake 只建第 0 組（`docs/spec/21` §4 的 `PartyGroupState`），
+// 原版上限是四組（`docs/re/93` §2 的 `ds:4657h`）。
+func (s *Scene) partyGroups() int { return 1 }
 
 // commandBar 是要畫在畫面底部的那一行。
 func commandBar() string {
