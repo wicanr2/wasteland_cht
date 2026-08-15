@@ -64,6 +64,9 @@ type Scene struct {
 	// disband 為 true 時停在「誰要離隊」的選擇上。
 	disband bool
 
+	// encAsk 非 0 時停在 `ENC` 的「別組要不要打」Y／N 上，值 ＝ 組號 ＋ 1。
+	encAsk int
+
 	// groupID 是目前操作的隊伍組（0–3，`docs/re/93` §2 的四組上限）。
 	groupID int
 
@@ -425,6 +428,9 @@ func (s *Scene) Update(in input.Input) (bool, error) {
 	}
 	if s.disband {
 		return s.updateDisband(in)
+	}
+	if s.encAsk != 0 {
+		return s.updateEncAsk(in)
 	}
 	return s.updateMap(in)
 }
