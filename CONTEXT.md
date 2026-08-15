@@ -209,7 +209,8 @@
 | [`docs/re/62-fourth-gate-terrain-blocking.md`](docs/re/62-fourth-gate-terrain-blocking.md) | 第四道閘：**nibble 11 是山與牆**（20,495 格），擋住時印記錄的訊息 |
 | [`docs/re/63-resource-id-vs-index.md`](docs/re/63-resource-id-vs-index.md) | 資源目錄的 **ID ≠ 切片索引**（42 個裡 28 個不同）；遊戲的地圖編號一律是 ID |
 | [`docs/re/64-enter-location-prompt.md`](docs/re/64-enter-location-prompt.md) | 進新地點要先問 `Enter new location?`；判準是記錄 `+0x00` 的 **bit6** |
-| [`docs/re/65-third-gate-conditions.md`](docs/re/65-third-gate-conditions.md) | nibble 2 是**條件式**不是一律擋；remake 的條件層已寫好但沒接上移動 |
+| [`docs/re/65-third-gate-conditions.md`](docs/re/65-third-gate-conditions.md) | nibble 2 是**條件式**：bit7 或 ¬bit6 直接放行（2,553 格），只有 146 格要判定 |
+| [`docs/re/66-nibble2-event-and-heat.md`](docs/re/66-nibble2-event-and-heat.md) | nibble 2 的閘與事件是同一支；沙漠高溫的訊息與扣血路徑已定位，入口未解 |
 | [`docs/spec/00-index.md`](docs/spec/00-index.md) | **規格索引與閘門狀態**：哪些可以動工、其餘擋在什麼上 |
 | [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
 | [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |
@@ -320,7 +321,8 @@
 | # | 還沒解的 | 為什麼不擋 |
 |---|---|---|
 | A12b | `CURS` 的**消費端**：哪個圖形對應哪個狀態，以及資料的 16 寬為何與 slot 21 的 24 寬對不上 | 版面已解（8 個 32 × 16，遮罩 ＋ 圖形並排，`docs/re/57`）；遊戲主線不用滑鼠 |
-| — | **nibble 2 的條件串列沒接上移動**：`gates.go` 的 `ParseGates`／`Eval` 已實作也測過，但 `passable` 無條件擋住 nibble 2 —— **門永遠打不開**，`EventGate` 是死碼（`docs/re/65`） | **這一項擋玩得通**：門後面的內容全部到不了 |
+| — | **nibble 2 的 146 格判定**（其餘 2,553 格已照 bit7／¬bit6 放行）：`Eval` 只試目前這一個角色，原版逐個隊員試；五種條件型別的判定函式與收尾未讀（`docs/re/65` §3） | 真正的門與技能檢定到不了，其餘已通 |
+| — | **沙漠高溫**：三階段訊息（資源 0 字串 20／19／22）與扣血路徑（`sub_141FA` → `sub_157D6`）都定位了，但**沒有格子指到那六筆記錄**——入口未解（`docs/re/66` §2） | 長途旅行不會被消耗，比原版好活 |
 | — | **商店與醫生怎麼進去**：23 筆設施記錄只有 2 筆有格子指到，而 nibble 6、44 個 opcode、`sub_12C80` 的呼叫端、商店函式的引用四條路都排除了。下一步是實機走進 Quartz 商店記下地圖與座標，反查那一格（`docs/re/60` §8） | **這一項擋玩得通**：商店、醫生、大部分訓練師目前到不了 |
 | A13 | `TRANSTBL` 的**用途**（形狀已解：50 組 × 16 的索引對照表） | 三層掃描都找不到消費端，與資源 idx 7 同一種遺留（`docs/re/56`） |
 | — | 物品 `+0x03` 低 3 位、敵人 `+0x04` 高 4 位**都沒有讀取端** | 資料裡有值但程式沒讀；原樣 round-trip，不給語意 |
