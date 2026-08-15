@@ -15,6 +15,7 @@ import (
 	"os"
 
 	"github.com/wicanr2/wasteland_cht/internal/assets"
+	"github.com/wicanr2/wasteland_cht/internal/audio"
 	"github.com/wicanr2/wasteland_cht/internal/play"
 	"github.com/wicanr2/wasteland_cht/internal/ui"
 	"github.com/wicanr2/wasteland_cht/internal/viewer"
@@ -34,17 +35,28 @@ func main() {
 		err = rom.LoadImage(*imagePath)
 	}
 	var scene ui.Scene
+	var synth *audio.Synth
 	title := "Wasteland 資產檢視器"
 	if err == nil {
 		if *mode == "play" {
-			scene, err = play.New(rom)
-			title = "Wasteland（荒野遊俠）"
+			var s *play.Scene
+			s, err = play.New(rom)
+			scene, title = s, "Wasteland（荒野遊俠）"
+			// 音效資料在執行檔的 seg005 裡（docs/re/44），拿不到就靜音跑，
+			// **不要讓沒有聲音變成開不起來**。
+			if err == nil {
+				if data, aerr := rom.AudioData(); aerr == nil {
+					if p, perr := audio.New(data); perr == nil {
+						synth = audio.NewSynth(p, audio.SampleRate)
+					}
+				}
+			}
 		} else {
 			scene, err = viewer.New(rom, viewer.Mode(*mode), *block, *pic)
 		}
 	}
 	if err == nil {
-		err = ui.Run(scene, title, *scale)
+		err = ui.Run(scene, title, *scale, synth)
 	}
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "錯誤：", err)

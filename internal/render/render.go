@@ -246,6 +246,13 @@ func (f *Frame) DrawText(font *assets.Font, lines []textlayout.Line) error {
 	return nil
 }
 
+// CmdRow 是地圖指令列的字元列。
+//
+// **重製決策**：原版的指令列字串已確認（`docs/re/72` §4、`docs/re/91`），
+// 但它印在哪一列還沒從程式碼讀出來。訊息視窗占字元列 18–23，
+// 螢幕共 25 列，所以放在最後一列 24——不蓋到任何已解的區域。
+const CmdRow = 24
+
 // DrawClock 畫時鐘（外框上緣，字元欄 28、列 0，兩位補零、24 小時制）。
 func (f *Frame) DrawClock(font *assets.Font, hour, minute int) error {
 	if hour < 0 || hour > 23 || minute < 0 || minute > 59 {
