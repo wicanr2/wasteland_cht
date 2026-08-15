@@ -32,8 +32,9 @@
 | [`19-paragraph-journal.md`](19-paragraph-journal.md) | **READY**（已實作） | `internal/game` ✅、`internal/play` ✅ | — |
 | [`20-mouse-input.md`](20-mouse-input.md) | **READY**（已實作） | `internal/input` ✅ | — |
 | [`08-audio.md`](08-audio.md) | **READY**（已實作） | `internal/audio` ✅ | 3／6／8 **沒有呼叫端**（已確認，`docs/re/44` §6）|
+| [`21-encounter-loop.md`](21-encounter-loop.md) | **READY**（已實作） | `internal/play` ✅ | 只做第 0 組；多組的兩個 Yes／No 提示不實作 |
 
-**二十一份 READY 規格涵蓋資產層、呈現層、亂數、規則層十一塊、戰鬥畫面、段落手札、中文排版與翻譯管線**——
+**二十二份 READY 規格涵蓋資產層、呈現層、亂數、規則層十一塊、戰鬥畫面、段落手札、中文排版與翻譯管線**——
 走一步、遊戲時鐘、體力隨時間恢復、事件分派，以及**從視野掃出遭遇、生怪、下指令、
 排行動順序到打完一場戰鬥或逃走**的整條路。
 **規格全部 READY，沒有未寫的了。**
