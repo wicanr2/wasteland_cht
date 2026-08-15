@@ -147,7 +147,40 @@
 | 資源表 `+4` 欄位（`ds:92E3h`）的語意 | 未解 |
 | `ds:9168h == 0x40` 這個磁碟切換旗標由誰設定 | 未追 |
 | `GAME1`／`GAME2` 的內部結構 | 未解，需要先看載入器怎麼解析 |
-| `sub_183B1`／`sub_1841F`／`sub_184E8`／`sub_18744` 這幾個載入器 | 未解 |
+| `sub_183B1`／`sub_1841F`／`sub_18744` 這幾個載入器 | 未解 |
+| `sub_11B83` 的緩衝管理（`ds:9505h`／`ds:A40Eh`／`ds:A410h`） | 未解 |
+
+## 7.1 `sub_11AE8`：讀 8 bytes 的段標頭
+
+END.CPA 的載入路徑（`sub_1B7FE`，`docs/re/23` §6）用到兩支讀檔常式，
+這一輪把前一支讀完了：
+
+```
+sub_11AE8(al):
+  si ← ds:472Fh ＋ ds:92E8h        ; 目前的讀取位置
+  sub_118D2                        ; 補緩衝區
+  搬 8 bytes → ds:92F9h            ; ← **段標頭**
+    搬到 ds:92F1h 就再補一次緩衝
+  al ≠ 0 且 ds:A414h ＝ 0 →
+    比對 'm''s'                    ; ← 驗 msq magic（0x6D、0x73）
+```
+
+所以 `sub_11AE8(1)` ＝ **讀 8 bytes 段標頭並驗 magic**，`sub_11AE8(0)` ＝ 只讀不驗。
+`sub_1B7FE` 對 END.CPA 呼叫兩次（第一段驗、第二段不驗），
+中間各接一次 `sub_11B83`。
+
+`sub_11B83(cx ＝ 要幾 bytes, dx ＝ 目的位址)` 拿那 8 bytes 當參數：
+`ds:92F9h`／`ds:92FBh` 是一個 **32-bit 的剩餘長度**，
+`bx ← cx；sub bx, ax；sbb cx, dx` 就是拿「要讀的」與「還剩的」比，
+要的比剩的多就改成剩的。剩下的緩衝管理（`ds:9505h`／`ds:A40Eh`／`ds:A410h`）
+還沒讀完。
+
+⚠ **END.CPA 的解密參數仍未解。** 已知檔頭 4 bytes ＝ `0x4800`、
+接著 `msq` magic，但段標頭是 **8 bytes 不是 6**，
+所以 body 的起點與 checksum 的位置都要從 `sub_11B83` 讀出來，
+不能拿地圖區塊那一套去套（試過 checksum 在 `+4`／`+6`／`+8`、
+body 從 `+10`／`+12`，六種組合解出來都不是合法的 Huffman 長度欄）。
+**下一步是把 `sub_11B83` 剩下的 140 bytes 讀完**，看它到底是純搬運還是邊讀邊解。
 
 ## 8. 重跑方式
 
@@ -156,6 +189,10 @@ WL_IDA_TARGET="$PWD/workplace/analysis/unpacked/wl.merged.exe" \
   tools/ida.sh run tools/ida/export_function.py \
     workplace/analysis/dumps/storage-layer.json \
     0x11445 0x115E5 0x118C3 0x11730 0x118D2 --callers
+
+WL_IDA_TARGET="$PWD/workplace/analysis/unpacked/wl.merged.exe" \
+  tools/ida.sh run tools/ida/export_function.py \
+    workplace/analysis/dumps/loadio.json 0x11AE8 0x11B83
 ```
 
 資源表可直接從解包映像讀：線性 `0x260CA` ＝ 檔案位移 `0x1617A`，8 bytes × 8 筆。
