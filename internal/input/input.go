@@ -28,6 +28,10 @@ const (
 // Direction 照原版的方向編號（docs/re/26 §2）。
 type Direction int
 
+// ⚠ **`Direction` 的零值是 `DirUp` 不是 `DirNone`。** 0–3 對應原版捲動跳表的
+// 索引（`docs/re/26` §1.1），所以 `DirNone` 只能擺在 −1。
+// **自己組 `Input` 時一定要明確寫 `Dir: DirNone`**——忘了就會變成「每一幀往上走」，
+// 而症狀是遠處的怪事（按字母鍵卻在移動、訊息莫名其妙變成 BLOCKED）。
 const (
 	DirNone  Direction = -1
 	DirUp    Direction = 0

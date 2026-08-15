@@ -14,6 +14,8 @@
 //	x30                      把前一個動作重複 30 次
 //	@57:39                   把隊伍搬到 (57, 39)（用冒號——逗號是腳本的分隔符）
 //	hour=2                   把時鐘的「時」設成 2
+//	map=19:32:32             換到地圖 19 並站到 (32, 32)
+//	fight                    直接開一場遭遇（不等擲骰），驗戰鬥流程用
 //	shot=/tmp/a.png          當下截一張圖
 //
 // 這支不依賴 Ebiten，所以在沒有 X／Wayland 的容器裡也跑得動。
@@ -75,6 +77,8 @@ type step struct {
 	moveTo *[2]uint8
 	hour   int
 	shot   string
+	loadTo *[3]int // map=id:x:y
+	fight  bool
 }
 
 type runner struct {
@@ -119,6 +123,18 @@ func (r *runner) do(s step) error {
 		w := r.scene.World()
 		w.Clock.Hour = uint8(s.hour)
 		r.scene.Invalidate()
+	case s.loadTo != nil:
+		if err := r.scene.LoadMap(s.loadTo[0], uint8(s.loadTo[1]), uint8(s.loadTo[2])); err != nil {
+			return err
+		}
+	case s.fight:
+		c, err := r.scene.StartEncounter()
+		if err != nil {
+			return err
+		}
+		if c == nil {
+			return fmt.Errorf("這一格附近沒有打得起來的遭遇（視窗裡沒有敵人格，或距離過不了門檻）")
+		}
 	case s.shot != "":
 		return writePNG(r.scene, s.shot)
 	default:
@@ -185,7 +201,8 @@ func repeat(tok string) (int, bool) {
 }
 
 func one(tok string) (step, error) {
-	st := step{raw: tok, hour: -1}
+	// ⚠ Dir 一定要明確設 DirNone：零值是 DirUp（internal/input）。
+	st := step{raw: tok, hour: -1, in: input.Input{Dir: input.DirNone}}
 	switch strings.ToLower(tok) {
 	case "up":
 		st.in.Dir = input.DirUp
@@ -201,6 +218,8 @@ func one(tok string) (step, error) {
 		st.in.Action = input.ActionConfirm
 	case "quit":
 		st.in.Action = input.ActionQuit
+	case "fight":
+		st.fight = true
 	default:
 		switch {
 		case strings.HasPrefix(tok, "@"):
@@ -215,6 +234,12 @@ func one(tok string) (step, error) {
 				return st, fmt.Errorf("%q 的時不在 0–23", tok)
 			}
 			st.hour = h
+		case strings.HasPrefix(strings.ToLower(tok), "map="):
+			var id, x, y int
+			if _, err := fmt.Sscanf(tok[4:], "%d:%d:%d", &id, &x, &y); err != nil {
+				return st, fmt.Errorf("%q 不是 map=id:x:y", tok)
+			}
+			st.loadTo = &[3]int{id, x, y}
 		case strings.HasPrefix(strings.ToLower(tok), "shot="):
 			st.shot = tok[5:]
 		case len(tok) == 1:

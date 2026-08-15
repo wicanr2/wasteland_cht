@@ -222,6 +222,26 @@ func loadParty(save *assets.Save) (*game.Party, int, error) {
 	return p, int(g.MapID), nil
 }
 
+// LoadMap 換一張地圖並把隊伍放到指定座標。
+//
+// 給驗證工具用（`cmd/wl-play` 的 `map=N`）：起始地圖沒有靜態遭遇格，
+// 要驗戰鬥流程得換到有的那幾張（`docs/re/51`）。
+func (s *Scene) LoadMap(id int, x, y uint8) error {
+	b, err := s.rom.Block(id)
+	if err != nil {
+		return err
+	}
+	tiles, err := s.rom.Tileset(b.Tileset)
+	if err != nil {
+		return err
+	}
+	s.gfx.Tiles = tiles
+	s.world.EnterMap(b, x, y)
+	s.blockFile, s.blockID = b.Resource.File, b.Resource.ID
+	s.dirty = true
+	return nil
+}
+
 // PollRNG 推進一次亂數產生器，等同原版的鍵盤輪詢（規格 02 §1.1）。
 //
 // ⚠ **這是熵的唯一來源。** 原版 `sub_18EFE` 每輪詢一次就推進一次，
@@ -379,7 +399,7 @@ func (s *Scene) updateMap(in input.Input) (bool, error) {
 		if c, err := s.StartEncounter(); err != nil {
 			s.message = "ERROR: " + err.Error()
 		} else if c != nil {
-			s.message = c.Log[len(c.Log)-1]
+			s.message = "YOU ARE BEING ATTACKED!"
 		}
 	}
 	return true, nil
@@ -415,9 +435,10 @@ func (s *Scene) describe(res game.StepResult) string {
 		}
 		return "SOMETHING HAPPENS."
 	}
-	if res.Encounter {
-		return "YOU ARE BEING ATTACKED!"
-	}
+	// ⚠ **這裡不報遭遇。** 擲骰說「觸發」不等於打得起來——還要視窗裡有敵人格、
+	// 距離過得了記錄的兩道門檻（docs/spec/15）。掃描落空卻印「被攻擊」，
+	// 玩家會看到一句什麼都沒發生的警告。訊息由 updateMap 依 StartEncounter
+	// 的結果決定。
 	return ""
 }
 
