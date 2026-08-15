@@ -1,0 +1,112 @@
+package play
+
+// `ENC` 指令（`sub_11CD0`，指令表入口是 `0x11CE7`）。
+//
+// 它是**戰鬥驅動器的手動入口**：走一步之後掃到遭遇會自動進戰鬥，
+// 按 `E` 則是玩家自己叫它跑一輪。同一支程式碼兩個入口
+// （`docs/re/51` §1）——所以這裡不另寫一套，直接叫 `StartEncounter`。
+//
+// 原版的完整形狀是「對四支隊伍各跑一個戰鬥回合」：
+// 逐組切過去（`sub_16149`），**只有在同一張地圖的組直接開打**，
+// 其餘的先印字串 `0x36` ＋ `0x4C` 問一句 Y／N（`docs/re/94` §2）。
+// 打完回到 `0x11ED7` 逐人把經驗值前後相減，差值不為零就印
+// 「`\x0b gains ` 數字 ` experience.`」——**原版沒有「這場拿多少」這個欄位**，
+// 它是打之前抄一份、打完相減，`Scene.finishEncounter` 已經照做。
+
+import (
+	"fmt"
+
+	"github.com/wicanr2/wasteland_cht/internal/input"
+)
+
+// encOffMapPrompt 是字串 `0x36` ＋ `0x4C` 接起來的那一句。
+//
+// 原文照抄不翻——**熱鍵比對走 `Y`／`N` 的靜態字母**，
+// 顯示文字要中文化時走翻譯目錄（`docs/re/40` §4）。
+const encOffMapPrompt = "This party isn't on this map and isn't in battle. " +
+	"Do you want them to execute a battle round? (Y/N)"
+
+// cmdEnc 是 `Enc`：先讓目前這一組打，沒得打就問別組要不要打。
+func (s *Scene) cmdEnc() (bool, error) {
+	if s.InFacility() {
+		s.message = "Not in here."
+		s.dirty = true
+		return true, nil
+	}
+	c, err := s.StartEncounter()
+	if err != nil {
+		s.message = "ERROR: " + err.Error()
+		s.dirty = true
+		return true, nil
+	}
+	if c != nil {
+		s.message = "YOU ARE BEING ATTACKED!"
+		s.dirty = true
+		return true, nil
+	}
+
+	// 這一組沒得打。原版接著往下一組走；不同地圖的要先問一句。
+	n, ok := s.encOffMapGroup()
+	if !ok {
+		s.message = "Nothing to fight here."
+		s.dirty = true
+		return true, nil
+	}
+	s.encAsk = n + 1 // 0 保留給「沒在問」
+	s.message = encOffMapPrompt
+	s.dirty = true
+	return true, nil
+}
+
+// encOffMapGroup 找第一支「有人、不是目前這組、而且不在這張地圖上」的隊伍。
+//
+// 原版的條件是「那張地圖不在交戰清單 `ds:A9B0h` 上，也不是主地圖
+// `ds:46E0h`」（`docs/re/94` §2）。交戰清單是原版拿來記「哪幾張地圖還有
+// 未結束的戰鬥」用的，重製版一次只驅動一支隊伍的戰鬥，
+// **那張表沒有對應物**——所以這裡只用「不在同一張地圖」這個條件，
+// 同一張地圖的組會走上面那條直接開打的路。
+func (s *Scene) encOffMapGroup() (int, bool) {
+	for n, g := range s.save.SlotGroups() {
+		if n == s.groupID || groupSize(g) == 0 {
+			continue
+		}
+		if int(g.MapID) != s.blockID {
+			return n, true
+		}
+	}
+	return 0, false
+}
+
+// updateEncAsk 是那一句 Y／N 的按鍵。
+//
+// 答 `N`／ESC ＝ 跳過這一組（原版 `0x11DA6` 跳到 `loc_11E8A`，
+// 也就是繼續掃下一組）；答 `Y` 就切過去讓那一組打。
+func (s *Scene) updateEncAsk(in input.Input) (bool, error) {
+	n := s.encAsk - 1
+	switch {
+	case in.Action == input.ActionCancel, input.Upper(in.Char) == 'N':
+		s.encAsk = 0
+		s.message = ""
+		s.dirty = true
+		return true, nil
+	case input.Upper(in.Char) == 'Y':
+		s.encAsk = 0
+		if err := s.SwitchGroup(n); err != nil {
+			s.message = "ERROR: " + err.Error()
+			s.dirty = true
+			return true, nil
+		}
+		c, err := s.StartEncounter()
+		switch {
+		case err != nil:
+			s.message = "ERROR: " + err.Error()
+		case c != nil:
+			s.message = "YOU ARE BEING ATTACKED!"
+		default:
+			s.message = fmt.Sprintf("Party %d: nothing to fight.", n+1)
+		}
+		s.dirty = true
+		return true, nil
+	}
+	return true, nil
+}
