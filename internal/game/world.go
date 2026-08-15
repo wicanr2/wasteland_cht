@@ -147,6 +147,12 @@ func (w *World) Step(dir Direction) (StepResult, error) {
 	return res, nil
 }
 
+// Passable 回報這一格走不走得進去（四道閘裡與地形有關的那幾道）。
+//
+// 給驗證工具尋路用（`cmd/wl-play` 的 `path=`）。**不含**傳送與事件的副作用，
+// 所以它回 true 不代表走過去不會發生別的事。
+func (w *World) Passable(x, y int) bool { return w.passable(x, y) }
+
 // blockedMessage 回報擋住這一步的那一格要印的字串編號（0 ＝ 不印）。
 //
 // 原版在第四道閘（sub_15CE0）擋住之後呼叫 sub_16D1A(bl ＝ 0)，

@@ -186,6 +186,25 @@ func (r *Rom) Block(n int) (*Block, error) {
 	return r.blockFrom(res[n])
 }
 
+// BlockByID 依**原版的資源編號**取區塊。
+//
+// ⚠ **這與 Block(n) 不同。** `Resources()` 會跳過目錄裡不是 MSQ 的欄位，
+// 所以切片的索引與 `Resource.ID` 對不上（例如索引 35 的 ID 是 38）。
+// 遊戲裡的地圖編號（存檔的 `+0x0A`、傳送記錄的 `+0x03`）一律是 **ID**——
+// 拿它去 `Block(n)` 會安靜地載到別張地圖。
+func (r *Rom) BlockByID(id int) (*Block, error) {
+	res, err := r.Resources()
+	if err != nil {
+		return nil, err
+	}
+	for _, x := range res {
+		if x.ID == id {
+			return r.blockFrom(x)
+		}
+	}
+	return nil, fmt.Errorf("資源編號 %d 不是地圖區塊", id)
+}
+
 func (r *Rom) blockFrom(res Resource) (*Block, error) {
 	data, err := r.File(res.File)
 	if err != nil {

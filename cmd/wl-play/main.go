@@ -16,6 +16,7 @@
 //	hour=2                   把時鐘的「時」設成 2
 //	map=19:32:32             換到地圖 19 並站到 (32, 32)
 //	fight                    直接開一場遭遇（不等擲骰），驗戰鬥流程用
+//	path=29:43               自動尋路走到 (29, 43)，中途照常觸發事件
 //	shot=/tmp/a.png          當下截一張圖
 //
 // 這支不依賴 Ebiten，所以在沒有 X／Wayland 的容器裡也跑得動。
@@ -79,6 +80,7 @@ type step struct {
 	shot   string
 	loadTo *[3]int // map=id:x:y
 	fight  bool
+	pathTo *[2]int // path=x:y
 }
 
 type runner struct {
@@ -127,6 +129,8 @@ func (r *runner) do(s step) error {
 		if err := r.scene.LoadMap(s.loadTo[0], uint8(s.loadTo[1]), uint8(s.loadTo[2])); err != nil {
 			return err
 		}
+	case s.pathTo != nil:
+		return r.walkTo(s.pathTo[0], s.pathTo[1])
 	case s.fight:
 		c, err := r.scene.StartEncounter()
 		if err != nil {
@@ -234,6 +238,12 @@ func one(tok string) (step, error) {
 				return st, fmt.Errorf("%q 的時不在 0–23", tok)
 			}
 			st.hour = h
+		case strings.HasPrefix(strings.ToLower(tok), "path="):
+			var x, y int
+			if _, err := fmt.Sscanf(tok[5:], "%d:%d", &x, &y); err != nil {
+				return st, fmt.Errorf("%q 不是 path=x:y", tok)
+			}
+			st.pathTo = &[2]int{x, y}
 		case strings.HasPrefix(strings.ToLower(tok), "map="):
 			var id, x, y int
 			if _, err := fmt.Sscanf(tok[4:], "%d:%d:%d", &id, &x, &y); err != nil {
@@ -254,4 +264,78 @@ func one(tok string) (step, error) {
 func fail(format string, args ...any) {
 	fmt.Fprintf(os.Stderr, "wl-play: "+format+"\n", args...)
 	os.Exit(1)
+}
+
+// walkTo 用 BFS 找一條路走過去，每一步都走 Scene.Update（事件照常觸發）。
+//
+// ⚠ **尋路只看地形**：中途踩到傳送格會換地圖，那時就停下來——
+// 這不是失敗，是遊戲本來就會發生的事。
+func (r *runner) walkTo(tx, ty int) error {
+	w := r.scene.World()
+	startMap := r.scene.MapID()
+	for step := 0; step < 4096; step++ {
+		if int(w.Party.X) == tx && int(w.Party.Y) == ty {
+			return nil
+		}
+		dir, ok := r.nextStep(tx, ty)
+		if !ok {
+			return fmt.Errorf("從 (%d, %d) 找不到往 (%d, %d) 的路", w.Party.X, w.Party.Y, tx, ty)
+		}
+		if _, err := r.scene.Update(input.Input{Dir: dir}); err != nil {
+			return err
+		}
+		r.n++
+		if r.trace {
+			fmt.Printf("%4d %-8s %s\n", r.n, "path", r.state())
+		}
+		if r.scene.MapID() != startMap {
+			return nil // 換地圖了，路徑到此為止
+		}
+	}
+	return fmt.Errorf("走了 4096 步還沒到 (%d, %d)", tx, ty)
+}
+
+// nextStep 回報從目前位置往目標走的下一步（BFS 的第一步）。
+func (r *runner) nextStep(tx, ty int) (input.Direction, bool) {
+	w := r.scene.World()
+	dim := w.Block.Dim
+	type node struct{ x, y int }
+	start := node{int(w.Party.X), int(w.Party.Y)}
+	prev := map[node]node{start: start}
+	queue := []node{start}
+	dirs := []struct {
+		d  input.Direction
+		dx int
+		dy int
+	}{{input.DirUp, 0, -1}, {input.DirDown, 0, 1}, {input.DirLeft, -1, 0}, {input.DirRight, 1, 0}}
+
+	for len(queue) > 0 {
+		cur := queue[0]
+		queue = queue[1:]
+		if cur.x == tx && cur.y == ty {
+			// 從終點回溯到起點的第一步
+			for prev[cur] != start {
+				cur = prev[cur]
+			}
+			for _, d := range dirs {
+				if start.x+d.dx == cur.x && start.y+d.dy == cur.y {
+					return d.d, true
+				}
+			}
+			return input.DirNone, false
+		}
+		for _, d := range dirs {
+			nx, ny := cur.x+d.dx, cur.y+d.dy
+			if nx < 0 || ny < 0 || nx >= dim || ny >= dim {
+				continue
+			}
+			n := node{nx, ny}
+			if _, seen := prev[n]; seen || !w.Passable(nx, ny) {
+				continue
+			}
+			prev[n] = cur
+			queue = append(queue, n)
+		}
+	}
+	return input.DirNone, false
 }
