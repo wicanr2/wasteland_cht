@@ -96,6 +96,10 @@ WL_IDA_TARGET=/abs/path/other.exe tools/ida.sh build   # 換分析目標
 - **⚠ `get_operand_value()` 會把 16-bit 立即數符號擴展**：`0x91C5` 回傳
   `0xFFFFFFFFFFFF91C5`。拿去算位址會一筆都對不上，而**症狀是安靜的零命中**，
   和「真的沒人引用」長得一模一樣。16-bit 專案一律 `& 0xFFFF`（`docs/re/03` §7）。
+- **`export_range_refs.py` 的範圍是半開區間 `[lo, hi)`**：查單一位址要寫
+  `0xA5C5 0xA5C6`，寫成 `0xA5C5 0xA5C5` 會回零命中。腳本已加 guard 拒絕跑，
+  但同一類邊界錯誤在別的工具還會再出現——**零命中之前先拿一個已知會命中的
+  位址做正對照**（`docs/re/74` §3）。
 - **任何過濾閾值都會製造假零**：ASCII 掃描的最短長度設 4，就會漏掉 `CURS`、`info`
   這種四字元檔名。下「沒有」的結論前先確認過濾器本身沒有洞。
 - **偶發：資料庫載入異常會讓 `retrieve_input_file_sha256()` 回 `None`**，
