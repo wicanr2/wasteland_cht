@@ -47,7 +47,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 
 ## 統計
 
-筆記 **92** 份：已接 **88**、未接 **1**、不適用 **3**。
+筆記 **92** 份：已接 **89**、未接 **0**、不適用 **3**。
 
 | # | 筆記 | 狀態 | 接在哪／為什麼 |
 |---:|---|---|---|
@@ -142,4 +142,4 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 89 | [敵人打誰是隨機重抽，以及「倒下」與「死亡」是兩個判準](89-enemy-target-and-down.md) | 已接 | `internal/game/party.go`、`internal/play/command.go`（共 5 處） |
 | 90 | [隊伍的行動值，以及誰會被排進行動表](90-party-initiative.md) | 已接 | `internal/game/rounds.go`、`internal/play/round.go`（共 4 處） |
 | 91 | [地圖指令列的七個處理程式 —— 升級的入口是 RADIO](91-map-command-bar.md) | 已接 | `internal/play/command.go`、`internal/play/play.go`（共 4 處） |
-| 92 | [`USE` 指令的第一層 —— Skill／Item／Attribute 三選一](92-use-command.md) | 未接 | `USE` 的第一層 RE 完成，**程式碼還沒接**（`WORKLIST.md` 4.3）——接上之前這一列是「未接」 |
+| 92 | [`USE` 指令的第一層 —— Skill／Item／Attribute 三選一](92-use-command.md) | 已接 | `internal/game/gates.go`（`UseGate`；play 層的選單還沒接，`WORKLIST.md` 4.3）|

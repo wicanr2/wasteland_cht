@@ -99,7 +99,8 @@ bl 從 0xBD 每次 +2 到 0xF9
 ds:0A426h ← 成員編號
 sub_13AE4 → CF 設就 sub_1728C（切回地圖）＋ stc
     ; sub_13AE4 先印字串 4「Use: Item / Skill / Attribute」，
-    ; 字母表在 ds:A5E8h，選完再依選擇分派（0／1／其他三條路）
+    ; ⚠ **索引照字母表 ds:A5E8h（53 49 41 ＝ SIA），不是顯示順序**：
+    ;   0 ＝ Skill、1 ＝ Item、2 ＝ Attribute（docs/re/92 §2）
 ds:0A425h ← dl
 sub_12738 → al；al |= ds:0A425h        ; 把兩半合成一個 byte
 bl ← ds:0A426h；di ← ds:46B7h

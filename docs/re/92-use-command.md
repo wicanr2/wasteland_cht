@@ -1,4 +1,4 @@
-# 92：`USE` 指令的第一層 —— Skill／Item／Attribute 三選一
+# 92：`USE` 指令 —— Skill／Item／Attribute 三選一，與施用的骨架
 
 日期：2026-08-15 ｜ 接 `docs/re/91`（指令列的七個入口）
 
@@ -87,26 +87,119 @@ loc_13B5E:
 推論等級：**已確認**（三選一的字母表是資料裡直接讀出來的；
 技能陣列的定址與既有筆記互相印證）。
 
-## 4. 還沒解的
+## 4. 施用：`sub_13C58` 的骨架
 
-- `sub_13C58`（443 bytes）：**施用**那一半。開頭依 `ds:A5E0h`（＝ 選項）
-  分三條，其中還有 `sub_13E32`／`sub_13E13` 兩支沒讀。
-- `loc_13C0B`（物品）與 `loc_13BDE`（屬性）兩條分支的內容。
+介面是三個暫存器：`al` ＝ 選項（0 Skill／1 Item／2 Attribute）、
+`bl` ＝ 選中的編號、`dl` ＝ 另一個參數（語意未解）。
+
+```
+0x13C58  ds:A5E0h ← al        ; 選項
+         ds:A5D9h ← dl
+         ds:A5DBh ← bl        ; 技能／物品／屬性的編號
+         ds:A5DCh ← ds:4661h  ; 誰在用
+         sub_19614            ; 選中那個角色
+
+         al ＝ 2 → loc_13CB6（屬性）
+         al ＝ 1 → loc_13CD0（物品）
+         其餘   → 技能那條
+```
+
+三條分支的形狀一樣，只差**目標判定**那一支：
+
+| 分支 | 前置 | 目標判定 |
+|---|---|---|
+| 技能（0） | `sub_13E32` → `sub_13E13` | **`sub_140DD`** |
+| 物品（1） | `sub_13E32` → `sub_13E18` | **`sub_14090`** |
+| 屬性（2） | `sub_13E32` → `sub_13E1D` | **`sub_14126`** |
+
+三條都先過 `sub_13E3D`（失敗 → `loc_13D03`：`al ← 1; stc; retn`），
+然後匯合到 `loc_13CE8`：
+
+```
+loc_13CE8:
+  ds:A5DAh ← bl
+  sub_13E85
+  sub_14175
+  sub_142E2；and al, 8
+    ≠ 0 → sub_142B1(bl ＝ ds:A5DAh)
+```
+
+### 4.1 三個特例
+
+```
+技能 0x19（25 ＝ Medic）或 0x20（32 ＝ Doctor） → loc_13D82
+技能 9（Perception）且 sub_140DD 回的值 ≠ 0     → sub_17A6B → sub_13E58
+```
+
+技能編號對照 `docs/re/17` 的字串 1–35。**治療與察覺自成一條路**，
+不走共同的效果套用——這與它們在遊戲裡的作用一致（一個改 CON、一個給訊息）。
+
+推論等級：**強證據**（分支結構與呼叫序列逐條讀完；三支目標判定的內容還沒讀，
+「哪一支對應哪一種」是從分支位置推的）。
+
+## 5. 還沒解的
+
+- `sub_140DD`／`sub_14090`／`sub_14126` 三支目標判定的內容。
+- 匯合段的 `sub_13E85`／`sub_14175`／`sub_142E2`／`sub_142B1`。
+- `loc_13D82`（Medic／Doctor）與 `loc_13D3F`／`loc_13D16` 幾條收尾。
 - `ds:472Ch` 旗標的語意，以及 `sub_13AE4` 的另一個呼叫端 `0x1240E`。
 - `sub_13C52`、`sub_19727`、`sub_16F20` 三支輔助函式。
 
-## 5. remake 這一側
+## 6. 三支目標判定：USE 查的就是條件閘表
 
-**還沒接**。`USE` 目前按下去只印一句 `Use: not wired yet`（`docs/re/91` §3）。
-接上去要三條分支都有，缺一條就會變成「按了沒反應」——
-而那是最難查的一種半成品（`docs/re/79` §5 的教訓：空殼畫得出來、測試全綠）。
+三支的形狀一模一樣，只差比對的型別：
 
-## 6. 可重跑的完整指令
+```
+sub_140DD(al ＝ 技能編號)   ; 型別 0
+sub_14090(bl ＝ 物品槽號)   ; 型別 1（先把槽號換成物品 ID 再比）
+sub_14126(al ＝ 記錄位移)   ; 型別 2
+
+  bl ← 0x0A                        ; ← **地圖記錄 +0x0A**
+loc:
+  al ← [ds:46AEh + bl]
+  ＝ 0FFh → stc; retn              ; 表尾 ＝ 沒有吻合的條件
+  sub_1417F                        ; ＝ (byte >> 1) >> 4 ＝ **高 3 位 ＝ 型別**
+  型別不對 → 下一筆（bl += 2）
+  bl++；[ds:46AEh + bl] ＝ 那個編號 → 命中
+命中:
+  sub_1418A                        ; ＝ byte & 0x1F ＝ **低 5 位 ＝ 難度**
+  技能 → sub_180F0(技能, 難度)      ; 技能檢定（docs/re/32 §3）
+  物品 → sub_19A58(槽號)            ; 消耗一次（docs/re/32 §6）
+  屬性 → sub_1820C(難度, 位移)      ; 屬性檢定（docs/re/32 §4）
+```
+
+**那張表就是條件閘串列**（`docs/re/32` §6、`docs/spec/07` §4）——
+走上去自動評估與 `USE` 主動指定用的是同一份資料，差別在：
+
+| | 掃法 |
+|---|---|
+| 走上去（`Eval`） | 逐條試到**成功**為止 |
+| `USE`（`UseGate`） | 只試**型別與編號都吻合**的那一條 |
+
+⚠ **物品那條只認型別 1**（`sub_14090` 的 `cmp al, 1`），
+而自動評估把 1／5／6／7 都當成找物品。照原版保留這個差別。
+
+## 7. remake 這一側
+
+規則層**已接**：`Party.UseGate`（`internal/game/gates.go`）。
+play 層的三層選單還沒接，`USE` 按下去仍是 `Use: not wired yet`——
+接上去要三條分支都有，缺一條就會變成「按了沒反應」，
+那是最難查的一種半成品（`docs/re/79` §5）。
+
+## 8. 可重跑的完整指令
 
 ```bash
 WL_IDA_TARGET="$PWD/workplace/analysis/unpacked/wl.merged.exe" \
   tools/ida.sh run tools/ida/export_function.py \
   workplace/analysis/dumps/use_full.json 0x13AE4 --callers
+WL_IDA_TARGET="$PWD/workplace/analysis/unpacked/wl.merged.exe" \
+  tools/ida.sh run tools/ida/export_function.py \
+  workplace/analysis/dumps/use_apply.json 0x13C58
+WL_IDA_TARGET="$PWD/workplace/analysis/unpacked/wl.merged.exe" \
+  tools/ida.sh run tools/ida/export_function.py \
+  workplace/analysis/dumps/use_targets.json 0x140DD 0x14090 0x14126
+
+tools/go.sh test ./internal/game/ -run TestUseGateMatchesOnlyTheRightEntry -v
 
 python3 -c "
 d=open('workplace/analysis/unpacked/wl.merged.exe','rb').read()
@@ -114,11 +207,18 @@ off=0x1CE20+0xA5E8-0x10000+0xb0
 print(d[off:off+8])"
 ```
 
-## 7. 這一輪學到的（寫成規則）
+## 9. 這一輪學到的（寫成規則）
 
 - **選單的字母表就是規格書。** 三個 byte `53 49 41` 一次講完了 `USE` 有幾條路、
   分別是什麼——比追三條分支的程式碼快得多。
   **遇到「等按鍵 → 查表 → 分支」的形狀，先把那張表倒出來。**
+- **顯示順序不是索引，第二次踩同一個坑。** `docs/re/41` 寫著「字母表在 `ds:A5E8h`」
+  卻沒把它倒出來，直接照字串 4 的顯示文字（Item／Skill／Attribute）編號——
+  而字母表是 `SIA`。**看到「字母表在某處」就當場把它讀出來**，
+  不要用旁邊的顯示文字代替（`docs/re/38` §2 已經記過一次同型的教訓）。
+- **兩個機制用同一份資料時，差別在掃法不在格式。** `USE` 與走上去自動評估
+  查的是同一張條件閘表，一個「找吻合的那條」、一個「逐條試到成功」。
+  **先問「是不是同一份資料」，再問「哪裡不一樣」。**
 - **`export_function.py` 給的是完整 listing，`export_forced.py` 只給一個 chunk。**
   這一輪先用 forced 拿到零散片段，換成 function 之後一次拿到 366 bytes。
   **函式已經被 IDA 認出來時用前者，沒被認出來（像 `loc_1B8AD`）才用後者。**
