@@ -145,3 +145,126 @@ func Distance(dx, dy int) (int, bool) {
 	}
 	return int(distanceTable[dy*(DistanceMaxDX+1)+dx]), true
 }
+
+// ── 遭遇生成（`sub_16890` 的後半，docs/re/78）───────────────────────
+
+// 記錄區標頭裡跟遭遇生成有關的三個欄位。
+const (
+	hdrSpawnDenom = 0x2F // 每步觸發的分母：擲 1..denom，等於 1 才生成
+	hdrSpawnKinds = 0x31 // 敵人種類數
+	hdrSpawnSlots = 0x32 // section 15 的槽數上限
+)
+
+// SpawnTables 是執行檔裡三張各 13 項的表（`ds:AA60h`／`AA6Dh`／`AA7Ah`）。
+//
+// 索引來自敵人資料表第 kind 筆的 `+0x05` 低 4 位。
+type SpawnTables struct {
+	Near [13]byte // → 記錄 +0x00，第一道距離門檻
+	Far  [13]byte // → 記錄 +0x01，第二道距離門檻
+	Dist [13]byte // 從隊伍沿一個方向走幾步放敵人
+}
+
+// spawnStep 是方向跳表 `ds:AAB1h` 的 9 個方向（`docs/re/78` §2）。
+// 方向 4 是原地——原版擲到它就放棄這一次。
+var spawnStep = [9][2]int{
+	{0, -1}, // 0 上
+	{0, +1}, // 1 下
+	{-1, 0}, // 2 左
+	{+1, 0}, // 3 右
+	{0, 0},  // 4 原地（不生成）
+	{-1, -1},
+	{+1, -1},
+	{-1, +1},
+	{+1, +1},
+}
+
+// SpawnResult 是生成的結果。Placed ＝ false 時什麼都沒改。
+type SpawnResult struct {
+	Placed bool
+	Slot   int  // 用了 section 15 的第幾槽
+	X, Y   int  // 敵人格的座標
+	Kind   byte // 敵人種類
+	Count  int  // 這一組幾隻
+}
+
+// SpawnEncounter 跑一次遭遇生成（原版每走一步跑一次）。
+//
+// 流程照 `sub_16890`：擲 1／分母 → 找 section 15 的空槽 → 擲種類 →
+// 查三張表填記錄的兩道距離門檻 → 擲方向與距離、沿路每一格都要是空地 →
+// 把那一格改成 nibble 15。
+//
+// ⚠ **會改寫區塊本體**（section 15 的記錄與地圖第 1／2 層），原版也是這樣。
+func (w *World) SpawnEncounter(t SpawnTables) SpawnResult {
+	hdr := w.Block.Header
+	if len(hdr) <= hdrSpawnSlots {
+		return SpawnResult{}
+	}
+	denom := int(hdr[hdrSpawnDenom])
+	if denom == 0 || w.RNG.Roll(denom) != 1 {
+		return SpawnResult{}
+	}
+	slot, rec := w.freeSpawnSlot(int(hdr[hdrSpawnSlots]))
+	if rec == nil {
+		return SpawnResult{}
+	}
+	kinds := int(hdr[hdrSpawnKinds])
+	if kinds == 0 {
+		return SpawnResult{}
+	}
+	kind := byte(w.RNG.Roll(kinds))
+
+	raw, err := w.Block.EnemyData()
+	if err != nil || int(kind)*8+8 > len(raw) {
+		return SpawnResult{}
+	}
+	data := raw[int(kind)*8 : int(kind)*8+8]
+	idx := int(data[0x05] & 0x0F)
+	if idx >= len(t.Dist) {
+		return SpawnResult{}
+	}
+
+	dir := w.RNG.Roll(9) - 1
+	if dir < 0 || dir >= len(spawnStep) || dir == 4 {
+		return SpawnResult{} // 原地：這一次不生成
+	}
+	x, y := int(w.Party.X), int(w.Party.Y)
+	for i := 0; i < int(t.Dist[idx]); i++ {
+		x += spawnStep[dir][0]
+		y += spawnStep[dir][1]
+		if x <= 0 || y <= 0 || x >= w.Block.Dim || y >= w.Block.Dim {
+			return SpawnResult{}
+		}
+		terrain, _, _, err := w.Block.At(x, y)
+		if err != nil || terrain != 0 {
+			return SpawnResult{} // 沿路必須是空地
+		}
+	}
+
+	count := w.RNG.Roll(int(data[0x04]>>4) + 1)
+	rec[0x00], rec[0x01] = t.Near[idx], t.Far[idx]
+	rec[0x03], rec[0x04] = kind, byte(count)
+	if err := w.Block.SetCell(x, y, nibbleEnemy, byte(slot)); err != nil {
+		return SpawnResult{}
+	}
+	return SpawnResult{Placed: true, Slot: slot, X: x, Y: y, Kind: kind, Count: count}
+}
+
+// nibbleEnemy 是敵人格的第 1 層值（`sub_16890` 的 `ds:46B3h ← 0x0F`）。
+const nibbleEnemy = 15
+
+// freeSpawnSlot 找 section 15 的第一個空槽。
+//
+// 「空」的判準是三組的**型別**都是 0（`sub_16890` 的
+// `記錄[3] | 記錄[5] | 記錄[7]`）——數量欄位不看。
+func (w *World) freeSpawnSlot(limit int) (int, []byte) {
+	for i := 0; i < limit; i++ {
+		rec, err := w.Block.SectionRecord(15, i)
+		if err != nil || len(rec) < 9 {
+			continue
+		}
+		if rec[0x03]|rec[0x05]|rec[0x07] == 0 {
+			return i, rec
+		}
+	}
+	return 0, nil
+}
