@@ -58,6 +58,9 @@ type Scene struct {
 	spawnOK bool
 	// asking 非 DirNone 時畫面停在「Enter new location?」等 Y／N（docs/re/64）。
 	asking input.Direction
+	// use 是 `USE` 指令的三層選單狀態（`docs/re/92`）。
+	use useState
+
 	// portrait 是這場遭遇要顯示的敵人肖像圖編號（−1 ＝ 沒有）。
 	portrait int
 
@@ -360,6 +363,9 @@ func (s *Scene) Update(in input.Input) (bool, error) {
 	if s.journalOpen {
 		return s.updateJournal(in)
 	}
+	if s.use.stage != useStageOff {
+		return s.updateUse(in)
+	}
 	return s.updateMap(in)
 }
 
@@ -506,6 +512,19 @@ func dirOf(d game.Direction) input.Direction {
 }
 
 // exeString 取執行檔字串表 1 的第 n 條（`sub_16CB2` 那一族用的就是這張）。
+// nameString 查「技能、物品、介面」那張表（`ds:B270h` ＝ 第 2 張，`docs/re/17` §4）。
+//
+// ⚠ **不是 `exeString` 那張**：`exeString` 走的是第 1 張（無線電、隊伍、戰鬥）。
+// 兩張表的索引空間完全不同，拿錯會安靜地取到別的句子——
+// 技能 1 在這張是 `Brawling`，在那張是 `Radio?YesNo`。
+func (s *Scene) nameString(n int) string {
+	tables, err := s.rom.ExeStrings()
+	if err != nil || len(tables) < 3 || n < 0 || n >= len(tables[2]) {
+		return ""
+	}
+	return tables[2][n]
+}
+
 func (s *Scene) exeString(n int) string {
 	tables, err := s.rom.ExeStrings()
 	if err != nil || len(tables) < 2 || n < 0 || n >= len(tables[1]) {
