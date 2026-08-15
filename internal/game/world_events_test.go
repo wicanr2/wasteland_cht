@@ -618,21 +618,21 @@ func TestNibble2IsConditional(t *testing.T) {
 				if err != nil || len(d) == 0 {
 					continue
 				}
-				blocked, _ := w.gateBlocks(x, y)
+				need, _ := w.gateNeedsCheck(x, y)
 				switch {
 				case d[0]&0x80 != 0:
 					pass7++
-					if blocked {
-						t.Fatalf("(%d,%d) 的 +0x00 是 %#02x（bit7 設）卻被擋", x, y, d[0])
+					if need {
+						t.Fatalf("(%d,%d) 的 +0x00 是 %#02x（bit7 設）卻要判定", x, y, d[0])
 					}
 				case d[0]&0x40 == 0:
 					pass6++
-					if blocked {
-						t.Fatalf("(%d,%d) 的 +0x00 是 %#02x（bit6 沒設）卻被擋", x, y, d[0])
+					if need {
+						t.Fatalf("(%d,%d) 的 +0x00 是 %#02x（bit6 沒設）卻要判定", x, y, d[0])
 					}
 				default:
 					judged++
-					if !blocked {
+					if !need {
 						t.Fatalf("(%d,%d) 的 +0x00 是 %#02x 要判定，卻直接放行", x, y, d[0])
 					}
 				}
@@ -644,4 +644,58 @@ func TestNibble2IsConditional(t *testing.T) {
 			pass7, pass6, judged)
 	}
 	t.Logf("nibble 2：直接放行 %d ＋ %d，要判定 %d", pass7, pass6, judged)
+}
+
+// 驗收（docs/re/65）：那 146 格真的會跑條件判定，通過才走得過去。
+//
+// 挑的是**型別 3（隊伍人數）**：不擲骰、不消耗物品，所以結果是決定性的——
+// 用擲骰型的條件寫測試會變成偶爾紅。
+func TestConditionGateEvaluates(t *testing.T) {
+	rom := openRom(t)
+	b, err := rom.BlockByID(2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	const gx, gy = 4, 11
+	rec, err := b.SectionRecord(2, mustRecord(t, b, gx, gy))
+	if err != nil {
+		t.Fatal(err)
+	}
+	gates := ParseGates(rec)
+	if len(gates) != 1 || gates[0].Type != GatePartySize || gates[0].Param != 1 {
+		t.Fatalf("資源 2 的 (%d, %d) 條件變了：%+v", gx, gy, gates)
+	}
+
+	// 站在左邊往右走進那一格。
+	step := func(members int) StepResult {
+		p := &Party{X: gx - 1, Y: gy}
+		for i := 0; i < members; i++ {
+			p.Members = append(p.Members, &Character{CON: 20, MaxCON: 20})
+		}
+		w := NewWorld(b, p, rng.New())
+		res, err := w.Step(Right)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return res
+	}
+
+	// 四個人：條件要求 1 人 → 過不了。
+	if r := step(4); r.Moved {
+		t.Error("隊伍 4 人卻過了「人數 ＝ 1」的條件閘")
+	}
+	// 一個人：通過。
+	if r := step(1); !r.Moved {
+		t.Errorf("隊伍 1 人卻沒過（Blocked ＝ %d）", r.Blocked)
+	}
+}
+
+// mustRecord 取這一格的第 2 層值（記錄索引）。
+func mustRecord(t *testing.T, b *assets.Block, x, y int) int {
+	t.Helper()
+	terrain, rec, _, err := b.At(x, y)
+	if err != nil || terrain != 2 {
+		t.Fatalf("(%d, %d) 不是 nibble 2（%d，%v）", x, y, terrain, err)
+	}
+	return int(rec)
 }

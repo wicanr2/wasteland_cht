@@ -164,6 +164,9 @@ const (
 	loadBase  = 0x10000 // 映像載入基底
 	imageHdr  = 8       // MZ header 的 e_cparhdr 欄位位移
 	paragraph = 16
+
+	tblSkillData = 0xBA20 // 技能資料表（docs/re/32 §2）
+	skillCount   = 36
 )
 
 // fileOffset 把線性位址換成分析映像裡的檔案位移。
@@ -177,6 +180,18 @@ func (r *Rom) fileOffset(linear int) (int, error) {
 		return 0, fmt.Errorf("線性位址 %#x 換算出的檔案位移 %#x 超出映像", linear, off)
 	}
 	return off, nil
+}
+
+// SkillTableRaw 回傳技能資料表的原始 bytes（`ds:BA20h`，36 筆 × 2，docs/re/32 §2）。
+func (r *Rom) SkillTableRaw() ([]byte, error) {
+	off, err := r.dsOffset(tblSkillData)
+	if err != nil {
+		return nil, err
+	}
+	if off+skillCount*2 > len(r.image) {
+		return nil, fmt.Errorf("技能資料表超出映像")
+	}
+	return r.image[off : off+skillCount*2], nil
 }
 
 // dsOffset 把 ds: 位移換成分析映像裡的檔案位移。

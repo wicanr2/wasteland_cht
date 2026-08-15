@@ -53,7 +53,7 @@ type SkillTable interface {
 	Skill(id byte) (SkillData, bool)
 }
 
-// Eval 逐條試這串條件，任何一條成立就通過（原版的迴圈就是這個形狀）。
+// Eval 用目前這個角色逐條試（給只關心單人的呼叫端用）。
 // 回傳通過的是第幾條（−1 表示全部失敗）。
 func (p *Party) Eval(r *rng.State, gates []Gate, tbl SkillTable) int {
 	c := p.Current()
@@ -66,6 +66,42 @@ func (p *Party) Eval(r *rng.State, gates []Gate, tbl SkillTable) int {
 		}
 	}
 	return -1
+}
+
+// EvalParty 是原版的形狀：**逐個隊員試整串條件**，任何一個人過就算過
+// （`sub_13EC9` 的 `ds:A5D3h` 從 1 數到 `ds:4653h`）。
+//
+// ⚠ **不能只試目前選中的那個人。** 開鎖的是隊上的鎖匠、扛得動的是力氣大的，
+// 原版讓每個「能行動的人」都試一遍；只試一個人會讓大半的門打不開。
+//
+// ⚠ **這一支有副作用**：技能檢定會擲骰、物品條件會消耗一次
+// （`sub_19A58`，鑰匙用完會消失）。所以它只能在**真的要通過**的時候呼叫一次，
+// 不可以拿來當「這裡走不走得過去」的查詢。
+//
+// 回傳通過的隊員序號與條件序號，都失敗時回 (−1, −1)。
+func (p *Party) EvalParty(r *rng.State, gates []Gate, tbl SkillTable) (member, cond int) {
+	for i, c := range p.Members {
+		if !CanCommand(c) {
+			continue // sub_172BB：不能行動的人跳過，換下一個
+		}
+		for j, g := range gates {
+			if p.evalOne(r, c, g, tbl) {
+				return i, j
+			}
+		}
+	}
+	return -1, -1
+}
+
+// SkillBytes 是技能資料表的原始 bytes（36 筆 × 2），實作 SkillTable。
+type SkillBytes []byte
+
+// Skill 取第 id 筆技能資料。
+func (s SkillBytes) Skill(id byte) (SkillData, bool) {
+	if int(id)*2+1 >= len(s) {
+		return SkillData{}, false
+	}
+	return ParseSkillData(s[int(id)*2], s[int(id)*2+1]), true
 }
 
 func (p *Party) evalOne(r *rng.State, c *Character, g Gate, tbl SkillTable) bool {
