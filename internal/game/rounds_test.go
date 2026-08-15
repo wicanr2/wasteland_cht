@@ -18,12 +18,16 @@ func mkBattle(enemies, members int) *Battle {
 	return b
 }
 
+// allAttack 是「全隊都下攻擊令」——原版只把下攻擊令的人排進行動表
+// （`0x1AE78` 的 `cmp al, 2`，docs/re/90 §2），測試不驗指令階段時用這個。
+func allAttack(int) bool { return true }
+
 // 驗收 1／2：活著的才排進去、死的不排，而且排完不留 Pending。
 func TestBeginRoundSkipsDead(t *testing.T) {
 	b := mkBattle(5, 3)
 	b.Enemies[2].HP = 0        // 死了一個敵人
 	b.Party.Members[1].CON = 0 // 死了一個隊員
-	order := b.BeginRound(func(Combatant) int { return 1 })
+	order := b.BeginRound(allAttack)
 
 	if len(order) != 4+2 {
 		t.Fatalf("應該排進 4 個敵人 ＋ 2 個隊員，得到 %d", len(order))
@@ -63,16 +67,12 @@ func TestEnemySlotLayout(t *testing.T) {
 	}
 }
 
-// 行動值 ＝ 2d6 ＋ 欄位 × 8，所以欄位大的先動。
+// 敵人的行動值 ＝ 2d6 ＋ 資料 `+0x02` **× 8**，所以那個欄位大的先動。
 func TestInitiativeUsesSpeedField(t *testing.T) {
 	b := mkBattle(2, 0)
 	const fast = 0
-	if n := len(b.BeginRound(func(c Combatant) int {
-		if c.Slot == fast {
-			return 5
-		}
-		return 0
-	})); n != 2 {
+	b.Enemies[fast].Data.Speed = 5
+	if n := len(b.BeginRound(allAttack)); n != 2 {
 		t.Fatalf("應該有兩個單位，得到 %d", n)
 	}
 	// 2d6 最大 12（續擲會更大，但 5×8 ＝ 40 的差距吃得掉一般情況）。
@@ -85,7 +85,7 @@ func TestInitiativeUsesSpeedField(t *testing.T) {
 // 每個單位一回合只動一次，動完表就空了。
 func TestNextActorConsumesEachUnitOnce(t *testing.T) {
 	b := mkBattle(4, 2)
-	b.BeginRound(func(Combatant) int { return 1 })
+	b.BeginRound(allAttack)
 	seen := map[int]int{}
 	for {
 		c, ok := b.NextActor()
@@ -112,7 +112,7 @@ func TestNextActorConsumesEachUnitOnce(t *testing.T) {
 func TestTiesFavourLaterSlot(t *testing.T) {
 	b := mkBattle(1, 1)
 	// 讓兩邊的行動值一樣：BeginRound 之後直接覆寫。
-	b.BeginRound(func(Combatant) int { return 0 })
+	b.BeginRound(allAttack)
 	for i := range b.order {
 		b.order[i].Initiative = 7
 	}
@@ -156,12 +156,12 @@ func TestFullBattlesAreStable(t *testing.T) {
 	r := rng.New()
 	for game := 0; game < 1000; game++ {
 		b := mkBattle(3+game%5, 1+game%4)
-		speed := func(Combatant) int { return game % 4 }
+
 		for {
 			if over, _ := b.Over(); over {
 				break
 			}
-			b.BeginRound(speed)
+			b.BeginRound(allAttack)
 			for {
 				c, ok := b.NextActor()
 				if !ok {
@@ -256,7 +256,7 @@ func TestNegativeConIsDownNotDead(t *testing.T) {
 	if n := b.PartyLeft(); n != 1 {
 		t.Errorf("三個人裡只有一個能打，PartyLeft 得到 %d", n)
 	}
-	b.BeginRound(func(Combatant) int { return 0 })
+	b.BeginRound(allAttack)
 	for {
 		a, ok := b.NextActor()
 		if !ok {
@@ -265,5 +265,58 @@ func TestNegativeConIsDownNotDead(t *testing.T) {
 		if a.IsParty && b.Party.Members[a.Slot-EnemySlots].Down() {
 			t.Errorf("倒下的人被排進行動順序：槽 %d", a.Slot)
 		}
+	}
+}
+
+// 兩邊的行動值不是同一個公式（docs/re/90 §1）：
+//
+//	敵人 ＝ 2d6 ＋ 資料 +0x02 × 8
+//	隊伍 ＝ 2d6 ＋ Speed ＋ Brawling × 3     ← **沒有 ×8**
+//
+// 把隊伍那條也乘 8 會讓隊伍幾乎永遠先動，而**戰鬥照樣打得完**——
+// 沒有任何斷言會紅，只有先後順序整個偏掉。
+func TestInitiativeFormulasDiffer(t *testing.T) {
+	b := mkBattle(1, 1)
+	b.Enemies[0].Data.Speed = 3 // → +24
+	m := b.Party.Members[0]
+	m.Attributes[AttrSpeed] = 3                       // → +3
+	m.Skills = []Slot{{ID: SkillBrawling, Value: 4}}  // → +12
+	m.CON = 20
+
+	const iter = 400
+	minParty, maxParty := 1<<30, 0
+	minFoe, maxFoe := 1<<30, 0
+	for i := 0; i < iter; i++ {
+		for _, c := range b.BeginRound(allAttack) {
+			v := c.Initiative
+			if c.IsParty {
+				if v < minParty {
+					minParty = v
+				}
+				if v > maxParty {
+					maxParty = v
+				}
+			} else {
+				if v < minFoe {
+					minFoe = v
+				}
+				if v > maxFoe {
+					maxFoe = v
+				}
+			}
+		}
+	}
+	t.Logf("隊伍 %d–%d（底 15）；敵人 %d–%d（底 24）", minParty, maxParty, minFoe, maxFoe)
+
+	// 2d6 最小是 2（逢同點續擲只會更大），所以下界就是「底 ＋ 2」。
+	if minParty < 3+12+2 {
+		t.Errorf("隊伍行動值下界應該是 Speed 3 ＋ Brawling 4×3 ＋ 2 ＝ 17，得到 %d", minParty)
+	}
+	if minFoe < 3*8+2 {
+		t.Errorf("敵人行動值下界應該是 3×8 ＋ 2 ＝ 26，得到 %d", minFoe)
+	}
+	// 反向：隊伍那條如果誤乘 8，下界會是 (3+12)×8+2 ＝ 122。
+	if minParty > 100 {
+		t.Errorf("隊伍行動值看起來被乘了 8（下界 %d）", minParty)
 	}
 }

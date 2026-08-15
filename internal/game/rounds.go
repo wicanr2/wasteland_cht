@@ -53,25 +53,29 @@ func (b *Battle) AddEnemy(group, index int, e *Enemy) bool {
 	return true
 }
 
-// BeginRound 把活著的單位排進行動表（docs/re/36 §2）。
+// BeginRound 把這一回合會行動的單位排進行動表（docs/re/36 §2、docs/re/90）。
 //
 // **回傳的順序是表的格子順序，不是行動順序**——誰先動要用 NextActor
 // 一個一個挑（原版沒有排序演算法，見 §3）。
 //
-// 行動值 ＝ 2d6（逢同點續擲）＋ 該單位的一個欄位 × 8（docs/re/36 §2）。
-// speedOf 讓呼叫者提供那個欄位——**原版取的是攻擊資料的哪個位移還沒對上**，
-// 所以不猜，收進來。
-func (b *Battle) BeginRound(speedOf func(c Combatant) int) []Combatant {
+// 兩邊的行動值**不是同一個公式**（`docs/re/90` §1）：
+//
+//	敵人（0x1AE0A）  ＝ 2d6 ＋ 敵人資料 +0x02 **× 8**
+//	隊伍（0x1AE7C）  ＝ 2d6 ＋ Speed 屬性 ＋ Brawling × 3   ← **沒有 ×8**
+//
+// 2d6 是「逢同點續擲」（`sub_19C84`）。
+//
+// acting 回答「第 i 個隊伍成員這回合下的是不是攻擊令」——**只有下攻擊令的人
+// 才排進行動表**（`0x1AE78` 的 `cmp al, 2`）。倒下的人（CON ≤ 0）也不排。
+func (b *Battle) BeginRound(acting func(member int) bool) []Combatant {
 	b.Round++
 	b.order = b.order[:0]
 
-	add := func(c Combatant) {
-		c.Pending = true
-		roll := b.RNG.PairD6()
-		c.Initiative = roll + speedOf(c)*8
-		// 排進表就把旗標清掉——同一個單位一回合不得行動兩次
-		// （原版 0x1AE06 就是這個動作，docs/re/36 §1）。
+	add := func(c Combatant, bonus int) {
+		// 排進表就等於原版把「還沒行動」旗標清掉——同一個單位一回合
+		// 不得行動兩次（原版 0x1AE06，docs/re/36 §1）。
 		c.Pending = false
+		c.Initiative = b.RNG.PairD6() + bonus
 		b.order = append(b.order, c)
 	}
 
@@ -79,13 +83,14 @@ func (b *Battle) BeginRound(speedOf func(c Combatant) int) []Combatant {
 		if e == nil || e.HP == 0 {
 			continue
 		}
-		add(Combatant{Slot: slot})
+		add(Combatant{Slot: slot}, int(e.Data.Speed)*8)
 	}
 	for i, m := range b.Party.Members {
-		if m == nil || m.Down() {
+		if m == nil || m.Down() || (acting != nil && !acting(i)) {
 			continue
 		}
-		add(Combatant{Slot: EnemySlots + i, IsParty: true})
+		add(Combatant{Slot: EnemySlots + i, IsParty: true},
+			int(m.Attributes[AttrSpeed])+int(m.SkillLevel(SkillBrawling))*3)
 	}
 
 	return b.order

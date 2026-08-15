@@ -193,11 +193,43 @@ sequencer map mask 與 graphics 暫存器）。
 
 - **實機**：`TITLE.PIC` 的解碼結果與原版畫面**逐像素 100% 吻合**，
   比對用的就是預設的 EGA 16 色——若調色盤被改過不可能全中（`docs/re/47` §4）。
-- **全檔掃描**：20,177 條指令裡碰 EGA 埠的有 58 處，全部是 sequencer
-  （`0x3C4`／`0x3C5`）、graphics（`0x3CE`／`0x3CF`）與等垂直同步（`0x3DA`）——
-  **`0x3C0`（Attribute Controller，調色盤暫存器在那裡）一次都沒有**。
+- **全檔掃描**：碰 EGA 埠的指令幾乎都是 sequencer（`0x3C4`／`0x3C5`）、
+  graphics（`0x3CE`／`0x3CF`）與等垂直同步（`0x3DA`）。
+  碰 `0x3C0`（Attribute Controller，調色盤暫存器在那裡）的**只有一處**，
+  而且它設的是**邊框色**，不是那 16 格（見下）。
   BIOS 那條路也堵了：全檔只有兩處 `int 10h`，都在 overlay slot 0
   （`0x10052` 設 mode 0Dh、`0x1005A` 回文字模式 3），**沒有 `AH ＝ 10h`**。
+  這一條是 bytes 層掃出來的（在映像裡找 `cd 10`），不是只信 IDA 的反組譯——
+  兩種數法都是 2 處，位址也一致。
+
+### 7.1 唯一碰 `0x3C0` 的那支，入口被 patch 成 `retn`
+
+```
+0x10E9A  c3           retn            ← 三個呼叫端全部落在這裡
+0x10E9B  8a c8        mov  cl, al     ← 真正的程式碼從這裡開始，沒有呼叫端
+0x10E9D  fa           cli
+0x10E9E  ba da 03     mov  dx, 3DAh   ; 讀 status register 重置 flip-flop
+0x10EA1  ec           in   al, dx
+0x10EA2  b2 c0        mov  dl, 0C0h   ; → 0x3C0
+0x10EA4  b0 11        mov  al, 11h    ; index 0x11 ＝ **overscan（邊框）色**
+0x10EA6  ee           out  dx, al
+0x10EA7  8a c1        mov  al, cl
+0x10EA9  ee           out  dx, al
+0x10EAA  b0 20        mov  al, 20h    ; bit5 ＝ PAS，重新開啟畫面輸出
+0x10EAC  ee           out  dx, al
+0x10EAD  fb           sti
+0x10EAE  c3           retn
+```
+
+`sub_10E45` 裡三個 `call`（`0x10E56` 傳 al ＝ 0、`0x10E81` 傳 4、`0x10E8C` 傳 3）
+算出來的目標都是 `0x10E9A`，而那裡是一條 `retn`——**出貨版把這支停用了**，
+三次呼叫一次都沒有效果。IDA 把 `0x10E9A` 命名為 `nullsub_1`。
+
+即使它沒被停用，改的也只是 index `0x11`（邊框），**那 16 格
+（index `0x00`–`0x0F`）全檔沒有任何人寫**。
+
+⚠ `mov dl, 0C0h` 的另一處在 `0x2ABF9`，那落在資料段（`ds:DDD9h`）、
+前後都是雜資料、後面沒有 `out`——是巧合，不是第二個寫入點。
 
 這一項原本掛在盤點 A14，缺的就是這個全檔掃描。
 

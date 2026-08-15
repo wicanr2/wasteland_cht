@@ -259,8 +259,11 @@ func TestPlaceholders(t *testing.T) {
 	for _, m := range regexp.MustCompile("`([^`]+\\.go)`").FindAllStringSubmatch(section, -1) {
 		inDoc[m[1]] = true
 	}
-	if len(inDoc) == 0 {
-		t.Fatal("「還在暫代的位置」一列都解不出來——正對照失敗")
+	// 全部解掉時兩邊都會是空的，那是好事，不是解析失敗。
+	// 但「程式碼裡有、表裡一列都沒有」一定是表壞了或解析壞了。
+	if len(inCode) > 0 && len(inDoc) == 0 {
+		t.Fatalf("程式碼裡有 %d 個檔案寫著「暫代」，但表裡一列都解不出來——"+
+			"表格式改了就要一起改這支測試", len(inCode))
 	}
 
 	for p := range inCode {

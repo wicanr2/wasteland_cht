@@ -29,16 +29,25 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 而這張表與那些註解由 `TestPlaceholders` 雙向對帳：新增一處卻沒登記會紅，
 解掉了卻沒清註解也會紅。
 
-| Go 位置 | 頂著的是什麼 | 缺哪一段 RE |
+**目前一處都沒有。** 最後三處在 2026-08-15 清掉：隊伍行動值解出來了
+（`docs/re/90`）、EGA 調色盤本來就已確認（`docs/re/23` §7，只是註解沒跟上），
+斷字與字型顏色改列為重製決策（見下）。
+
+## 重製版自訂的地方
+
+原版怎麼做**不查**，由重製版自己決定——這不是債，是定案。
+與「暫代」的差別在於：暫代等著 RE 補上，這些不等。
+
+| Go 位置 | 決定了什麼 | 為什麼不追原版 |
 |---|---|---|
-| `internal/play/round.go` | 隊伍成員的行動值一律 0（`speedOf`） | 原版取的是攻擊資料的哪個位移還沒對上（`docs/re/36` §2）；敵方那一邊已確認是 `+0x02` |
-| `internal/textlayout/textlayout.go` | 自動換行是硬斷，不退到前一個空白 | `sub_19E53` 的斷字規則（`docs/spec/03` §3） |
-| `internal/assets/pic.go` | EGA 調色盤用標準 16 色 | 原版設定調色盤的程式碼還沒找到（盤點 A14） |
-| `internal/render/render.go` | 單色字型畫成 15 號色（`DefaultTextColor`） | 原版用哪個顏色畫單色字型還沒讀出來 |
+| `internal/textlayout/textlayout.go` | 自動換行硬斷，不退到前一個空白 | 排版是重製版自己的事；中文為主的譯文本來就逐字斷行。⚠ 要改成英文不切字的話，`Events` 的 Line／Col 要一起搬 |
+| `internal/render/render.go` | 單色字型畫成 EGA 15（亮白） | 16 色裡與訊息視窗底色對比最高；原版取哪個顏色沒查也不打算查 |
+
+（使用者定案 2026-08-15。）
 
 ## 統計
 
-筆記 **89** 份：已接 **86**、未接 **0**、不適用 **3**。
+筆記 **90** 份：已接 **87**、未接 **0**、不適用 **3**。
 
 | # | 筆記 | 狀態 | 接在哪／為什麼 |
 |---:|---|---|---|
@@ -61,8 +70,8 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 17 | [5-bit 打包文字與執行檔的字串表](17-packed-text.md) | 已接 | `internal/assets/text.go`、`internal/game/combat.go`（共 5 處） |
 | 18 | [地圖區塊的文字 —— 4,401 條全部解出](18-block-text.md) | 已接 | `internal/assets/msq.go`、`internal/assets/text.go`（共 3 處） |
 | 19 | [資料驅動的效果系統與傷害計算](19-effects-and-damage.md) | 已接 | `internal/game/combat.go`、`internal/game/party.go`（共 3 處） |
-| 20 | [命中判定與武器傷害](20-combat-resolution.md) | 已接 | `internal/game/combat.go`、`internal/game/commands.go`（共 5 處） |
-| 21 | [七個屬性、修正值階梯與檢定骰](21-attributes.md) | 已接 | `internal/game/character.go`、`internal/game/combat.go`（共 5 處） |
+| 20 | [命中判定與武器傷害](20-combat-resolution.md) | 已接 | `internal/game/combat.go`、`internal/game/commands.go`（共 6 處） |
+| 21 | [七個屬性、修正值階梯與檢定骰](21-attributes.md) | 已接 | `internal/game/character.go`、`internal/game/combat.go`（共 6 處） |
 | 22 | [商店、價格公式與物品資料表](22-shop-and-items.md) | 已接 | `internal/game/facility.go`、`internal/game/facilityloop.go`（共 3 處） |
 | 23 | [圖片格式 —— packed 4bpp ＋ 列間 XOR delta](23-picture-format.md) | 已接 | `internal/assets/pic.go`、`internal/render/picanim.go`（共 6 處） |
 | 24 | [地圖的三層結構與 `ALLHTDS` 圖磚](24-map-layers-and-tiles.md) | 已接 | `internal/assets/msq.go`、`internal/assets/pic.go`（共 7 處） |
@@ -77,7 +86,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 33 | [段落編號在遊戲裡怎麼出現](33-paragraph-references.md) | 已接 | `internal/game/journal.go`、`tools/extract_paragraph_refs.py`（共 6 處） |
 | 34 | [地圖腳本的 44 個指令](34-map-script-opcodes.md) | 已接 | `internal/assets/msq.go`、`internal/game/script.go`（共 5 處） |
 | 35 | [狀態、疾病與隨時間的恢復](35-status-and-healing.md) | 已接 | `internal/game/facility.go`、`internal/game/party.go`（共 4 處） |
-| 36 | [戰鬥的回合與行動順序](36-combat-rounds.md) | 已接 | `internal/game/rounds.go`、`internal/play/round.go`（共 3 處） |
+| 36 | [戰鬥的回合與行動順序](36-combat-rounds.md) | 已接 | `internal/game/rounds.go`、`internal/game/rounds_test.go` |
 | 37 | [敵方記錄、血量的來源，與距離表](37-enemy-records-and-hp.md) | 已接 | `internal/assets/msq.go`、`internal/game/combat.go`（共 6 處） |
 | 38 | [戰鬥的指令階段與逃跑](38-combat-commands-and-flee.md) | 已接 | `internal/game/commands.go`、`internal/play/combat.go`（共 3 處） |
 | 39 | [遭遇怎麼冒出來——視窗掃描與遭遇佇列](39-encounter-scan.md) | 已接 | `internal/game/encounterscan.go`、`internal/game/world.go` |
@@ -131,3 +140,4 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 87 | [`sub_15036` 是敵人在地圖上移動，不是目標選擇](87-enemy-map-movement.md) | 已接 | `internal/play/round.go` |
 | 88 | [命中累加值 `sub_1B108` 的四個項全部落地](88-hit-accumulator.md) | 已接 | `internal/game/combat.go`、`internal/play/round.go`（共 3 處） |
 | 89 | [敵人打誰是隨機重抽，以及「倒下」與「死亡」是兩個判準](89-enemy-target-and-down.md) | 已接 | `internal/game/party.go`、`internal/play/round.go`（共 3 處） |
+| 90 | [隊伍的行動值，以及誰會被排進行動表](90-party-initiative.md) | 已接 | `internal/game/rounds.go`、`internal/play/round.go`（共 4 處） |
