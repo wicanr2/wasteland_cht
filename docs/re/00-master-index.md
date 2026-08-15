@@ -723,6 +723,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | [`51`](51-encounter-driver.md) | 遭遇驅動器 `sub_11CD0`：地圖與戰鬥之間那一層、四組一起結算、經驗值前後相減 |
 | [`52`](52-trainer-facility.md) | 技能訓練師的流程：五個設施同一個模板、三條「走不通」都回選人 |
 | [`53`](53-list-framework.md) | 清單框架 `sub_16DB4`／`sub_16D34`：列與索引的對應表、三個回傳值、I／K 翻頁 |
+| [`73`](73-shop-and-doctor-entry.md) | **商店與醫生的入口**：`sub_169B1(4)` 用傳送記錄 `+0x04`／`+0x05` 改寫落點成 nibble 6 ＋ 設施（22 筆全中） |
 | [`72`](72-facility-entry-and-command-bar.md) | 進地點 ＝ nibble 12 先把設施格改寫成 nibble 10；跳表索引 3 ＝ `CREATE DELETE PLAY`；指令列 `ds:A9CCh` |
 | [`71`](71-nibble12-batch-patch.md) | nibble 12 ＝ 遠端批次改寫（`+0x01` 起每 5 bytes：旗標／x／y／新第 1 層／新第 2 層）；nibble 8 答對的改寫位移 ＝ `3 + 答案數 + 2n` |
 | [`70`](70-nibble1-and-facility-entry.md) | nibble 1 ＝ 氛圍敘述串列（bit7 結束）＋ 收尾改寫；設施跳表 `ds:A4E0h` 與腳本跳表差 5 個 word；商店入口的程式碼側已封閉 |
