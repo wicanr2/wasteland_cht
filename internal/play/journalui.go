@@ -108,8 +108,7 @@ func (s *Scene) showJournalPage() {
 			sec = " (decoy)"
 		}
 	}
-	s.message = fmt.Sprintf("Journal %d/%d%s  (I/K page, ESC close)",
-		n, game.ParagraphCount, sec)
+	s.setJournalHeader(n, sec)
 	s.cjk = nil
 	if s.journal != nil {
 		s.cjk = s.journal.Text(n)
@@ -117,9 +116,33 @@ func (s *Scene) showJournalPage() {
 	if len(s.cjk) == 0 {
 		// ⚠ 標記要留著：陷阱段落沒翻也還是陷阱段落。
 		s.message = fmt.Sprintf("Journal %d/%d%s  (not translated)",
-			n, game.ParagraphCount, sec)
+			n, game.JournalPages, sec)
 	}
 	s.dirty = true
+}
+
+// setJournalHeader 把標題列放進中文視窗；沒有中文就退回英文。
+//
+// 標題列本身是**重製版的介面**（原版沒有手札畫面），走 `ui:` 那組 key。
+func (s *Scene) setJournalHeader(n int, sec string) {
+	head := s.uiText("journal.header")
+	if len(head) == 0 {
+		s.message = fmt.Sprintf("Journal %d/%d%s  (I/K page, ESC close)",
+			n, game.JournalPages, sec)
+		return
+	}
+	secCJK := ""
+	switch sec {
+	case " (decoy)":
+		secCJK = string(s.uiText("journal.decoy"))
+	case " (appendix)":
+		secCJK = string(s.uiText("journal.appendix"))
+	case " (epilogue)":
+		secCJK = string(s.uiText("journal.epilogue"))
+	}
+	s.message = ""
+	s.journalHead = []byte(fmt.Sprintf(string(head), n, game.JournalPages, secCJK) +
+		"  " + string(s.uiText("journal.hint")))
 }
 
 // updateJournal 是手札模式的按鍵。回傳 false 表示要離開遊戲。
@@ -130,6 +153,7 @@ func (s *Scene) updateJournal(in input.Input) (bool, error) {
 		s.journalOpen = false
 		s.message = ""
 		s.cjk = nil
+		s.journalHead = nil
 		s.dirty = true
 	case in.Dir == input.DirUp || in.Dir == input.DirLeft:
 		if s.journalAt > 1 {
@@ -150,8 +174,7 @@ func (s *Scene) updateJournal(in input.Input) (bool, error) {
 // 正文是結局字串表（`ExeStrings()` 第 4 張）的第 i 條：
 // 中文走一般的執行檔字串翻譯（key `exe:4:<i>`），沒有翻譯就顯示英文原文。
 func (s *Scene) showEpiloguePage(page, i int) {
-	s.message = fmt.Sprintf("Journal %d/%d (epilogue)  (I/K page, ESC close)",
-		page, game.JournalPages)
+	s.setJournalHeader(page, " (epilogue)")
 	s.cjk = nil
 	if s.cat != nil {
 		if b, ok := s.cat.Lookup(lang.ExeKey(EndingTable, i)); ok {

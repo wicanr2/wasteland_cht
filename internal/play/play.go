@@ -70,6 +70,9 @@ type Scene struct {
 	// ending 是結局播放的狀態（`docs/re/96`）。
 	ending endingState
 
+	// journalHead 是手札的標題列（中文，Big5）。空的就走英文 message。
+	journalHead []byte
+
 	// title 為 true 時停在標題畫面的主選單（`docs/re/95`）。
 	title    bool
 	titlePic *assets.Indexed
@@ -160,12 +163,21 @@ func (s *Scene) cjkVisible() bool { return s.eten != nil && len(s.cjk) > 0 }
 func (s *Scene) HiFrame() *render.HiFrame {
 	h := render.NewHiFrame()
 	h.Upscale(s.Frame())
-	if s.eten == nil || len(s.cjk) == 0 {
+	if s.eten == nil {
+		return h
+	}
+	if s.facility == nil && s.combat == nil && !s.ending.active {
+		s.drawCJKLine(h, s.uiText("cmd.bar"), 0, render.CmdRow)
+	}
+	if s.journalOpen && len(s.journalHead) > 0 {
+		s.drawCJKLine(h, s.journalHead, render.MsgCol, render.MsgRow)
+	}
+	if len(s.cjk) == 0 {
 		return h
 	}
 	// 英文訊息占掉第一行時，中文從第二行起——不要疊上去。
 	col, row := render.MsgCol, render.MsgRow
-	if s.message != "" {
+	if s.message != "" || len(s.journalHead) > 0 {
 		row++
 	}
 	// ⚠ **不能整串兩兩配對。** 譯文裡會夾 ASCII（人名、數字、標點），
@@ -918,7 +930,9 @@ func (s *Scene) Frame() *render.Frame {
 	}
 
 	// 地圖模式才有指令列（`docs/re/91`）——戰鬥與設施有自己的選單。
-	if s.facility == nil && s.combat == nil && !s.ending.active {
+	// **有中文字型時這一行改由 HiFrame 畫**（見 drawCommandBarCJK）：
+	// 8 × 8 的字模畫不出中文，先畫英文再蓋會留下殘影。
+	if s.facility == nil && s.combat == nil && !s.ending.active && s.eten == nil {
 		_ = f.DrawLineAt(s.font, commandBar(), 0, render.CmdRow)
 	}
 
@@ -1054,4 +1068,37 @@ func (s *Scene) gateHurtLine(g game.GateResult) string {
 		}
 	}
 	return fmt.Sprintf("%s%s%d point of damage.", name, s.exeString(0x63), total)
+}
+
+// uiText 取重製版介面文字的中文（Big5）。沒有翻譯就回 nil。
+func (s *Scene) uiText(name string) []byte {
+	if s.cat == nil {
+		return nil
+	}
+	if b, ok := s.cat.Lookup(lang.UIKey(name)); ok {
+		return b
+	}
+	return nil
+}
+
+// drawCJKLine 在高解畫面上畫一行中英混排的字（Big5）。
+//
+// ⚠ **逐 byte 判型別，不能整串兩兩配對**——這一行一定夾著熱鍵字母
+// （「U 使用」），把 `U` 當成 Big5 高位元組會讓整行往後錯開。
+func (s *Scene) drawCJKLine(h *render.HiFrame, text []byte, col, row int) {
+	for i := 0; i < len(text); {
+		c := text[i]
+		if c < 0x80 {
+			h.DrawASCIIAt(s.font, c, col, row, 15)
+			col++
+			i++
+			continue
+		}
+		if i+1 >= len(text) {
+			break
+		}
+		h.DrawCJK(s.eten, text[i], text[i+1], col, row, 15)
+		col += 2
+		i += 2
+	}
 }

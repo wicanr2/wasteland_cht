@@ -9,11 +9,13 @@ package play
 // 這裡用數字鍵。判定那一層照原版（`game.Party.UseGate`），沒有動。
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 
 	"github.com/wicanr2/wasteland_cht/internal/game"
 	"github.com/wicanr2/wasteland_cht/internal/input"
+	"github.com/wicanr2/wasteland_cht/internal/lang"
 )
 
 // useStage 是三層選單走到哪一層。
@@ -26,10 +28,16 @@ const (
 	useStagePick            // 選技能／物品／屬性
 )
 
+// nameTable 是技能與物品名那張表（`ds:B270h`）在 `ExeStrings()` 裡的編號。
+const nameTable = 2
+
 // useOption 是清單裡的一項：顯示用的名字，加上要交給 UseGate 的編號。
 type useOption struct {
 	label string
 	id    byte
+	// nameSlot 是這個名字在 `ds:B270h` 表裡的條號；0 ＝ 這一項不走那張表
+	// （屬性名是 Go 這邊的常數）。中文版查 `exe:2:<nameSlot>`。
+	nameSlot int
 }
 
 // useState 是 `USE` 進行中的狀態。
@@ -56,6 +64,7 @@ func (s *Scene) beginUse() {
 	if n == 0 {
 		s.use = useState{}
 		s.message = "Nobody can do that."
+		s.cjk = s.uiText("use.nobody")
 		s.dirty = true
 		return
 	}
@@ -64,6 +73,11 @@ func (s *Scene) beginUse() {
 		return
 	}
 	s.message = "Which player? " + s.memberMenu()
+	if t := s.uiText("use.which"); len(t) > 0 {
+		s.cjk = append(append([]byte{}, t...), ' ')
+		s.cjk = append(s.cjk, s.memberMenu()...)
+		s.message = ""
+	}
 	s.dirty = true
 }
 
@@ -93,6 +107,10 @@ func (s *Scene) pickUseMember(i int) {
 	// 字串 4 的顯示順序是 Item／Skill／Attribute，而**索引照字母表 SIA**
 	// （`docs/re/92` §2）——這裡顯示照原版、按鍵照字母表。
 	s.message = "Use: Item / Skill / Attribute  (I/S/A, ESC cancel)"
+	if t := s.uiText("use.kind"); len(t) > 0 {
+		s.cjk = t
+		s.message = ""
+	}
 	s.dirty = true
 }
 
@@ -108,7 +126,7 @@ func (s *Scene) pickUseKind(k game.UseKind) {
 				continue
 			}
 			s.use.options = append(s.use.options, useOption{
-				label: s.skillName(sk.ID), id: sk.ID})
+				label: s.skillName(sk.ID), id: sk.ID, nameSlot: int(sk.ID)})
 		}
 	case game.UseItem:
 		// UseGate 比的是**物品 ID**（`sub_14090` 先把槽號換成 ID）。
@@ -117,7 +135,7 @@ func (s *Scene) pickUseKind(k game.UseKind) {
 				continue
 			}
 			s.use.options = append(s.use.options, useOption{
-				label: s.itemName(it.ID), id: it.ID})
+				label: s.itemName(it.ID), id: it.ID, nameSlot: int(it.ID) + itemNameBase})
 		}
 	case game.UseAttribute:
 		// 屬性那條的參數是**角色記錄位移**（`docs/re/32` §4），不是屬性索引。
@@ -129,12 +147,55 @@ func (s *Scene) pickUseKind(k game.UseKind) {
 	if len(s.use.options) == 0 {
 		s.use = useState{}
 		s.message = "Nothing to use."
+		s.cjk = s.uiText("use.nothing")
 		s.dirty = true
 		return
 	}
 	s.use.stage = useStagePick
 	s.message = s.useMenu()
+	s.cjk = s.useMenuCJK()
+	if len(s.cjk) > 0 {
+		s.message = "" // 中文清單出來了就不要再疊一份英文
+	}
 	s.dirty = true
+}
+
+// useMenuCJK 是同一份清單的中文版（技能與物品名走 `exe:2:<條號>`）。
+//
+// 有一個名字沒翻就整份退回英文——**中英混在同一份清單裡最難讀**，
+// 而且會讓「哪些還沒翻」看不出來。
+func (s *Scene) useMenuCJK() []byte {
+	if s.cat == nil {
+		return nil
+	}
+	var out []byte
+	for i, o := range s.use.options {
+		if i >= 9 {
+			break
+		}
+		if o.nameSlot == 0 {
+			return nil // 屬性那條沒有對應的原版字串
+		}
+		b, ok := s.cat.Lookup(lang.ExeKey(nameTable, o.nameSlot))
+		if !ok {
+			return nil
+		}
+		if len(out) > 0 {
+			out = append(out, ' ')
+		}
+		out = append(out, byte('1'+i), ' ')
+		out = append(out, singularBytes(b)...)
+	}
+	return out
+}
+
+// singularBytes 是 `singular` 的 byte 版：譯文同樣用 `\x0A` 分單複數
+// （`docs/re/28`），清單只要第一段。
+func singularBytes(raw []byte) []byte {
+	if i := bytes.IndexByte(raw, '\n'); i >= 0 {
+		raw = raw[:i]
+	}
+	return bytes.TrimSpace(raw)
 }
 
 // useMenu 是第三層的清單（最多九項一頁——**超過的部分還沒做分頁**）。
