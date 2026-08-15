@@ -213,6 +213,7 @@
 | [`docs/re/66-nibble2-event-and-heat.md`](docs/re/66-nibble2-event-and-heat.md) | nibble 2 的閘與事件是同一支；沙漠高溫的訊息與扣血路徑已定位，入口未解 |
 | [`docs/re/67-gate-penalty-and-canteen.md`](docs/re/67-gate-penalty-and-canteen.md) | 條件閘的獎懲在記錄 `+0x08`／`+0x09`；高溫的條件是物品 44 ＝ `Canteen` |
 | [`docs/re/68-cell-rewrite.md`](docs/re/68-cell-rewrite.md) | 改寫地圖格 `sub_17CFF`：七個呼叫端只差一個位移；**這個遊戲的狀態就是改格子**；游不過河會被沖到下游（四邊對拍） |
+| [`docs/re/82-save-round-trip.md`](docs/re/82-save-round-trip.md) | 存檔的三道門檻：byte-for-byte round-trip、改動限縮、存讀一致 |
 | [`docs/re/81-combat-loop-coverage.md`](docs/re/81-combat-loop-coverage.md) | 戰鬥迴圈端到端門檻；抓到「背包槽號當物品 ID 查表」讓傷害高十倍 |
 | [`docs/re/80-trainer-skill-list.md`](docs/re/80-trainer-skill-list.md) | 訓練師列**整張技能表**，篩選（IQ／費用／技能欄空位）在選完之後 |
 | [`docs/re/79-facility-coverage.md`](docs/re/79-facility-coverage.md) | 設施覆蓋率：跳表索引 **≥ 5 就是 opcode**（9 筆記錄）；訓練師八家清單全空 |
@@ -347,6 +348,7 @@
 | — | `0x13FC8`–`0x13FD9` 第一個受罰者才跑的欄位前置處理（`docs/re/69` §6）；`sub_1790B` 怎麼取那個被塞進時鐘的數字（`docs/re/74` §1） | `sub_142ED` 的形狀已解（暫換時鐘的時 → 印 `+0x03` → 延遲 → 還原），remake 刻意只印訊息 |
 | — | 17 種腳本 opcode 還沒實作（`docs/re/76`）：0、1、2、4、7、9、14、32、34、35、36、37、39 與四個非法值 | **有格子指到的一個都不缺**；剩下的都要靠改寫才到得了，覆蓋率有測試守著（`missCells != 0` 就紅） |
 | — | 戰鬥的三處暫代（`docs/re/81` §3）：敵人 miss 訊息沒名字、命中沒接射程與距離懲罰、敵人目標選擇是「第一個」而非 `sub_15036` 的目標表 | 打得完、結算正確；缺的是精確度與訊息 |
+| — | `StoreTo` 沒寫隊伍槽表 `+0x0A`（所在地圖，`docs/re/82` §4）——換地圖之後存檔會記成還在原地圖 | 座標、時鐘、角色記錄都有存；缺的是地圖編號 |
 | A13 | `TRANSTBL` 的**用途**（形狀已解：50 組 × 16 的索引對照表） | 三層掃描都找不到消費端，與資源 idx 7 同一種遺留（`docs/re/56`） |
 | — | 物品 `+0x03` 低 3 位、敵人 `+0x04` 高 4 位**都沒有讀取端** | 資料裡有值但程式沒讀；原樣 round-trip，不給語意 |
 | — | 物品 70／71／72 原本是什麼（`docs/re/50`） | 名字是被清空的、資料完整、字母序把開頭夾在 H–M。**這份 DOS 版問不出更多**；要答案得看別的平台版本 |
