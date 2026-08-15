@@ -507,6 +507,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `0x141FA` | 2 | 對角色記錄的某個欄位加減（`bl` 有號負 ＝ 減）；欄位 `0x1D` 走傷害結算 | [`55`](55-radiation-and-armour-bypass.md) §3 |
 | `0x14410` | — | **輻射格結算**：逐一對隊員擲 `+0x01` 顆 d6 扣 CON ＋ 加 Radiation poisoning | [`55`](55-radiation-and-armour-bypass.md) §3 |
 | `0x13EC9` | 1 | **條件閘的主體**：逐個角色跑條件串列，收尾由記錄 `+0x00` 低位的四個旗標決定 | [`69`](69-gate-flags.md) §2 |
+| `0x1A526` | — | **opcode 3**：`6 ≤ ds:465Ah < 18` → 用記錄 `+0x03`／`+0x04`，否則 `+0x05`／`+0x06`，搬進 `+0x01`／`+0x02` | [`75`](75-desert-heat-entry.md) §2 |
 | `0x12BD0` | 1 | **nibble 12**：印記錄 `+0x00`，跑 `+0x01` 起的批次改寫表，最後改寫腳下 | [`71`](71-nibble12-batch-patch.md) §1 |
 | `0x15160` | 1 | **nibble 8** 問答；答對的改寫位移 ＝ `3 + 答案數 + 2 × 序號`（`0x1522F`） | [`71`](71-nibble12-batch-patch.md) §5 |
 | `0x16CD0` | 1 | **nibble 1**：印記錄開頭的訊息串列（bit7 結束），條數當位移改寫這一格 | [`70`](70-nibble1-and-facility-entry.md) §1 |
@@ -723,6 +724,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | [`51`](51-encounter-driver.md) | 遭遇驅動器 `sub_11CD0`：地圖與戰鬥之間那一層、四組一起結算、經驗值前後相減 |
 | [`52`](52-trainer-facility.md) | 技能訓練師的流程：五個設施同一個模板、三條「走不通」都回選人 |
 | [`53`](53-list-framework.md) | 清單框架 `sub_16DB4`／`sub_16D34`：列與索引的對應表、三個回傳值、I／K 翻頁 |
+| [`75`](75-desert-heat-entry.md) | 沙漠高溫 ＝ 腳本 opcode 3 的晝夜分支（白天記錄 7–9、夜間 10–12）；`CF ＝ 0` 表示同一步繼續跑 |
 | [`74`](74-heat-entry-and-gate-display.md) | `sub_142ED` ＝ 暫換時鐘的時 ＋ 印 `+0x03` ＋ 延遲 ＋ 還原；`export_range_refs` 是半開區間（單一位址要寫 `X X+1`） |
 | [`73`](73-shop-and-doctor-entry.md) | **商店與醫生的入口**：`sub_169B1(4)` 用傳送記錄 `+0x04`／`+0x05` 改寫落點成 nibble 6 ＋ 設施（22 筆全中） |
 | [`72`](72-facility-entry-and-command-bar.md) | 進地點 ＝ nibble 12 先把設施格改寫成 nibble 10；跳表索引 3 ＝ `CREATE DELETE PLAY`；指令列 `ds:A9CCh` |

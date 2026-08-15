@@ -112,7 +112,7 @@
 | `0x13878` | seg000+0x3878 | 56 | 6 | re/00-master-index.md、re/39-encounter-scan.md、re/45-item-data-and-weapon-damage.md |
 | `0x13924` | seg000+0x3924 | 21 | 6 | re/38-combat-commands-and-flee.md |
 | `0x13939` | seg000+0x3939 | 5 | 6 | re/40-combat-screen.md |
-| `0x169B1` | seg000+0x69B1 | 11 | 6 | re/00-master-index.md、re/26-movement-and-triggers.md、re/29-map-event-handlers.md、re/46-typed-answers-and-text-input.md、re/55-radiation-and-armour-bypass.md、re/59-playtest-against-original.md、re/60-teleport-and-map-change.md、re/68-cell-rewrite.md、re/70-nibble1-and-facility-entry.md、re/71-nibble12-batch-patch.md、re/73-shop-and-doctor-entry.md |
+| `0x169B1` | seg000+0x69B1 | 11 | 6 | re/00-master-index.md、re/26-movement-and-triggers.md、re/29-map-event-handlers.md、re/46-typed-answers-and-text-input.md、re/55-radiation-and-armour-bypass.md、re/59-playtest-against-original.md、re/60-teleport-and-map-change.md、re/68-cell-rewrite.md、re/70-nibble1-and-facility-entry.md、re/71-nibble12-batch-patch.md、re/73-shop-and-doctor-entry.md、re/75-desert-heat-entry.md |
 | `0x17029` | seg000+0x7029 | 5 | 6 | re/40-combat-screen.md、re/52-trainer-facility.md |
 | `0x171E3` | seg000+0x71E3 | 37 | 6 | re/39-encounter-scan.md |
 | `0x173B0` | seg000+0x73B0 | 34 | 6 | re/00-master-index.md、re/38-combat-commands-and-flee.md、re/43-input-and-hotkeys.md、re/51-encounter-driver.md |
