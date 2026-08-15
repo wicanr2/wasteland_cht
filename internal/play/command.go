@@ -60,6 +60,9 @@ func (s *Scene) runCommand(c Command) (bool, error) {
 		return s.cmdSave()
 	case CmdRadio:
 		return s.cmdRadio()
+	case CmdUse:
+		s.beginUse()
+		return true, nil
 	default:
 		// **不猜**：入口已經在 `docs/re/91` §1 定位，行為還沒讀。
 		s.message = fmt.Sprintf("%s: not wired yet", CommandNames[c])
