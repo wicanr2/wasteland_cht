@@ -66,6 +66,12 @@ type Scene interface {
 // Poller 是有亂數產生器要跟著輪詢推進的場景（規格 02 §1.1）。
 type Poller interface{ PollRNG() }
 
+// HiScene 是會輸出 640 × 400 高解析畫面的場景（中文用，`docs/spec/10`）。
+//
+// 中文點陣字是 16 × 15，塞不進原版 8 × 8 的字元格——所以 CJK 那條路
+// 把畫面放大兩倍再疊字。場景實作了這個介面，整個視窗就走 640 × 400。
+type HiScene interface{ HiFrame() *render.HiFrame }
+
 // Sounder 是會發出 PC 喇叭音效的場景。
 //
 // TakeSound 回這一幀要播的音效編號（0–8，`docs/re/44` §6），−1 表示沒有；
@@ -87,6 +93,8 @@ type Game struct {
 	scene Scene
 	img   *ebiten.Image
 	synth *wlaudio.Synth
+	// hi 非 nil 就走 640 × 400 的中文畫面。
+	hi HiScene
 	keys  []ebiten.Key
 	runes []rune
 	buf   []input.Key
@@ -96,10 +104,14 @@ type Game struct {
 
 // New 建立一個 Game。**不開音訊**——測試與檢視器用這一支。
 func New(scene Scene) *Game {
-	return &Game{
-		scene: scene,
-		img:   ebiten.NewImage(render.ScreenWidth, render.ScreenHeight),
+	g := &Game{scene: scene}
+	if h, ok := scene.(HiScene); ok {
+		g.hi = h
+		g.img = ebiten.NewImage(render.HiScreenWidth, render.HiScreenHeight)
+	} else {
+		g.img = ebiten.NewImage(render.ScreenWidth, render.ScreenHeight)
 	}
+	return g
 }
 
 // NewWithAudio 建立一個會發聲的 Game。
@@ -170,6 +182,15 @@ func (g *Game) Update() error {
 
 // Draw 把索引畫面上色送上螢幕。
 func (g *Game) Draw(screen *ebiten.Image) {
+	if g.hi != nil {
+		h := g.hi.HiFrame()
+		if h == nil {
+			return
+		}
+		g.img.WritePixels(h.ToImage().Pix)
+		screen.DrawImage(g.img, nil)
+		return
+	}
 	frame := g.scene.Frame()
 	if frame == nil {
 		return
@@ -178,8 +199,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	screen.DrawImage(g.img, nil)
 }
 
-// Layout 固定回傳 320 × 200——放大由 Ebiten 處理，內部座標永遠是原版的。
+// Layout 回傳內部解析度：中文畫面 640 × 400，其餘 320 × 200。
+// 放大由 Ebiten 處理，內部座標永遠是原版的（或原版的兩倍）。
 func (g *Game) Layout(int, int) (int, int) {
+	if g.hi != nil {
+		return render.HiScreenWidth, render.HiScreenHeight
+	}
 	return render.ScreenWidth, render.ScreenHeight
 }
 
@@ -190,11 +215,12 @@ func Run(scene Scene, title string, scale int, synth *wlaudio.Synth) error {
 	if scale < 1 {
 		return fmt.Errorf("縮放倍率要 ≥ 1，收到 %d", scale)
 	}
-	ebiten.SetWindowSize(render.ScreenWidth*scale, render.ScreenHeight*scale)
-	ebiten.SetWindowTitle(title)
 	g, err := NewWithAudio(scene, synth)
 	if err != nil {
 		return err
 	}
+	w, h := g.Layout(0, 0)
+	ebiten.SetWindowSize(w*scale, h*scale)
+	ebiten.SetWindowTitle(title)
 	return ebiten.RunGame(g)
 }

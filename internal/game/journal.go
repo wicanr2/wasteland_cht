@@ -92,6 +92,9 @@ func NewJournal(refs ParagraphRefs) *Journal {
 	return j
 }
 
+// Refs 回傳引用表，讓呈現層查「這一則訊息有沒有引用段落」。
+func (j *Journal) Refs() ParagraphRefs { return j.refs }
+
 // Section 回報某一段收在哪一區。
 func (j *Journal) Section(n int) JournalSection {
 	if j.used[n] {
