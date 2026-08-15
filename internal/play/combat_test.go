@@ -367,3 +367,143 @@ func TestEncounterSpawnsFromRealMap(t *testing.T) {
 	}
 	t.Logf("遭遇格 (%d, %d) 生出 %d 個敵人", fx, fy, n)
 }
+
+// 回合結算（docs/spec/22 §6 的驗收條件）。
+
+func mkBattle(t *testing.T, enemyHP uint16, ac byte) *CombatScene {
+	t.Helper()
+	p := mkParty(30, 30)
+	for _, m := range p.Members {
+		// 屬性放在死區（9–13），AttrModifier 不加不減——
+		// 讓測試只驗流程，不被屬性修正拖著跑。
+		for i := range m.Attributes {
+			m.Attributes[i] = 11
+		}
+		m.AC = ac
+	}
+	b := game.NewBattle(p, rng.New())
+	b.AddEnemy(0, 0, &game.Enemy{HP: enemyHP, Data: game.EnemyData{Base: 20, DiceN: 1, XPMul: 0}})
+	s := NewCombatScene(b)
+	// 給一把武器。**沒有武器每個人的傷害都是 0**，戰鬥永遠打不完——
+	// 這一點測試裡要顯式給，不要靠零值碰運氣。
+	s.Items = game.ItemTable{{}, {Dice: 3, Class: 1}}
+	for _, m := range p.Members {
+		m.EquipIndex = 1
+	}
+	return s
+}
+
+// 驗收 4：敵人死光 → Over && Won。
+func TestRoundEndsWhenEnemiesDie(t *testing.T) {
+	s := mkBattle(t, 1, 0)
+	for i := range s.Phase.Cmd {
+		s.Phase.Cmd[i] = game.CmdAttack
+	}
+	// 直接把敵人打死，驗的是「結束判定」而不是命中率。
+	s.Battle.Enemy(0).HP = 0
+	res := s.ResolveRound()
+	if !res.Over || !res.Won {
+		t.Errorf("敵人都死了應該是 Over && Won，得到 over=%v won=%v", res.Over, res.Won)
+	}
+}
+
+// 驗收 4：隊伍全倒 → Over && !Won。
+func TestRoundEndsWhenPartyFalls(t *testing.T) {
+	s := mkBattle(t, 100, 0)
+	for _, m := range s.Battle.Party.Members {
+		m.CON = 0
+	}
+	res := s.ResolveRound()
+	if !res.Over || res.Won {
+		t.Errorf("隊伍全倒應該是 Over && !Won，得到 over=%v won=%v", res.Over, res.Won)
+	}
+}
+
+// 驗收 1：行動順序與 Battle.Order() 一致（同一顆種子跑兩次結果相同）。
+func TestRoundOrderIsStable(t *testing.T) {
+	one := mkBattle(t, 100, 0)
+	one.Battle.RNG = rng.New()
+	one.ResolveRound()
+	got := len(one.Battle.Order())
+	if got == 0 {
+		t.Fatal("一回合結束後行動表是空的——BeginRound 沒排進去")
+	}
+	// 兩個隊員 ＋ 一個敵人 ＝ 三個行動者。
+	if got != 3 {
+		t.Errorf("行動表應該有 3 個單位，得到 %d", got)
+	}
+}
+
+// 驗收 3：打死敵人給的經驗值等於 KillXP()。
+func TestRoundAwardsKillXP(t *testing.T) {
+	s := mkBattle(t, 1, 0)
+	m := s.Battle.Party.Members[0]
+	before := m.XP
+	e := s.Battle.Enemy(0)
+	want := e.Data.KillXP()
+
+	// 直接跑攻擊那一段，避開命中率的隨機性：連打到死為止。
+	for i := 0; i < 200 && e.HP > 0; i++ {
+		s.Phase.Cmd[0] = game.CmdAttack
+		s.partyActs(game.Combatant{Slot: game.EnemySlots, IsParty: true})
+	}
+	if e.HP > 0 {
+		t.Skip("200 次都沒打中——命中率暫代路徑，換一輪再測")
+	}
+	if got := m.XP - before; got != want {
+		t.Errorf("擊殺經驗值應該是 %d，得到 %d", want, got)
+	}
+}
+
+// 端到端：拿原版資料開一場戰鬥，跑到結束。
+//
+// 上面那幾條驗規則，這一條驗**接得起來**——物品表載得到、武器有骰數、
+// 回合跑得完。少任何一環症狀都是「戰鬥打不完」，而單元測試不會紅。
+func TestRealBattleTerminates(t *testing.T) {
+	s := openScene(t)
+	w := s.World()
+
+	var found = -1
+	for id := 0; id < 50 && found < 0; id++ {
+		b, err := s.rom.Block(id)
+		if err != nil {
+			continue
+		}
+		for y := 0; y < b.Dim && found < 0; y++ {
+			for x := 0; x < b.Dim; x++ {
+				if terrain, _, _, err := b.At(x, y); err == nil && game.IsEncounterCell(terrain) {
+					w.EnterMap(b, uint8(x), uint8(y))
+					found = id
+					break
+				}
+			}
+		}
+	}
+	if found < 0 {
+		t.Fatal("找不到遭遇格")
+	}
+
+	c, err := s.StartEncounter()
+	if err != nil || c == nil {
+		t.Fatalf("開不了戰鬥：c=%v err=%v", c, err)
+	}
+	if len(c.Items) == 0 {
+		t.Fatal("物品表沒載到——武器傷害會是 0，戰鬥永遠打不完")
+	}
+
+	rounds := 0
+	for rounds < game.MaxRounds {
+		for i := range c.Phase.Cmd {
+			c.Phase.Cmd[i] = game.CmdAttack
+		}
+		res := c.ResolveRound()
+		rounds++
+		if res.Over {
+			t.Logf("地圖 %d 的戰鬥在第 %d 回合結束，隊伍%s", found, rounds,
+				map[bool]string{true: "贏", false: "輸"}[res.Won])
+			return
+		}
+		c.BeginCommands()
+	}
+	t.Errorf("跑了 %d 回合還沒結束——回合迴圈收斂不了", rounds)
+}

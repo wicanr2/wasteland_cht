@@ -41,6 +41,9 @@ type Scene struct {
 	blockFile string
 	blockID   int
 
+	// items 是物品資料表（存檔區那一份，docs/re/45 §2）。
+	// **武器傷害要靠它**——沒有它每個人的傷害都是 0，戰鬥永遠打不完。
+	items game.ItemTable
 	// combat 非 nil 時畫面在戰鬥（docs/spec/21）。
 	combat *CombatScene
 	// snapshot 是打之前每個角色的經驗值，收尾時相減用。
@@ -150,7 +153,16 @@ func New(rom *assets.Rom) (*Scene, error) {
 		dirty: true,
 	}
 	s.world.Clock = clock
+	// 物品表跟著存檔走（每個存檔槽一份）。載不到就維持空表——
+	// 傷害會是 0，但遊戲跑得動，而且下面這行的錯誤會留在訊息裡。
 	s.message = save.Place()
+	if raw, err := rom.LoadItemTable(save.File, 0); err == nil {
+		s.items = game.ParseItemTable(raw)
+	} else {
+		// 載不到就維持空表：傷害會是 0，但遊戲跑得動。
+		// **錯誤要留在畫面上**，不要靜靜吞掉——那會變成「戰鬥打不完」的怪症狀。
+		s.message = "ITEM TABLE: " + err.Error()
+	}
 	s.blockFile, s.blockID = block.Resource.File, block.Resource.ID
 	return s, nil
 }
