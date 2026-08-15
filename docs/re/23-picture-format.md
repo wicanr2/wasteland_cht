@@ -22,7 +22,7 @@ packed 4bpp        一個 byte 兩個像素，高 4 位在左
 |---|---:|---:|---|---|
 | `ALLPICS1/2` 的圖片子區塊 | 4,032 | 48 | **96 × 84** | overlay slot 2（`sub_10144`） |
 | `TITLE.PIC` | 18,432 | 144 | **288 × 128** | `start` 內嵌（`docs/re/03` §6） |
-| `END.CPA` | 18,432 | 144（推測） | 288 × 128（推測） | `sub_1B7FE` |
+| `END.CPA` | 18,432 | 144 | 288 × 128 | `sub_1B7FE` |
 
 `stride × 高 ＝ 檔案大小` 三個來源都整除，而且**每張圖都用滿 16 種顏色**——
 與 EGA mode 0Dh 的 16 色調色盤一致。
@@ -185,16 +185,9 @@ sequencer map mask 與 graphics 暫存器）。
 
 - `ALLHTDS1/2`：4／5 個 8,448–20,864 bytes 的大塊，**大小各不相同**，
   所以不是固定尺寸的圖；`sub_186B6` 解壓到 `seg003:0x2F60`。用途未解。
-- **`END.CPA` 的解密參數**。`sub_1B7FE` 已經讀完：
-  `sub_11445(dl ＝ 6)` 開資源索引 6，然後讀兩塊——`0x4800` bytes 到
-  `seg003:0x920`、`0x3A98` bytes 到 `seg003:0x5120`，兩塊在記憶體裡相連。
-  檔案本身：前 4 bytes ＝ `0x4800`（＝ 288 × 128 的 packed 4bpp，與
-  `TITLE.PIC` 同尺寸），接著是 `msq` magic（第 4 個 byte 是 `0x00`，
-  不是地圖區塊的 `'0'`／`'1'`）。
-  **卡住的地方**：拿 `+0x04` 的 word（`0x0040`）當 checksum 走 §3 的 XOR
-  串流，解出來的開頭不是合法的 Huffman 長度欄（讀到 836,184,663）。
-  下一個入口是 `sub_11AE8` 與 `sub_11B83`——載入器實際讀檔的兩支，
-  `docs/re/05` 列為未解。第二塊多半是結局敘述（`ds:D18Eh` 的字串表）。
+- ~~`END.CPA` 的解碼~~ → **已解**，見 §9。第二塊（`0x3A98` bytes，
+  多半是結局敘述，`ds:D18Eh` 的字串表）還沒解。
+
 ## 7. 調色盤：原版從來沒設過
 
 **原版從來沒設過調色盤**，用的就是 mode 0Dh 的預設 16 色。兩層證據：
@@ -276,3 +269,41 @@ WL_IDA_TARGET="$PWD/workplace/analysis/unpacked/wl.merged.exe" \
 - **找得到一個全檔都該成立的恆等式，就用它當驗收。** 「一輪播完回到底圖」
   比單張截圖強得多：單張只證明某一組參數在某一格對得上，
   恆等式要求整組解析在 82 張圖上都自洽。
+
+## 9. `END.CPA`：整份就是 Huffman
+
+```
+sub_1B7FE:
+  sub_11445(dl ＝ 6)                     ; 開資源索引 6
+  sub_11AE8(1)                           ; 讀 8 bytes 段標頭 ＋ 驗 'ms' magic
+  sub_11B83(cx ＝ 4800h, dx ＝ 920h)     ; 解出 0x4800 bytes 到 seg003:0x920
+  sub_11AE8(0)                           ; 第二段的標頭（不驗）
+  sub_11B83(cx ＝ 3A98h, dx ＝ 5120h)    ; 解出 0x3A98 bytes 到 seg003:0x5120
+```
+
+`sub_11B83` **就是 Huffman 解壓器**（與 `docs/re/11` 同一套）：
+
+```
+di ← ds:9509h              ; 樹根
+loc_11BC3:
+  [di] ＝ 0 → 葉節點        ; 節點 6 bytes：[di] 左、[di+2] 右、[di+4] 值
+  位元用完 → lodsb 取下一個 byte、ah ← 80h
+  test ah, al → 右／左
+  shr al, 1
+葉節點:
+  al ← [di+4]；stosb
+```
+
+所以檔案的第 0 個 byte 起就是標準串流：**前 4 bytes 是解開後的長度 `0x4800`**
+＝ 288 × 128 的 packed 4bpp，與 `sub_1B7FE` 的 `cx`、`TITLE.PIC` 的尺寸三邊對上。
+解完再走列間 XOR delta（stride 144），與 `TITLE.PIC` 同一條路。
+
+⚠ **不要先跳過那 4 bytes。** 把它當「檔頭」跳掉、再拿 `+0x04` 的 `msq` 當
+MSQ 容器去解密，六種 checksum／body 起點的組合全部失敗——那是在猜參數。
+`Decompress` 自己會讀長度欄，整份丟進去就對了。
+
+解錯時**值域一樣是 0–15**，值域檢查完全擋不住；是**顏色分布**抓出來的——
+解錯時最多的一種顏色只佔 6%（雜訊的均勻分布），正確的圖是 22%。
+`TestEndPicture` 的門檻因此寫成分布而不是值域。
+
+remake 這一側：`Rom.End()`（`internal/assets/pic.go`）＋ `wl-shot -mode end`。
