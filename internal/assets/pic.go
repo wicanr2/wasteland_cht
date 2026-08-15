@@ -119,10 +119,10 @@ func (r *Rom) Title() (*Indexed, error) {
 //   - 載入器讀兩塊：`0x4800` 到 `seg003:0x920`、`0x3A98` 到 `seg003:0x5120`，
 //     兩塊在記憶體裡相連；第二塊多半是結局敘述（`ds:D18Eh` 的字串表）。
 //
-// 卡在**解密參數**：拿 `+0x04` 的 word（`0x0040`）當 checksum 走
-// `docs/re/08` 的 XOR 串流，解出來的開頭不是合法的 Huffman 長度欄
-// （讀到 836,184,663）。下一個入口是 `sub_11AE8` 與 `sub_11B83`
-// （載入器實際讀檔的兩支），細節見 `docs/re/23` §6。
+// 卡在**解密參數**。已知 `sub_11AE8` 讀的段標頭是 **8 bytes 不是 6**
+// （`docs/re/05` §7.1），所以 body 的起點與 checksum 的位置不能拿
+// 地圖區塊那一套去套——試過六種組合解出來都不是合法的 Huffman 長度欄。
+// 下一步是把 `sub_11B83` 剩下的部分讀完（`docs/re/23` §6）。
 func (r *Rom) End() (*Indexed, error) {
 	data, err := r.File("end.cpa")
 	if err != nil {
