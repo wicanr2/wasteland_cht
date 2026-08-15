@@ -106,8 +106,11 @@ func (f Facility) HealCost(c *Character) (points int, cost uint32) {
 	return points, uint32(points) * f.Price(docHealPer)
 }
 
-// Heal 付錢治傷。付不起就整筆失敗——原版是逐點付，這裡先做整筆，
-// 逐點的互動迴圈還沒逆向（docs/spec/09 §6）。
+// Heal 是「一次治滿」的整筆版本：付不起就整筆失敗。
+//
+// ⚠ **原版沒有這一支。** 原版是逐點付（HealSession.HealOne，docs/re/42 §5），
+// 錢不夠就停在中途。這一支留著給不需要互動的呼叫端（測試、腳本），
+// **玩家路徑一律走 HealSession**。
 func (f Facility) Heal(c *Character) (ok bool, reason string) {
 	points, cost := f.HealCost(c)
 	if points <= 0 {
