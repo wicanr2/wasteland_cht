@@ -12,7 +12,10 @@ const (
 	FacilityDoctor  FacilityKind = 0
 	FacilityShop    FacilityKind = 1
 	FacilityTrainer FacilityKind = 2
-	FacilitySave    FacilityKind = 3
+	// FacilityRoster 是 Ranger Center 的角色管理：`CREATE DELETE PLAY`
+	// （`ds:CE12h` 的選單字串，`docs/re/72` §3）。
+	// ⚠ **不是存檔處**——存檔走指令列的 `Save`（`docs/re/91`）。
+	FacilityRoster FacilityKind = 3
 	FacilityUnknown FacilityKind = 4 // 身分未定（docs/spec/09 §6）
 	FacilityCount                = 5
 )
@@ -22,7 +25,7 @@ var facilityNameAt = [FacilityCount]int{
 	FacilityDoctor:  0x07,
 	FacilityShop:    0x07,
 	FacilityTrainer: 0x04,
-	FacilitySave:    0x03,
+	FacilityRoster:  0x03,
 	FacilityUnknown: 0x03,
 }
 

@@ -218,6 +218,33 @@ func (r *Rom) SpawnTablesRaw() ([3][]byte, error) {
 	return out, nil
 }
 
+// StartingKitOffsets 是三張起始物品清單的 ds 位移（`docs/re/21` §5.1）。
+// 每張以 `0xFF` 結束。
+var StartingKitOffsets = [3]int{0xDECF, 0xDED9, 0xDEE3}
+
+// StartingKits 讀出三張起始物品清單。
+//
+// 前兩張是二選一的起始手槍組（`roll(1..2)`），第三張一定發。
+func (r *Rom) StartingKits() ([3][]byte, error) {
+	var out [3][]byte
+	for i, off := range StartingKitOffsets {
+		// 最長的一張是 9 個編號 ＋ 0xFF；讀 16 bytes 再截到 0xFF。
+		raw, err := r.DsBytes(off, 16)
+		if err != nil {
+			return out, fmt.Errorf("起始清單 ds:%04Xh：%w", off, err)
+		}
+		end := len(raw)
+		for j, b := range raw {
+			if b == 0xFF {
+				end = j
+				break
+			}
+		}
+		out[i] = append([]byte(nil), raw[:end]...)
+	}
+	return out, nil
+}
+
 // DsBytes 取資料段某個位移起的 n 個 byte（給逆向驗證用，不是遊戲規則）。
 func (r *Rom) DsBytes(off, n int) ([]byte, error) {
 	at, err := r.dsOffset(off)
