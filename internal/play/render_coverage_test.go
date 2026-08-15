@@ -159,3 +159,43 @@ func TestCombatRenders(t *testing.T) {
 	}
 	t.Logf("戰鬥畫面：%d／%d 個像素非零", nonZero, len(f.Pix))
 }
+
+// TestEnemyCellGetsIcon 驗遭遇生成的敵人格會疊上圖示（docs/re/85）。
+//
+// 生成器把格子改成 nibble 15（`docs/re/78`），圖示要走
+// 「section 15 記錄的種類 → 敵人資料表 +0x06 → ds:AA17h」這一鏈。
+func TestEnemyCellGetsIcon(t *testing.T) {
+	rom := openRom(t)
+	s, err := New(rom)
+	if err != nil {
+		t.Fatalf("開場失敗：%v", err)
+	}
+	tbl, ok := s.spawnTables()
+	if !ok {
+		t.Fatal("讀不到遭遇生成的三張表")
+	}
+	w := s.World()
+	w.Party.X, w.Party.Y = 12, 2
+	var sx, sy int
+	for i := 0; i < 3000; i++ {
+		if r := w.SpawnEncounter(tbl); r.Placed {
+			sx, sy = r.X, r.Y
+			break
+		}
+	}
+	if sx == 0 && sy == 0 {
+		t.Skip("3000 次沒生成")
+	}
+	// 視窗擺到敵人格看得到的位置。
+	w.Teleport(uint8(sx), uint8(sy+1))
+	found := false
+	for _, ic := range w.ViewIcons() {
+		if w.ViewX+ic.Col == sx && w.ViewY+ic.Row == sy {
+			found = true
+			t.Logf("敵人格 (%d,%d) 疊上圖示 %d", sx, sy, ic.Icon)
+		}
+	}
+	if !found {
+		t.Errorf("敵人格 (%d,%d) 沒有疊圖", sx, sy)
+	}
+}
