@@ -40,7 +40,13 @@ func (s *Scene) EnterFacility(record []byte) *FacilityScene {
 	if !ok {
 		return nil
 	}
-	fs := &FacilityScene{Facility: f, Picture: facilityPicture[f.Kind]}
+	// 選單狀態一開始就建好：`Frame()` 與 `Key()` 都會讀它，
+	// 只在 Key 裡懶初始化的話，先畫再按就會踩到 nil。
+	fs := &FacilityScene{
+		Facility: f,
+		Picture:  facilityPicture[f.Kind],
+		state:    &shopState{Stock: map[byte]byte{}},
+	}
 	if f.Name != "" {
 		fs.Lines = append(fs.Lines, f.Name)
 	}

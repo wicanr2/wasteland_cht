@@ -141,3 +141,84 @@ func hasLine(lines []string, want string) bool {
 	}
 	return false
 }
+
+// 買（docs/spec/25 §2、docs/re/42 §2、§4）。
+
+func TestBuyListSkipsOutOfStock(t *testing.T) {
+	f, _, _ := mkShop(t, game.FacilityShop)
+	items := game.ItemTable{
+		{Price: 10, Stock: 0},                    // 缺貨：不列
+		{Price: 20, Stock: 2},                    // 列
+		{Price: 30, Stock: game.StockUnlimited},  // 列
+	}
+	list := f.buyList(items)
+	if len(list) != 2 {
+		t.Fatalf("缺貨的不該列出來，得到 %d 筆：%v", len(list), list)
+	}
+	if list[0].ID != 1 || list[1].ID != 2 {
+		t.Errorf("編號對不上：%v", list)
+	}
+	// 折價指數 1 → 半價（基礎價 − 基礎價>>1）。
+	if list[0].Price != 10 {
+		t.Errorf("折價後應該是 10，得到 %d", list[0].Price)
+	}
+}
+
+func TestBuyOneDeductsMoneyAndStock(t *testing.T) {
+	f, p, _ := mkShop(t, game.FacilityShop)
+	items := game.ItemTable{{}, {Price: 40, Stock: 2}}
+	c := p.Members[0]
+	c.Money = 100
+
+	f.Key('B', p, items)
+	if f.state.Step != StepBuy {
+		t.Fatalf("應該進買的清單，得到 %v", f.state.Step)
+	}
+	f.Key('1', p, items)
+
+	if c.Money != 80 { // 40 − 40>>1 ＝ 20
+		t.Errorf("錢應該剩 80，得到 %d", c.Money)
+	}
+	if c.Items[0].ID != 1 {
+		t.Errorf("第一個空槽應該放進物品 1，得到 %d", c.Items[0].ID)
+	}
+	if got := f.state.Stock[1]; got != 1 {
+		t.Errorf("店家庫存應該從 2 變 1，得到 %d", got)
+	}
+}
+
+func TestBuyWithoutMoneyChangesNothing(t *testing.T) {
+	f, p, _ := mkShop(t, game.FacilityShop)
+	items := game.ItemTable{{}, {Price: 400, Stock: 2}}
+	c := p.Members[0]
+	c.Money = 10
+
+	f.Key('B', p, items)
+	f.Key('1', p, items)
+
+	if c.Money != 10 || c.Items[0].ID != 0 {
+		t.Error("錢不夠時不該扣錢也不該給東西")
+	}
+	if !hasLine(f.Lines, "enough money") {
+		t.Errorf("應該印錢不夠，得到 %v", f.Lines)
+	}
+}
+
+// 賣價與買價是同一個公式、指數不同（docs/re/22 §3.1）。
+func TestSellUsesItsOwnExponent(t *testing.T) {
+	f, p, _ := mkShop(t, game.FacilityShop)
+	// mkShop 的記錄：+0x03 ＝ 1（買，半價）、+0x04 ＝ 5（賣）。
+	f.Facility.Record[0x04] = 5
+	items := game.ItemTable{{}, {Price: 64, Stock: 1}}
+	c := p.Members[0]
+	c.Items[0] = game.Slot{ID: 1}
+	before := c.Money
+
+	f.Key('S', p, items)
+	f.Key('1', p, items)
+
+	// 64 − 64>>5 ＝ 64 − 2 ＝ 62
+	if got := c.Money - before; got != 62 {
+		t.Errorf("賣價應該用 +0x04 的指數（62），得到 %d", got)
+	}
+}
