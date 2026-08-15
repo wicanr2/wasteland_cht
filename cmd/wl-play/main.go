@@ -105,8 +105,8 @@ func (r *runner) state() string {
 			alive++
 		}
 	}
-	return fmt.Sprintf("(%d, %d) %02d:%02d %s 活著 %d/%d｜%s",
-		w.Party.X, w.Party.Y, w.Clock.Hour, w.Clock.Minute, mode,
+	return fmt.Sprintf("地圖 %-3d (%d, %d) %02d:%02d %s 活著 %d/%d｜%s",
+		r.scene.MapID(), w.Party.X, w.Party.Y, w.Clock.Hour, w.Clock.Minute, mode,
 		alive, len(w.Party.Members), r.scene.Message())
 }
 

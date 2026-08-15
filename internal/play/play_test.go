@@ -396,7 +396,7 @@ func TestTeleportChangesMap(t *testing.T) {
 	if _, err := s.Update(input.Input{Dir: input.DirRight}); err != nil {
 		t.Fatalf("往右一步：%v", err)
 	}
-	if got := s.mapID(); got != 12 {
+	if got := s.MapID(); got != 12 {
 		t.Fatalf("踩上傳送格之後還在地圖 %d，記錄 +0x03 說是 12", got)
 	}
 	if w.Party.X != 1 || w.Party.Y != 1 {
@@ -410,5 +410,27 @@ func TestTeleportChangesMap(t *testing.T) {
 	// 換了地圖就要換圖磚組，不然畫面會拿舊組去畫。
 	if s.gfx.Tiles == nil {
 		t.Fatal("換地圖之後圖磚組是空的")
+	}
+}
+
+// 驗收（規格 07 §6.7、docs/re/61）：建築內部的地圖編號 bit7 設起來，
+// 要先查 ds:BF1Ch 換成真正的資源編號。
+//
+// **忘了查的症狀是「進建築就爆掉」**——130 這種值拿去索引 42 個區塊會直接失敗。
+func TestBuildingInteriorResolvesMapID(t *testing.T) {
+	s := openScene(t)
+	// 先進 Quartz（資源 1），再踩它的一個建築入口 (24, 22)。
+	if err := s.LoadMap(1, 24, 21); err != nil {
+		t.Fatalf("進 Quartz：%v", err)
+	}
+	if _, err := s.Update(input.Input{Dir: input.DirDown}); err != nil {
+		t.Fatalf("踩建築入口：%v", err)
+	}
+	if got := s.MapID(); got != 5 {
+		t.Fatalf("進建築之後在地圖 %d，編號 130 查表應該換成 5", got)
+	}
+	w := s.World()
+	if w.Party.X != 25 || w.Party.Y != 19 {
+		t.Fatalf("落點 (%d, %d)，記錄說是 (25, 19)", w.Party.X, w.Party.Y)
 	}
 }

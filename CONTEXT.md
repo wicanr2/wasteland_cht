@@ -205,6 +205,7 @@
 | [`docs/re/58-line-flush-and-scrollback.md`](docs/re/58-line-flush-and-scrollback.md) | 控制碼 `0x08` ＝ 沖出這一行不捲動；scrollback ＝ `seg003:0x8CE0` 的 40 × 256 環形 |
 | [`docs/re/59-playtest-against-original.md`](docs/re/59-playtest-against-original.md) | 正常玩家路徑對原版驗收：輻射帶團滅是原版行為、Rad suit 免疫、熵沒接上、出不了起始地圖 |
 | [`docs/re/60-teleport-and-map-change.md`](docs/re/60-teleport-and-map-change.md) | 傳送會換地圖；槽表 `+0x0B`–`+0x0D` 是**回程**不是目的地 |
+| [`docs/re/61-map-id-table.md`](docs/re/61-map-id-table.md) | 地圖編號表 `ds:BF1Ch`：bit7 設 → 建築內部（資源 5／11）；nibble 11 是第二多的地形 |
 | [`docs/spec/00-index.md`](docs/spec/00-index.md) | **規格索引與閘門狀態**：哪些可以動工、其餘擋在什麼上 |
 | [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
 | [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |

@@ -506,7 +506,8 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `0x157D6` | 3 | **傷害結算**：CON −= (傷害 − 吸收)；`ds:46EFh` 非 0 就跳過護甲那 N 顆 d6 | [`55`](55-radiation-and-armour-bypass.md) §1 |
 | `0x141FA` | 2 | 對角色記錄的某個欄位加減（`bl` 有號負 ＝ 減）；欄位 `0x1D` 走傷害結算 | [`55`](55-radiation-and-armour-bypass.md) §3 |
 | `0x14410` | — | **輻射格結算**：逐一對隊員擲 `+0x01` 顆 d6 扣 CON ＋ 加 Radiation poisoning | [`55`](55-radiation-and-armour-bypass.md) §3 |
-| `0x19F12` | 1 | **沖出目前這一行**：斷字 → 寫 scrollback（`seg003:0x8CE0`，40 × 256 環形）→ 送畫面 → 續行 | [`60`](60-teleport-and-map-change.md) | nibble 10 ＝ 傳送並換地圖；記錄 `+0x03` ＝ 目標地圖（`0xFF` ＝ 回程）；槽表 `+0x0B`–`+0x0D` ＝ 回程 |
+| `0x19F12` | 1 | **沖出目前這一行**：斷字 → 寫 scrollback（`seg003:0x8CE0`，40 × 256 環形）→ 送畫面 → 續行 | [`61`](61-map-id-table.md) | `ds:BF1Ch` 一表兩用：低半部決定標頭 `0x600`／`0x1800`，高半部把建築編號換成資源 5／11 |
+| [`60`](60-teleport-and-map-change.md) | nibble 10 ＝ 傳送並換地圖；記錄 `+0x03` ＝ 目標地圖（`0xFF` ＝ 回程）；槽表 `+0x0B`–`+0x0D` ＝ 回程 |
 | [`59`](59-playtest-against-original.md) | 玩家路徑對原版驗收：`cmd/wl-play`、輻射帶團滅是原版行為、Rad suit（物品 41）免疫 |
 | [`58`](58-line-flush-and-scrollback.md) |
 | `0x19EFC` | 多 | 換行（`0x0D`）：`ds:46F0h` 非 0 就整支跳過，否則 `sub_19F12` ＋ `sub_1A0C5`（捲動與延遲） | [`58`](58-line-flush-and-scrollback.md) §3 |
