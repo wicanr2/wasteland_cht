@@ -90,7 +90,7 @@
 | `0x18D2C` | seg000+0x8D2C | 5 | 8 | re/41-command-handlers.md |
 | `0x1968C` | seg000+0x968C | 32 | 8 | re/00-master-index.md、re/15-character-record.md、re/32-skill-checks-and-xp.md、re/41-command-handlers.md、re/65-third-gate-conditions.md |
 | `0x19BF0` | seg000+0x9BF0 | 8 | 8 | re/00-master-index.md、re/19-effects-and-damage.md、re/55-radiation-and-armour-bypass.md、re/67-gate-penalty-and-canteen.md |
-| `0x1CA8D` | seg000+0xCA8D | 11 | 8 | re/00-master-index.md、re/31-experience-and-skills.md、re/52-trainer-facility.md |
+| `0x1CA8D` | seg000+0xCA8D | 11 | 8 | re/00-master-index.md、re/31-experience-and-skills.md、re/52-trainer-facility.md、re/79-facility-coverage.md |
 | `0x115E5` | seg000+0x15E5 | 199 | 7 | re/00-master-index.md、re/03-boot-and-asset-loading.md、re/05-storage-layer.md、re/09-msq-map-structure.md、re/16-msq-block-layout.md、re/30-save-layout.md |
 | `0x119DB` | seg000+0x19DB | 53 | 7 | re/06-resource-directory.md、re/45-item-data-and-weapon-damage.md |
 | `0x11B83` | seg000+0x1B83 | 165 | 7 | re/00-master-index.md、re/11-huffman-decoder.md |
@@ -236,7 +236,7 @@
 | `0x197BB` | seg000+0x97BB | 87 | 3 | re/00-master-index.md、re/25-screen-layout.md |
 | `0x198F0` | seg000+0x98F0 | 139 | 3 | re/43-input-and-hotkeys.md |
 | `0x1B15F` | seg000+0xB15F | 10 | 3 | re/20-combat-resolution.md、re/36-combat-rounds.md、re/37-enemy-records-and-hp.md |
-| `0x1BDFF` | seg000+0xBDFF | 23 | 3 | re/52-trainer-facility.md |
+| `0x1BDFF` | seg000+0xBDFF | 23 | 3 | re/52-trainer-facility.md、re/79-facility-coverage.md |
 | `0x1BE2A` | seg000+0xBE2A | 7 | 3 | re/52-trainer-facility.md |
 | `0x1BE40` | seg000+0xBE40 | 13 | 3 | re/52-trainer-facility.md |
 | `0x1C548` | seg000+0xC548 | 18 | 3 | re/42-facility-loops.md |
@@ -255,7 +255,7 @@
 | `0x12A76` | seg000+0x2A76 | 23 | 2 | re/00-master-index.md、re/20-combat-resolution.md、re/22-shop-and-items.md、re/32-skill-checks-and-xp.md |
 | `0x12A9D` | seg000+0x2A9D | 14 | 2 | re/37-enemy-records-and-hp.md |
 | `0x12AAB` | seg000+0x2AAB | 15 | 2 | re/32-skill-checks-and-xp.md、re/37-enemy-records-and-hp.md |
-| `0x12C80` | seg000+0x2C80 | 54 | 2 | re/00-master-index.md、re/29-map-event-handlers.md、re/34-map-script-opcodes.md、re/60-teleport-and-map-change.md、re/70-nibble1-and-facility-entry.md、re/71-nibble12-batch-patch.md |
+| `0x12C80` | seg000+0x2C80 | 54 | 2 | re/00-master-index.md、re/29-map-event-handlers.md、re/34-map-script-opcodes.md、re/60-teleport-and-map-change.md、re/70-nibble1-and-facility-entry.md、re/71-nibble12-batch-patch.md、re/79-facility-coverage.md |
 | `0x1379E` | seg000+0x379E | 48 | 2 | re/00-master-index.md、re/24-map-layers-and-tiles.md、re/39-encounter-scan.md |
 | `0x138B0` | seg000+0x38B0 | 17 | 2 | re/37-enemy-records-and-hp.md、re/39-encounter-scan.md |
 | `0x13AE4` | seg000+0x3AE4 | 366 | 2 | re/21-attributes.md、re/41-command-handlers.md |

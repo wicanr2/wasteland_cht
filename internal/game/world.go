@@ -272,8 +272,13 @@ func (w *World) Confirm() { w.confirmed = true }
 // 跑完由呼叫端用位移 1 改寫這一格——指令改的 `+0x01`／`+0x02` 就是「下一步」，
 // 而這台直譯器的程式計數器就是地圖格本身（docs/re/71 §5.1）。
 func (w *World) runScript(record []byte) ScriptResult {
-	if len(record) == 0 || record[0]&0x80 != 0 {
-		return ScriptResult{Op: -1, Message: -1, Sound: -1} // bit7 設的是設施
+	if len(record) == 0 {
+		return ScriptResult{Op: -1, Message: -1, Sound: -1}
+	}
+	// bit7 設且 kind < 5 才是設施；kind ≥ 5 是**直接指定 opcode**的腳本
+	// （`docs/re/79` §1），NewScript 會處理這兩條路。
+	if record[0]&0x80 != 0 && int(record[0]&0x7F) < FacilityKindCount {
+		return ScriptResult{Op: -1, Message: -1, Sound: -1}
 	}
 	return NewScript(w, record).Step()
 }

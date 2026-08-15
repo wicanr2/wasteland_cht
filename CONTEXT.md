@@ -213,6 +213,7 @@
 | [`docs/re/66-nibble2-event-and-heat.md`](docs/re/66-nibble2-event-and-heat.md) | nibble 2 的閘與事件是同一支；沙漠高溫的訊息與扣血路徑已定位，入口未解 |
 | [`docs/re/67-gate-penalty-and-canteen.md`](docs/re/67-gate-penalty-and-canteen.md) | 條件閘的獎懲在記錄 `+0x08`／`+0x09`；高溫的條件是物品 44 ＝ `Canteen` |
 | [`docs/re/68-cell-rewrite.md`](docs/re/68-cell-rewrite.md) | 改寫地圖格 `sub_17CFF`：七個呼叫端只差一個位移；**這個遊戲的狀態就是改格子**；游不過河會被沖到下游（四邊對拍） |
+| [`docs/re/79-facility-coverage.md`](docs/re/79-facility-coverage.md) | 設施覆蓋率：跳表索引 **≥ 5 就是 opcode**（9 筆記錄）；訓練師八家清單全空 |
 | [`docs/re/78-encounter-spawn.md`](docs/re/78-encounter-spawn.md) | **遭遇生成器 `sub_16890`**：找空槽 → 擲種類 → 沿九向之一走 N 步找空地 → 放 nibble 15 |
 | [`docs/re/77-encounter-spawn-gap.md`](docs/re/77-encounter-spawn-gap.md) | **隨機遭遇完全沒發生**：敵人格是 `sub_16890` 每步生成的，remake 只做了擲骰那一段 |
 | [`docs/re/76-script-opcode-coverage.md`](docs/re/76-script-opcode-coverage.md) | 腳本 opcode 覆蓋率：**有格子指到的一個都不缺**（0 格），剩 17 種 0 格的 |
@@ -343,6 +344,7 @@
 | A12b | `CURS` 的**消費端**：哪個圖形對應哪個狀態，以及資料的 16 寬為何與 slot 21 的 24 寬對不上 | 版面已解（8 個 32 × 16，遮罩 ＋ 圖形並排，`docs/re/57`）；遊戲主線不用滑鼠 |
 | — | `0x13FC8`–`0x13FD9` 第一個受罰者才跑的欄位前置處理（`docs/re/69` §6）；`sub_1790B` 怎麼取那個被塞進時鐘的數字（`docs/re/74` §1） | `sub_142ED` 的形狀已解（暫換時鐘的時 → 印 `+0x03` → 延遲 → 還原），remake 刻意只印訊息 |
 | — | 17 種腳本 opcode 還沒實作（`docs/re/76`）：0、1、2、4、7、9、14、32、34、35、36、37、39 與四個非法值 | **有格子指到的一個都不缺**；剩下的都要靠改寫才到得了，覆蓋率有測試守著（`missCells != 0` 就紅） |
+| — | **訓練師教什麼**：設施記錄裡只有 kind、下一步、招呼字串與名稱，沒有技能清單（`docs/re/79` §2）。要讀 `0x1BBA0` 主迴圈的選技能那一段 | **這一項擋玩得通**：八家訓練師進得去但一個技能都學不到 |
 | A13 | `TRANSTBL` 的**用途**（形狀已解：50 組 × 16 的索引對照表） | 三層掃描都找不到消費端，與資源 idx 7 同一種遺留（`docs/re/56`） |
 | — | 物品 `+0x03` 低 3 位、敵人 `+0x04` 高 4 位**都沒有讀取端** | 資料裡有值但程式沒讀；原樣 round-trip，不給語意 |
 | — | 物品 70／71／72 原本是什麼（`docs/re/50`） | 名字是被清空的、資料完整、字母序把開頭夾在 H–M。**這份 DOS 版問不出更多**；要答案得看別的平台版本 |
