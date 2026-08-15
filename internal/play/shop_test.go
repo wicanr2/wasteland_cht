@@ -96,8 +96,9 @@ func TestHealStopsWhenMoneyRunsOut(t *testing.T) {
 	c := p.Members[0]
 	c.CON, c.MaxCON = 10, 30
 	c.Money = 10 // 每點 5 元 → 只夠兩點
+	f.Key('H', p, items) // 主選單的 Healing → 進治療迴圈
 	for i := 0; i < 5; i++ {
-		f.Key('H', p, items)
+		f.Key('H', p, items) // 迴圈裡的 Heal 1 point
 	}
 	if c.CON != 12 {
 		t.Errorf("錢只夠治 2 點，CON 應該是 12，得到 %d", c.CON)
@@ -274,5 +275,60 @@ func TestTrainerKeepsMenuWhenTooExpensive(t *testing.T) {
 	}
 	if c.SkillPts != 1 || c.SkillLevel(3) != 0 {
 		t.Error("費用不夠時不該扣點也不該升級")
+	}
+}
+
+// 醫生的兩層選單與解毒（docs/re/42 §5、§6）。
+
+func TestDoctorMainMenuIsSeparateFromHealLoop(t *testing.T) {
+	f, p, items := mkShop(t, game.FacilityDoctor)
+	if f.state.Step != StepMain {
+		t.Fatal("一進去應該在主選單")
+	}
+	// 主選單的 C 是 Curing，不是治療迴圈的 Continue。
+	// 沒有病 → 留在主選單並印訊息，**不能**被當成 Continue 吃掉。
+	f.Key('C', p, items)
+	if f.state.Step != StepMain || !hasLine(f.Lines, "no diseases") {
+		t.Errorf("主選單的 C 應該是 Curing：step=%v lines=%v", f.state.Step, f.Lines)
+	}
+	f.Key('H', p, items)
+	if f.state.Step != StepHeal {
+		t.Errorf("主選單的 H 應該進治療迴圈，得到 %v", f.state.Step)
+	}
+	f.Key('C', p, items)
+	if f.state.Step != StepMain {
+		t.Errorf("治療迴圈的 C 應該回主選單，得到 %v", f.state.Step)
+	}
+}
+
+func TestCureRemovesOneDisease(t *testing.T) {
+	f, p, items := mkShop(t, game.FacilityDoctor)
+	c := p.Members[0]
+	c.Status = 0b0000_0101 // 兩種病（bit 0 與 bit 2）
+	c.Money = 1000
+	f.Facility.Record[0x06] = 10 // 每種病的價格
+
+	f.Key('C', p, items)
+	if f.state.Step != StepCure {
+		t.Fatalf("有病時 C 應該開解毒選單，得到 %v", f.state.Step)
+	}
+	before := c.Money
+	f.Key('1', p, items)
+
+	if c.Status != 0b0000_0100 {
+		t.Errorf("第一種病應該被治好，狀態剩 %#08b", c.Status)
+	}
+	if c.Money >= before {
+		t.Error("解毒應該扣錢")
+	}
+	if f.state.Step != StepCure {
+		t.Error("還有一種病，應該留在解毒選單")
+	}
+	f.Key('1', p, items)
+	if c.Status != 0 {
+		t.Errorf("兩種病都該治好，狀態剩 %#08b", c.Status)
+	}
+	if f.state.Step != StepMain {
+		t.Error("病治完了應該回主選單")
 	}
 }

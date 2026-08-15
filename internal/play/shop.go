@@ -18,6 +18,8 @@ const (
 	StepMain FacilityStep = iota // 主選單
 	StepBuy                      // 買的清單
 	StepSell                     // 賣的清單
+	StepHeal                     // 醫生：逐點治療
+	StepCure                     // 醫生：選一種病
 )
 
 // 商店與醫生的按鍵（docs/re/42 §1、§5）。原版比對的是靜態字母表，
@@ -26,8 +28,10 @@ const (
 	keyBuy      = 'B'
 	keySell     = 'S'
 	keyNextChar = 'P'
-	keyHeal     = 'H'
-	keyContinue = 'C'
+	keyHeal     = 'H' // 醫生主選單的 Healing，也是治療迴圈的「Heal 1 point」
+	keyContinue = 'C' // 治療迴圈的 Continue
+	keyCure     = 'C' // 醫生主選單的 Curing（與 Continue 同一個字母，但在不同層）
+	keyExam     = 'E' // 醫生主選單的 Exam
 	keyEscape   = 0x1B
 )
 
@@ -109,20 +113,72 @@ func (f *FacilityScene) shopKey(k byte, p *game.Party, items game.ItemTable) {
 	}
 }
 
+// doctorKey 是醫生（docs/re/42 §5、§6）。
+//
+// ⚠ **主選單與治療迴圈是兩層。** 主選單的三個選項來自字串表 8 的
+// 第 11／12／13 條（`Exam $` ／ `Healing` ／ `Curing`，各帶一個 `\x10`
+// 熱鍵標記），所以熱鍵是 E／H／C；進了 Healing 之後才是
+// 「Heal 1 point ／ Continue」（第 16 條），那一層的 H 與 C 意思不同。
+// 兩層寫成一層的話，「C」會在錯的地方被吃掉。
 func (f *FacilityScene) doctorKey(k byte, p *game.Party) {
 	st := f.state
-	switch k {
-	case keyNextChar:
+	if k == keyNextChar {
 		st.Who = nextAble(p, st.Who)
-	case keyContinue:
-		st.Step = StepMain
-	case keyHeal:
-		h := game.HealSession{Facility: f.Facility, Char: f.member(p)}
-		if ok, reason := h.HealOne(); !ok {
-			f.note = reason
-		} else {
-			f.note = ""
+		return
+	}
+	switch st.Step {
+	case StepHeal:
+		switch k {
+		case keyContinue:
+			st.Step = StepMain
+		case keyHeal:
+			h := game.HealSession{Facility: f.Facility, Char: f.member(p)}
+			if ok, reason := h.HealOne(); !ok {
+				f.note = reason
+			} else {
+				f.note = ""
+			}
 		}
+	case StepCure:
+		if k >= '1' && k <= '9' {
+			f.cureOne(p, int(k-'1'))
+		}
+	default: // StepMain
+		switch k {
+		case keyExam:
+			ok, reason := f.Facility.Exam(f.member(p))
+			if !ok {
+				f.note = reason
+			} else {
+				f.note = "Examined."
+			}
+		case keyHeal:
+			st.Step = StepHeal
+		case keyCure:
+			if len(game.Diseases(f.member(p))) == 0 {
+				// 沒有病就不開選單（docs/re/42 §6），留在主選單。
+				f.note = "You have no diseases."
+				return
+			}
+			st.Step = StepCure
+		}
+	}
+}
+
+// cureOne 治好清單上的第 n 種病。
+func (f *FacilityScene) cureOne(p *game.Party, n int) {
+	c := f.member(p)
+	list := game.Diseases(c)
+	if n < 0 || n >= len(list) {
+		return
+	}
+	if ok, reason := f.Facility.Cure(c, list[n]); !ok {
+		f.note = reason
+		return
+	}
+	f.note = "Cured."
+	if len(game.Diseases(c)) == 0 {
+		f.state.Step = StepMain // 病治完了就回主選單
 	}
 }
 
@@ -286,10 +342,19 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 				fmt.Sprintf("%d) skill %d  cost %d", i+1, sk.ID,
 					game.SkillCost(sk.Data.BaseCost, int(c.SkillLevel(sk.ID))+1)))
 		}
-	case f.Facility.Kind == game.FacilityDoctor:
+	case f.Facility.Kind == game.FacilityDoctor && f.state.Step == StepHeal:
 		h := game.HealSession{Facility: f.Facility, Char: c}
 		f.Lines = append(f.Lines,
 			fmt.Sprintf("%d points. You can:  Heal 1 point / Continue", h.Remaining()))
+	case f.Facility.Kind == game.FacilityDoctor && f.state.Step == StepCure:
+		f.Lines = append(f.Lines,
+			fmt.Sprintf("Which to cure at $%d:", f.Facility.Price(0x06)))
+		for i, bit := range game.Diseases(c) {
+			f.Lines = append(f.Lines, fmt.Sprintf("%d) status bit %d", i+1, bit))
+		}
+	case f.Facility.Kind == game.FacilityDoctor:
+		f.Lines = append(f.Lines,
+			fmt.Sprintf("Exam $%d / Healing / Curing", f.Facility.Price(0x05)))
 	case f.state.Step == StepSell:
 		f.Lines = append(f.Lines, "   PRICE     ITEM")
 		for i, e := range f.sellable(p, items) {
