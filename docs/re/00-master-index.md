@@ -576,7 +576,8 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `0x10088` | — | 圖磚 packed 4bpp → EGA 4 平面（overlay） | [`24`](24-map-layers-and-tiles.md) §3.1 |
 | `0x184E8` | — | **載入一張 `ALLPICS` 圖**（解壓 `0xFC0` ＋ 參數區，再叫 slot 2／16） | [`23`](23-picture-format.md) §4 |
 | `0x10144` | — | **圖片 delta 解碼**（overlay slot 2，18 bytes） | [`23`](23-picture-format.md) §2 |
-| `0x10A7A` | — | 拆圖片參數區成兩張指標表（overlay slot 16，內容未解） | [`23`](23-picture-format.md) §5 |
+| `0x10A7A` | — | 拆圖片參數區成兩張表：A ＝ `(延遲, 格)` 播放腳本、B ＝ 每格像素（overlay slot 16） | [`23`](23-picture-format.md) §5.1 |
+| `0x10B11` | — | 局部動畫：依 BIOS `0040:006C` 推進，逐格 **XOR 進 EGA 平面**（overlay slot 17）；列位址表 `ds:8E09h` ＝ slot 0 那張 `ds:8DF9h` 往後 8 筆，y ＋ 8 已烘在表裡 | [`23`](23-picture-format.md) §5.2 |
 | `0x186B6` | — | **載入一組圖磚**到 `seg003:0x2F60`（含 delta 解碼） | [`24`](24-map-layers-and-tiles.md) §3 |
 | `0x18744` | — | 存檔載入（兩份輪替，比 32-bit 序號） | [`09`](09-msq-map-structure.md) §4 |
 | `0x190A6` | 5 | 設施畫面：載入 ALLPICS 圖 ＋ 印 13 bytes 的地點名稱 | [`29`](29-map-event-handlers.md) §5.4 |
@@ -700,7 +701,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | [`51`](51-encounter-driver.md) | 遭遇驅動器 `sub_11CD0`：地圖與戰鬥之間那一層、四組一起結算、經驗值前後相減 |
 | [`52`](52-trainer-facility.md) | 技能訓練師的流程：五個設施同一個模板、三條「走不通」都回選人 |
 | [`53`](53-list-framework.md) | 清單框架 `sub_16DB4`／`sub_16D34`：列與索引的對應表、三個回傳值、I／K 翻頁 |
-| [`54`](54-facility-screen-layout.md) | 設施畫面的版面：圖在 (8, 8) 96 × 84、地點名字元列 12、殘差指向 A9 的動畫參數 |
+| [`54`](54-facility-screen-layout.md) | 設施畫面的版面：圖在 (8, 8) 96 × 84、地點名字元列 12、殘差 ＝ A9 的動畫（疊到第 3 格後差 0） |
 
 ## 9. 引用這份表時的紀律
 

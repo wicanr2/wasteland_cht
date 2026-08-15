@@ -286,6 +286,11 @@ const (
 	FacilityPicX, FacilityPicY = ViewX, ViewY
 	FacilityNameRow            = 12
 	FacilityNameCol            = 1
+
+	// ALLPICS 的圖是 96 × 84，**只佔視窗左邊**——右邊的地圖照常露出來
+	// （docs/re/54 §2）。不要拿 ViewWidth／ViewHeight 當它的尺寸。
+	FacilityPicWidth  = 96
+	FacilityPicHeight = 84
 )
 
 // DrawLineAt 在指定的字元格畫一行純 ASCII。

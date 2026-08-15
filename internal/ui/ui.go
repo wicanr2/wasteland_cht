@@ -60,6 +60,14 @@ type Scene interface {
 	Frame() *render.Frame
 }
 
+// Animator 是會隨時間變化的場景（設施圖的局部動畫，規格 26）。
+// 沒實作也照跑——檢視器場景就沒有。
+type Animator interface{ TickAnim() bool }
+
+// animTicksPerFrame 是幾幀推一拍動畫。60 TPS ÷ 3 ＝ 20 Hz，
+// 是整數分頻裡最接近原版 18.2 Hz 的一檔。
+const animTicksPerFrame = 3
+
 // Game 是 ebiten.Game 的實作。
 type Game struct {
 	scene Scene
@@ -67,6 +75,8 @@ type Game struct {
 	keys  []ebiten.Key
 	runes []rune
 	buf   []input.Key
+	// animTick 是動畫的分頻計數（見 animTicksPerFrame）。
+	animTick int
 }
 
 // New 建立一個 Game。
@@ -85,6 +95,15 @@ func (g *Game) Update() error {
 	for _, k := range g.keys {
 		if mapped := keyOf(k); mapped != input.KeyNone {
 			g.buf = append(g.buf, mapped)
+		}
+	}
+	// 設施圖的動畫一拍 ≈ 55 ms，Ebiten 是 60 TPS——三幀一拍 ＝ 20 Hz，
+	// 是整數分頻裡最接近的（規格 26 §5，實際頻率還沒與實機錄影對過）。
+	g.animTick++
+	if g.animTick >= animTicksPerFrame {
+		g.animTick = 0
+		if a, ok := g.scene.(Animator); ok {
+			a.TickAnim()
 		}
 	}
 	keep, err := g.scene.Update(input.Read(g.buf, g.runes))

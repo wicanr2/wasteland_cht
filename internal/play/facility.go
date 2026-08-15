@@ -5,7 +5,10 @@ package play
 // 規格 09 是規則（價格、治療、學習），規格 18 是買賣與治療的迴圈，
 // 這個檔只做場景：載圖、印地點名、離開時切回地圖。
 
-import "github.com/wicanr2/wasteland_cht/internal/game"
+import (
+	"github.com/wicanr2/wasteland_cht/internal/game"
+	"github.com/wicanr2/wasteland_cht/internal/render"
+)
 
 // facilityPicture 是每個設施進場要載的 ALLPICS 圖（docs/re/29 §5.4 那張表）。
 //
@@ -62,6 +65,12 @@ func (s *Scene) EnterFacility(record []byte) *FacilityScene {
 		fs.Lines = append(fs.Lines, f.Name)
 	}
 	s.facility = fs
+	// 動畫從頭起：遮罩清空、播放器重建（規格 26 §3）。
+	s.animMask = make([]byte, render.FacilityPicWidth*render.FacilityPicHeight)
+	s.player = nil
+	if fs.Picture >= 0 && fs.Picture < len(s.anims) {
+		s.player = render.NewPicPlayer(s.anims[fs.Picture])
+	}
 	s.dirty = true
 	return fs
 }
@@ -72,7 +81,26 @@ func (s *Scene) EnterFacility(record []byte) *FacilityScene {
 // （規格 07 §6），設施只是接在後面跑。
 func (s *Scene) LeaveFacility() {
 	s.facility = nil
+	s.player, s.animMask = nil, nil
 	s.dirty = true
+}
+
+// TickAnim 推進設施圖的局部動畫一拍（規格 26 §3）。
+//
+// 一拍 ≈ 55 ms（原版比對 BIOS 計時器 `0040:006C`）。**分頻是呈現層的事**——
+// 這裡收到一次就推一拍，呼叫端自己決定多久叫一次。
+// 回報畫面有沒有變，沒變就不必重畫。
+func (s *Scene) TickAnim() bool {
+	if s.facility == nil || s.player == nil {
+		return false
+	}
+	elems := s.player.Tick()
+	if len(elems) == 0 {
+		return false
+	}
+	render.XorInto(s.animMask, render.FacilityPicWidth, elems)
+	s.dirty = true
+	return true
 }
 
 // InFacility 回報現在是不是在設施畫面。

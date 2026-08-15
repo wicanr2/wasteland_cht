@@ -43,6 +43,12 @@ type Scene struct {
 
 	// pics 是 ALLPICS1 的圖（設施畫面用 0–3，docs/re/29 §5.4）。
 	pics []*assets.Indexed
+	// anims 與 pics 同索引，是每張圖的局部動畫（規格 26）。
+	anims []assets.PicAnim
+	// player 與 animMask 只在設施模式有效：動畫是**累積 XOR**，
+	// 所以要留一張至今播過的遮罩，重畫一幀時整張再疊一次。
+	player   *render.PicPlayer
+	animMask []byte
 	// items 是物品資料表（存檔區那一份，docs/re/45 §2）。
 	// **武器傷害要靠它**——沒有它每個人的傷害都是 0，戰鬥永遠打不完。
 	items game.ItemTable
@@ -162,6 +168,9 @@ func New(rom *assets.Rom) (*Scene, error) {
 	// 設施畫面的圖。載不到就不畫圖，其餘照跑。
 	if pics, err := rom.Pictures("allpics1"); err == nil {
 		s.pics = pics
+	}
+	if anims, err := rom.PictureAnims("allpics1"); err == nil {
+		s.anims = anims
 	}
 	s.message = save.Place()
 	if raw, err := rom.LoadItemTable(save.File, 0); err == nil {
@@ -501,6 +510,8 @@ func (s *Scene) drawFacility(f *render.Frame) {
 	if fs.Picture >= 0 && s.pics != nil && fs.Picture < len(s.pics) {
 		f.DrawIndexed(s.pics[fs.Picture], render.FacilityPicX, render.FacilityPicY,
 			render.ViewClip())
+		f.ApplyAnimMask(s.animMask, render.FacilityPicWidth,
+			render.FacilityPicX, render.FacilityPicY)
 	}
 	for i, l := range fs.Lines {
 		_ = f.DrawLineAt(s.font, l, render.FacilityNameCol, render.FacilityNameRow+i)
