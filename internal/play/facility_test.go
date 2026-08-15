@@ -1,6 +1,9 @@
 package play
 
 import (
+	"bufio"
+	"fmt"
+	"os"
 	"testing"
 
 	"github.com/wicanr2/wasteland_cht/internal/assets"
@@ -175,4 +178,102 @@ func TestFacilityPictureGoesToWindowOrigin(t *testing.T) {
 	if ink == 0 {
 		t.Errorf("字元列 %d 應該印著地點名，卻是空的", render.FacilityNameRow)
 	}
+}
+
+// 驗收（規格 26 §6 條 1／5）：進設施之後推 9 拍動畫，畫面與實機截圖
+// **逐像素相同**，而且底圖那份解碼緩衝區一個 byte 都沒被動到。
+//
+// 這是整條路徑的對拍——EnterFacility → TickAnim → Frame，
+// 不是只驗 PicPlayer 自己吐了什麼（`CLAUDE.md` §4：驗收要對原版）。
+func TestFacilityAnimationMatchesHardwareShot(t *testing.T) {
+	const shot = "../../workplace/dosbox/shots/db05.ppm"
+	if _, err := os.Stat(shot); err != nil {
+		t.Skipf("找不到實機截圖 %s，跳過。產生方式見 docs/re/54 §4", shot)
+	}
+	s := openScene(t)
+	if len(s.pics) <= 3 || len(s.anims) <= 3 {
+		t.Skip("ALLPICS1 沒載到")
+	}
+	want, err := readPPM(shot)
+	if err != nil {
+		t.Fatalf("讀截圖：%v", err)
+	}
+	before := append([]byte(nil), s.pics[3].Pix...)
+
+	rec := make([]byte, 32)
+	rec[0] = 0x80 | byte(game.FacilitySave)
+	copy(rec[0x03:], "Ranger Ctr.\x00")
+	if s.EnterFacility(rec) == nil {
+		t.Fatal("進不了設施")
+	}
+	// 腳本的延遲是 2,1,1,1,…，所以格 3 疊上去是第 9 次推進
+	// （倒數 2 拍 → 格 0，之後每 2 拍一格）。
+	for i := 0; i < 9; i++ {
+		s.TickAnim()
+	}
+	f := s.Frame()
+
+	diff := 0
+	for y := 0; y < render.FacilityPicHeight; y++ {
+		for x := 0; x < render.FacilityPicWidth; x++ {
+			sx, sy := render.FacilityPicX+x, render.FacilityPicY+y
+			o := (sy*render.ScreenWidth + sx) * 3
+			if egaIndex(want[o], want[o+1], want[o+2]) != f.At(sx, sy) {
+				diff++
+			}
+		}
+	}
+	if diff != 0 {
+		t.Errorf("推 9 拍之後與實機截圖差 %d 個像素", diff)
+	}
+	// 規格 26 §6 條 5：動畫是疊在畫面上，不回頭改解碼緩衝區。
+	for i, v := range s.pics[3].Pix {
+		if v != before[i] {
+			t.Fatalf("底圖被改掉了（第 %d 個像素 %d → %d）", i, before[i], v)
+		}
+	}
+}
+
+// egaIndex 把截圖的 RGB 換回索引；認不得回 0xFF，讓它一定不吻合。
+func egaIndex(r, g, b byte) byte {
+	for i, c := range assets.EGAPalette {
+		if c.R == r && c.G == g && c.B == b {
+			return byte(i)
+		}
+	}
+	return 0xFF
+}
+
+// readPPM 讀 P6 的 320 × 200 截圖。
+func readPPM(path string) ([]byte, error) {
+	fh, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer fh.Close()
+	r := bufio.NewReader(fh)
+	var magic string
+	var w, h, max int
+	if _, err := fmt.Fscan(r, &magic, &w, &h, &max); err != nil {
+		return nil, fmt.Errorf("讀標頭：%w", err)
+	}
+	if magic != "P6" || max != 255 {
+		return nil, fmt.Errorf("只支援 8-bit 的 P6，這份是 %s／max %d", magic, max)
+	}
+	if w != render.ScreenWidth || h != render.ScreenHeight {
+		return nil, fmt.Errorf("截圖是 %d × %d，畫面是 %d × %d",
+			w, h, render.ScreenWidth, render.ScreenHeight)
+	}
+	if _, err := r.ReadByte(); err != nil {
+		return nil, err
+	}
+	buf := make([]byte, w*h*3)
+	for i := 0; i < len(buf); {
+		n, err := r.Read(buf[i:])
+		if err != nil {
+			return nil, fmt.Errorf("讀像素（讀到第 %d byte）：%w", i, err)
+		}
+		i += n
+	}
+	return buf, nil
 }

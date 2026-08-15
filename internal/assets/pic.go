@@ -104,8 +104,8 @@ func (r *Rom) Title() (*Indexed, error) {
 
 // Pictures 解一個 ALLPICS 檔裡的所有圖片（96 × 84）。
 //
-// 子區塊嚴格交錯：一張圖 ＋ 一段變動長度的參數區。參數區未解，這裡跳過——
-// 判斷方式是解壓後長度剛好 4,032，不是靠位置推。
+// 子區塊嚴格交錯：一張圖 ＋ 一段變動長度的參數區（局部動畫，見
+// DecodePicAnim）。這裡只回圖，判斷方式是解壓後長度剛好 4,032，不是靠位置推。
 func (r *Rom) Pictures(name string) ([]*Indexed, error) {
 	data, err := r.File(name)
 	if err != nil {
