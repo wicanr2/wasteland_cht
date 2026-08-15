@@ -9,12 +9,17 @@
 | A | `0xFF` | 第一個 byte 是 tag，其餘是 byte 串 |
 | B | `0xFFFF` | 一個 word 標頭 ＋ `(word >> 12) + 1` bytes 的酬載 |
 
-表 B 的 word 低 12 位是**圖片緩衝區裡的 byte 位移**（一列 48 bytes、
-一個 byte 兩個像素），所以 `(x, y) = (位移 % 48 × 2, 位移 ÷ 48)`。
+表 B 的 word 編碼一段**橫向的像素**（解法照 `sub_10B11`，`docs/re/23` §5.1）：
 
-⚠ **這支只拆結構，不解語意。** 「這些 bytes 怎麼疊回圖上」還沒解
-（`docs/re/23` §5.1 記了試過哪幾種、差多少），所以輸出裡不要出現
-「動畫格」以外的推論。
+    相位 ← w & 3
+    v    ← w >> 2
+    長度 ← (v >> 8) >> 2          （實際 bytes ＝ 長度 ＋ 1）
+    列, 欄 ← divmod(v & 0x3FF, 12)   ← **一列 12 bytes**（96 像素 ÷ 8，EGA 平面）
+    x ← 欄 × 8
+
+⚠ **這支只拆結構、不畫東西。** 疊法已經解出來了（`sub_10B11`：
+XOR 進 EGA 平面，`docs/re/23` §5.1），但那是呈現層的事；
+這裡只把資料倒出來，不做任何「這是什麼動畫」的推論。
 
 用法（純 stdlib）：
     python3 tools/summarize_picparams.py <allpics1|allpics2> [輸出.md]
@@ -29,8 +34,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from decode_pic import decompress, split_all  # noqa: E402
 
-PIC_BYTES = 4032  # 96 × 84 packed 4bpp
-STRIDE = 48       # 一列的 byte 數
+PIC_BYTES = 4032   # 96 × 84 packed 4bpp
+PLANE_ROW = 12     # 螢幕上一列 12 bytes（96 像素 ÷ 8，EGA 平面）
 
 
 def parse(raw: bytes):
@@ -59,7 +64,9 @@ def parse(raw: bytes):
                 k += 2
                 continue
             ln = (w >> 12) + 1
-            b_list.append((w & 0x0FFF, body[k + 2 : k + 2 + ln]))
+            v = (w >> 2) & 0x3FF
+            row, col = divmod(v, 12)
+            b_list.append((col * 8, row, body[k + 2 : k + 2 + ln]))
             k += 2 + ln
     return a, b_list, breaks
 
@@ -91,9 +98,8 @@ def main() -> None:
             continue
         a, b, breaks = parse(raw)
         if b:
-            xs = [(off % STRIDE * 2, off // STRIDE) for off, _ in b]
-            span = (f"x {min(x for x, _ in xs)}–{max(x for x, _ in xs)}、"
-                    f"y {min(y for _, y in xs)}–{max(y for _, y in xs)}")
+            span = (f"x {min(x for x, _, _ in b)}–{max(x for x, _, _ in b) + 7}、"
+                    f"y {min(y for _, y, _ in b)}–{max(y for _, y, _ in b)}")
         else:
             span = "—"
         rows.append(
@@ -102,7 +108,7 @@ def main() -> None:
 
     rows += [
         "",
-        "表 B 的 (x, y) 範圍是**圖片內座標**（一列 48 bytes、一個 byte 兩個像素）。",
+        "表 B 的 (x, y) 範圍是**圖片內座標**（EGA 平面，一列 12 bytes）。",
         "範圍窄表示那張圖只有一小塊會變——與實機對拍的殘差位置一致"
         "（`docs/re/54` §3）。",
     ]
