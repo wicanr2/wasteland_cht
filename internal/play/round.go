@@ -151,7 +151,14 @@ func (s *CombatScene) enemyActs(actor game.Combatant) []string {
 // 這一層還沒接到那張表，所以沒有裝備時回零值——零值的 Dice ＝ 0，
 // 傷害會是 0 而不是崩掉。接上物品表之後這一支要換掉。
 func (s *CombatScene) weaponOf(c *game.Character) game.ItemData {
-	w, ok := s.Items.Get(c.EquipIndex)
+	// ⚠ `EquipIndex` 是**背包的槽號**（`Equip(slot)` 存進去的），
+	// 不是物品 ID——要先取那一格的 ID 再查表。
+	// 直接拿槽號當 ID 查會取到完全不相干的物品：出廠存檔的
+	// Hell Razor 因此打出 112 點傷害（正確的武器只有 3 顆 d6）。
+	if int(c.EquipIndex) >= len(c.Items) {
+		return game.ItemData{}
+	}
+	w, ok := s.Items.Get(c.Items[c.EquipIndex].ID)
 	if !ok {
 		return game.ItemData{}
 	}

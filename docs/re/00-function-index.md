@@ -397,7 +397,7 @@
 | `0x14480` | seg000+0x4480 | 473 | 1 | re/00-master-index.md、re/37-enemy-records-and-hp.md、re/39-encounter-scan.md、re/51-encounter-driver.md |
 | `0x14BAD` | seg000+0x4BAD | 63 | 1 | re/37-enemy-records-and-hp.md |
 | `0x14BF0` | seg000+0x4BF0 | 597 | 1 | re/37-enemy-records-and-hp.md、re/39-encounter-scan.md |
-| `0x15036` | seg000+0x5036 | 261 | 1 | re/37-enemy-records-and-hp.md、re/39-encounter-scan.md、re/51-encounter-driver.md |
+| `0x15036` | seg000+0x5036 | 261 | 1 | re/37-enemy-records-and-hp.md、re/39-encounter-scan.md、re/51-encounter-driver.md、re/81-combat-loop-coverage.md |
 | `0x15672` | seg000+0x5672 | 13 | 1 | re/20-combat-resolution.md |
 | `0x15738` | seg000+0x5738 | 29 | 1 | re/45-item-data-and-weapon-damage.md |
 | `0x15A18` | seg000+0x5A18 | 24 | 1 | re/32-skill-checks-and-xp.md |
