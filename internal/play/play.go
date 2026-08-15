@@ -67,6 +67,10 @@ type Scene struct {
 	// encAsk 非 0 時停在 `ENC` 的「別組要不要打」Y／N 上，值 ＝ 組號 ＋ 1。
 	encAsk int
 
+	// title 為 true 時停在標題畫面的主選單（`docs/re/95`）。
+	title    bool
+	titlePic *assets.Indexed
+
 	// groupID 是目前操作的隊伍組（0–3，`docs/re/93` §2 的四組上限）。
 	groupID int
 
@@ -407,6 +411,9 @@ func (s *Scene) Update(in input.Input) (bool, error) {
 	// F10 任何模式都能離開。
 	if in.Action == input.ActionQuit {
 		return false, nil
+	}
+	if s.title {
+		return s.updateTitle(in)
 	}
 	if s.roster.active {
 		return s.updateRoster(in)
@@ -879,6 +886,12 @@ func (s *Scene) Frame() *render.Frame {
 		return s.frame
 	}
 	f := render.NewFrame()
+	if s.title {
+		s.drawTitle(f)
+		s.frame = f
+		s.dirty = false
+		return f
+	}
 	switch {
 	case s.facility != nil:
 		s.drawFacility(f)

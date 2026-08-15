@@ -47,7 +47,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 
 ## 統計
 
-筆記 **94** 份：已接 **91**、未接 **0**、不適用 **3**。
+筆記 **95** 份：已接 **92**、未接 **0**、不適用 **3**。
 
 | # | 筆記 | 狀態 | 接在哪／為什麼 |
 |---:|---|---|---|
@@ -145,3 +145,4 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 92 | [`USE` 指令 —— Skill／Item／Attribute 三選一，與施用的骨架](92-use-command.md) | 已接 | `internal/game/gates.go`、`internal/play/play.go`（共 5 處） |
 | 93 | [`ORDER`／`DISBAND`／`VIEW` —— 兩支要多隊伍，一支不用](93-order-disband-view.md) | 已接 | `internal/play/command.go`、`internal/play/command_test.go` |
 | 94 | [`ENC` —— 它不是新指令，是自動遭遇的手動入口](94-enc-command.md) | 已接 | `internal/play/enc.go`、`internal/play/command.go` |
+| 95 | [主選單只有一個選項，而且沒有「讀檔」](95-main-menu.md) | 已接 | `internal/play/mainmenu.go`、`cmd/wasteland/main.go` |
