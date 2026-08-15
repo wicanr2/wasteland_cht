@@ -1,0 +1,116 @@
+package play
+
+import (
+	"os"
+	"strings"
+	"testing"
+
+	"github.com/wicanr2/wasteland_cht/internal/lang"
+)
+
+// TestTranslationCoverage 盤點中文化：4,800 多條原文裡有幾條查得到中文，
+// 以及**目錄裡有沒有對不上任何原文的孤兒 key**。
+//
+// 孤兒 key 是白做的翻譯：檔案裡有、遊戲永遠查不到。
+// 它不會讓任何測試變紅，因為 `Lookup` 查不到只是回原文。
+func TestTranslationCoverage(t *testing.T) {
+	rom := openRom(t)
+	cat, err := lang.Load("../../translations/zh-Hant.cat")
+	if err != nil {
+		t.Skipf("載不到翻譯目錄：%v", err)
+	}
+
+	// 刻意不翻的那些（`translations/untranslatable.tsv`）：
+	// 純控制碼、空白、未用槽的解碼雜訊——原文就不是文字。
+	skip := map[string]bool{}
+	raw, err := os.ReadFile("../../translations/untranslatable.tsv")
+	if err != nil {
+		t.Fatalf("讀不到 untranslatable.tsv：%v", err)
+	}
+	for _, line := range strings.Split(string(raw), "\n") {
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		skip[strings.SplitN(line, "\t", 2)[0]] = true
+	}
+
+	seen := map[string]bool{} // 這一輪對得上原文的 key
+	var missing []string
+	var total, hit int
+
+	// 九張執行檔字串表
+	tables, err := rom.ExeStrings()
+	if err != nil {
+		t.Fatalf("ExeStrings：%v", err)
+	}
+	for ti, tbl := range tables {
+		for si, s := range tbl {
+			if s == "" {
+				continue
+			}
+			total++
+			key := lang.ExeKey(ti, si)
+			seen[key] = true
+			if _, ok := cat.Lookup(key); ok {
+				hit++
+			} else if !skip[key] {
+				missing = append(missing, key)
+			}
+		}
+	}
+	exeTotal, exeHit := total, hit
+
+	// 42 個地圖區塊
+	resources, err := rom.Resources()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, res := range resources {
+		blk, err := rom.BlockByID(res.ID)
+		if err != nil {
+			continue
+		}
+		for slot, s := range blk.Strings {
+			if s == "" {
+				continue
+			}
+			total++
+			key := lang.BlockKey(res.File, res.ID, slot)
+			seen[key] = true
+			if _, ok := cat.Lookup(key); ok {
+				hit++
+			} else if !skip[key] {
+				missing = append(missing, key)
+			}
+		}
+	}
+
+	t.Logf("執行檔：%d／%d 條有中文", exeHit, exeTotal)
+	t.Logf("地圖區塊：%d／%d 條有中文", hit-exeHit, total-exeTotal)
+	t.Logf("合計：%d／%d 條（%.1f%%），目錄共 %d 條",
+		hit, total, 100*float64(hit)/float64(total), cat.Len())
+
+	orphans := cat.Len() - hit
+	t.Logf("目錄裡對不上任何原文的 key：%d 條", orphans)
+	if orphans < 0 {
+		t.Fatalf("hit(%d) 超過目錄長度(%d)——key 算法有重複", hit, cat.Len())
+	}
+	// 孤兒 key 是白做的翻譯，一條都不該有。
+	if orphans != 0 {
+		t.Errorf("目錄裡有 %d 條孤兒 key（遊戲永遠查不到）", orphans)
+	}
+	// 沒翻到的必須全部在 untranslatable 清單裡——**「還沒翻」與
+	// 「刻意不翻」要分得開**，不然覆蓋率永遠停在 99% 而沒有人知道差在哪。
+	if len(missing) != 0 {
+		t.Errorf("有 %d 條既沒中文也不在 untranslatable 清單裡，例如 %v",
+			len(missing), missing[:min(5, len(missing))])
+	}
+	t.Logf("刻意不翻的 %d 條（untranslatable.tsv）", len(skip))
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}

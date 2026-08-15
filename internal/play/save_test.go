@@ -182,6 +182,9 @@ func TestSaveLoadRoundTripKeepsState(t *testing.T) {
 	if slot[8] != wantX || slot[9] != wantY {
 		t.Errorf("座標存成 (%d,%d)，預期 (%d,%d)", slot[8], slot[9], wantX, wantY)
 	}
+	if int(slot[10]) != s.MapID() {
+		t.Errorf("所在地圖存成 %d，預期 %d", slot[10], s.MapID())
+	}
 	gl := back.Globals()
 	if gl[12] != wantHour || gl[11] != wantMin {
 		t.Errorf("時鐘存成 %d:%02d，預期 %d:%02d", gl[12], gl[11], wantHour, wantMin)
