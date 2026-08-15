@@ -41,6 +41,8 @@ type Scene struct {
 	blockFile string
 	blockID   int
 
+	// pics 是 ALLPICS1 的圖（設施畫面用 0–3，docs/re/29 §5.4）。
+	pics []*assets.Indexed
 	// items 是物品資料表（存檔區那一份，docs/re/45 §2）。
 	// **武器傷害要靠它**——沒有它每個人的傷害都是 0，戰鬥永遠打不完。
 	items game.ItemTable
@@ -157,6 +159,10 @@ func New(rom *assets.Rom) (*Scene, error) {
 	s.world.Clock = clock
 	// 物品表跟著存檔走（每個存檔槽一份）。載不到就維持空表——
 	// 傷害會是 0，但遊戲跑得動，而且下面這行的錯誤會留在訊息裡。
+	// 設施畫面的圖。載不到就不畫圖，其餘照跑。
+	if pics, err := rom.Pictures("allpics1"); err == nil {
+		s.pics = pics
+	}
 	s.message = save.Place()
 	if raw, err := rom.LoadItemTable(save.File, 0); err == nil {
 		s.items = game.ParseItemTable(raw)
@@ -213,11 +219,80 @@ func (s *Scene) World() *game.World { return s.world }
 // Invalidate 讓下一次 Frame 重畫。外部直接改了世界狀態時要叫它。
 func (s *Scene) Invalidate() { s.dirty = true }
 
-// Update 走一步。ESC 取消、F10 離開（docs/spec/03 的按鍵模型）。
+// Update 收一幀的輸入，依目前的模式路由（docs/spec/24）。
+//
+// ⚠ **模式中的按鍵不要「順便」轉給地圖**：原版在名單模式下方向鍵不走路
+// （`sub_17FEE` 在旗標非 0 時擋住地圖繪製，docs/re/25 §2.5）——
+// 轉下去會變成「在戰鬥裡走路」。
 func (s *Scene) Update(in input.Input) (bool, error) {
+	// F10 任何模式都能離開。
 	if in.Action == input.ActionQuit {
 		return false, nil
 	}
+	if s.facility != nil {
+		return s.updateFacility(in)
+	}
+	if s.combat != nil {
+		return s.updateCombat(in)
+	}
+	return s.updateMap(in)
+}
+
+// updateFacility 是設施模式：只有離開。買賣與治療的選單這一版不接
+// （docs/spec/23 §5、docs/spec/24 §5）。
+func (s *Scene) updateFacility(in input.Input) (bool, error) {
+	if in.Action == input.ActionCancel || in.Action == input.ActionConfirm {
+		s.LeaveFacility()
+		s.message = ""
+	}
+	return true, nil
+}
+
+// updateCombat 是戰鬥模式：逐人問指令，問完就結算一回合。
+func (s *Scene) updateCombat(in input.Input) (bool, error) {
+	c := s.combat
+	if in.Action == input.ActionCancel {
+		// ESC 退回上一個人（docs/spec/14）。已經在第一個就整場不動。
+		return true, nil
+	}
+	if in.Char != 0 && !c.Done() {
+		// armed：裝備欄還沒解到能判斷（docs/spec/22 §5），一律當成有武器。
+		c.Choose(input.Upper(in.Char), true)
+		s.dirty = true
+	}
+	if c.Done() {
+		res := c.ResolveRound()
+		s.dirty = true
+		if len(res.Lines) > 0 {
+			s.message = res.Lines[len(res.Lines)-1]
+		}
+		if res.Over {
+			out := s.FinishEncounter()
+			s.message = combatOverMessage(res.Won, out)
+			return true, nil
+		}
+		c.BeginCommands()
+	}
+	return true, nil
+}
+
+// combatOverMessage 是戰鬥結束那一行。
+func combatOverMessage(won bool, out EncounterResult) string {
+	if !won {
+		return "The party has fallen."
+	}
+	total := uint32(0)
+	for _, xp := range out.XPGained {
+		total += xp
+	}
+	if total == 0 {
+		return "The battle is over."
+	}
+	return fmt.Sprintf("The party gains %d experience.", total)
+}
+
+// updateMap 是地圖模式：方向鍵走一步。
+func (s *Scene) updateMap(in input.Input) (bool, error) {
 	var dir game.Direction
 	switch in.Dir {
 	case input.DirUp:
@@ -356,6 +431,30 @@ func (s *Scene) Frame() *render.Frame {
 		return s.frame
 	}
 	f := render.NewFrame()
+	switch {
+	case s.facility != nil:
+		s.drawFacility(f)
+	case s.combat != nil:
+		s.drawRoster(f)
+	default:
+		s.drawMap(f)
+	}
+	// 時鐘在外框上緣，不屬於地圖視窗——切模式不影響它（docs/re/27 §4）。
+	_ = f.DrawClock(s.font, int(s.world.Clock.Hour), int(s.world.Clock.Minute))
+
+	if s.message != "" {
+		out, err := textlayout.Layout([]byte(s.message), textlayout.Options{Width: render.MsgWidth})
+		if err == nil {
+			_ = f.DrawText(s.font, out.Lines)
+		}
+	}
+	s.frame = f
+	s.dirty = false
+	return s.frame
+}
+
+// drawMap 畫地圖那一種（docs/spec/24 §4）。
+func (s *Scene) drawMap(f *render.Frame) {
 	if err := f.DrawMap(s.world.Block, s.gfx, s.world.ViewX, s.world.ViewY); err != nil {
 		s.message = "ERROR: " + err.Error()
 	}
@@ -369,15 +468,30 @@ func (s *Scene) Frame() *render.Frame {
 	if err := f.DrawParty(s.gfx); err != nil {
 		s.message = "ERROR: " + err.Error()
 	}
-	_ = f.DrawClock(s.font, int(s.world.Clock.Hour), int(s.world.Clock.Minute))
+}
 
-	if s.message != "" {
-		out, err := textlayout.Layout([]byte(s.message), textlayout.Options{Width: render.MsgWidth})
-		if err == nil {
-			_ = f.DrawText(s.font, out.Lines)
+// drawRoster 畫戰鬥那一種：地圖視窗換成隊伍名單（docs/re/40 §1）。
+func (s *Scene) drawRoster(f *render.Frame) {
+	row := render.RosterHeaderRow
+	_ = f.DrawLineAt(s.font, RosterHeader, 0, row)
+	for i, r := range Roster(s.world.Party) {
+		if row+1+i > render.MsgRow-1 {
+			break // 名單與訊息視窗在字元列上會撞（docs/spec/03 §3）
 		}
+		_ = f.DrawLineAt(s.font, r.Text(), 0, row+1+i)
 	}
-	s.frame = f
-	s.dirty = false
-	return s.frame
+}
+
+// drawFacility 畫設施那一種：地圖視窗換成那張 ALLPICS 圖。
+func (s *Scene) drawFacility(f *render.Frame) {
+	fs := s.facility
+	// ⚠ **擺在哪還沒對拍過。** ALLPICS 是 96 × 84、視窗是 288 × 128
+	// （docs/re/23 §1、docs/re/25），原版怎麼擺筆記裡沒有——
+	// 這裡先放在視窗左上角並標明是暫代，等 DOSBox 逐像素對拍再定。
+	if fs.Picture >= 0 && s.pics != nil && fs.Picture < len(s.pics) {
+		f.DrawIndexed(s.pics[fs.Picture], render.ViewX, render.ViewY, render.ViewClip())
+	}
+	for i, l := range fs.Lines {
+		_ = f.DrawLineAt(s.font, l, 1, render.RosterHeaderRow+i)
+	}
 }

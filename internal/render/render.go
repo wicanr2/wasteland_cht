@@ -273,3 +273,30 @@ func (f *Frame) RGBA() []byte {
 	}
 	return out
 }
+
+// RosterHeaderRow 是隊伍名單的表頭字元列（docs/re/25 §2.5、docs/re/40 §1）。
+// 成員行從 RosterHeaderRow+1 起，佔用地圖視窗那一塊。
+const RosterHeaderRow = 14
+
+// DrawLineAt 在指定的字元格畫一行純 ASCII。
+//
+// 與 DrawText 的分工：DrawText 走排版器、畫在訊息視窗；這一支不排版，
+// 呼叫端說畫在哪就畫在哪——隊伍名單與設施的地點名都是「已經排好的一行」。
+//
+// ⚠ 超出畫面的字**直接不畫**，不要回錯誤：名單的欄座標是原版定死的，
+// 中文化重排時字會變長，那時候需要的是截斷不是崩掉。
+func (f *Frame) DrawLineAt(font *assets.Font, s string, col, row int) error {
+	for i := 0; i < len(s); i++ {
+		if s[i] < 0x20 {
+			continue
+		}
+		if col+i >= ScreenWidth/CharWidth {
+			break
+		}
+		idx := int(s[i]) - int(font.FirstASCII)
+		if err := f.DrawGlyph(font, idx, col+i, row, DefaultTextColor, false); err != nil {
+			return fmt.Errorf("欄 %d 列 %d：%w", col+i, row, err)
+		}
+	}
+	return nil
+}
