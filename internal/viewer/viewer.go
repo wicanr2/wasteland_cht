@@ -25,6 +25,8 @@ const (
 	ModeMap     Mode = "map"
 	ModeTitle   Mode = "title"
 	ModePicture Mode = "pic"
+	// ModeEnd 是結局畫面（`END.CPA`，docs/re/23 §6）。
+	ModeEnd     Mode = "end"
 )
 
 // Viewer 實作 ui.Scene。
@@ -69,6 +71,13 @@ func New(rom *assets.Rom, mode Mode, blockID, picID int) (*Viewer, error) {
 		v.oy = b.Dim/2 - render.PartyRow
 		v.status = fmt.Sprintf("BLOCK %d  %dX%d  TILESET %d  STEP %.2f MIN",
 			blockID, b.Dim, b.Dim, b.Tileset, b.StepMinutes())
+	case ModeEnd:
+		im, err := rom.End()
+		if err != nil {
+			return nil, err
+		}
+		v.pic = im
+		v.status = "END.CPA  288X128"
 	case ModeTitle:
 		im, err := rom.Title()
 		if err != nil {

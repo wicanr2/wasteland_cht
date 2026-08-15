@@ -111,28 +111,31 @@ func (r *Rom) Title() (*Indexed, error) {
 
 // End 解結局畫面 `END.CPA`（`docs/re/23` §6、`sub_1B7FE`）。
 //
-// **還解不出來**，這一支目前只回錯誤。已經確定的事實：
+// 檔案從第 0 個 byte 起就是**標準的 Huffman 串流**（`docs/re/11`）：
+// 前 4 bytes 是解開後的長度 `0x4800` ＝ 288 × 128 的 packed 4bpp，
+// 與 `sub_1B7FE` 的 `cx ← 4800h`、`TITLE.PIC` 的尺寸三邊對上。
 //
-//   - 檔頭 4 bytes 是 `0x4800` ＝ 18,432 ＝ 288 × 128 的 packed 4bpp，
-//     與 `sub_1B7FE` 的 `cx ← 4800h` 對上，也與 `TITLE.PIC` 同尺寸。
-//   - 接著是 `msq` magic（第 4 個 byte 是 `0x00`，不是地圖區塊的 `'0'`／`'1'`）。
-//   - 載入器讀兩塊：`0x4800` 到 `seg003:0x920`、`0x3A98` 到 `seg003:0x5120`，
-//     兩塊在記憶體裡相連；第二塊多半是結局敘述（`ds:D18Eh` 的字串表）。
+// ⚠ **不要先跳過那 4 bytes**——`Decompress` 自己會讀它。
+// 先前把它當「檔頭」跳掉，剩下的位元流就從錯的地方開始解，
+// 解出來的是雜訊；而雜訊的值域一樣是 0–15，**值域檢查擋不住**
+// （是顏色分布看出來的：最多的一種只佔 6%）。
 //
-// 卡在**解密參數**。已知 `sub_11AE8` 讀的段標頭是 **8 bytes 不是 6**
-// （`docs/re/05` §7.1），所以 body 的起點與 checksum 的位置不能拿
-// 地圖區塊那一套去套——試過六種組合解出來都不是合法的 Huffman 長度欄。
-// 下一步是把 `sub_11B83` 剩下的部分讀完（`docs/re/23` §6）。
+// 檔案剩下的部分是第二段（`sub_1B7FE` 讀 `0x3A98` bytes 到
+// `seg003:0x5120`），多半是結局敘述——這一支不碰。
 func (r *Rom) End() (*Indexed, error) {
 	data, err := r.File("end.cpa")
 	if err != nil {
 		return nil, err
 	}
-	if len(data) < 10 || string(data[4:7]) != "msq" {
-		return nil, fmt.Errorf("end.cpa 的形狀不對（%d bytes）", len(data))
+	raw, _, err := Decompress(data, false)
+	if err != nil {
+		return nil, fmt.Errorf("end.cpa：%w", err)
 	}
-	return nil, fmt.Errorf("end.cpa 的解密參數未解（docs/re/23 §6）：" +
-		"長度欄與 msq magic 都對得上，但 XOR 串流解出來不是合法的 Huffman 流")
+	const want = titleStride * titleHeight // 0x4800
+	if len(raw) != want {
+		return nil, fmt.Errorf("end.cpa 解出 %d bytes，預期 %d", len(raw), want)
+	}
+	return unpack4bpp(undelta(raw, titleStride), titleWidth, titleHeight, titleStride)
 }
 
 // Pictures 解一個 ALLPICS 檔裡的所有圖片（96 × 84）。
