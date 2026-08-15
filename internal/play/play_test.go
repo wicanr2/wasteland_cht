@@ -382,3 +382,33 @@ func TestBattleRunsToCompletion(t *testing.T) {
 	}
 	t.Fatal("200 步之內戰鬥沒結束——可能卡在某一輪的指令階段")
 }
+
+// 驗收（規格 07 §6.7）：踩上傳送格會**換地圖**，而且回程指向踩上去的那一格。
+//
+// 沒有這一條玩家出不了起始地圖——23 筆設施記錄裡只有 2 筆走得進去，
+// 商店與醫生全在別的地圖（docs/re/60 §1）。
+func TestTeleportChangesMap(t *testing.T) {
+	s := openScene(t)
+	w := s.World()
+	w.Teleport(20, 16) // 傳送格 (21, 16) 的左邊
+	s.Invalidate()
+
+	if _, err := s.Update(input.Input{Dir: input.DirRight}); err != nil {
+		t.Fatalf("往右一步：%v", err)
+	}
+	if got := s.mapID(); got != 12 {
+		t.Fatalf("踩上傳送格之後還在地圖 %d，記錄 +0x03 說是 12", got)
+	}
+	if w.Party.X != 1 || w.Party.Y != 1 {
+		t.Fatalf("落點是 (%d, %d)，記錄 +0x01/+0x02 說是 (1, 1)", w.Party.X, w.Party.Y)
+	}
+	// 回程要指向**踩上去的那一格**，不是目的地——顛倒的話玩家會卡在原地來回。
+	if s.back.X != 21 || s.back.Y != 16 || s.back.MapID != 0 {
+		t.Fatalf("回程存成 (%d, %d) 地圖 %d，應該是 (21, 16) 地圖 0",
+			s.back.X, s.back.Y, s.back.MapID)
+	}
+	// 換了地圖就要換圖磚組，不然畫面會拿舊組去畫。
+	if s.gfx.Tiles == nil {
+		t.Fatal("換地圖之後圖磚組是空的")
+	}
+}
