@@ -200,6 +200,7 @@
 | [`docs/re/53-list-framework.md`](docs/re/53-list-framework.md) | 清單框架：列與索引的對應表、三個回傳值、I／K 翻頁、每頁列數不是常數 |
 | [`docs/re/54-facility-screen-layout.md`](docs/re/54-facility-screen-layout.md) | 設施畫面版面：圖在 (8, 8) 96 × 84、地點名字元列 12、殘差 ＝ A9 的動畫 |
 | [`docs/re/55-radiation-and-armour-bypass.md`](docs/re/55-radiation-and-armour-bypass.md) | 輻射結算：每人 `+0x01` 顆 d6 扣 CON ＋ 中毒；`ds:46EFh` ＝ 這次跳過護甲吸收 |
+| [`docs/re/56-transtbl.md`](docs/re/56-transtbl.md) | `TRANSTBL` ＝ 50 組 × 16 對照表，載入之後沒有人讀；滑鼠初始化 |
 | [`docs/spec/00-index.md`](docs/spec/00-index.md) | **規格索引與閘門狀態**：哪些可以動工、其餘擋在什麼上 |
 | [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
 | [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |
@@ -304,9 +305,8 @@
 
 | # | 還沒解的 | 為什麼不擋 |
 |---|---|---|
-| A12b | `CURS`（2,048 bytes）開機讀進來，沒追到使用端 | 滑鼠游標的存還原在 overlay slot 20–22，已解 |
-| A13 | `TRANSTBL`（800 bytes、15 種值） | 沒有任何已解機制用到它 |
-| A14 | 沒找到設定 EGA 調色盤的程式碼 | 實機對拍已證實是 mode 0Dh 預設十六色（`docs/re/47` §4）；缺的是「原版真的沒設過」的全檔掃描 |
+| A12b | `CURS`（2,048 bytes）那 2,048 bytes 怎麼對到 24 × 16 的游標 | 整條路有頭有尾：`start` 的 `int 33h` 初始化（`docs/re/56` §4）＋ overlay slot 20–22 的存還原都已解 |
+| A13 | `TRANSTBL` 的**用途**（形狀已解：50 組 × 16 的索引對照表） | 三層掃描都找不到消費端，與資源 idx 7 同一種遺留（`docs/re/56`） |
 | B7 | 文字控制碼 `0x08`（語料裡 7 次） | 其餘 17 個都已對上，排版器照做 |
 | — | 物品 `+0x03` 低 3 位、敵人 `+0x04` 高 4 位**都沒有讀取端** | 資料裡有值但程式沒讀；原樣 round-trip，不給語意 |
 | — | 物品 70／71／72 原本是什麼（`docs/re/50`） | 名字是被清空的、資料完整、字母序把開頭夾在 H–M。**這份 DOS 版問不出更多**；要答案得看別的平台版本 |
