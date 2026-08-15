@@ -58,6 +58,12 @@ type Scene struct {
 	spawnOK bool
 	// asking 非 DirNone 時畫面停在「Enter new location?」等 Y／N（docs/re/64）。
 	asking input.Direction
+	// disband 為 true 時停在「誰要離隊」的選擇上。
+	disband bool
+
+	// groupID 是目前操作的隊伍組（0–3，`docs/re/93` §2 的四組上限）。
+	groupID int
+
 	// order 是 `ORDER` 指令的重排狀態（`docs/re/93` §1）。
 	order orderState
 
@@ -295,8 +301,19 @@ func loadClock(save *assets.Save) game.Clock {
 
 // loadParty 從存檔的全域狀態與角色記錄建出隊伍。
 func loadParty(save *assets.Save) (*game.Party, int, error) {
+	return loadPartyGroup(save, 0) // 出廠只有第 0 組有人（docs/spec/05 §3.1）
+}
+
+// loadPartyGroup 載入第 n 組隊伍。
+//
+// 每一組槽表**各自帶座標與地圖**（`docs/spec/05` §3.1）——切組不是只換人，
+// 是換到那一組所在的地方（`docs/re/93` §3）。
+func loadPartyGroup(save *assets.Save, n int) (*game.Party, int, error) {
 	groups := save.SlotGroups()
-	g := groups[0] // 出廠只有第 0 組有人（docs/spec/05 §3.1）
+	if n < 0 || n >= len(groups) {
+		return nil, 0, fmt.Errorf("隊伍組 %d 超出範圍（共 %d 組）", n, len(groups))
+	}
+	g := groups[n]
 
 	p := &game.Party{X: g.X, Y: g.Y, Selected: 0}
 	for _, id := range g.Members {
@@ -310,7 +327,7 @@ func loadParty(save *assets.Save) (*game.Party, int, error) {
 		p.Members = append(p.Members, game.LoadCharacter(raw))
 	}
 	if len(p.Members) == 0 {
-		return nil, 0, fmt.Errorf("存檔裡的第 0 組隊伍是空的")
+		return nil, 0, fmt.Errorf("存檔裡的第 %d 組隊伍是空的", n)
 	}
 	return p, int(g.MapID), nil
 }
@@ -399,6 +416,9 @@ func (s *Scene) Update(in input.Input) (bool, error) {
 	}
 	if s.order.active {
 		return s.updateOrder(in)
+	}
+	if s.disband {
+		return s.updateDisband(in)
 	}
 	return s.updateMap(in)
 }

@@ -68,6 +68,8 @@ func (s *Scene) runCommand(c Command) (bool, error) {
 	case CmdOrder:
 		s.beginOrder()
 		return true, nil
+	case CmdDisband:
+		return s.cmdDisband()
 	default:
 		// **不猜**：入口已經在 `docs/re/91` §1 定位，行為還沒讀。
 		s.message = fmt.Sprintf("%s: not wired yet", CommandNames[c])
@@ -135,23 +137,75 @@ func (s *Scene) cmdRadio() (bool, error) {
 // ——也就是「什麼都沒發生」（`docs/re/93` §3）。remake 只有第 0 組
 // （`docs/spec/21` §4），所以永遠走那條路；接上多隊伍之後這一支不用改。
 func (s *Scene) cmdView() (bool, error) {
-	groups := s.partyGroups()
-	if groups <= 1 {
+	n, ok := s.nextGroup()
+	if !ok {
+		// 繞回起點：原版就是把畫面切回原本那組，什麼都沒發生。
 		s.message = "No other party."
 		s.dirty = true
 		return true, nil
 	}
-	// 多隊伍接上之後在這裡輪替；現在到不了。
-	s.message = "View: not wired yet"
+	if err := s.SwitchGroup(n); err != nil {
+		s.message = "ERROR: " + err.Error()
+		s.dirty = true
+		return true, nil
+	}
+	s.message = fmt.Sprintf("Party %d.", n+1)
 	s.dirty = true
 	return true, nil
 }
 
-// partyGroups 回報目前有幾支隊伍。
+// cmdDisband 是 `Disband`（`0x15E77`）：把一個人分出去自成一組。
 //
-// remake 只建第 0 組（`docs/spec/21` §4 的 `PartyGroupState`），
-// 原版上限是四組（`docs/re/93` §2 的 `ds:4657h`）。
-func (s *Scene) partyGroups() int { return 1 }
+// **一個人不能分**、已經有四組就不能再分（`docs/re/93` §2）。
+func (s *Scene) cmdDisband() (bool, error) {
+	alive := 0
+	for _, m := range s.world.Party.Members {
+		if m != nil {
+			alive++
+		}
+	}
+	if alive <= 1 {
+		s.message = "Can't disband a single ranger."
+		s.dirty = true
+		return true, nil
+	}
+	if _, ok := s.freeGroup(); !ok {
+		s.message = fmt.Sprintf("Already %d parties.", PartyGroupCount)
+		s.dirty = true
+		return true, nil
+	}
+	s.disband = true
+	s.message = "Who leaves? " + s.memberMenu()
+	s.dirty = true
+	return true, nil
+}
+
+// updateDisband 是分隊進行中的按鍵（選一個人）。
+func (s *Scene) updateDisband(in input.Input) (bool, error) {
+	if in.Action == input.ActionCancel {
+		s.disband = false
+		s.message = ""
+		s.dirty = true
+		return true, nil
+	}
+	ch := input.Upper(in.Char)
+	if ch < '1' || ch > '9' {
+		return true, nil
+	}
+	i := int(ch - '1')
+	if i >= len(s.world.Party.Members) || s.world.Party.Members[i] == nil {
+		return true, nil
+	}
+	name := s.world.Party.Members[i].Name
+	s.disband = false
+	if err := s.disbandMember(i); err != nil {
+		s.message = "ERROR: " + err.Error()
+	} else {
+		s.message = name + " leaves the party."
+	}
+	s.dirty = true
+	return true, nil
+}
 
 // commandBar 是要畫在畫面底部的那一行。
 func commandBar() string {
