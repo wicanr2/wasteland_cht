@@ -28,6 +28,7 @@ import (
 	"strings"
 
 	"github.com/wicanr2/wasteland_cht/internal/assets"
+	"github.com/wicanr2/wasteland_cht/internal/lang"
 	"github.com/wicanr2/wasteland_cht/internal/input"
 	"github.com/wicanr2/wasteland_cht/internal/render"
 )
@@ -139,14 +140,25 @@ func (s *Scene) TickEnding() bool {
 			e.active = false
 			return false
 		}
-		s.message = s.endingText(EndingPages[e.page])
+		s.showEndingPage(EndingPages[e.page])
 		e.page++
 		s.dirty = true
 	}
 	return true
 }
 
-// endingText 取第 n 條結局敘述。查不到就回空字串。
+// endingCJK 取第 n 條結局敘述的中文（key `exe:4:<n>`）。沒翻就回 nil。
+func (s *Scene) endingCJK(n int) []byte {
+	if s.cat == nil {
+		return nil
+	}
+	if b, ok := s.cat.Lookup(lang.ExeKey(EndingTable, n)); ok {
+		return b
+	}
+	return nil
+}
+
+// endingText 取第 n 條結局敘述的英文原文。查不到就回空字串。
 func (s *Scene) endingText(n int) string {
 	tables, err := s.rom.ExeStrings()
 	if err != nil || EndingTable >= len(tables) || n >= len(tables[EndingTable]) {
@@ -179,10 +191,16 @@ func (s *Scene) updateEnding(in input.Input) (bool, error) {
 		s.dirty = true
 		return true, nil
 	}
-	s.message = s.endingText(EndingPages[s.ending.page])
+	s.showEndingPage(EndingPages[s.ending.page])
 	s.ending.page++
 	s.dirty = true
 	return true, nil
+}
+
+// showEndingPage 把第 n 條敘述放進訊息視窗，中英各走各的視窗。
+func (s *Scene) showEndingPage(n int) {
+	s.message = s.endingText(n)
+	s.cjk = s.endingCJK(n)
 }
 
 // drawEnding 畫結局：整張圖佔圖片視窗，敘述走訊息視窗。
