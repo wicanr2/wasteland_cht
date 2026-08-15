@@ -423,6 +423,11 @@ func (s *Scene) updateMap(in input.Input) (bool, error) {
 // 規則層只給編號，文字在這裡才查出來——中文化改的是這一層與翻譯目錄。
 func (s *Scene) describe(res game.StepResult) string {
 	if !res.Moved {
+		// 原版印的是那一格記錄 +0x00 指的訊息（`This mountain is in your way.`），
+		// 不是一句固定的 BLOCKED（docs/re/62 §2）。
+		if n := res.Blocked; n > 0 && n < len(s.world.Block.Strings) {
+			return s.world.Block.Strings[n]
+		}
 		return "BLOCKED."
 	}
 	switch res.Event.Kind {
