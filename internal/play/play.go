@@ -58,6 +58,9 @@ type Scene struct {
 	spawnOK bool
 	// asking 非 DirNone 時畫面停在「Enter new location?」等 Y／N（docs/re/64）。
 	asking input.Direction
+	// portrait 是這場遭遇要顯示的敵人肖像圖編號（−1 ＝ 沒有）。
+	portrait int
+
 	// journal 是段落手札（`docs/spec/19`）。載不到就是 nil——
 	// 沒有正文時遊戲照跑，只是讀不到段落。
 	journal *Journal
@@ -193,8 +196,9 @@ func New(rom *assets.Rom) (*Scene, error) {
 		gfx:   &render.Graphics{Icons: icons, Masks: masks, Tiles: tiles},
 		world: game.NewWorld(block, party, rng.New()),
 		save:  save,
-		dirty: true,
-		sound: -1,
+		dirty:    true,
+		sound:    -1,
+		portrait: -1,
 	}
 	s.world.Clock = clock
 	// 手札預設是空的（沒有引用表、沒有正文），由呼叫端 LoadJournal 載入——
@@ -203,8 +207,17 @@ func New(rom *assets.Rom) (*Scene, error) {
 	// 物品表跟著存檔走（每個存檔槽一份）。載不到就維持空表——
 	// 傷害會是 0，但遊戲跑得動，而且下面這行的錯誤會留在訊息裡。
 	// 設施畫面的圖。載不到就不畫圖，其餘照跑。
+	// ALLPICS 是**兩個檔一個編號空間**：allpics1 有 33 張、allpics2 有 49 張，
+	// 相加正好是 `docs/re/23` §4 的 82 張——所以 allpics1 在前、allpics2 接在後面。
+	//
+	// ⚠ 分界點是**張數相加推出來的（強證據）**，沒有從 `sub_184E8` 的選檔邏輯
+	// 直讀。設施圖的編號落在 allpics1 那一段，所以先前只載一個檔也看不出問題；
+	// 敵人肖像會用到 44 這種編號，載一個檔就是空白。
 	if pics, err := rom.Pictures("allpics1"); err == nil {
 		s.pics = pics
+	}
+	if pics2, err := rom.Pictures("allpics2"); err == nil {
+		s.pics = append(s.pics, pics2...)
 	}
 	if anims, err := rom.PictureAnims("allpics1"); err == nil {
 		s.anims = anims
@@ -754,6 +767,7 @@ func (s *Scene) Frame() *render.Frame {
 	case s.facility != nil:
 		s.drawFacility(f)
 	case s.combat != nil:
+		s.drawPortrait(f)
 		s.drawRoster(f)
 	default:
 		s.drawMap(f)
@@ -792,6 +806,18 @@ func (s *Scene) drawMap(f *render.Frame) {
 	if err := f.DrawParty(s.gfx); err != nil {
 		s.message = "ERROR: " + err.Error()
 	}
+}
+
+// drawPortrait 畫敵人肖像（遭遇時，`docs/re/37` §3.2）。
+//
+// 位置與設施圖相同——兩者走同一支載入器（`docs/re/23` §4）。
+// 名單從字元列 14（y ＝ 112）起，圖是 y ＝ 8–92，**不重疊**。
+func (s *Scene) drawPortrait(f *render.Frame) {
+	if s.portrait < 0 || s.pics == nil || s.portrait >= len(s.pics) {
+		return
+	}
+	f.DrawIndexed(s.pics[s.portrait], render.FacilityPicX, render.FacilityPicY,
+		render.ViewClip())
 }
 
 // drawRoster 畫戰鬥那一種：地圖視窗換成隊伍名單（docs/re/40 §1）。

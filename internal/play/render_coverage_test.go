@@ -200,3 +200,99 @@ func TestEnemyCellGetsIcon(t *testing.T) {
 		t.Errorf("敵人格 (%d,%d) 沒有疊圖", sx, sy)
 	}
 }
+
+// 遭遇時要畫出敵人肖像（docs/re/37 §3.2 的 `+0x07`）。
+//
+// **編號解出來很久了，畫面上一直沒有**——這一條擋的是那個狀態。
+func TestEncounterShowsPortrait(t *testing.T) {
+	rom := openRom(t)
+	s, err := New(rom)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := s.LoadMap(4, 18, 2); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.StartEncounter(); err != nil {
+		t.Fatal(err)
+	}
+	if !s.InCombat() {
+		t.Fatal("地圖 4 的 (18, 2) 開不了戰")
+	}
+	if s.portrait < 0 {
+		t.Fatal("打起來了卻沒有肖像編號")
+	}
+	t.Logf("肖像圖編號 %d", s.portrait)
+
+	// 圖的那一塊（視窗原點 8,8、96×84）要有非零像素。
+	f := s.Frame()
+	nonZero := 0
+	for y := render.FacilityPicY; y < render.FacilityPicY+84; y++ {
+		for x := render.FacilityPicX; x < render.FacilityPicX+96; x++ {
+			if f.At(x, y) != 0 {
+				nonZero++
+			}
+		}
+	}
+	t.Logf("肖像區有 %d／%d 個非零像素", nonZero, 96*84)
+	if nonZero == 0 {
+		t.Error("肖像沒畫上去")
+	}
+
+	// 名單那幾列也要還在（兩者不該互相蓋掉）。
+	rosterY := render.RosterHeaderRow * render.CharHeight
+	roster := 0
+	for y := rosterY; y < rosterY+8 && y < render.ScreenHeight; y++ {
+		for x := 0; x < render.ScreenWidth; x++ {
+			if f.At(x, y) != 0 {
+				roster++
+			}
+		}
+	}
+	if roster == 0 {
+		t.Error("名單表頭不見了——肖像蓋掉了它")
+	}
+
+	// 收尾之後肖像要清掉。
+	s.FinishEncounter()
+	if s.portrait >= 0 {
+		t.Error("戰鬥結束了肖像編號還留著")
+	}
+}
+
+// ALLPICS 是兩個檔一個編號空間，82 張都要載得到（docs/re/23 §4）。
+//
+// 先前只載 allpics1（33 張），設施圖剛好都落在那一段所以看不出問題——
+// **敵人肖像用到 44，載一個檔就是一片空白**。
+func TestAllPicturesLoaded(t *testing.T) {
+	rom := openRom(t)
+	s, err := New(rom)
+	if err != nil {
+		t.Fatal(err)
+	}
+	const want = 82
+	if len(s.pics) != want {
+		t.Errorf("應該載到 %d 張圖，得到 %d", want, len(s.pics))
+	}
+	// 每張都要有像素——空圖表示解碼在某一張上斷了。
+	empty := 0
+	for i, p := range s.pics {
+		if p == nil || len(p.Pix) == 0 {
+			t.Errorf("第 %d 張是空的", i)
+			continue
+		}
+		nz := 0
+		for _, v := range p.Pix {
+			if v != 0 {
+				nz++
+			}
+		}
+		if nz == 0 {
+			empty++
+		}
+	}
+	t.Logf("%d 張圖，全黑的 %d 張", len(s.pics), empty)
+	if empty != 0 {
+		t.Errorf("有 %d 張全黑", empty)
+	}
+}

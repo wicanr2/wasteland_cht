@@ -56,6 +56,16 @@ func (s *Scene) StartEncounter() (*CombatScene, error) {
 		return nil, nil // 記錄說有敵人但一個都生不出來 → 不打
 	}
 	s.snapshot = s.takeXP()
+	// 遭遇時載入那種敵人的肖像圖（敵人資料 `+0x07`，`docs/re/37` §3.2）。
+	// 走的是與設施圖同一支載入器 `sub_184E8`（`docs/re/23` §4），
+	// 所以顯示位置也一樣：視窗原點 (8, 8)、96 × 84。
+	s.portrait = -1
+	for slot := 0; slot < game.EnemySlots; slot++ {
+		if e := b.Enemy(slot); e != nil && e.HP > 0 {
+			s.portrait = int(e.Data.Portrait)
+			break
+		}
+	}
 	c := NewCombatScene(b)
 	c.Items = s.items
 	c.Names = s.enemyNames()
@@ -92,6 +102,7 @@ func (s *Scene) takeXP() xpSnapshot {
 // 座標、時鐘、地圖都不變——所以這裡只切模式，不動世界狀態。
 func (s *Scene) FinishEncounter() EncounterResult {
 	res := EncounterResult{Fought: s.combat != nil, XPGained: map[string]uint32{}}
+	s.portrait = -1
 	for _, m := range s.world.Party.Members {
 		before := s.snapshot[m.Name]
 		if m.XP > before {
