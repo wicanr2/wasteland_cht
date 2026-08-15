@@ -87,3 +87,14 @@ key 的形狀沿用同一套，所以 Go 那邊**不必多一份讀檔器**。
 - 162 段的中文譯稿本身（管線已通，翻譯是人的工作；進度見 `CONTEXT.md`）。
 - `blk:game2:15:61` 那個選單選項與編號的對應（`docs/re/33` §2）。
 - 密語輸入要不要中文化（等輸入比對的程式碼讀出來，`docs/re/33` §4）。
+
+## 附：後日談那四頁（2026-08-16 補）
+
+手札在 162 段之後多四頁，收結局字串表（`ds:D18Eh`）的第 6–9 條——
+*The History of the Rangers, Vol. II* 的獻詞。**原版玩不到**：
+印它的函式沒有呼叫端（`docs/re/96` §7）。
+
+- `ParagraphCount` 仍是 **162**（紙本那本書的頁數，一手事實）；
+  手札的頁數是 `JournalPages ＝ ParagraphCount + EpilogueCount`。
+- 分區 `SectionEpilogue`，畫面上標 `(epilogue)`。
+- 正文走 `exe:4:<條號>`，不走段落目錄——它不是段落書的內容。

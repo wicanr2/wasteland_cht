@@ -49,13 +49,14 @@ func TestJournalOpensAndPages(t *testing.T) {
 		t.Error("不可能")
 	}
 
-	// 翻到頭不能越界。
-	s.journalAt = game.ParagraphCount
+	// 翻到頭不能越界。**界是手札的總頁數**（段落書 ＋ 後日談），
+	// 不是段落書的 162——後日談收在最後四頁（`docs/re/96` §7）。
+	s.journalAt = game.JournalPages
 	if _, err := s.Update(input.Input{Dir: input.DirDown}); err != nil {
 		t.Fatal(err)
 	}
-	if s.journalAt != game.ParagraphCount {
-		t.Errorf("最後一段還能往下翻：%d", s.journalAt)
+	if s.journalAt != game.JournalPages {
+		t.Errorf("最後一頁還能往下翻：%d", s.journalAt)
 	}
 
 	// ESC 關閉。
@@ -163,5 +164,48 @@ func TestCJKPathRendersPixels(t *testing.T) {
 	t.Logf("訊息視窗有 %d 個非零像素", nonZero)
 	if nonZero == 0 {
 		t.Error("載了字型與正文，訊息視窗卻一個像素都沒畫——CJK 路徑沒接上")
+	}
+}
+
+// 後日談收進手札的最後四頁（`docs/re/96` §7）。
+//
+// ⚠ **它不算在段落書的 162 段裡**——那是紙本那本書的頁數，後日談不在上面。
+// 混進 1–162 會讓「段落書有幾段」這個一手事實失真。
+func TestJournalCarriesEpilogue(t *testing.T) {
+	rom := openRom(t)
+	s, err := New(rom)
+	if err != nil {
+		t.Fatalf("開場失敗：%v", err)
+	}
+	if err := s.LoadCatalogue("translations/zh-Hant.cat"); err != nil {
+		t.Logf("翻譯目錄載不到，只驗英文：%v", err)
+	}
+	if err := s.LoadJournal("translations/paragraph-refs.tsv", "translations/paragraphs-zh-Hant.cat"); err != nil {
+		t.Logf("手札載不到：%v", err)
+	}
+	if game.JournalPages != game.ParagraphCount+game.EpilogueCount {
+		t.Fatalf("手札頁數 %d 對不上", game.JournalPages)
+	}
+
+	for page := game.ParagraphCount + 1; page <= game.JournalPages; page++ {
+		i := game.EpilogueIndex(page)
+		if i == 0 {
+			t.Fatalf("第 %d 頁不該是段落", page)
+		}
+		s.openJournal(page)
+		if s.journal != nil && s.journal.Section(page) != game.SectionEpilogue {
+			t.Errorf("第 %d 頁不在後日談那一區", page)
+		}
+		// 這一區永遠有內容：中文查不到就退回執行檔裡的英文原文。
+		if len(s.cjk) == 0 && s.Message() == "" {
+			t.Errorf("第 %d 頁（結局字串 %d）是空白頁", page, i)
+		}
+	}
+	// 段落書那 162 段一頁都不能被後日談吃掉。
+	if game.EpilogueIndex(game.ParagraphCount) != 0 {
+		t.Error("第 162 頁被當成後日談了")
+	}
+	if game.EpilogueIndex(game.JournalPages+1) != 0 {
+		t.Error("超出範圍的頁號被當成後日談了")
 	}
 }
