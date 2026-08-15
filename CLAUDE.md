@@ -131,6 +131,10 @@ WL_IDA_TARGET=/abs/path/other.exe tools/ida.sh build   # 換分析目標
   **不得把 IDA 的匯出結果換個工具重讀，冒充第二份獨立證據**。
 - `.i64`／`.asm`／解包後的 binary 全部 gitignore。
 
+⚠ **長 timeline 要在每個按鍵後補 `key:Return`**：訊息視窗填滿時 DOSBox 停在
+`ENTER`，後續按鍵全部失效——而畫面看起來只是「沒走那麼遠」，不像卡住。
+每 4 個按鍵補一次不夠（`docs/re/68` §3.1）。
+
 DOSBox 只在「RE 讀出來的行為需要實機確認」時用（docker 化，可送鍵、可截圖），
 它是 IDA 的驗證工具，不是替代品。`cycles` 要寫死，不要用 `auto`——可重現性的敵人。
 
