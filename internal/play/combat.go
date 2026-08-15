@@ -186,6 +186,10 @@ type CombatScene struct {
 	// Turn 是目前輪到誰下令（隊伍成員索引）；-1 表示指令階段結束。
 	Turn int
 	Log  []string
+
+	// Items 是物品資料表（存檔區那一份，docs/re/45 §2）。
+	// 沒接上時是 nil，武器一律當成零值——傷害 0 而不是崩掉。
+	Items game.ItemTable
 }
 
 // NewCombatScene 開一場戰鬥的畫面：模式切成名單，開一個新的指令階段。

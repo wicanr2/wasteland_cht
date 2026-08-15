@@ -56,6 +56,7 @@ func (s *Scene) StartEncounter() (*CombatScene, error) {
 	}
 	s.snapshot = s.takeXP()
 	c := NewCombatScene(b)
+	c.Items = s.items
 	c.Log = append(c.Log, "Encounter begins...")
 	s.combat = c
 	return c, nil
