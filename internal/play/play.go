@@ -40,6 +40,11 @@ type Scene struct {
 	// blockFile／blockID 是目前這張地圖的來源，組 key 用。
 	blockFile string
 	blockID   int
+
+	// combat 非 nil 時畫面在戰鬥（docs/spec/21）。
+	combat *CombatScene
+	// snapshot 是打之前每個角色的經驗值，收尾時相減用。
+	snapshot xpSnapshot
 }
 
 // LoadCatalogue 載入翻譯目錄；載不到就維持英文，不當成錯誤。
@@ -220,6 +225,17 @@ func (s *Scene) Update(in input.Input) (bool, error) {
 	s.dirty = true
 	s.message = s.describe(res)
 	s.cjk = s.translate(res)
+
+	// 走一步之後掃遭遇（docs/re/51 §2）。掃描說沒有可打的就什麼都不做——
+	// **擲骰說「觸發」不等於真的打得起來**，還要視窗裡有敵人格、
+	// 距離過得了記錄的兩道門檻（docs/spec/15）。
+	if res.Moved && res.Encounter {
+		if c, err := s.StartEncounter(); err != nil {
+			s.message = "ERROR: " + err.Error()
+		} else if c != nil {
+			s.message = c.Log[len(c.Log)-1]
+		}
+	}
 	return true, nil
 }
 

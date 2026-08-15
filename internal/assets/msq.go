@@ -21,6 +21,7 @@ const (
 	hdrSize      = 0x5C
 	hdrEncLen    = 0x00 // 加密長度 L，同時是字串表基址
 	hdrNames     = 0x02 // 明文敵人名表位移
+	hdrEnemyData = 0x04 // 敵人（攻擊）資料表在 Raw 裡的位移，16-bit
 	hdrDim       = 0x2C // 地圖邊長 D
 	hdrEncounter = 0x2F // 遭遇機率分母
 	hdrTileset   = 0x30 // 圖磚組編號
@@ -303,6 +304,24 @@ func (b *Block) StepMinutes() float64 {
 
 // StepTick 是走一步推進的刻（標頭 +0x36），週期性角色處理用。
 func (b *Block) StepTick() byte { return b.Header[hdrStepTick] }
+
+// EnemyData 回傳這張地圖的敵人資料表原始 bytes（8 bytes 一筆）。
+//
+// 基底是記錄區標頭 `+0x04` 的 16-bit 值、stride 8（docs/re/37 §3.1）。
+// 這裡只把那一段切出來，怎麼解讀是 internal/game 的事。
+//
+// ⚠ **第 0 筆沒有人定址得到**（索引從 1 起算，同物品表的慣例），
+// 所以切片從基底開始、不要先跳過 8 bytes。
+func (b *Block) EnemyData() ([]byte, error) {
+	if len(b.Header) <= hdrEnemyData+1 {
+		return nil, fmt.Errorf("標頭太短，讀不到敵人資料表位移")
+	}
+	off := int(le16(b.Header, hdrEnemyData))
+	if off == 0 || off >= len(b.Raw) {
+		return nil, fmt.Errorf("敵人資料表位移 %#x 超出區塊（%d bytes）", off, len(b.Raw))
+	}
+	return b.Raw[off:], nil
+}
 
 // SectionBase 回傳某個 section 型別在 Raw 裡的起點。
 // 型別不存在（表值為 0）時回 0 與 false。

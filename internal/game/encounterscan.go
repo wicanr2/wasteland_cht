@@ -222,3 +222,20 @@ func (w *World) ScanEncounters(groups [QueueGroups]PartyGroupState) ScanResult {
 	}
 	return out
 }
+
+// Nearest 取某一組裡最近的那一筆。
+//
+// 槽內已經以距離由近到遠排好（sortGroup，docs/re/39 §4），
+// 所以「最近」就是第一個 Used 的槽——**不要再排一次**，
+// 原版的排序規則是「插在第一個比它遠的前面」，重排會換掉同距離的先後。
+func (q *EncounterQueue) Nearest(group int) (QueueEntry, bool) {
+	if group < 0 || group >= QueueGroups {
+		return QueueEntry{}, false
+	}
+	for i := 0; i < QueueSlotsPerGroup; i++ {
+		if e := q.Slots[group*QueueSlotsPerGroup+i]; e.Used {
+			return e, true
+		}
+	}
+	return QueueEntry{}, false
+}
