@@ -41,10 +41,18 @@ const (
 //
 // ⚠ 這是**下界不是全集**：原版還有 sub_13E9B／sub_15CE0 兩支沒讀完，
 // 所以其餘 nibble 一律當成可通行，遇到與原版不符的地圖要回來補。
-var blocking = map[byte]bool{2: true, 3: true, 15: true}
+// blocking 是**無條件**擋住移動的 nibble（docs/re/62 §1）。
+//
+// nibble 11 佔 42 張地圖的第二多（20,495 格）——**山、牆、水**。
+// 漏掉它玩家會穿山，而症狀是「路線與原版不同」而不是明顯的錯誤。
+// nibble 4 是條件式的，見 blockedByRecord。
+var blocking = map[byte]bool{2: true, 3: true, 11: true, 15: true}
 
 // nibble 10 是傳送，但記錄 +0x00 的 bit7 設起來時要先問玩家。
 const nibbleTeleport = 10
+
+// nibble 4 是條件式的障礙：記錄 +0x01 的 bit7 設起來才擋（docs/re/62 §1）。
+const nibbleBarrier = 4
 
 // EventKind 是走完一步之後要處理的事情種類。
 type EventKind int
@@ -98,6 +106,8 @@ func (w *World) syncView() {
 
 // StepResult 是一次移動的完整結果。
 type StepResult struct {
+	// Blocked 是被擋住時要印的字串編號（0 ＝ 沒有訊息或沒被擋）。
+	Blocked   int
 	Moved     bool // 被擋住時是 false，而且時鐘與遭遇都不會動
 	Periodic  bool // 這一步跨過 16 刻，跑過體力處理
 	Encounter bool
@@ -115,7 +125,11 @@ func (w *World) Step(dir Direction) (StepResult, error) {
 	nx := int(w.Party.X) + delta[dir][0]
 	ny := int(w.Party.Y) + delta[dir][1]
 	if !w.passable(nx, ny) {
-		return res, nil // 被擋住：什麼都不推進
+		// 被擋住：什麼都不推進，但**原版會印那一格記錄的訊息**
+		// （`This mountain is in your way.`，docs/re/62 §2）——
+		// 印死的 "BLOCKED." 會讓對拍差一整句話。
+		res.Blocked = w.blockedMessage(nx, ny)
+		return res, nil
 	}
 
 	w.Party.X, w.Party.Y = uint8(nx), uint8(ny)
@@ -131,6 +145,25 @@ func (w *World) Step(dir Direction) (StepResult, error) {
 	res.Encounter = w.rollEncounter()
 	res.Event = w.trigger(nx, ny)
 	return res, nil
+}
+
+// blockedMessage 回報擋住這一步的那一格要印的字串編號（0 ＝ 不印）。
+//
+// 原版在第四道閘（sub_15CE0）擋住之後呼叫 sub_16D1A(bl ＝ 0)，
+// 那一支讀的是記錄 +0x00，值 0 就不印（docs/re/58 §1、docs/re/62 §2）。
+func (w *World) blockedMessage(x, y int) int {
+	if x < 0 || y < 0 || x >= w.Block.Dim || y >= w.Block.Dim {
+		return 0
+	}
+	terrain, record, _, err := w.Block.At(x, y)
+	if err != nil {
+		return 0
+	}
+	rec, err := w.Block.SectionRecord(int(terrain), int(record))
+	if err != nil || len(rec) == 0 {
+		return 0
+	}
+	return int(rec[0])
 }
 
 // IdleStep 是「原地不動的一步」（方向碼 4，docs/re/26 §1.1）。
@@ -174,6 +207,14 @@ func (w *World) passable(x, y int) bool {
 	}
 	if blocking[terrain] {
 		return false
+	}
+	if terrain == nibbleBarrier {
+		// nibble 4：記錄 +0x01 的 bit7 設起來才擋（門、關卡），
+		// 沒設的是一般的疊圖格，可以走（docs/re/62 §1）。
+		if rec, err := w.Block.SectionRecord(int(terrain), int(record)); err == nil &&
+			len(rec) > 1 && rec[1]&0x80 != 0 {
+			return false
+		}
 	}
 	if terrain == nibbleTeleport {
 		// bit7 設起來時原版會先問玩家，這一層回報可以走，

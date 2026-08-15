@@ -206,6 +206,7 @@
 | [`docs/re/59-playtest-against-original.md`](docs/re/59-playtest-against-original.md) | 正常玩家路徑對原版驗收：輻射帶團滅是原版行為、Rad suit 免疫、熵沒接上、出不了起始地圖 |
 | [`docs/re/60-teleport-and-map-change.md`](docs/re/60-teleport-and-map-change.md) | 傳送會換地圖；槽表 `+0x0B`–`+0x0D` 是**回程**不是目的地 |
 | [`docs/re/61-map-id-table.md`](docs/re/61-map-id-table.md) | 地圖編號表 `ds:BF1Ch`：bit7 設 → 建築內部（資源 5／11）；nibble 11 是第二多的地形 |
+| [`docs/re/62-fourth-gate-terrain-blocking.md`](docs/re/62-fourth-gate-terrain-blocking.md) | 第四道閘：**nibble 11 是山與牆**（20,495 格），擋住時印記錄的訊息 |
 | [`docs/spec/00-index.md`](docs/spec/00-index.md) | **規格索引與閘門狀態**：哪些可以動工、其餘擋在什麼上 |
 | [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
 | [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |
@@ -270,6 +271,7 @@
 | `ds:46EFh` ＝「踩在輻射上」的旗標，而且只有一支寫它 | 只掃到一個寫入點就下結論。實際有三處，漏掉的兩處（設定與清除）正是決定語意的那兩處 | 它是**參數不是狀態**：設 → 呼叫結算 → 清。效果是**這一次結算跳過護甲吸收**，值來自地圖記錄 `+0x00` 的 bit0（`docs/re/55`）|
 | nibble 4／9 的訊息編號 ＝ 這一格的第 2 層值 | 第 2 層是「第幾筆記錄」，訊息編號在**記錄 `+0x00`**。兩者值域差很遠，但都是小整數，錯了只會印到別條訊息、不會噴錯 | `sub_16D1A` 讀 `[ds:46AEh + 0]`，0 就不印。資源 0 的輻射格編號是 23 ＝ `The ground seems to glow here.`（`docs/re/29` §2、§5.1）|
 | 輻射結算的 `cmp al, 29h` 是拿角色記錄 `+0x01` 比 `0x29`，用意未解 | 只讀了那三行，沒追 `bl` 從哪來——`sub_196C4` 先把 `bl` 設成護甲槽指到的位移 | 比的是**護甲的物品編號**：41 ＝ `Rad suit`，穿著的人整個跳過，不扣血也不中毒（`docs/re/59` §2.2）|
+| 擋住移動的 nibble 只有 2、3、10、15 | `docs/re/26` §3 誠實寫了「下界不是全集」，但那句話擺著沒人回頭補；第四道閘 `sub_15CE0` 一直沒讀 | **nibble 11 一律擋**（山與牆，20,495 格、42 張地圖全部都有），nibble 4 條件式。實機對拍才發現：同一串按鍵原版被山擋住而 remake 穿了過去（`docs/re/62`）|
 | 隊伍槽表 `+0x0B`／`+0x0C` 是 nibble 10 的**傳送目的地** | 只追了讀取點。`0x16A10` 的第一個動作就是把**目前**座標與地圖寫進 `+0x0B`–`+0x0D` | 那是**回程**。目的地在地圖記錄 `+0x01`／`+0x02`（座標）與 `+0x03`（**目標地圖編號**，`0xFF` ＝ 回程）；`+0x0D` 之前沒有語意，它是回程的地圖編號（`docs/re/60`）|
 | 敵人資料 `+0x07` ＝ 代名詞索引 | 只追了一個消費者（`sub_12A4C` → `ds:A920h` → 文字碼 `0x0E`）就命名，漏掉 `0x1268F` 那一個 | **肖像圖編號**（`ALLPICS`）：`sub_190A8` → `sub_184E8` 就是圖片載入器，而 `ds:A920h[肖像編號]` 決定 him／her／it——一個編號兩個用途，講的是同一件事（`docs/re/37` §3.2）|
 | 資源表 idx 7（無檔名、只有磁區座標）很可能是存檔區 | 依據是「唯一只能走磁區路徑的一筆」＋「`int 26h` 只有一個呼叫端」，兩個都是旁證，沒有去看**誰在用索引 7** | **沒有人用**。`sub_11445` 的 10 個呼叫端傳的索引只有 `{0,1,2,6}`，`+3` 切換也只把 0–2 變成 3–5。存檔在 `GAME1`／`GAME2` 檔尾的 MSQ 資源（`docs/re/30`）；idx 7 是磁片版的遺留（`docs/re/05` §3）|

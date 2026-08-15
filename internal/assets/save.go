@@ -162,9 +162,9 @@ func (s *Save) Place() string {
 
 // SlotGroup 是一組隊伍槽表（14 bytes，docs/spec/05 §3.1）。
 type SlotGroup struct {
-	Members  [8]byte // 角色記錄編號，0 ＝ 空槽
-	X, Y     byte
-	MapID    byte
+	Members [8]byte // 角色記錄編號，0 ＝ 空槽
+	X, Y    byte
+	MapID   byte
 	// +0x0B–+0x0D 是**回程**的座標與地圖，不是傳送目的地——
 	// 踩上傳送格的第一件事就是把目前位置寫進去（docs/re/60 §3）。
 	BackX    byte

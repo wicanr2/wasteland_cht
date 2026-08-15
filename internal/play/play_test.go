@@ -149,8 +149,10 @@ func TestStoreToAfterWalkTouchesOnlyKnownBytes(t *testing.T) {
 	save := s.Save()
 	before := append([]byte(nil), save.Plain...)
 
-	for i := 0; i < 40; i++ {
-		if _, err := s.Update(input.Input{Dir: input.DirLeft}); err != nil {
+	// ⚠ **方向不能亂挑**：起點 (55, 62) 三面是山（nibble 11，docs/re/62），
+	// 只有往北走得動。步數也不能太多——往北 20 步就進輻射帶了。
+	for i := 0; i < 8; i++ {
+		if _, err := s.Update(input.Input{Dir: input.DirUp}); err != nil {
 			t.Fatalf("走一步失敗：%v", err)
 		}
 	}
@@ -174,9 +176,9 @@ func TestStoreToAfterWalkTouchesOnlyKnownBytes(t *testing.T) {
 		changed++
 	}
 	if changed == 0 {
-		t.Fatal("走了 40 步存檔卻一個 byte 都沒變")
+		t.Fatal("走了 8 步存檔卻一個 byte 都沒變")
 	}
-	t.Logf("走 40 步之後有 %d 個 byte 變動", changed)
+	t.Logf("走 8 步之後有 %d 個 byte 變動", changed)
 
 	// 而且重新編碼還是解得開（checksum 有跟著重算）。
 	reencoded := save.Bytes()

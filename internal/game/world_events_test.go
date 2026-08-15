@@ -541,3 +541,52 @@ func TestRadSuitBlocksRadiation(t *testing.T) {
 		}
 	}
 }
+
+// 驗收（docs/re/62）：nibble 11 一律擋住，而且擋住時要回報那一格的訊息編號。
+//
+// 這一條是**實機對拍**逼出來的：同一串按鍵，原版被山擋住而 remake 穿了過去。
+// nibble 11 有 20,495 格、42 張地圖全部都有——漏掉它整個地圖的形狀都不對。
+func TestNibble11BlocksMovement(t *testing.T) {
+	rom := openRom(t)
+	b, err := rom.Block(0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// 找一格：站得住、右邊是 nibble 11。
+	var px, py int = -1, -1
+	for y := 1; y < b.Dim-1 && px < 0; y++ {
+		for x := 1; x < b.Dim-2; x++ {
+			here, _, _, err := b.At(x, y)
+			if err != nil || blocking[here] {
+				continue
+			}
+			right, _, _, err := b.At(x+1, y)
+			if err != nil || right != 11 {
+				continue
+			}
+			px, py = x, y
+			break
+		}
+	}
+	if px < 0 {
+		t.Fatal("資源 0 找不到「站得住、右邊是 nibble 11」的格子")
+	}
+
+	w := &World{Block: b, Party: &Party{X: uint8(px), Y: uint8(py),
+		Members: []*Character{{CON: 10}}}, RNG: rng.New()}
+	res, err := w.Step(Right)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Moved {
+		t.Fatalf("(%d, %d) 往右是 nibble 11，卻走過去了", px, py)
+	}
+	if w.Party.X != uint8(px) {
+		t.Fatal("被擋住卻動了座標")
+	}
+	// 原版擋住時印的是記錄 +0x00 的訊息，不是一句固定的 BLOCKED。
+	if res.Blocked <= 0 || res.Blocked >= len(b.Strings) {
+		t.Fatalf("被擋住時回報的字串編號是 %d，取不到訊息", res.Blocked)
+	}
+	t.Logf("(%d, %d) 往右被擋，訊息：%q", px, py, b.Strings[res.Blocked])
+}

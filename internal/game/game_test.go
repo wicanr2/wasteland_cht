@@ -146,7 +146,31 @@ func TestStepStaysInsideAndRespectsGates(t *testing.T) {
 	if err != nil {
 		t.Fatalf("載入區塊 0 失敗：%v", err)
 	}
-	p := &Party{Members: []*Character{{CON: 20, MaxCON: 20}}, Selected: 0, X: 55, Y: 62}
+	// ⚠ **不要用出廠位置當起點**：(55, 62) 三面是山（nibble 11，docs/re/62），
+	// 四個方向各走 100 步只有 56 步走得成，防呆門檻會誤判成「測試沒動過」。
+	// 改成從一格四鄰全開的地方出發，這樣「走不動」才是真的被擋。
+	sx, sy := -1, -1
+	for y := 1; y < block.Dim-1 && sx < 0; y++ {
+		for x := 1; x < block.Dim-1; x++ {
+			open := true
+			for _, d := range [][2]int{{0, 0}, {0, -1}, {0, 1}, {-1, 0}, {1, 0}} {
+				n, _, _, err := block.At(x+d[0], y+d[1])
+				if err != nil || blocking[n] {
+					open = false
+					break
+				}
+			}
+			if open {
+				sx, sy = x, y
+				break
+			}
+		}
+	}
+	if sx < 0 {
+		t.Fatal("資源 0 找不到四鄰全開的格子")
+	}
+	p := &Party{Members: []*Character{{CON: 20, MaxCON: 20}}, Selected: 0,
+		X: uint8(sx), Y: uint8(sy)}
 	w := NewWorld(block, p, rng.New())
 
 	moved := 0
@@ -176,7 +200,9 @@ func TestStepStaysInsideAndRespectsGates(t *testing.T) {
 		}
 	}
 	// 全程都被擋住的話，上面的檢查會空轉通過——這道防呆擋掉那種假綠。
-	if moved < 100 {
+	// 門檻只要「明顯不是零」就好：nibble 11 佔了 20,495 格（docs/re/62），
+	// 直線走 100 步撞牆是常態，**不要把它當成走得順的指標**。
+	if moved < 50 {
 		t.Fatalf("400 步裡只走成了 %d 步，測試沒有真的動過", moved)
 	}
 }
