@@ -95,7 +95,7 @@
 | `0x119DB` | seg000+0x19DB | 53 | 7 | re/06-resource-directory.md、re/45-item-data-and-weapon-damage.md |
 | `0x11B83` | seg000+0x1B83 | 165 | 7 | re/00-master-index.md、re/11-huffman-decoder.md |
 | `0x17868` | seg000+0x7868 | 6 | 7 | re/40-combat-screen.md |
-| `0x17CFF` | seg000+0x7CFF | 53 | 7 | re/00-master-index.md、re/29-map-event-handlers.md、re/46-typed-answers-and-text-input.md、re/55-radiation-and-armour-bypass.md、re/59-playtest-against-original.md、re/62-fourth-gate-terrain-blocking.md、re/68-cell-rewrite.md、re/69-gate-flags.md、re/70-nibble1-and-facility-entry.md、re/71-nibble12-batch-patch.md |
+| `0x17CFF` | seg000+0x7CFF | 53 | 7 | re/00-master-index.md、re/29-map-event-handlers.md、re/46-typed-answers-and-text-input.md、re/55-radiation-and-armour-bypass.md、re/59-playtest-against-original.md、re/62-fourth-gate-terrain-blocking.md、re/68-cell-rewrite.md、re/69-gate-flags.md、re/70-nibble1-and-facility-entry.md、re/71-nibble12-batch-patch.md、re/73-shop-and-doctor-entry.md |
 | `0x17DC7` | seg000+0x7DC7 | 25 | 7 | re/26-movement-and-triggers.md、re/29-map-event-handlers.md、re/70-nibble1-and-facility-entry.md |
 | `0x18DB4` | seg000+0x8DB4 | 10 | 7 | re/67-gate-penalty-and-canteen.md、re/69-gate-flags.md |
 | `0x190A8` | seg000+0x90A8 | 16 | 7 | re/00-master-index.md、re/37-enemy-records-and-hp.md |
@@ -112,7 +112,7 @@
 | `0x13878` | seg000+0x3878 | 56 | 6 | re/00-master-index.md、re/39-encounter-scan.md、re/45-item-data-and-weapon-damage.md |
 | `0x13924` | seg000+0x3924 | 21 | 6 | re/38-combat-commands-and-flee.md |
 | `0x13939` | seg000+0x3939 | 5 | 6 | re/40-combat-screen.md |
-| `0x169B1` | seg000+0x69B1 | 11 | 6 | re/00-master-index.md、re/26-movement-and-triggers.md、re/29-map-event-handlers.md、re/46-typed-answers-and-text-input.md、re/55-radiation-and-armour-bypass.md、re/59-playtest-against-original.md、re/60-teleport-and-map-change.md、re/68-cell-rewrite.md、re/70-nibble1-and-facility-entry.md、re/71-nibble12-batch-patch.md |
+| `0x169B1` | seg000+0x69B1 | 11 | 6 | re/00-master-index.md、re/26-movement-and-triggers.md、re/29-map-event-handlers.md、re/46-typed-answers-and-text-input.md、re/55-radiation-and-armour-bypass.md、re/59-playtest-against-original.md、re/60-teleport-and-map-change.md、re/68-cell-rewrite.md、re/70-nibble1-and-facility-entry.md、re/71-nibble12-batch-patch.md、re/73-shop-and-doctor-entry.md |
 | `0x17029` | seg000+0x7029 | 5 | 6 | re/40-combat-screen.md、re/52-trainer-facility.md |
 | `0x171E3` | seg000+0x71E3 | 37 | 6 | re/39-encounter-scan.md |
 | `0x173B0` | seg000+0x73B0 | 34 | 6 | re/00-master-index.md、re/38-combat-commands-and-flee.md、re/43-input-and-hotkeys.md、re/51-encounter-driver.md |
@@ -407,7 +407,7 @@
 | `0x16410` | seg000+0x6410 | 23 | 1 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/26-movement-and-triggers.md |
 | `0x1656D` | seg000+0x656D | 23 | 1 | re/26-movement-and-triggers.md、re/32-skill-checks-and-xp.md、re/44-audio.md |
 | `0x16675` | seg000+0x6675 | 94 | 1 | re/00-master-index.md、re/25-screen-layout.md |
-| `0x16AD5` | seg000+0x6AD5 | 66 | 1 | re/00-master-index.md、re/26-movement-and-triggers.md、re/64-enter-location-prompt.md |
+| `0x16AD5` | seg000+0x6AD5 | 66 | 1 | re/00-master-index.md、re/26-movement-and-triggers.md、re/64-enter-location-prompt.md、re/73-shop-and-doctor-entry.md |
 | `0x16C7C` | seg000+0x6C7C | 30 | 1 | re/72-facility-entry-and-command-bar.md |
 | `0x1708B` | seg000+0x708B | 256 | 1 | re/00-master-index.md、re/15-character-record.md、re/17-packed-text.md |
 | `0x1738A` | seg000+0x738A | 11 | 1 | re/40-combat-screen.md |

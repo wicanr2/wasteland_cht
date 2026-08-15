@@ -476,7 +476,12 @@ func (s *Scene) walk(dir game.Direction) (bool, error) {
 	if res.Moved && res.Event.Kind == game.EventTeleport {
 		if err := s.doTeleport(res.Event.Data); err != nil {
 			s.message = "ERROR: " + err.Error()
+			return true, nil
 		}
+		// 傳送收尾把腳下改寫成 nibble 6 之後，那一格的事件要跑起來
+		// （原版 `loc_16A90` 尾端的 `sub_15DAF`）——**商店與醫生就是這樣進去的**。
+		// 設施記錄的 `+0x01`／`+0x02` 是 `fd fd`（不改），所以不會繞回傳送格。
+		s.enterFacilityHere()
 		return true, nil
 	}
 
@@ -511,6 +516,23 @@ func (s *Scene) walk(dir game.Direction) (bool, error) {
 		}
 	}
 	return true, nil
+}
+
+// enterFacilityHere 在傳送收尾之後檢查腳下那一格，是設施就進去。
+//
+// 傳送記錄的 `+0x04`／`+0x05` 把落點改寫成 (nibble 6, 設施記錄)，
+// 22 筆設施——商店、醫生、圖書館、訓練——全部靠這一步（docs/re/73）。
+func (s *Scene) enterFacilityHere() {
+	w := s.world
+	terrain, idx, _, err := w.Block.At(int(w.Party.X), int(w.Party.Y))
+	if err != nil || terrain != 6 {
+		return
+	}
+	rec, err := w.Block.SectionRecord(6, int(idx))
+	if err != nil || len(rec) == 0 || rec[0]&0x80 == 0 {
+		return // bit7 沒設的是腳本，不是設施
+	}
+	s.EnterFacility(rec)
 }
 
 // describe 把一步的結果變成訊息視窗要顯示的字。
@@ -701,9 +723,17 @@ func (s *Scene) drawFacility(f *render.Frame) {
 //
 // 回程資訊存在隊伍槽表的 +0x0B–+0x0D。remake 把它放在 Scene 上：
 // 存檔寫回時再落到那三個 byte（規格 05）。
+// teleportPatchAt 是傳送收尾改寫腳下那一格用的位移（`sub_169B1(4)`）。
+const teleportPatchAt = 4
+
 func (s *Scene) doTeleport(rec []byte) error {
 	w := s.world
 	here := game.Return{X: w.Party.X, Y: w.Party.Y, MapID: uint8(s.MapID())}
+	// **先改寫腳下這一格**（`0x16A24` 的 `sub_169B1(4)`，docs/re/73）：
+	// 記錄 `+0x04`／`+0x05` 是「進去之後這一格變成什麼」。
+	// 22 筆設施就是靠這一步從傳送格變成 nibble 6 ——
+	// 商店與醫生的入口全部在這裡。
+	w.PatchHere(rec, teleportPatchAt)
 	target, back := game.ResolveTeleport(rec, here, s.back)
 	s.back = back
 	// 編號 bit7 設起來的是**建築內部**，要先查表換成真正的資源編號

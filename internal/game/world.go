@@ -245,6 +245,14 @@ func (w *World) Step(dir Direction) (StepResult, error) {
 // Confirm 讓下一次 Step 跳過確認閘（玩家答了 Yes，docs/re/64）。
 func (w *World) Confirm() { w.confirmed = true }
 
+// PatchHere 用記錄的指定位移改寫**隊伍腳下**那一格（原版 `sub_169B1`）。
+//
+// 傳送的收尾走這一條（位移 4）：記錄 `+0x04`／`+0x05` 是「進去之後
+// 這一格變成什麼」，設施就是這樣從傳送格變出來的（docs/re/73）。
+func (w *World) PatchHere(record []byte, at int) {
+	w.applyCellPatch(int(w.Party.X), int(w.Party.Y), record, at)
+}
+
 // Passable 回報這一格走不走得進去（四道閘裡與地形有關的那幾道）。
 //
 // 給驗證工具尋路用（`cmd/wl-play` 的 `path=`）。**不含**傳送與事件的副作用，
