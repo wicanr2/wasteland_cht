@@ -120,7 +120,8 @@ sub_164E8         ; 方向 → 目標座標（查 ds:AAB1h）→ sub_18016 邊�
 sub_17C20         ; 取目標格第 1 層的 nibble
   nibble == 3 或 15 → 擋住
 sub_13E9B → CF    ; 擋住（內含 sub_14085：nibble == 2 也擋）
-sub_16AD5 → CF    ; 擋住（nibble == 10 且記錄 +0x00 的 bit7 ＝ 1 時走詢問流程）
+sub_16AD5 → CF    ; nibble == 10 且記錄 +0x00 的 **bit6** ＝ 1 → 問「Enter new
+                  ;   location?」，選 No 就擋住（docs/re/64）
 sub_15CE0
 ```
 

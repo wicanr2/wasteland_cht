@@ -90,6 +90,8 @@ type World struct {
 	// ViewX/ViewY 是地圖視窗的原點（ds:464Eh/464Fh）。
 	// 原版把它與隊伍座標分開存，這裡照做，不要用其中一個推另一個。
 	ViewX, ViewY int
+	// confirmed ＝ 玩家剛對「進新地點？」答了 Yes，下一步跳過確認閘。
+	confirmed bool
 }
 
 // NewWorld 把隊伍放到指定座標並對齊視窗原點。
@@ -107,7 +109,9 @@ func (w *World) syncView() {
 // StepResult 是一次移動的完整結果。
 type StepResult struct {
 	// Blocked 是被擋住時要印的字串編號（0 ＝ 沒有訊息或沒被擋）。
-	Blocked   int
+	Blocked int
+	// Ask 非 0 時這一步**停在原地等玩家回答**（進新地點的確認）。
+	Ask       int
 	Moved     bool // 被擋住時是 false，而且時鐘與遭遇都不會動
 	Periodic  bool // 這一步跨過 16 刻，跑過體力處理
 	Encounter bool
@@ -124,6 +128,12 @@ func (w *World) Step(dir Direction) (StepResult, error) {
 
 	nx := int(w.Party.X) + delta[dir][0]
 	ny := int(w.Party.Y) + delta[dir][1]
+	// 第三道閘：進新地點之前要先問（原版會停在原地等 Yes／No）。
+	if !w.confirmed && w.confirmNeeded(nx, ny) {
+		res.Ask = AskEnterString
+		return res, nil
+	}
+	w.confirmed = false
 	if !w.passable(nx, ny) {
 		// 被擋住：什麼都不推進，但**原版會印那一格記錄的訊息**
 		// （`This mountain is in your way.`，docs/re/62 §2）——
@@ -146,6 +156,9 @@ func (w *World) Step(dir Direction) (StepResult, error) {
 	res.Event = w.trigger(nx, ny)
 	return res, nil
 }
+
+// Confirm 讓下一次 Step 跳過確認閘（玩家答了 Yes，docs/re/64）。
+func (w *World) Confirm() { w.confirmed = true }
 
 // Passable 回報這一格走不走得進去（四道閘裡與地形有關的那幾道）。
 //
@@ -222,12 +235,27 @@ func (w *World) passable(x, y int) bool {
 			return false
 		}
 	}
-	if terrain == nibbleTeleport {
-		// bit7 設起來時原版會先問玩家，這一層回報可以走，
-		// 由 trigger 產生 EventTeleport 讓上層決定。
-		_ = record
-	}
 	return true
+}
+
+// AskEnterString 是「Enter new location?」的字串編號（執行檔字串表 1 第 103 條，
+// `sub_16AD5` 的 `mov al, 67h`）。
+const AskEnterString = 0x67
+
+// confirmNeeded 回報走進這一格之前要不要先問玩家（第三道閘 sub_16AD5）。
+//
+// ⚠ **判準是記錄 `+0x00` 的 bit6**，不是 bit7——原版是 `shl al, 1` 之後看符號
+// （docs/re/64 §1）。Quartz 入口的 `+0x00` 是 `0x41`，bit6 設起來所以會問。
+func (w *World) confirmNeeded(x, y int) bool {
+	terrain, record, _, err := w.Block.At(x, y)
+	if err != nil || terrain != nibbleTeleport {
+		return false
+	}
+	rec, err := w.Block.SectionRecord(int(terrain), int(record))
+	if err != nil || len(rec) == 0 {
+		return false
+	}
+	return rec[0]&0x40 != 0
 }
 
 // rollEncounter 照 docs/spec/04 §5：分母為 0 就不擲。

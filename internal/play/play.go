@@ -51,6 +51,8 @@ type Scene struct {
 	animMask []byte
 	// back 是傳送的回程位置（隊伍槽表 +0x0B–+0x0D，docs/re/60 §3）。
 	back game.Return
+	// asking 非 DirNone 時畫面停在「Enter new location?」等 Y／N（docs/re/64）。
+	asking input.Direction
 	// items 是物品資料表（存檔區那一份，docs/re/45 §2）。
 	// **武器傷害要靠它**——沒有它每個人的傷害都是 0，戰鬥永遠打不完。
 	items game.ItemTable
@@ -182,6 +184,7 @@ func New(rom *assets.Rom) (*Scene, error) {
 		// **錯誤要留在畫面上**，不要靜靜吞掉——那會變成「戰鬥打不完」的怪症狀。
 		s.message = "ITEM TABLE: " + err.Error()
 	}
+	s.asking = input.DirNone // 零值是 DirUp，會被誤判成「正在問」
 	s.blockFile, s.blockID = block.Resource.File, block.Resource.ID
 	// 回程從存檔的隊伍槽表讀（+0x0B–+0x0D，docs/re/60 §3）。
 	g := save.SlotGroups()[0]
@@ -247,6 +250,9 @@ func (s *Scene) LoadMap(id int, x, y uint8) error {
 	s.dirty = true
 	return nil
 }
+
+// Asking 回報畫面是不是停在「Enter new location?」等 Y／N。
+func (s *Scene) Asking() bool { return s.asking != input.DirNone }
 
 // PollRNG 推進一次亂數產生器，等同原版的鍵盤輪詢（規格 02 §1.1）。
 //
@@ -356,6 +362,27 @@ func combatOverMessage(won bool, out EncounterResult) string {
 
 // updateMap 是地圖模式：方向鍵走一步。
 func (s *Scene) updateMap(in input.Input) (bool, error) {
+	// 停在「進新地點？」的確認上時，只收 Y／N（原版是同步問，docs/re/64 §1）。
+	if s.asking != input.DirNone {
+		switch input.Upper(in.Char) {
+		case 'Y':
+			d := s.asking
+			s.asking = input.DirNone
+			s.world.Confirm()
+			return s.walk(gameDir(d))
+		case 'N':
+			s.asking = input.DirNone
+			s.message = ""
+			s.dirty = true
+		}
+		if in.Action == input.ActionCancel {
+			s.asking = input.DirNone
+			s.message = ""
+			s.dirty = true
+		}
+		return true, nil
+	}
+
 	var dir game.Direction
 	switch in.Dir {
 	case input.DirUp:
@@ -370,9 +397,58 @@ func (s *Scene) updateMap(in input.Input) (bool, error) {
 		return true, nil
 	}
 
+	return s.walk(dir)
+}
+
+// gameDir 是 dirOf 的反向。
+func gameDir(d input.Direction) game.Direction {
+	switch d {
+	case input.DirUp:
+		return game.Up
+	case input.DirDown:
+		return game.Down
+	case input.DirLeft:
+		return game.Left
+	default:
+		return game.Right
+	}
+}
+
+// dirOf 把規則層的方向換回輸入層的方向（確認流程要記住原本按了哪個鍵）。
+func dirOf(d game.Direction) input.Direction {
+	switch d {
+	case game.Up:
+		return input.DirUp
+	case game.Down:
+		return input.DirDown
+	case game.Left:
+		return input.DirLeft
+	default:
+		return input.DirRight
+	}
+}
+
+// exeString 取執行檔字串表 1 的第 n 條（`sub_16CB2` 那一族用的就是這張）。
+func (s *Scene) exeString(n int) string {
+	tables, err := s.rom.ExeStrings()
+	if err != nil || len(tables) < 2 || n < 0 || n >= len(tables[1]) {
+		return ""
+	}
+	return tables[1][n]
+}
+
+// walk 真正走一步並處理結果。
+func (s *Scene) walk(dir game.Direction) (bool, error) {
 	res, err := s.world.Step(dir)
 	if err != nil {
 		return true, err
+	}
+	// 停下來問「Enter new location?」：不移動、不推進時間。
+	if res.Ask != 0 {
+		s.asking = dirOf(dir)
+		s.message = s.exeString(res.Ask)
+		s.dirty = true
+		return true, nil
 	}
 	s.dirty = true
 	s.message = s.describe(res)
