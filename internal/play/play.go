@@ -335,6 +335,20 @@ func (s *Scene) updateMap(in input.Input) (bool, error) {
 	s.message = s.describe(res)
 	s.cjk = s.translate(res)
 
+	// 踩到輻射格就結算（docs/spec/07 §6.4）。訊息已經在 describe 裡了，
+	// 這裡只補傷害那一句——**扣血是規則層做的，這裡不重算**。
+	if res.Moved && res.Event.Kind == game.EventRadiation {
+		if hits := s.world.ApplyRadiation(res.Event.Data); len(hits) > 0 {
+			total := 0
+			for _, h := range hits {
+				total += h.Applied
+			}
+			if total > 0 {
+				s.message = fmt.Sprintf("%s (%d damage)", s.message, total)
+			}
+		}
+	}
+
 	// 踩到設施格就進設施畫面（docs/spec/23）。
 	// bit7 沒設的是腳本指令，`EnterFacility` 會回 nil——那條路不歸這裡管。
 	if res.Moved && res.Event.Kind == game.EventFacility {
@@ -361,10 +375,14 @@ func (s *Scene) describe(res game.StepResult) string {
 		return "BLOCKED."
 	}
 	switch res.Event.Kind {
-	case game.EventMessage:
-		if n := res.Event.Record; n >= 0 && n < len(s.world.Block.Strings) {
-			return s.world.Block.Strings[n]
+	case game.EventMessage, game.EventRadiation:
+		// 字串編號在 Event.Strings（nibble 4／9 是記錄 +0x00，可能是 0 ＝ 不印）。
+		if len(res.Event.Strings) > 0 {
+			if n := res.Event.Strings[0]; n >= 0 && n < len(s.world.Block.Strings) {
+				return s.world.Block.Strings[n]
+			}
 		}
+		return ""
 	case game.EventTeleport:
 		return "TELEPORT."
 	case game.EventChest:
