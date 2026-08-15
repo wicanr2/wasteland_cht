@@ -44,8 +44,10 @@ type Scene struct {
 	// items 是物品資料表（存檔區那一份，docs/re/45 §2）。
 	// **武器傷害要靠它**——沒有它每個人的傷害都是 0，戰鬥永遠打不完。
 	items game.ItemTable
-	// combat 非 nil 時畫面在戰鬥（docs/spec/21）。
-	combat *CombatScene
+	// combat 非 nil 時畫面在戰鬥（docs/spec/21）；
+	// facility 非 nil 時畫面在設施（docs/spec/23）。兩者不會同時成立。
+	combat   *CombatScene
+	facility *FacilityScene
 	// snapshot 是打之前每個角色的經驗值，收尾時相減用。
 	snapshot xpSnapshot
 }
@@ -238,10 +240,16 @@ func (s *Scene) Update(in input.Input) (bool, error) {
 	s.message = s.describe(res)
 	s.cjk = s.translate(res)
 
+	// 踩到設施格就進設施畫面（docs/spec/23）。
+	// bit7 沒設的是腳本指令，`EnterFacility` 會回 nil——那條路不歸這裡管。
+	if res.Moved && res.Event.Kind == game.EventFacility {
+		s.EnterFacility(res.Event.Data)
+	}
+
 	// 走一步之後掃遭遇（docs/re/51 §2）。掃描說沒有可打的就什麼都不做——
 	// **擲骰說「觸發」不等於真的打得起來**，還要視窗裡有敵人格、
 	// 距離過得了記錄的兩道門檻（docs/spec/15）。
-	if res.Moved && res.Encounter {
+	if res.Moved && res.Encounter && !s.InFacility() {
 		if c, err := s.StartEncounter(); err != nil {
 			s.message = "ERROR: " + err.Error()
 		} else if c != nil {
