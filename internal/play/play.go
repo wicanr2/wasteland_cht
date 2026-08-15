@@ -523,7 +523,13 @@ func (s *Scene) describe(res game.StepResult) string {
 	case game.EventMenu:
 		return "CHOOSE."
 	case game.EventGate:
-		return "BLOCKED BY SOMETHING."
+		// 走得過去的條件格踩上去會印記錄 +0x01 的訊息（docs/re/66）。
+		if len(res.Event.Strings) > 0 {
+			if n := res.Event.Strings[0]; n > 0 && n < len(s.world.Block.Strings) {
+				return s.world.Block.Strings[n]
+			}
+		}
+		return ""
 	case game.EventFacility:
 		// bit7 設起來的是設施畫面，沒設的是腳本指令（docs/spec/09 §2）。
 		if f, ok := game.ParseFacility(res.Event.Data); ok {

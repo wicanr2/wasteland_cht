@@ -329,7 +329,12 @@ func (w *World) trigger(x, y int) Event {
 		// 遠看才顯示的描述——站上去反而不印（0x16CD0 比對隊伍座標）。
 		ev.Kind = EventNone
 	case 2:
+		// nibble 2 的事件處理與移動閘是**同一支**（sub_13EC9）：走得過去的格子
+		// 踩上去還是會印記錄 +0x01 的訊息（沙漠高溫就是這樣，docs/re/66）。
 		ev.Kind = EventGate
+		if len(ev.Data) > 1 && ev.Data[1] != 0 {
+			ev.Strings = []int{int(ev.Data[1])}
+		}
 	case 4, 9:
 		// 字串編號是**記錄 +0x00**，不是這一格的第 2 層值——
 		// 第 2 層是「第幾筆記錄」，兩者的值域差很遠（docs/re/29 §2、§5.1）。
