@@ -459,6 +459,13 @@ func (s *Scene) walk(dir game.Direction) (bool, error) {
 	s.message = s.describe(res)
 	s.cjk = s.translate(res)
 
+	// 條件閘罰到人就照原版報一句（執行檔字串表 1 第 99 條 " gets hurt for "）。
+	if len(res.Gate.Failed) > 0 {
+		if line := s.gateHurtLine(res.Gate); line != "" {
+			s.message = line
+		}
+	}
+
 	// 踩到傳送格就換地圖（docs/spec/07 §6.7）。**這一步到此為止**——
 	// 原版換完地圖回 CF ＝ 1，不捲動也不掃遭遇。
 	if res.Moved && res.Event.Kind == game.EventTeleport {
@@ -708,3 +715,26 @@ func (s *Scene) doTeleport(rec []byte) error {
 
 // MapID 是目前這張地圖的資源編號。
 func (s *Scene) MapID() int { return s.blockID }
+
+// gateHurtLine 把條件閘的懲罰寫成原版那句話。
+//
+// 原版逐個受罰的人各印一行（`sub_157D6` 的 `" gets hurt for "`，`docs/re/67`）；
+// 訊息視窗只有幾行，這裡把同一批合成一行，**傷害量照實算總和**。
+func (s *Scene) gateHurtLine(g game.GateResult) string {
+	total := 0
+	for _, h := range g.Failed {
+		if h.Field == 0x1D && h.Amount < 0 {
+			total -= h.Amount
+		}
+	}
+	if total == 0 {
+		return ""
+	}
+	name := "The party"
+	if len(g.Failed) == 1 {
+		if m := g.Failed[0].Member; m >= 0 && m < len(s.world.Party.Members) {
+			name = s.world.Party.Members[m].Name
+		}
+	}
+	return fmt.Sprintf("%s%s%d point of damage.", name, s.exeString(0x63), total)
+}
