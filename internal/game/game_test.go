@@ -244,3 +244,120 @@ func TestViewOriginFollowsParty(t *testing.T) {
 		}
 	}
 }
+
+// 疊圖（docs/re/48、docs/spec/03 §2.9）。
+
+func TestKindIconMatchesTableInImage(t *testing.T) {
+	rom := openRom(t)
+	table, err := rom.KindIconTable()
+	if err != nil {
+		t.Fatalf("讀種類→疊圖表：%v", err)
+	}
+	// 原版 ds:AA17h 的六個 byte。Go 這邊寫死的常數要與它逐項相同——
+	// 這條測試存在的理由就是不讓那份寫死的數字沒人守。
+	for k := 1; k < len(table); k++ {
+		if got := KindIcon(EnemyKind(k)); got != table[k] {
+			t.Errorf("種類 %d：程式回 %d，映像裡是 %d", k, got, table[k])
+		}
+	}
+	if table[0] != 0 {
+		t.Errorf("表的第 0 項應該是佔位的 0，得到 %d", table[0])
+	}
+}
+
+func TestKindIconFallsBackToHumanoid(t *testing.T) {
+	// `sub_14664` 的 `mov bl, 3` 在讀記錄之前就先擺好——
+	// 種類查不到時走的是**原版的預設**，不是我們補的保險。
+	for _, k := range []EnemyKind{0, 6, 9, 255} {
+		if got := KindIcon(k); got != IconHumanoid {
+			t.Errorf("種類 %d 應該退回 Humanoid（%d），得到 %d", k, IconHumanoid, got)
+		}
+	}
+}
+
+func TestRadiationOnlyAtNight(t *testing.T) {
+	// 實機：05:56 有、06:00 沒有（docs/re/48 §4）。門檻兩端都要壓。
+	cases := []struct {
+		hour int
+		want bool
+	}{{0, true}, {5, true}, {6, false}, {12, false}, {17, false}, {18, true}, {23, true}}
+	for _, c := range cases {
+		if got := RadiationVisible(c.hour); got != c.want {
+			t.Errorf("%02d 時：輻射標誌可見 %v，應該是 %v", c.hour, got, c.want)
+		}
+		icon, ok := CellIcon(9, 0, c.hour)
+		if ok != c.want || (ok && icon != IconRadiation) {
+			t.Errorf("%02d 時的 nibble 9：得到 (%d, %v)", c.hour, icon, ok)
+		}
+	}
+}
+
+func TestCellIconNibble4Threshold(t *testing.T) {
+	// `cmp al, 0Ah`：< 10 才是疊圖，≥ 10 是圖磚編號（值 − 10）。
+	// bit7 要先去掉——記錄裡那一位是別的用途。
+	for _, c := range []struct {
+		rec1 byte
+		icon byte
+		ok   bool
+	}{
+		{0x00, IconBlack, true},
+		{0x07, IconParty, true},
+		{0x09, IconOtherGroup, true},
+		{0x0A, 0, false}, // 剛好到門檻 → 圖磚
+		{0x60, 0, false},
+		{0x87, IconParty, true}, // bit7 設起來也一樣是 7
+	} {
+		icon, ok := CellIcon(4, c.rec1, 0)
+		if icon != c.icon || ok != c.ok {
+			t.Errorf("記錄 +0x01 ＝ %#02x：得到 (%d, %v)，應該是 (%d, %v)",
+				c.rec1, icon, ok, c.icon, c.ok)
+		}
+	}
+}
+
+func TestCellIconLootAndPlainTerrain(t *testing.T) {
+	if icon, ok := CellIcon(5, 0, 12); !ok || icon != IconLoot {
+		t.Errorf("nibble 5 應該畫寶箱（%d），得到 (%d, %v)", IconLoot, icon, ok)
+	}
+	// 其餘 nibble 一律不疊圖——原版是 `jnz loc_18088` 走一般圖磚那條。
+	for _, n := range []byte{0, 1, 2, 3, 6, 8, 10, 11, 12, 15} {
+		if _, ok := CellIcon(n, 0x07, 0); ok {
+			t.Errorf("nibble %d 不該疊圖", n)
+		}
+	}
+}
+
+func TestViewIconsFindsRadiationOnMap(t *testing.T) {
+	rom := openRom(t)
+	// 資源 0 有 36 格 nibble 9（docs/re/48 §6）。把視窗擺到其中一格上，
+	// 夜間看得到、白天看不到——同一個位置的前後對照。
+	blk, err := rom.Block(0)
+	if err != nil {
+		t.Skipf("讀不到資源 0：%v", err)
+	}
+	var found bool
+	var x, y int
+	for yy := 0; yy < blk.Dim && !found; yy++ {
+		for xx := 0; xx < blk.Dim; xx++ {
+			if terrain, _, _, err := blk.At(xx, yy); err == nil && terrain == 9 {
+				x, y, found = xx, yy, true
+				break
+			}
+		}
+	}
+	if !found {
+		t.Fatal("資源 0 找不到 nibble 9 的格子——docs/re/48 §6 說有 36 格")
+	}
+	w := NewWorld(blk, &Party{X: uint8(x), Y: uint8(y)}, nil)
+
+	w.Clock.Hour = 2
+	night := len(w.ViewIcons())
+	w.Clock.Hour = 12
+	day := len(w.ViewIcons())
+	if night == 0 {
+		t.Error("夜間視窗裡應該至少有一格輻射標誌")
+	}
+	if day >= night {
+		t.Errorf("白天的疊圖數 %d 應該少於夜間的 %d", day, night)
+	}
+}

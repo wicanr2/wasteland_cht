@@ -5,6 +5,7 @@
 解碼器解出來的東西要拿原版畫面對過，才算真的對。
 
     python3 tools/compare_screen.py title <截圖.ppm> <title.pic>
+    python3 tools/compare_screen.py icons <截圖.ppm> <ic0_9.wlf> <masks.wlf>
 
 截圖用 PPM（P6）——純 stdlib 讀得動。PNG 先轉一次：
 
@@ -83,7 +84,51 @@ def decode_title(path: Path) -> list[list[int]]:
     return out
 
 
+def find_icons(shot: Path, icons_path: Path, masks_path: Path) -> None:
+    """在截圖裡找出十張疊圖各出現在哪裡。
+
+    判準是原版的合成式 `螢幕 ← (背景 AND 遮罩) OR 疊圖`：**遮罩為 0 的像素
+    背景被清掉**，螢幕上就等於疊圖本身。所以只比遮罩 0 的那些像素要不要全等，
+    完全不必知道底下是什麼地形——這正是「疊圖畫在哪」可以脫離地圖單獨驗的原因。
+
+    ⚠ 0 號的遮罩**全 0、圖形也全 0**——它的作用是把一格塗黑。可比像素有 256 個
+    但全部要求「黑」，所以畫面上任何一塊 16 × 16 純黑都會吻合。它的命中數
+    **不能當成「這裡有 0 號」**，報出來只是為了不讓它靜靜消失。
+    """
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from dump_icons import mask_bits, planar_to_indexed  # noqa: PLC0415
+
+    w, h, pix = read_ppm(shot)
+    idx = [
+        [to_index((pix[(y * w + x) * 3], pix[(y * w + x) * 3 + 1], pix[(y * w + x) * 3 + 2]))
+         for x in range(w)]
+        for y in range(h)
+    ]
+    raw_i = icons_path.read_bytes()
+    raw_m = masks_path.read_bytes()
+    n = len(raw_i) // 128
+    print(f"截圖 {w} × {h}；疊圖 {n} 張")
+
+    for k in range(n):
+        img = planar_to_indexed(raw_i[k * 128 : (k + 1) * 128])
+        msk = mask_bits(raw_m[k * 32 : (k + 1) * 32])
+        want = [(x, y, img[y][x]) for y in range(16) for x in range(16) if not msk[y][x]]
+        if not want:
+            print(f"疊圖 {k}：遮罩全 1，沒有可比的像素——跳過（不是「沒出現」）")
+            continue
+        hits = [
+            (ox, oy)
+            for oy in range(h - 16 + 1)
+            for ox in range(w - 16 + 1)
+            if all(idx[oy + y][ox + x] == v for x, y, v in want)
+        ]
+        print(f"疊圖 {k}（{len(want)} 個可比像素）：{len(hits)} 處吻合 {hits[:8]}")
+
+
 def main() -> None:
+    if len(sys.argv) == 5 and sys.argv[1] == "icons":
+        find_icons(Path(sys.argv[2]), Path(sys.argv[3]), Path(sys.argv[4]))
+        return
     if len(sys.argv) != 4 or sys.argv[1] != "title":
         raise SystemExit(__doc__)
     shot = Path(sys.argv[2])

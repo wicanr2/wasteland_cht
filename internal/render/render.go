@@ -150,14 +150,6 @@ func (f *Frame) DrawMap(b *assets.Block, g *Graphics, originX, originY int) erro
 	return nil
 }
 
-// PartyIcon 是隊伍圖示的疊圖編號（`sub_16716` 的 `mov al, 7`）。
-//
-// 那一支把 `al ← 7`、座標寫進 ds:4685h／4686h，再叫 overlay slot 4——
-// 也就是「背景 AND 遮罩 OR 疊圖」那一支（docs/re/24 §2.3）。
-// **這是實機對拍抓出來的**：地圖視窗其餘 36,460 個像素都對，只有這一格不對
-// （docs/re/47 §5）。
-const PartyIcon = 7
-
 // DrawOverlay 把一張疊圖用原版的規則合成上去：
 //
 //	螢幕 ← (背景 AND 遮罩) OR 疊圖
@@ -178,21 +170,6 @@ func (f *Frame) DrawOverlay(im *assets.Indexed, mask []bool, x, y int, clip Clip
 			f.Set(px, py, bg|im.Pix[row*im.Width+col])
 		}
 	}
-}
-
-// DrawParty 把隊伍圖示疊在固定的第 (9, 4) 格上。DrawMap 之後呼叫。
-func (f *Frame) DrawParty(g *Graphics) error {
-	im, err := g.Get(PartyIcon)
-	if err != nil {
-		return err
-	}
-	if PartyIcon >= len(g.Masks) {
-		return fmt.Errorf("疊圖 %d 沒有對應的遮罩（只有 %d 張）", PartyIcon, len(g.Masks))
-	}
-	x := ViewX - TileSize/2 + PartyCol*TileSize
-	y := ViewY - TileSize/2 + PartyRow*TileSize
-	f.DrawOverlay(im, g.Masks[PartyIcon], x, y, MapClip())
-	return nil
 }
 
 // DrawPicture 把一張 288 × 128 的圖畫進同一個視窗。
