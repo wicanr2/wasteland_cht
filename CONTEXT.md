@@ -196,6 +196,7 @@
 | [`docs/re/50-unnamed-items.md`](docs/re/50-unnamed-items.md) | 物品 70／71／72 的空名字：被清空不是遺失、字母序夾出 H–M、哪些欄位不算證據 |
 | [`docs/re/51-encounter-driver.md`](docs/re/51-encounter-driver.md) | 遭遇驅動器 `sub_11CD0`：地圖與戰鬥之間那一層、四組一起結算、經驗值前後相減 |
 | [`docs/re/52-trainer-facility.md`](docs/re/52-trainer-facility.md) | 技能訓練師的流程：五個設施同一個模板、三條「走不通」都回選人 |
+| [`docs/re/53-list-framework.md`](docs/re/53-list-framework.md) | 清單框架：列與索引的對應表、三個回傳值、I／K 翻頁、每頁列數不是常數 |
 | [`docs/spec/00-index.md`](docs/spec/00-index.md) | **規格索引與閘門狀態**：哪些可以動工、其餘擋在什麼上 |
 | [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
 | [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |

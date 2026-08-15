@@ -32,6 +32,8 @@ const (
 	keyContinue = 'C' // 治療迴圈的 Continue
 	keyCure     = 'C' // 醫生主選單的 Curing（與 Continue 同一個字母，但在不同層）
 	keyExam     = 'E' // 醫生主選單的 Exam
+	keyPrevPage = 'I' // 上一頁（docs/re/53 §3）
+	keyNextPage = 'K' // 下一頁
 	keyEscape   = 0x1B
 )
 
@@ -41,7 +43,15 @@ type shopState struct {
 	Step  FacilityStep
 	Who   int // 目前在櫃檯的隊伍成員索引
 	Stock map[byte]byte
+	Page  int // 目前這一頁的起始列（docs/re/53 §4）
 }
+
+// PageRows 是一頁最多列幾件。
+//
+// ⚠ **原版沒有把它當成清單框架的常數**：`ds:469Eh` 全檔只有醫生的疾病表
+// 設過（值 9），其餘清單畫到索引上限為止（docs/re/53 §2）。
+// 這裡統一用 9 是因為**選擇鍵只有 `'1'`–`'9'`**——那才是真正的限制。
+const PageRows = 9
 
 // Key 送一個按鍵給設施選單。回傳 false 表示要離開設施。
 //
@@ -59,6 +69,24 @@ func (f *FacilityScene) Key(k byte, p *game.Party, items game.ItemTable) bool {
 			return true
 		}
 		return false // 主迴圈 → 離開設施
+	}
+
+	// 翻頁對每一種清單都一樣（docs/re/53 §4）。
+	if st.Step != StepMain {
+		switch k {
+		case keyPrevPage:
+			if st.Page -= PageRows; st.Page < 0 {
+				st.Page = 0
+			}
+			f.refresh(p, items)
+			return true
+		case keyNextPage:
+			if st.Page+PageRows < f.rowCount(p, items) {
+				st.Page += PageRows
+			}
+			f.refresh(p, items)
+			return true
+		}
 	}
 
 	switch f.Facility.Kind {
@@ -93,21 +121,21 @@ func (f *FacilityScene) shopKey(k byte, p *game.Party, items game.ItemTable) {
 			st.Step = StepMain
 			return
 		}
-		st.Step = StepBuy
+		st.Step, st.Page = StepBuy, 0
 	case keySell:
 		if len(f.sellable(p, items)) == 0 {
 			f.note = "You don't have anything they want!"
 			st.Step = StepMain
 			return
 		}
-		st.Step = StepSell
+		st.Step, st.Page = StepSell, 0
 	default:
 		if k >= '1' && k <= '9' {
 			switch st.Step {
 			case StepSell:
-				f.sellOne(p, items, int(k-'1'))
+				f.sellOne(p, items, st.Page+int(k-'1'))
 			case StepBuy:
-				f.buyOne(p, items, int(k-'1'))
+				f.buyOne(p, items, st.Page+int(k-'1'))
 			}
 		}
 	}
@@ -141,7 +169,7 @@ func (f *FacilityScene) doctorKey(k byte, p *game.Party) {
 		}
 	case StepCure:
 		if k >= '1' && k <= '9' {
-			f.cureOne(p, int(k-'1'))
+			f.cureOne(p, f.state.Page+int(k-'1'))
 		}
 	default: // StepMain
 		switch k {
@@ -180,6 +208,38 @@ func (f *FacilityScene) cureOne(p *game.Party, n int) {
 	if len(game.Diseases(c)) == 0 {
 		f.state.Step = StepMain // 病治完了就回主選單
 	}
+}
+
+// rowCount 是目前這一種清單總共有幾列（翻頁上限用）。
+func (f *FacilityScene) rowCount(p *game.Party, items game.ItemTable) int {
+	switch f.state.Step {
+	case StepBuy:
+		return len(f.buyList(items))
+	case StepSell:
+		return len(f.sellable(p, items))
+	case StepCure:
+		return len(game.Diseases(f.member(p)))
+	}
+	if f.Facility.Kind == game.FacilityTrainer {
+		return len(f.Skills)
+	}
+	return 0
+}
+
+// page 把一整份清單切出目前這一頁。
+//
+// ⚠ 回傳的是**切片**，所以呼叫端拿到的索引是頁內列號；
+// 真正的索引要加回 `state.Page`（docs/re/53 §7：列與索引是兩件事）。
+func (f *FacilityScene) page(n int) (from, to int) {
+	from = f.state.Page
+	if from > n {
+		from = 0
+	}
+	to = from + PageRows
+	if to > n {
+		to = n
+	}
+	return from, to
 }
 
 // buyList 是這家店現在賣得出來的東西（含折價後的價格）。
@@ -222,7 +282,7 @@ func (f *FacilityScene) trainerKey(k byte, p *game.Party) {
 	case k == keyNextChar:
 		st.Who = nextAble(p, st.Who)
 	case k >= '1' && k <= '9':
-		f.learnOne(p, int(k-'1'))
+		f.learnOne(p, f.state.Page+int(k-'1'))
 	}
 }
 
@@ -334,10 +394,8 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 	switch {
 	case f.Facility.Kind == game.FacilityTrainer:
 		f.Lines = append(f.Lines, fmt.Sprintf("Skill points: %d", c.SkillPts))
-		for i, sk := range f.Skills {
-			if i >= 9 {
-				break
-			}
+		from, to := f.page(len(f.Skills))
+		for i, sk := range f.Skills[from:to] {
 			f.Lines = append(f.Lines,
 				fmt.Sprintf("%d) skill %d  cost %d", i+1, sk.ID,
 					game.SkillCost(sk.Data.BaseCost, int(c.SkillLevel(sk.ID))+1)))
@@ -357,7 +415,9 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 			fmt.Sprintf("Exam $%d / Healing / Curing", f.Facility.Price(0x05)))
 	case f.state.Step == StepSell:
 		f.Lines = append(f.Lines, "   PRICE     ITEM")
-		for i, e := range f.sellable(p, items) {
+		list := f.sellable(p, items)
+		from, to := f.page(len(list))
+		for i, e := range list[from:to] {
 			mark := " "
 			if e.Equipped {
 				mark = "*" // 裝備中要標出來，但賣得掉（docs/re/42 §3.1）
@@ -366,10 +426,9 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 		}
 	case f.state.Step == StepBuy:
 		f.Lines = append(f.Lines, "   PRICE     ITEM")
-		for i, e := range f.buyList(items) {
-			if i >= 9 {
-				break // 選擇鍵只有 '1'–'9'；分頁是清單框架的事（未解）
-			}
+		list := f.buyList(items)
+		from, to := f.page(len(list))
+		for i, e := range list[from:to] {
 			f.Lines = append(f.Lines, fmt.Sprintf("%d) $%-6d item %d", i+1, e.Price, e.ID))
 		}
 	default:
