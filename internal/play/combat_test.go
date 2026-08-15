@@ -213,7 +213,7 @@ func TestUnknownKeyIsRejected(t *testing.T) {
 
 // 遭遇迴圈（docs/spec/21 §5 的驗收條件）。
 
-func openScene(t *testing.T) *Scene {
+func openRomForPlay(t *testing.T) *assets.Rom {
 	t.Helper()
 	rom, err := assets.Open("../../workplace/orig/wastland")
 	if err != nil {
@@ -222,6 +222,12 @@ func openScene(t *testing.T) *Scene {
 	if err := rom.LoadImage("../../workplace/analysis/unpacked/wl.merged.exe"); err != nil {
 		t.Skipf("載入分析映像失敗：%v", err)
 	}
+	return rom
+}
+
+func openScene(t *testing.T) *Scene {
+	t.Helper()
+	rom := openRomForPlay(t)
 	s, err := New(rom)
 	if err != nil {
 		t.Fatalf("開場景：%v", err)
