@@ -119,6 +119,12 @@ type World struct {
 	ViewX, ViewY int
 	// confirmed ＝ 玩家剛對「進新地點？」答了 Yes，下一步跳過確認閘。
 	confirmed bool
+
+	// carryTerrain／carryRecord 是原版的 `ds:46FCh`／`46FDh`：
+	// 上一次被改寫的那一格**在改寫前**的 (nibble, 記錄)，
+	// 給記錄裡的 `0xFE`／`0xFD` 沿用（docs/re/69 §9）。
+	carryTerrain byte
+	carryRecord  byte
 	// Skills 是技能資料表（條件閘的技能型別要用）。
 	Skills SkillTable
 }
@@ -218,15 +224,25 @@ func (w *World) Passable(x, y int) bool { return w.passable(x, y) }
 // applyCellPatch 照條件閘的收尾改寫這一格（原版 sub_17CFF）。
 //
 // 記錄在 `at`／`at+1` 給新的第 1 層與第 2 層。第一個 byte 的 bit7 設 ＝ 不改；
-// `0xFE`／`0xFD` 是「沿用上一次算出來的值」——remake 沒有那個暫存，
-// **一律當成不改**（比亂改安全，docs/re/68 §2）。
+// `0xFE`／`0xFD` 改用 `carry`——**上一次被改寫的那一格在改寫前是什麼**
+// （原版 `ds:46FCh`／`46FDh`，docs/re/69 §9）。
+//
+// 那個暫存是全域的：跨格、跨地圖都不清空，但它住在資料段不在存檔裡，
+// 所以重新載入就回到零值。
 func (w *World) applyCellPatch(x, y int, record []byte, at int) {
 	p, reuse, ok := ParseCellPatch(record, at)
-	if !ok || reuse || p.Skip {
+	if !ok || p.Skip {
 		return
+	}
+	if reuse {
+		p.Terrain, p.Record = w.carryTerrain, w.carryRecord
 	}
 	if p.Terrain > 0x0F {
 		return // 溢出 4 bits 的資料異常，交給 SetCell 擋（這裡先不改）
+	}
+	// 原版在寫下去**之前**先讀這一格目前的值存起來（`0x17D24` 的 sub_17CD2）。
+	if now, rec, _, err := w.Block.At(x, y); err == nil {
+		w.carryTerrain, w.carryRecord = now, rec
 	}
 	_ = w.Block.SetCell(x, y, p.Terrain, p.Record)
 }

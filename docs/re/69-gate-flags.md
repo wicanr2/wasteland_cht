@@ -178,7 +178,52 @@ GateEachMember = 0x20  // 逐個角色跑
 還沒接：`sub_142ED` 的「暫時換掉時鐘值」那層顯示效果（remake 目前只印訊息）、
 `0x13FC8`–`0x13FD9` 那段「第一個受罰的人才跑一次」的欄位前置處理。
 
-## 7. 可重跑的完整指令
+## 7. `0xFE`／`0xFD`：沿用上一次的值
+
+`sub_17CFF` 讀到記錄裡的改寫值是 `0xFE` 或 `0xFD` 時走特例：
+
+```
+0x17D11  ＝ 0FEh → sub_17D34
+0x17D15  ＝ 0FDh → loc_17D42
+
+sub_17D34:  46B3h ← ds:46FCh；46B4h ← ds:46FDh；jmp loc_17D21
+loc_17D42:  call sub_17D34；clc；retn
+```
+
+`loc_17D21` 是主流程裡第一個 `call sub_17D47`，所以 **`0xFE` 是「拿上一次的值，
+然後照常寫下去」**。`0xFD` 用 `call` 進去，主流程走到 `jmp sub_17D50` 之後那個
+`retn` 就返回到 `0x17D43` 的 `clc; retn`——**一樣會寫，只是把回傳的 CF 壓成 0**
+（回報「沒改」）。
+
+暫存本身在主流程裡填：
+
+```
+0x17D24  call sub_17CD2         ; al ← 這一格目前的 nibble、dl ← 目前的記錄
+0x17D27  ds:46FCh ← al
+0x17D2A  ds:46FDh ← dl
+```
+
+**存的是「這一格被改寫**之前**是什麼」**，而且在寫入之前就取好。
+全檔只有四處碰這兩個 byte：`sub_17CFF` 寫、`sub_17D34` 讀，
+另外 `0x12BDB`／`0x12C50` 是一對 `push`／`pop` 的先存後還。
+所以它是**全域、跨格、跨地圖都不清空**的單一暫存；
+它住在資料段不在存檔裡，重新載入就回到零值。
+
+`internal/game/world.go` 的 `carryTerrain`／`carryRecord` 照這個形狀實作。
+
+### 7.1 出貨資料裡沒有用到
+
+把 `0xFE`／`0xFD` 掃過**真正會被當成改寫位移**的組合
+（nibble 2 → `+0x04`／`+0x06` 與改寫表、nibble 11 → `+0x01`、
+nibble 4／9／12 → `+0x01`／`+0x02`／`+0x04`），42 張地圖**一筆都沒有**。
+
+⚠ 位移套在別的 nibble 上會撈出 14 筆假陽性——那些位移對那些記錄是別的欄位。
+**掃「某個特殊值出現在哪」之前要先確定那個位置對那筆記錄真的是那個意思。**
+
+所以這一段是照程式碼實作的，**沒有實跑可以驗證**；
+還沒掃的呼叫端是 `sub_13762`／`sub_13C58` 那條（敵方記錄的前兩個 byte）。
+
+## 8. 可重跑的完整指令
 
 ```bash
 WL_IDA_TARGET="$PWD/workplace/analysis/unpacked/wl.merged.exe" \
@@ -189,9 +234,14 @@ tools/go.sh test ./internal/play/ -run TestGateFlagsAppearInShippedData -v
 tools/go.sh test ./internal/play/ -run TestCondPatchTableIsRealData -v
 tools/go.sh test ./internal/play/ -run TestCondPatchRewritesCellByPartySize -v
 tools/go.sh run ./cmd/wl-play -script "map=4:2:2,left,right,left,right,left" -trace
+
+# 0xFE／0xFD 的四個引用
+WL_IDA_TARGET="$PWD/workplace/analysis/unpacked/wl.merged.exe" \
+  tools/ida.sh run tools/ida/export_range_refs.py \
+  workplace/analysis/dumps/reuse-slot.json 0x46FC 0x46FD
 ```
 
-## 8. 這一輪學到的（寫成規則）
+## 9. 這一輪學到的（寫成規則）
 
 - **恆真的判準等於沒有判準。** 「改寫表放得下記錄嗎」測出來 424 筆全過，
   看起來是強證據，其實 `SectionRecord` 的切片延伸到區段結尾，
@@ -201,6 +251,10 @@ tools/go.sh run ./cmd/wl-play -script "map=4:2:2,left,right,left,right,left" -tr
   裡有 `sub_14296`，看起來像「換一種懲罰」；但那條路 `jnz` 之後
   **落進迴圈的收尾段**，所以真正的語意是「有人沒過就整個結束」。
   只看分支裡呼叫了什麼會把控制流讀反。
+- **假陽性和假零一樣會誤導，而且更難察覺。** 掃 `0xFE`／`0xFD` 時把
+  「條件閘用的位移」套在每一種 nibble 上，撈出 14 筆看起來很像的東西；
+  限定成「這個 nibble 真的會用這個位移」之後是零。
+  **零命中要問過濾器有沒有洞，有命中要問位置對不對。**
 - **一筆記錄的前四個 byte 是四句話。** `+0x00` 擋住時印、`+0x01` 進來就印、
   `+0x02` 通過印、`+0x03` 沒過印。找到其中一個之後，
   **順著 `sub_16D1A(bl)` 的 bl 值把整組找齊**比逐個追呼叫端快。
