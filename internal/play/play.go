@@ -131,11 +131,15 @@ func New(rom *assets.Rom) (*Scene, error) {
 	if err != nil {
 		return nil, err
 	}
+	masks, err := rom.Masks()
+	if err != nil {
+		return nil, err
+	}
 
 	s := &Scene{
 		rom:   rom,
 		font:  font,
-		gfx:   &render.Graphics{Icons: icons, Tiles: tiles},
+		gfx:   &render.Graphics{Icons: icons, Masks: masks, Tiles: tiles},
 		world: game.NewWorld(block, party, rng.New()),
 		save:  save,
 		dirty: true,
@@ -314,6 +318,10 @@ func (s *Scene) Frame() *render.Frame {
 	}
 	f := render.NewFrame()
 	if err := f.DrawMap(s.world.Block, s.gfx, s.world.ViewX, s.world.ViewY); err != nil {
+		s.message = "ERROR: " + err.Error()
+	}
+	// 隊伍圖示疊在地圖上（docs/re/47 §5 對拍抓出來的缺口）。
+	if err := f.DrawParty(s.gfx); err != nil {
 		s.message = "ERROR: " + err.Error()
 	}
 	_ = f.DrawClock(s.font, int(s.world.Clock.Hour), int(s.world.Clock.Minute))

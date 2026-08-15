@@ -74,6 +74,14 @@ type Clip struct{ X, Y, W, H int }
 // ViewClip 是地圖／圖片視窗的裁切範圍。
 func ViewClip() Clip { return Clip{ViewX, ViewY, ViewWidth, ViewHeight} }
 
+// MapClip 是**畫地圖**用的裁剪：比 ViewClip 少最上面那一列。
+//
+// ⚠ 這一列是**實機對拍抓出來的**（docs/re/47 §5）：原版地圖視窗的
+// `y = 8` 那一列留黑，內容從 `y = 9` 開始；第 1 列起與我們逐像素相同。
+// 圖片視窗**不是**這樣——`TITLE.PIC` 滿滿 128 列在 (8, 8) 100% 吻合，
+// 所以這是地圖繪製專屬的差別，不要順手套到 DrawPicture 上。
+func MapClip() Clip { return Clip{ViewX, ViewY + 1, ViewWidth, ViewHeight - 1} }
+
 func (c Clip) contains(x, y int) bool {
 	return x >= c.X && y >= c.Y && x < c.X+c.W && y < c.Y+c.H
 }
@@ -95,6 +103,7 @@ func (f *Frame) DrawIndexed(im *assets.Indexed, x, y int, clip Clip) {
 // ≥10 是該地圖圖磚組的第 (編號 − 10) 張（docs/re/24 §2.3）。
 type Graphics struct {
 	Icons []*assets.Indexed
+	Masks [][]bool // MASKS.WLF：與 Icons 一一對應，1 ＝ 保留背景
 	Tiles []*assets.Indexed
 }
 
@@ -118,7 +127,7 @@ func (g *Graphics) Get(n byte) (*assets.Indexed, error) {
 // 所以可見範圍是 8 ＋ 17 × 16 ＋ 8 ＝ 288 寬、8 ＋ 7 × 16 ＋ 8 ＝ 128 高。
 // 不照做的話捲動時邊緣會整格跳（docs/spec/03 §2.2）。
 func (f *Frame) DrawMap(b *assets.Block, g *Graphics, originX, originY int) error {
-	clip := ViewClip()
+	clip := MapClip()
 	for row := 0; row < ViewRows; row++ {
 		for col := 0; col < ViewCols; col++ {
 			mx, my := originX+col, originY+row
@@ -138,6 +147,51 @@ func (f *Frame) DrawMap(b *assets.Block, g *Graphics, originX, originY int) erro
 			f.DrawIndexed(im, x, y, clip)
 		}
 	}
+	return nil
+}
+
+// PartyIcon 是隊伍圖示的疊圖編號（`sub_16716` 的 `mov al, 7`）。
+//
+// 那一支把 `al ← 7`、座標寫進 ds:4685h／4686h，再叫 overlay slot 4——
+// 也就是「背景 AND 遮罩 OR 疊圖」那一支（docs/re/24 §2.3）。
+// **這是實機對拍抓出來的**：地圖視窗其餘 36,460 個像素都對，只有這一格不對
+// （docs/re/47 §5）。
+const PartyIcon = 7
+
+// DrawOverlay 把一張疊圖用原版的規則合成上去：
+//
+//	螢幕 ← (背景 AND 遮罩) OR 疊圖
+//
+// ⚠ 不是「0 當透明」。遮罩是獨立的一張圖，位元 0 的地方**先把背景清成 0**
+// 再 OR，所以疊圖的 0 也可能是有意義的黑。
+func (f *Frame) DrawOverlay(im *assets.Indexed, mask []bool, x, y int, clip Clip) {
+	for row := 0; row < im.Height; row++ {
+		for col := 0; col < im.Width; col++ {
+			px, py := x+col, y+row
+			if !clip.contains(px, py) {
+				continue
+			}
+			bg := f.At(px, py)
+			if i := row*im.Width + col; i < len(mask) && !mask[i] {
+				bg = 0
+			}
+			f.Set(px, py, bg|im.Pix[row*im.Width+col])
+		}
+	}
+}
+
+// DrawParty 把隊伍圖示疊在固定的第 (9, 4) 格上。DrawMap 之後呼叫。
+func (f *Frame) DrawParty(g *Graphics) error {
+	im, err := g.Get(PartyIcon)
+	if err != nil {
+		return err
+	}
+	if PartyIcon >= len(g.Masks) {
+		return fmt.Errorf("疊圖 %d 沒有對應的遮罩（只有 %d 張）", PartyIcon, len(g.Masks))
+	}
+	x := ViewX - TileSize/2 + PartyCol*TileSize
+	y := ViewY - TileSize/2 + PartyRow*TileSize
+	f.DrawOverlay(im, g.Masks[PartyIcon], x, y, MapClip())
 	return nil
 }
 
