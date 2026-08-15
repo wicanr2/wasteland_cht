@@ -506,17 +506,14 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `0x157D6` | 3 | **傷害結算**：CON −= (傷害 − 吸收)；`ds:46EFh` 非 0 就跳過護甲那 N 顆 d6 | [`55`](55-radiation-and-armour-bypass.md) §1 |
 | `0x141FA` | 2 | 對角色記錄的某個欄位加減（`bl` 有號負 ＝ 減）；欄位 `0x1D` 走傷害結算 | [`55`](55-radiation-and-armour-bypass.md) §3 |
 | `0x14410` | — | **輻射格結算**：逐一對隊員擲 `+0x01` 顆 d6 扣 CON ＋ 加 Radiation poisoning | [`55`](55-radiation-and-armour-bypass.md) §3 |
-| `0x19F12` | 1 | **沖出目前這一行**：斷字 → 寫 scrollback（`seg003:0x8CE0`，40 × 256 環形）→ 送畫面 → 續行 | [`68`](68-cell-rewrite.md) | `sub_17CFF` 改寫地圖格：條件閘用 `+0x04`／`+0x06`、地形閘用 `+0x01`／`+0x02`；bit7 ＝ 不改 |
-| [`67`](67-gate-penalty-and-canteen.md) | 條件閘的獎懲參數（`+0x08` ＝ 欄位／固定或擲骰、`+0x09` ＝ 量／加減）；`sub_14193` 全解 |
-| [`66`](66-nibble2-event-and-heat.md) | nibble 2 的閘與事件同一支 `sub_13EC9`（踩上去印 `+0x01`）；沙漠高溫的線索 |
-| [`65`](65-third-gate-conditions.md) | 第三道閘 `sub_13E9B`：nibble 2 先判條件串列再決定擋不擋（remake 目前無條件擋 ＝ 近似） |
-| [`64`](64-enter-location-prompt.md) | 第三道閘 `sub_16AD5`：記錄 `+0x00` 的 bit6 → 問 `Enter new location?`（字串表 1 第 103 條），選 No 那一步整個不算 |
-| [`63`](63-resource-id-vs-index.md) | 資源目錄 ID 與 `Resources()` 索引不同（28/42）；遊戲的地圖編號是 ID，拿索引會安靜載錯地圖 |
-| [`62`](62-fourth-gate-terrain-blocking.md) | 第四道閘 `sub_15CE0`：nibble 11 一律擋、nibble 4 條件式；擋住時印記錄 `+0x00` 的訊息 |
-| [`61`](61-map-id-table.md) | `ds:BF1Ch` 一表兩用：低半部決定標頭 `0x600`／`0x1800`，高半部把建築編號換成資源 5／11 |
-| [`60`](60-teleport-and-map-change.md) | nibble 10 ＝ 傳送並換地圖；記錄 `+0x03` ＝ 目標地圖（`0xFF` ＝ 回程）；槽表 `+0x0B`–`+0x0D` ＝ 回程 |
-| [`59`](59-playtest-against-original.md) | 玩家路徑對原版驗收：`cmd/wl-play`、輻射帶團滅是原版行為、Rad suit（物品 41）免疫 |
-| [`58`](58-line-flush-and-scrollback.md) |
+| `0x13EC9` | 1 | **條件閘的主體**：逐個角色跑條件串列，收尾由記錄 `+0x00` 低位的四個旗標決定 | [`69`](69-gate-flags.md) §2 |
+| `0x142B1` | 2 | `& 8` 那族的改寫位移 ＝（條件串列 `0xFF` 的位置 + 1）＋ 2 × 通過的條件序號 | [`69`](69-gate-flags.md) §4 |
+| `0x14296` | 2 | 對**全隊每個人**各套一次 `sub_14193` 的懲罰 | [`69`](69-gate-flags.md) §5 |
+| `0x142ED` | 3 | 暫時把時鐘的時換成 `ds:A5C5h`，顯示記錄 `+0x03`，再還原 | [`69`](69-gate-flags.md) §5 |
+| `0x14175` | 2 | 印記錄 `+0x02`（條件通過） | [`69`](69-gate-flags.md) §3 |
+| `0x1417A` | 3 | 印記錄 `+0x03`（條件沒過且沒人受罰） | [`69`](69-gate-flags.md) §3 |
+| `0x19F12` | 1 | **沖出目前這一行**：斷字 → 寫 scrollback（`seg003:0x8CE0`，40 × 256 環形）→ 送畫面 → 續行 [`58`](58-line-flush-and-scrollback.md) §2 |
+
 | `0x19EFC` | 多 | 換行（`0x0D`）：`ds:46F0h` 非 0 就整支跳過，否則 `sub_19F12` ＋ `sub_1A0C5`（捲動與延遲） | [`58`](58-line-flush-and-scrollback.md) §3 |
 | `0x19D86` | 3 | `base + Nd6` | [`13`](13-rng.md) §3.3 |
 | `0x19C84` | 11 | 2d6 逢同點續擲（通用**檢定骰**） | [`13`](13-rng.md) §3.4、[`21`](21-attributes.md) §3 |
@@ -719,6 +716,17 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | [`51`](51-encounter-driver.md) | 遭遇驅動器 `sub_11CD0`：地圖與戰鬥之間那一層、四組一起結算、經驗值前後相減 |
 | [`52`](52-trainer-facility.md) | 技能訓練師的流程：五個設施同一個模板、三條「走不通」都回選人 |
 | [`53`](53-list-framework.md) | 清單框架 `sub_16DB4`／`sub_16D34`：列與索引的對應表、三個回傳值、I／K 翻頁 |
+| [`69`](69-gate-flags.md) | 條件閘的四個旗標（記錄 `+0x00` 低位）：`& 4` 有人過就算過、`& 8` 有人過就收尾且改寫位移依條件而定、`& 0x10` 全隊各罰一次、`& 0x20` 逐個角色跑 |
+| [`68`](68-cell-rewrite.md) | `sub_17CFF` 改寫地圖格：條件閘用 `+0x04`／`+0x06`、地形閘用 `+0x01`／`+0x02`；bit7 ＝ 不改 |
+| [`67`](67-gate-penalty-and-canteen.md) | 條件閘的獎懲參數（`+0x08` ＝ 欄位／固定或擲骰、`+0x09` ＝ 量／加減）；`sub_14193` 全解 |
+| [`66`](66-nibble2-event-and-heat.md) | nibble 2 的閘與事件同一支 `sub_13EC9`（踩上去印 `+0x01`）；沙漠高溫的線索 |
+| [`65`](65-third-gate-conditions.md) | 第三道閘 `sub_13E9B`：nibble 2 先判條件串列再決定擋不擋（remake 目前無條件擋 ＝ 近似） |
+| [`64`](64-enter-location-prompt.md) | 第三道閘 `sub_16AD5`：記錄 `+0x00` 的 bit6 → 問 `Enter new location?`（字串表 1 第 103 條），選 No 那一步整個不算 |
+| [`63`](63-resource-id-vs-index.md) | 資源目錄 ID 與 `Resources()` 索引不同（28/42）；遊戲的地圖編號是 ID，拿索引會安靜載錯地圖 |
+| [`62`](62-fourth-gate-terrain-blocking.md) | 第四道閘 `sub_15CE0`：nibble 11 一律擋、nibble 4 條件式；擋住時印記錄 `+0x00` 的訊息 |
+| [`61`](61-map-id-table.md) | `ds:BF1Ch` 一表兩用：低半部決定標頭 `0x600`／`0x1800`，高半部把建築編號換成資源 5／11 |
+| [`60`](60-teleport-and-map-change.md) | nibble 10 ＝ 傳送並換地圖；記錄 `+0x03` ＝ 目標地圖（`0xFF` ＝ 回程）；槽表 `+0x0B`–`+0x0D` ＝ 回程 |
+| [`59`](59-playtest-against-original.md) | 玩家路徑對原版驗收：`cmd/wl-play`、輻射帶團滅是原版行為、Rad suit（物品 41）免疫 |
 | [`58`](58-line-flush-and-scrollback.md) | 控制碼 `0x08` ＝ 沖出一行不捲動（`0x0D` 多包一層 `sub_19EFC`）；scrollback 40 × 256 環形 |
 | [`57`](57-curs.md) | `CURS` ＝ 8 個 32 × 16 的滑鼠游標（左半遮罩、右半 2 色圖形）；平面連續不是逐列交錯 |
 | [`56`](56-transtbl.md) | `TRANSTBL` ＝ 50 組 × 16 對照表；三層掃描都找不到消費端；順帶接上滑鼠初始化 |

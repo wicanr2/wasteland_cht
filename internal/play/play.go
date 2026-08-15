@@ -459,7 +459,11 @@ func (s *Scene) walk(dir game.Direction) (bool, error) {
 	s.message = s.describe(res)
 	s.cjk = s.translate(res)
 
-	// 條件閘罰到人就照原版報一句（執行檔字串表 1 第 99 條 " gets hurt for "）。
+	// 條件閘的收尾訊息：通過印記錄 +0x02、沒過且沒人受罰印 +0x03（docs/re/69）。
+	if res.Gate.Message > 0 && res.Gate.Message < len(s.world.Block.Strings) {
+		s.message = s.world.Block.Strings[res.Gate.Message]
+	}
+	// 罰到人就照原版報一句（執行檔字串表 1 第 99 條 " gets hurt for "）。
 	if len(res.Gate.Failed) > 0 {
 		if line := s.gateHurtLine(res.Gate); line != "" {
 			s.message = line
