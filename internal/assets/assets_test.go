@@ -440,3 +440,57 @@ func TestSaveTailIsMacros(t *testing.T) {
 		t.Fatalf("重新編碼的長度 %d 不對", len(got))
 	}
 }
+
+// TestSaveRoundTripIsByteIdentical 是「改寫不是重建」的底線（CLAUDE.md §4）：
+// 什麼都沒改的時候，讀出來再編碼回去必須與檔案裡的 bytes 一個不差。
+//
+// 這條測試涵蓋加密段、未加密尾段與 checksum 三者；實機那一半
+// （原版讀不讀得進去我們寫出來的檔）在 docs/re/49，測試證不了那件事。
+func TestSaveRoundTripIsByteIdentical(t *testing.T) {
+	rom := openRom(t)
+	for _, name := range []string{"game1", "game2"} {
+		sv, err := rom.LoadSave(name)
+		if err != nil {
+			t.Fatalf("%s 的存檔讀不出來：%v", name, err)
+		}
+		raw, err := rom.File(name)
+		if err != nil {
+			t.Fatal(err)
+		}
+		got := sv.Bytes()
+		want := raw[sv.Offset : sv.Offset+len(got)]
+		if !bytes.Equal(got, want) {
+			n := 0
+			for i := range got {
+				if got[i] != want[i] {
+					n++
+				}
+			}
+			t.Errorf("%s：round-trip 有 %d／%d 個 byte 不同", name, n, len(got))
+		}
+	}
+}
+
+// TestSaveChecksumIsRecomputed 確認改了明文之後 checksum 會跟著變。
+// 不重算的話原版直接拒收——那是靜悄悄的失敗，檔案看起來好好的。
+func TestSaveChecksumIsRecomputed(t *testing.T) {
+	rom := openRom(t)
+	sv, err := rom.LoadSave("game1")
+	if err != nil {
+		t.Fatalf("讀存檔：%v", err)
+	}
+	before := sv.Bytes()
+	sv.Globals()[12] = (sv.Globals()[12] + 1) % 24 // 把「時」加一
+	after := sv.Bytes()
+	if bytes.Equal(before[4:6], after[4:6]) {
+		t.Error("改了明文，checksum 卻沒變")
+	}
+	// 重新解一次要能通過驗證：把改過的 bytes 塞回去讀。
+	raw, _ := rom.File("game1")
+	patched := make([]byte, len(raw))
+	copy(patched, raw)
+	copy(patched[sv.Offset:], after)
+	if sum := le16(patched, sv.Offset+4); sum != le16(after, 4) {
+		t.Fatalf("寫回去的 checksum 不一致：%#04x／%#04x", sum, le16(after, 4))
+	}
+}

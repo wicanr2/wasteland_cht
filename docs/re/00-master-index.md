@@ -695,6 +695,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | [`46`](46-typed-answers-and-text-input.md) | 打字回答與密語比對、文字輸入常式、按鍵轉大寫、中文化硬約束 |
 | [`47`](47-dosbox-oracle.md) | DOSBox 參考環境；解包正確性、`TITLE.PIC` 逐像素、調色盤、隊伍名單五條斷言 |
 | [`48`](48-map-icons.md) | `IC0_9.WLF` 十張疊圖的語意（隊伍、五種敵人、寶箱、輻射區、其他分隊）、nibble 9 ＝ 輻射區 |
+| [`49`](49-save-roundtrip-on-hardware.md) | 存檔改寫的實機驗收：round-trip、原版讀得進去、隊伍那一格的背景取地形 |
 
 ## 9. 引用這份表時的紀律
 

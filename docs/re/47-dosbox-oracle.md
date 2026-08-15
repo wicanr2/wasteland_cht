@@ -180,8 +180,9 @@ From the depths of the wasteland appears a hostile adversary.
 
 ## 7. 還沒做的
 
-- 存檔 round-trip 的實機驗收：改寫存檔之後原版還讀不讀得進去。
 - 戰鬥、商店、設施畫面的對拍（要先走到那些畫面）。
+
+存檔改寫的實機驗收見 [`49`](49-save-roundtrip-on-hardware.md)。
 
 十張疊圖的實機對拍（隊伍、其他分隊、輻射區、遭遇）見 [`48`](48-map-icons.md) §4。
 

@@ -63,6 +63,13 @@ func (w *World) ViewIcons() []VisibleIcon {
 	var out []VisibleIcon
 	for row := 0; row < ViewRows; row++ {
 		for col := 0; col < ViewCols; col++ {
+			if col == ViewOffsetX && row == ViewOffsetY {
+				// 隊伍站的那一格由 `sub_16716` 自己畫，而它取的背景是
+				// **第 3 層的地形**（0x16742），不是別人先畫上去的疊圖。
+				// slot 4 是直接覆寫螢幕，所以那一格永遠是「地形 ＋ 隊伍」——
+				// 站在輻射上不會看到輻射標誌。實機對拍抓出來的（docs/re/48 §4）。
+				continue
+			}
 			x, y := w.ViewX+col, w.ViewY+row
 			if x < 0 || y < 0 || x >= w.Block.Dim || y >= w.Block.Dim {
 				continue
