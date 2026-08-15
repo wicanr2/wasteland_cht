@@ -278,6 +278,16 @@ func (f *Frame) RGBA() []byte {
 // 成員行從 RosterHeaderRow+1 起，佔用地圖視窗那一塊。
 const RosterHeaderRow = 14
 
+// 設施畫面的版面（實機對拍量出來的，docs/re/54）。
+//
+// 圖在視窗原點 (8, 8)、96 × 84，**地點名在圖的正下方**（字元列 12），
+// 不是名單那一列。
+const (
+	FacilityPicX, FacilityPicY = ViewX, ViewY
+	FacilityNameRow            = 12
+	FacilityNameCol            = 1
+)
+
 // DrawLineAt 在指定的字元格畫一行純 ASCII。
 //
 // 與 DrawText 的分工：DrawText 走排版器、畫在訊息視窗；這一支不排版，

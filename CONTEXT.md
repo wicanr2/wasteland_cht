@@ -197,6 +197,7 @@
 | [`docs/re/51-encounter-driver.md`](docs/re/51-encounter-driver.md) | 遭遇驅動器 `sub_11CD0`：地圖與戰鬥之間那一層、四組一起結算、經驗值前後相減 |
 | [`docs/re/52-trainer-facility.md`](docs/re/52-trainer-facility.md) | 技能訓練師的流程：五個設施同一個模板、三條「走不通」都回選人 |
 | [`docs/re/53-list-framework.md`](docs/re/53-list-framework.md) | 清單框架：列與索引的對應表、三個回傳值、I／K 翻頁、每頁列數不是常數 |
+| [`docs/re/54-facility-screen-layout.md`](docs/re/54-facility-screen-layout.md) | 設施畫面版面：圖在 (8, 8) 96 × 84、地點名字元列 12、殘差指向 A9 |
 | [`docs/spec/00-index.md`](docs/spec/00-index.md) | **規格索引與閘門狀態**：哪些可以動工、其餘擋在什麼上 |
 | [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
 | [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |
@@ -298,7 +299,7 @@
 
 | # | 還沒解的 | 為什麼不擋 |
 |---|---|---|
-| A9 | `ALLPICS` 交錯的變動長度參數區（`sub_10A7A`） | 靜態圖已經畫得出來；那是動畫／局部重畫用的 |
+| A9 | `ALLPICS` 交錯的變動長度參數區（`sub_10A7A`） | 靜態圖已經畫得出來。**實機對拍的殘差指向它**：Ranger Center 那張圖的碟形天線位置差 126 個像素（`docs/re/54` §3）|
 | A12b | `CURS`（2,048 bytes）開機讀進來，沒追到使用端 | 滑鼠游標的存還原在 overlay slot 20–22，已解 |
 | A13 | `TRANSTBL`（800 bytes、15 種值） | 沒有任何已解機制用到它 |
 | A14 | 沒找到設定 EGA 調色盤的程式碼 | 實機對拍已證實是 mode 0Dh 預設十六色（`docs/re/47` §4）；缺的是「原版真的沒設過」的全檔掃描 |

@@ -5,6 +5,7 @@ import (
 
 	"github.com/wicanr2/wasteland_cht/internal/assets"
 	"github.com/wicanr2/wasteland_cht/internal/game"
+	"github.com/wicanr2/wasteland_cht/internal/render"
 )
 
 // hasNibble 回報這張地圖有沒有某一種第 1 層 nibble 的格子。
@@ -131,5 +132,47 @@ func TestLeaveFacilityKeepsWorld(t *testing.T) {
 	}
 	if w.Party.X != x || w.Party.Y != y || w.Clock != clock {
 		t.Error("離開設施不該動到座標或時鐘")
+	}
+}
+
+// 驗收：設施圖畫在視窗原點 (8, 8)，地點名在字元列 12（docs/re/54）。
+func TestFacilityPictureGoesToWindowOrigin(t *testing.T) {
+	s := openScene(t)
+	if len(s.pics) <= 3 {
+		t.Skip("ALLPICS1 沒載到")
+	}
+	rec := make([]byte, 32)
+	rec[0] = 0x80 | byte(game.FacilitySave)
+	copy(rec[0x03:], "Ranger Ctr.\x00")
+	if s.EnterFacility(rec) == nil {
+		t.Fatal("進不了設施")
+	}
+	s.dirty = true
+	f := s.Frame()
+
+	// 圖的每一個像素都要落在 (8, 8) 起的那一塊。
+	want := s.pics[3]
+	diff := 0
+	for y := 0; y < want.Height; y++ {
+		for x := 0; x < want.Width; x++ {
+			if f.At(render.FacilityPicX+x, render.FacilityPicY+y) != want.Pix[y*want.Width+x] {
+				diff++
+			}
+		}
+	}
+	if diff != 0 {
+		t.Errorf("設施圖沒有畫在 (8, 8)：%d 個像素不符", diff)
+	}
+	// 地點名那一列要有東西（字元列 12）。
+	ink := 0
+	for x := render.FacilityNameCol * render.CharWidth; x < 120; x++ {
+		for y := render.FacilityNameRow * render.CharHeight; y < (render.FacilityNameRow+1)*render.CharHeight; y++ {
+			if f.At(x, y) != 0 {
+				ink++
+			}
+		}
+	}
+	if ink == 0 {
+		t.Errorf("字元列 %d 應該印著地點名，卻是空的", render.FacilityNameRow)
 	}
 }
