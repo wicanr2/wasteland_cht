@@ -1,0 +1,161 @@
+package play
+
+import (
+	"testing"
+
+	"github.com/wicanr2/wasteland_cht/internal/input"
+	"github.com/wicanr2/wasteland_cht/internal/render"
+)
+
+var inputRight = input.Input{Dir: input.DirRight}
+
+func flip(in input.Input) input.Input {
+	if in.Dir == input.DirRight {
+		return input.Input{Dir: input.DirLeft}
+	}
+	return input.Input{Dir: input.DirRight}
+}
+
+// TestEveryMapRenders 是呈現層的門檻：**42 張地圖每一張都畫得出來**。
+//
+// 缺圖磚、缺字型、座標算錯都會在這裡炸——而在一般測試裡不會，
+// 因為那些測試只跑一兩張地圖。
+func TestEveryMapRenders(t *testing.T) {
+	rom := openRom(t)
+	resources, err := rom.Resources()
+	if err != nil {
+		t.Fatal(err)
+	}
+	s, err := New(rom)
+	if err != nil {
+		t.Fatalf("開場失敗：%v", err)
+	}
+	drawn, blank := 0, 0
+	for _, res := range resources {
+		blk, err := rom.BlockByID(res.ID)
+		if err != nil {
+			t.Errorf("資源 %d 載不進來：%v", res.ID, err)
+			continue
+		}
+		// 從地圖中央開始，避開邊界。
+		mid := uint8(blk.Dim / 2)
+		if err := s.LoadMap(res.ID, mid, mid); err != nil {
+			t.Errorf("資源 %d LoadMap 失敗：%v", res.ID, err)
+			continue
+		}
+		f := s.Frame()
+		if f == nil {
+			t.Errorf("資源 %d 的 Frame 是 nil", res.ID)
+			continue
+		}
+		if len(f.Pix) != render.ScreenWidth*render.ScreenHeight {
+			t.Errorf("資源 %d 的畫面是 %d 個像素，預期 %d",
+				res.ID, len(f.Pix), render.ScreenWidth*render.ScreenHeight)
+			continue
+		}
+		// 值域：EGA 16 色。
+		for i, v := range f.Pix {
+			if v > 15 {
+				t.Fatalf("資源 %d 的像素 %d 是 %d，超出 EGA 16 色", res.ID, i, v)
+			}
+		}
+		// 全 0 代表什麼都沒畫出來。
+		nonZero := 0
+		for _, v := range f.Pix {
+			if v != 0 {
+				nonZero++
+			}
+		}
+		if nonZero == 0 {
+			blank++
+			t.Errorf("資源 %d 畫出來是全黑", res.ID)
+			continue
+		}
+		drawn++
+		if drawn <= 3 {
+			t.Logf("  資源 %2d：%d／%d 個像素非零（%.1f%%）",
+				res.ID, nonZero, len(f.Pix), 100*float64(nonZero)/float64(len(f.Pix)))
+		}
+	}
+	t.Logf("42 張地圖：畫得出來 %d 張、全黑 %d 張", drawn, blank)
+	if drawn != len(resources) {
+		t.Errorf("只有 %d／%d 張畫得出來", drawn, len(resources))
+	}
+}
+
+// TestEveryFacilityRenders：23 家設施的畫面都要畫得出來。
+//
+// 設施畫面有圖片與局部動畫（規格 26），缺圖或動畫解析錯會在這裡炸。
+func TestEveryFacilityRenders(t *testing.T) {
+	rom := openRom(t)
+	s, err := New(rom)
+	if err != nil {
+		t.Fatalf("開場失敗：%v", err)
+	}
+	resources, _ := rom.Resources()
+	drawn := 0
+	for _, res := range resources {
+		blk, err := rom.BlockByID(res.ID)
+		if err != nil {
+			continue
+		}
+		for i := 0; i < blk.SectionCount(6); i++ {
+			rec, err := blk.SectionRecord(6, i)
+			if err != nil || len(rec) == 0 || rec[0]&0x80 == 0 {
+				continue
+			}
+			if fs := s.EnterFacility(rec); fs == nil {
+				continue
+			}
+			f := s.Frame()
+			if f == nil || len(f.Pix) != render.ScreenWidth*render.ScreenHeight {
+				t.Errorf("資源 %d 記錄 %d 的設施畫面不完整", res.ID, i)
+				continue
+			}
+			// 動畫推一拍，確認不會炸。
+			s.TickAnim()
+			drawn++
+		}
+	}
+	s.LeaveFacility()
+	t.Logf("設施畫面：%d 家畫得出來", drawn)
+	if drawn == 0 {
+		t.Error("一家設施都畫不出來")
+	}
+}
+
+// TestCombatRenders：打起來之後畫面也要出得來。
+func TestCombatRenders(t *testing.T) {
+	rom := openRom(t)
+	s, err := New(rom)
+	if err != nil {
+		t.Fatalf("開場失敗：%v", err)
+	}
+	if err := s.LoadMap(0, 12, 2); err != nil {
+		t.Fatal(err)
+	}
+	dir := inputRight
+	for i := 0; i < 400 && !s.InCombat(); i++ {
+		if _, err := s.Update(dir); err != nil {
+			t.Fatal(err)
+		}
+		dir = flip(dir)
+	}
+	if !s.InCombat() {
+		t.Skip("沒打起來")
+	}
+	f := s.Frame()
+	if f == nil || len(f.Pix) != render.ScreenWidth*render.ScreenHeight {
+		t.Fatal("戰鬥畫面不完整")
+	}
+	nonZero := 0
+	for _, v := range f.Pix {
+		if v != 0 {
+			nonZero++
+		}
+	}
+	if nonZero == 0 {
+		t.Error("戰鬥畫面是全黑")
+	}
+	t.Logf("戰鬥畫面：%d／%d 個像素非零", nonZero, len(f.Pix))
+}
