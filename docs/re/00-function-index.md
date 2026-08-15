@@ -76,7 +76,7 @@
 | `0x118D2` | seg000+0x18D2 | 214 | 9 | re/03-boot-and-asset-loading.md、re/05-storage-layer.md、re/11-huffman-decoder.md |
 | `0x17852` | seg000+0x7852 | 5 | 9 | re/42-facility-loops.md |
 | `0x178A0` | seg000+0x78A0 | 3 | 9 | re/16-msq-block-layout.md、re/17-packed-text.md、re/18-block-text.md、re/22-shop-and-items.md、re/46-typed-answers-and-text-input.md、re/52-trainer-facility.md、re/67-gate-penalty-and-canteen.md、re/69-gate-flags.md |
-| `0x17CD2` | seg000+0x7CD2 | 25 | 9 | re/16-msq-block-layout.md、re/29-map-event-handlers.md、re/34-map-script-opcodes.md、re/46-typed-answers-and-text-input.md |
+| `0x17CD2` | seg000+0x7CD2 | 25 | 9 | re/00-master-index.md、re/16-msq-block-layout.md、re/29-map-event-handlers.md、re/34-map-script-opcodes.md、re/46-typed-answers-and-text-input.md、re/69-gate-flags.md |
 | `0x18D27` | seg000+0x8D27 | 5 | 9 | re/41-command-handlers.md |
 | `0x19E53` | seg000+0x9E53 | 97 | 9 | re/00-master-index.md、re/14-fonts-and-text-encoding.md、re/43-input-and-hotkeys.md、re/51-encounter-driver.md、re/69-gate-flags.md |
 | `0x1BB5D` | seg000+0xBB5D | 15 | 9 | re/00-master-index.md、re/17-packed-text.md、re/31-experience-and-skills.md |
@@ -140,7 +140,7 @@
 | `0x17920` | seg000+0x7920 | 3 | 5 | re/26-movement-and-triggers.md、re/29-map-event-handlers.md、re/55-radiation-and-armour-bypass.md |
 | `0x17A6B` | seg000+0x7A6B | 62 | 5 | re/25-screen-layout.md |
 | `0x17B15` | seg000+0x7B15 | 41 | 5 | re/15-character-record.md、re/19-effects-and-damage.md、re/22-shop-and-items.md、re/42-facility-loops.md |
-| `0x17D50` | seg000+0x7D50 | 42 | 5 | re/46-typed-answers-and-text-input.md、re/68-cell-rewrite.md |
+| `0x17D50` | seg000+0x7D50 | 42 | 5 | re/46-typed-answers-and-text-input.md、re/68-cell-rewrite.md、re/69-gate-flags.md |
 | `0x17FC8` | seg000+0x7FC8 | 38 | 5 | re/00-master-index.md、re/12-msq-tail-and-text-model.md、re/24-map-layers-and-tiles.md |
 | `0x17FEE` | seg000+0x7FEE | 40 | 5 | re/00-master-index.md、re/24-map-layers-and-tiles.md、re/25-screen-layout.md |
 | `0x18024` | seg000+0x8024 | 171 | 5 | re/00-master-index.md、re/16-msq-block-layout.md、re/25-screen-layout.md、re/27-game-clock.md、re/48-map-icons.md |
@@ -254,7 +254,7 @@
 | `0x1379E` | seg000+0x379E | 48 | 2 | re/00-master-index.md、re/24-map-layers-and-tiles.md、re/39-encounter-scan.md |
 | `0x138B0` | seg000+0x38B0 | 17 | 2 | re/37-enemy-records-and-hp.md、re/39-encounter-scan.md |
 | `0x13AE4` | seg000+0x3AE4 | 366 | 2 | re/21-attributes.md、re/41-command-handlers.md |
-| `0x13C58` | seg000+0x3C58 | 443 | 2 | re/66-nibble2-event-and-heat.md、re/68-cell-rewrite.md |
+| `0x13C58` | seg000+0x3C58 | 443 | 2 | re/66-nibble2-event-and-heat.md、re/68-cell-rewrite.md、re/69-gate-flags.md |
 | `0x13EC0` | seg000+0x3EC0 | 9 | 2 | re/65-third-gate-conditions.md |
 | `0x1407E` | seg000+0x407E | 7 | 2 | re/65-third-gate-conditions.md |
 | `0x141FA` | seg000+0x41FA | 156 | 2 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/19-effects-and-damage.md、re/35-status-and-healing.md、re/55-radiation-and-armour-bypass.md、re/66-nibble2-event-and-heat.md、re/67-gate-penalty-and-canteen.md |
@@ -295,8 +295,8 @@
 | `0x17690` | seg000+0x7690 | 6 | 2 | re/42-facility-loops.md |
 | `0x17B5C` | seg000+0x7B5C | 24 | 2 | re/22-shop-and-items.md、re/45-item-data-and-weapon-damage.md |
 | `0x17BC7` | seg000+0x7BC7 | 64 | 2 | re/00-master-index.md、re/17-packed-text.md |
-| `0x17D34` | seg000+0x7D34 | 14 | 2 | re/46-typed-answers-and-text-input.md |
-| `0x17D47` | seg000+0x7D47 | 9 | 2 | re/46-typed-answers-and-text-input.md |
+| `0x17D34` | seg000+0x7D34 | 14 | 2 | re/00-master-index.md、re/46-typed-answers-and-text-input.md、re/69-gate-flags.md |
+| `0x17D47` | seg000+0x7D47 | 9 | 2 | re/46-typed-answers-and-text-input.md、re/69-gate-flags.md |
 | `0x17DE0` | seg000+0x7DE0 | 17 | 2 | re/60-teleport-and-map-change.md |
 | `0x180CF` | seg000+0x80CF | 15 | 2 | re/48-map-icons.md |
 | `0x180F0` | seg000+0x80F0 | 68 | 2 | re/00-master-index.md、re/32-skill-checks-and-xp.md、re/65-third-gate-conditions.md |
@@ -383,7 +383,7 @@
 | `0x13651` | seg000+0x3651 | 70 | 1 | re/37-enemy-records-and-hp.md |
 | `0x136C7` | seg000+0x36C7 | 95 | 1 | re/37-enemy-records-and-hp.md |
 | `0x1372B` | seg000+0x372B | 55 | 1 | re/37-enemy-records-and-hp.md |
-| `0x13762` | seg000+0x3762 | 37 | 1 | re/00-master-index.md、re/37-enemy-records-and-hp.md、re/68-cell-rewrite.md |
+| `0x13762` | seg000+0x3762 | 37 | 1 | re/00-master-index.md、re/37-enemy-records-and-hp.md、re/68-cell-rewrite.md、re/69-gate-flags.md |
 | `0x139CE` | seg000+0x39CE | 105 | 1 | re/43-input-and-hotkeys.md |
 | `0x13E9B` | seg000+0x3E9B | 37 | 1 | re/00-master-index.md、re/26-movement-and-triggers.md、re/62-fourth-gate-terrain-blocking.md、re/65-third-gate-conditions.md、re/66-nibble2-event-and-heat.md、re/67-gate-penalty-and-canteen.md |
 | `0x13EC9` | seg000+0x3EC9 | 437 | 1 | re/00-master-index.md、re/26-movement-and-triggers.md、re/32-skill-checks-and-xp.md、re/65-third-gate-conditions.md、re/66-nibble2-event-and-heat.md、re/67-gate-penalty-and-canteen.md、re/68-cell-rewrite.md、re/69-gate-flags.md |

@@ -79,15 +79,17 @@ type CellPatch struct {
 
 // ParseCellPatch 從記錄的指定位移拆出兩個 byte。
 //
-// `0xFE`／`0xFD` 是特例：改用上一次算出來的值（原版存在 ds:46FCh/46FDh），
-// 這裡回 reuse ＝ true 交給呼叫端處理，不在這一層假裝知道上一次是什麼。
+// `0xFE`／`0xFD` 是特例：改用**上一次被改寫的那一格改寫前的值**
+// （原版存在 `ds:46FCh`／`46FDh`，docs/re/69 §9）。兩者都照樣寫下去，
+// 差別只在 `0xFD` 用 `call` ＋ `clc; retn` 把回傳的 CF 壓成 0（回報「沒改」）。
+// 這裡回 reuse ＝ true 交給呼叫端填值，不在這一層假裝知道上一次是什麼。
 func ParseCellPatch(record []byte, at int) (p CellPatch, reuse bool, ok bool) {
 	if at < 0 || at+1 >= len(record) {
 		return p, false, false
 	}
 	first := record[at]
 	if first == 0xFE || first == 0xFD {
-		// 0xFD 另外回報「沒改」，0xFE 會照著改。
+		// 兩者都改；0xFD 只是對呼叫端回報「沒改」。
 		return p, true, true
 	}
 	p.Skip = first&0x80 != 0
