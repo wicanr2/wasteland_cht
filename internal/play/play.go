@@ -105,6 +105,9 @@ type Scene struct {
 	// items 是物品資料表（存檔區那一份，docs/re/45 §2）。
 	// **武器傷害要靠它**——沒有它每個人的傷害都是 0，戰鬥永遠打不完。
 	items game.ItemTable
+	// itemsRaw 是同一張表的明文位元組。**庫存是遊戲狀態**（賣一件 +1），
+	// 存檔時要連它一起寫回去，所以留一份原始資料在手上。
+	itemsRaw []byte
 	// combat 非 nil 時畫面在戰鬥（docs/spec/21）；
 	// facility 非 nil 時畫面在設施（docs/spec/23）。兩者不會同時成立。
 	combat   *CombatScene
@@ -305,7 +308,7 @@ func New(rom *assets.Rom) (*Scene, error) {
 	}
 	s.message = save.Place()
 	if raw, err := rom.LoadItemTable(save.File, 0); err == nil {
-		s.items = game.ParseItemTable(raw)
+		s.items, s.itemsRaw = game.ParseItemTable(raw), raw
 	} else {
 		// 載不到就維持空表：傷害會是 0，但遊戲跑得動。
 		// **錯誤要留在畫面上**，不要靜靜吞掉——那會變成「戰鬥打不完」的怪症狀。
@@ -1002,6 +1005,20 @@ func (s *Scene) StoreTo(save *assets.Save) error {
 
 // Save 回傳目前這一份存檔（呼叫者負責寫檔）。
 func (s *Scene) Save() *assets.Save { return s.save }
+
+// setStock 改一筆物品的店家庫存，解析後的表與明文一起改。
+//
+// 兩份都要改：規則層讀的是解析後的表，寫回存檔用的是明文。
+// 只改一邊會造成「這一場看得到、存完就沒了」或者反過來。
+func (s *Scene) setStock(id, v byte) {
+	if !s.items.SetStock(id, v) {
+		return
+	}
+	// 明文的索引比表的索引大一（`sub_17AE0` 的基址是表首 ＋ 8）。
+	if at := (int(id) + 1) * 8; at+2 < len(s.itemsRaw) {
+		s.itemsRaw[at+2] = v
+	}
+}
 
 // SetSaveDir 指定指令列的 `Save` 要把存檔寫回哪個目錄。
 //

@@ -103,6 +103,19 @@ func (t ItemTable) Get(id byte) (ItemData, bool) {
 	return t[id], true
 }
 
+// SetStock 改一筆的庫存（賣一件 +1、買一件 −1，docs/re/42 §4）。
+//
+// **庫存是遊戲狀態不是常數**：物品表在存檔區、每個存檔槽一份
+// （`docs/re/45` §2），所以這裡改完要跟著存檔寫回去。
+func (t ItemTable) SetStock(id, v byte) bool {
+	if int(id) >= len(t) {
+		return false
+	}
+	t[id].Stock = v
+	t[id].Raw[2] = v
+	return true
+}
+
 // StartingKit 是建角色時發的三張物品清單（ds:DECFh／DED9h／DEE3h，
 // docs/re/21 §5.1）。清單裡是物品編號，`0xFF` 結束。
 //

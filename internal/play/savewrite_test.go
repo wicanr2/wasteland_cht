@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/wicanr2/wasteland_cht/internal/assets"
+	"github.com/wicanr2/wasteland_cht/internal/game"
 	"github.com/wicanr2/wasteland_cht/internal/input"
 )
 
@@ -104,5 +105,87 @@ func TestSaveWithoutDirSaysSo(t *testing.T) {
 	}
 	if got := s.Message(); got == "Game saved." {
 		t.Errorf("沒給 save-dir 卻報 %q——那是謊", got)
+	}
+}
+
+// TestShopStockSurvivesSave：賣一件東西給店家，**存檔重開之後庫存要留著**。
+//
+// 物品表是存檔區旁邊的另一個資源、每個存檔槽一份（`docs/re/45` §2），
+// 庫存 `+0x02` 是遊戲狀態（`docs/re/42` §3 賣一件 `+1`）。
+// 記在設施場景上的話走出店門就沒了，而且不會有任何測試變紅。
+func TestShopStockSurvivesSave(t *testing.T) {
+	src := os.Getenv("WL_DATA")
+	if src == "" {
+		src = "../../workplace/orig/wastland"
+	}
+	if _, err := os.Stat(src); err != nil {
+		t.Skipf("找不到原版資料目錄 %s，跳過", src)
+	}
+	const image = "../../workplace/analysis/unpacked/wl.merged.exe"
+
+	dir := t.TempDir()
+	entries, err := os.ReadDir(src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, e := range entries {
+		if e.IsDir() {
+			continue
+		}
+		b, err := os.ReadFile(filepath.Join(src, e.Name()))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, e.Name()), b, 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	rom, err := assets.Open(dir)
+	if err != nil {
+		t.Skipf("開啟複製出來的資料目錄失敗：%v", err)
+	}
+	if err := rom.LoadImage(image); err != nil {
+		t.Skipf("載入解包映像失敗：%v", err)
+	}
+	s, err := New(rom)
+	if err != nil {
+		t.Fatalf("開場失敗：%v", err)
+	}
+	s.SetSaveDir(dir)
+
+	// 挑一個庫存**不是「無限」**的品項來改。出廠的表裡只有 0（缺貨）
+	// 與 0xFF（無限）兩種，賣一件給店家就是把 0 變成 1（`docs/re/42` §3）。
+	target, before := -1, byte(0)
+	for id := 0; id < len(s.items); id++ {
+		if s.items[id].Stock != game.StockUnlimited {
+			target, before = id, s.items[id].Stock
+			break
+		}
+	}
+	if target < 0 {
+		t.Skip("這份存檔裡每一項的庫存都是無限，測不出差別")
+	}
+	s.setStock(byte(target), before+1)
+
+	if _, err := s.Update(input.Input{Dir: input.DirNone, Char: 'S'}); err != nil {
+		t.Fatal(err)
+	}
+	if got := s.Message(); got != "Game saved." && len(s.CJK()) == 0 {
+		t.Fatalf("存檔訊息是 %q，看起來沒寫出去", got)
+	}
+
+	rom2, err := assets.OpenModified(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := rom2.LoadImage(image); err != nil {
+		t.Fatal(err)
+	}
+	s2, err := New(rom2)
+	if err != nil {
+		t.Fatalf("從寫出去的存檔開場失敗：%v", err)
+	}
+	if got := s2.items[target].Stock; got != before+1 {
+		t.Errorf("品項 %d 的庫存重開後是 %d，存檔時是 %d", target, got, before+1)
 	}
 }
