@@ -212,8 +212,7 @@ func (s *Scene) updateNaming(in input.Input) (bool, error) {
 		}
 	}
 	if k == 0 {
-		s.message = "Name: " + s.nameForDisplay()
-		s.dirty = true
+		s.showName()
 		return true, nil
 	}
 	res = s.roster.entry.Key(k)
@@ -236,32 +235,25 @@ func (s *Scene) updateNaming(in input.Input) (bool, error) {
 			s.cjkFmt("roster.joined", name)
 		}
 	default:
-		s.message = "Name: " + s.nameForDisplay()
+		s.showName()
 	}
 	s.dirty = true
 	return true, nil
 }
 
-// nameForDisplay 是輸入中的名字。中文那幾個 byte 是 Big5，
-// 直接當 ASCII 印會是亂碼——所以只在訊息列顯示長度，
-// 真正的中文要走 CJK 那條路（`Scene.cjk`）。
-func (s *Scene) nameForDisplay() string {
+// showName 印「名字：」加上正在輸入的字。
+//
+// 打進去的字可能是 Big5（中文名字），所以整串接在中文那一行後面；
+// 沒有翻譯時退回英文那一行。
+func (s *Scene) showName() {
 	buf := s.roster.entry.Text()
-	if isASCII(buf) {
-		return string(buf)
+	if t := s.uiText("roster.name"); len(t) > 0 {
+		s.cjk = append(append([]byte{}, t...), buf...)
+		s.message = ""
+	} else {
+		s.message = "Name: " + string(buf)
 	}
-	s.cjk = append(s.cjk[:0], buf...)
-	return ""
-}
-
-// isASCII 回報這串 bytes 是不是全部可列印 ASCII。
-func isASCII(b []byte) bool {
-	for _, c := range b {
-		if c >= 0x80 {
-			return false
-		}
-	}
-	return true
+	s.dirty = true
 }
 
 // updateRosterDelete 選要刪誰。
