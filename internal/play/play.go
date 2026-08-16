@@ -192,6 +192,13 @@ func (s *Scene) HiFrame() *render.HiFrame {
 	if s.journalOpen && len(s.journalHead) > 0 {
 		s.drawCJKLine(h, s.journalHead, render.MsgCol, render.MsgRow)
 	}
+	// 戰鬥名單的表頭：原版是寫死的 ASCII，中文走 `ui:combat.hdr*`
+	// （與指令列同一條路，8 × 8 的字模畫不出中文）。
+	if s.combat != nil {
+		if hdr := rosterHeaderCJK(s.uiText); len(hdr) > 0 {
+			s.drawCJKLine(h, hdr, 0, render.RosterHeaderRow)
+		}
+	}
 	// 設施畫面那幾行（店名、選單、清單）走自己的座標，不在訊息視窗裡。
 	if s.facility != nil {
 		for i, l := range s.facility.CJKLines {
@@ -322,6 +329,7 @@ func New(rom *assets.Rom) (*Scene, error) {
 		s.world.Skills = game.SkillBytes(raw)
 	}
 	s.message = save.Place()
+	s.cjk = s.placeCJK(save.Place())
 	if raw, err := rom.LoadItemTable(save.File, 0); err == nil {
 		s.items, s.itemsRaw = game.ParseItemTable(raw), raw
 	} else {
@@ -1251,7 +1259,11 @@ func (s *Scene) drawPortrait(f *render.Frame) {
 // drawRoster 畫戰鬥那一種：地圖視窗換成隊伍名單（docs/re/40 §1）。
 func (s *Scene) drawRoster(f *render.Frame) {
 	row := render.RosterHeaderRow
-	_ = f.DrawLineAt(s.font, RosterHeader, 0, row)
+	// 有倚天字型與譯文時表頭由 HiFrame 畫中文——先畫英文再蓋會留殘影
+	// （與指令列同一條，`docs/spec/10` §5）。
+	if s.eten == nil || len(rosterHeaderCJK(s.uiText)) == 0 {
+		_ = f.DrawLineAt(s.font, RosterHeader, 0, row)
+	}
 	for i, r := range Roster(s.world.Party) {
 		if row+1+i > render.MsgRow-1 {
 			break // 名單與訊息視窗在字元列上會撞（docs/spec/03 §3）

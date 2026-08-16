@@ -429,8 +429,13 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 	}
 
 	if f.Facility.Name != "" {
-		// 地點名來自**存檔資料**不是字串表，另一個題目（`WORKLIST` T3）。
-		add(f.Facility.Name, nil)
+		// 招牌是**地圖記錄裡的明文 ASCII**，不在字串表裡，所以走查表
+		// （`internal/play/places.go`）。查不到就照原樣顯示英文。
+		var zh []byte
+		if f.CJKPlace != nil {
+			zh = f.CJKPlace(f.Facility.Name)
+		}
+		add(f.Facility.Name, zh)
 	}
 	c := f.member(p)
 	if c == nil {

@@ -66,3 +66,9 @@ ui:quick.saved	已快速存檔。
 ui:quick.loaded	已讀取快速存檔。
 ui:quick.savefailed	快速存檔失敗：%s
 ui:quick.loadfailed	快速讀檔失敗：%s
+ui:combat.hdrname	姓名
+ui:combat.hdrac	防護
+ui:combat.hdrammo	彈藥
+ui:combat.hdrmax	上限
+ui:combat.hdrcon	體力
+ui:combat.hdrweapon	武器
