@@ -47,7 +47,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 
 ## 統計
 
-筆記 **101** 份：已接 **96**、未接 **0**、不適用 **5**。
+筆記 **102** 份：已接 **97**、未接 **0**、不適用 **5**。
 
 | # | 筆記 | 狀態 | 接在哪／為什麼 |
 |---:|---|---|---|
@@ -152,3 +152,4 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 99 | [全隊陣亡怎麼處理 —— Grim Reaper 那一格](99-party-wipe.md) | 已接 | `game.Party.Wipe` 三分支 ＋ `internal/play/wipe.go`：全倒自動 `View`、救不回來走死亡畫面（圖 0x3B、地點名與訊息從映像直讀）。規格 28。「救得回來」＝ CON ∈ [−10, −1] 且狀態位元全 0（`TestWipeSalvageableBoundary`）|
 | 100 | [結局的觸發點 —— 不在資料裡，在主迴圈裡](100-ending-trigger.md) | 已接 | `internal/game/selfdestruct.go`、`internal/game/script.go`、`internal/game/gates.go`、`internal/play/question.go`、`internal/play/play.go` |
 | 101 | [`ds:711Dh` 是敵方這一回合的移動計畫表](101-enemy-move-plan-table.md) | 已接 | `internal/game/combat.go`（`HitBase`／`NoMovePlan`）、`internal/game/rounds.go`（`Battle.MovePlan`）、`internal/play/round.go`（命中基礎值）|
+| 102 | [走不到的那 12 個 opcode，逐支讀完](102-unreachable-opcodes.md) | 已接 | `internal/game/script_ops.go`、`internal/game/script.go`（11 個 opcode）、`internal/game/world.go`（`Groups`／`Stash`）、`internal/play/groups.go`（`syncGroups`）|

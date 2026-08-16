@@ -88,7 +88,19 @@ func TestScriptOpcodeCoverage(t *testing.T) {
 		t.Errorf("有格子指到的 opcode 還有 %d 格沒實作", missCells)
 	}
 	// 記錄數是遞減的門檻——實作了新的 opcode 就把這個數字調小。
-	if missRecords > 85 {
-		t.Errorf("未實作的 opcode 記錄數 %d 超過門檻 85", missRecords)
+	//
+	// 剩下的 11 筆分兩堆（`docs/re/102` §5）：
+	//
+	//	5 筆是 section 0x10 的**索引越界**（查出來的「opcode」是 1282／2271／
+	//	  26478／29813），也就是「這一筆記錄根本不是腳本」——本來就該擋掉
+	//	6 筆是 **opcode 2**：它把參數交給 overlay 的 `sub_10036`，
+	//	  那支的語意還沒讀（`docs/re/34` 標 `?`）
+	//
+	// ⚠ 所以這個門檻**不會再降到 5 以下**，除非 op 2 解出來。
+	if missRecords > 11 {
+		t.Errorf("未實作的 opcode 記錄數 %d 超過門檻 11", missRecords)
+	}
+	if len(unhandled) > 5 {
+		t.Errorf("未實作的 opcode 種類 %d 超過門檻 5", len(unhandled))
 	}
 }

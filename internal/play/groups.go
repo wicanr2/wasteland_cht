@@ -11,6 +11,7 @@ import (
 	"fmt"
 
 	"github.com/wicanr2/wasteland_cht/internal/assets"
+	"github.com/wicanr2/wasteland_cht/internal/game"
 )
 
 // PartyGroupCount 是隊伍組數上限（原版 `ds:4657h` 比的是 3，所以是四組）。
@@ -38,6 +39,27 @@ func groupSize(g assets.SlotGroup) int {
 	return n
 }
 
+// syncGroups 把四組的位置抄給規則層（`game.World.Groups`）。
+//
+// **腳本 opcode 0 要它**：「有沒有另一支隊伍站在這串座標上」（`docs/re/102` §1）。
+// 槽表是 `internal/play` 拿著的存檔結構，規則層看不到，所以換地圖與切組時
+// 抄一份過去。沒抄的話 opcode 0 一律走「沒有」那一條——**而那會是安靜的錯**。
+func (s *Scene) syncGroups() {
+	if s.world == nil {
+		return
+	}
+	s.world.MapID = byte(s.blockID)
+	s.world.GroupIndex = s.groupID
+	for i, g := range s.save.SlotGroups() {
+		if i >= len(s.world.Groups) {
+			break
+		}
+		s.world.Groups[i] = game.GroupPos{
+			X: g.X, Y: g.Y, MapID: g.MapID, Active: groupSize(g) > 0,
+		}
+	}
+}
+
 // storeGroup 把目前這一組的座標與地圖寫回槽表。
 //
 // **切組之前一定要做**——不然回來的時候會站在別組的位置上。
@@ -50,6 +72,7 @@ func (s *Scene) storeGroup() {
 	slot[8] = s.world.Party.X
 	slot[9] = s.world.Party.Y
 	slot[10] = byte(s.blockID)
+	s.syncGroups()
 }
 
 // SwitchGroup 切到第 n 組。

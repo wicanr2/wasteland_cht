@@ -72,6 +72,9 @@ type ScriptResult struct {
 	// Sound 是要播的音效編號（0–8，`docs/re/44` §6），−1 表示沒有。
 	// 規則層只回報編號，**要不要播由呈現層決定**。
 	Sound int
+	// Countdown 非 nil 時要印自毀倒數（opcode 14，`docs/re/102` §3）。
+	// 同一條規矩：規則層只算數字，字串怎麼拼由呈現層決定。
+	Countdown *Countdown
 }
 
 // Script 是一次腳本執行的上下文。規則層不碰畫面，
@@ -156,6 +159,107 @@ func (s *Script) Step() ScriptResult {
 	switch op {
 	case OpNop:
 		// 什麼都不做。
+
+	case OpMatchPlace:
+		// **有沒有另一支隊伍站在記錄 +0x07 起那串座標上**（`0x1A470`）。
+		// 有 → +0x03，沒有 → +0x05。
+		if s.otherGroupOnList() {
+			branch(3)
+		} else {
+			branch(5)
+		}
+
+	case OpBranch:
+		// 第一個隊員站著 → +0x03，倒下 → +0x05（`0x1A4F4` 的 `sub_172BB(1)`；
+		// 索引是 1 起算的，所以那是 `Members[0]`）。
+		up := len(s.World.Party.Members) > 0 &&
+			s.World.Party.Members[0] != nil && !s.World.Party.Members[0].Down()
+		if up {
+			branch(3)
+		} else {
+			branch(5)
+		}
+
+	case OpStash:
+		// 把第一個隊員抄一份存進第 `+0x03` 格並蓋時間戳（`0x1A54B`）。
+		s.World.stashFirstMember(arg(0))
+
+	case OpNeedItem:
+		// 全隊掃物品 0x2F（`0x1A699`）：**沒有**的人 CON ← −5（舊值進 +0x26）。
+		// 只要有一個人帶著就走 +0x05，一個都沒有才走 +0x03。
+		anyHas := false
+		for _, c := range s.World.Party.Members {
+			if c == nil {
+				continue
+			}
+			if c.HasItem(needItemID) {
+				anyHas = true
+				continue
+			}
+			c.PreHurt = c.CON
+			c.CON = needItemCON
+		}
+		if anyHas {
+			branch(5)
+		} else {
+			branch(3)
+		}
+
+	case OpPlace9, OpPlace9Param:
+		// section 5 的第 9 筆 ← (0x5E, +0x03, +0x04)。
+		// **op 8 與 op 34 是同一段程式碼的兩份**（`0x1A6F5`／`0x1AABF`）。
+		if !s.placeInSection5(9, arg(0), arg(1)) {
+			res.Handled = false
+		}
+
+	case OpPlace25:
+		// 同上，第 25 筆，而且第二個參數是**常數 0**（`0x1A765`）。
+		if !s.placeInSection5(25, arg(0), 0) {
+			res.Handled = false
+		}
+
+	case OpPlace15:
+		if !s.placeInSection5(15, arg(0), arg(1)) {
+			res.Handled = false
+		}
+
+	case OpCountdown:
+		// 印自毀倒數然後**停住**（`0x1A7E8` 收尾是 `stc`）。
+		cd := countdownOf(s.World.Clock.Total - s.World.SelfDestruct.At)
+		res.Countdown = &cd
+		res.Continue = false
+
+	case OpFillPair:
+		// section 3 的第 0x1D 筆**往回到第 0 筆**，每筆寫兩個欄位
+		// （`0x1AA3F`）：`+0x03 ← +0x03`、`+0x09 ← +0x04`。
+		a, b := arg(0), arg(1)
+		for i := 0x1D; i >= 0; i-- {
+			r, err := s.World.Block.SectionRecord(3, i)
+			if err != nil || len(r) < 10 {
+				continue
+			}
+			r[3], r[9] = a, b
+		}
+
+	case OpMatchNeigh:
+		// 三格都是 (nibble 4, 記錄 2) → 下一步直接設成 (0x0C, 3)（`0x1AB35`）。
+		// ⚠ 這一個**不走 branch**：它把字面值寫進 +0x01/+0x02。
+		if s.neighboursMatch() && len(s.Record) > 2 {
+			s.Record[1], s.Record[2] = 0x0C, 3
+		}
+
+	case OpElapsed:
+		// 寄放的角色過了多久（`0x1AC03`）。三條路，而且**目標不是常見的
+		// +0x03/+0x05**：時候未到 → +0x06、隊伍滿了 → +0x08、領回來 → +0x04。
+		switch {
+		case s.World.stashElapsed(arg(0)) < stashReturnTicks:
+			branch(6)
+		case len(s.World.Party.Members) >= stashMaxParty:
+			branch(8)
+		default:
+			s.World.unstash(arg(0))
+			branch(4)
+		}
 
 	case OpFillRange, OpFillOne, OpFillOnes, OpFillFirst10:
 		// section 3 的一段記錄，每筆 `+0x09` 換成一個值（docs/re/34 §2）：
@@ -304,6 +408,10 @@ func (s *Script) Step() ScriptResult {
 
 	default:
 		// 還沒實作的指令：明確回報，不要假裝成 nop。
+		//
+		// 只剩 **op 2**（`0x1A515`）：它把 `+0x03`／`+0x04` 交給 overlay 的
+		// `sub_10036`，而那支的參數語意還沒讀（`docs/re/34` 標 `?`）。
+		// 猜一個「大概是畫個東西」填進去比留著這個洞更糟。
 		res.Handled = false
 	}
 	return res

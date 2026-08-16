@@ -580,6 +580,7 @@ func (s *Scene) LoadMap(id int, x, y uint8) error {
 	s.gfx.Tiles = tiles
 	s.world.EnterMap(b, x, y)
 	s.blockFile, s.blockID = b.Resource.File, b.Resource.ID
+	s.syncGroups()
 	s.dirty = true
 	return nil
 }
