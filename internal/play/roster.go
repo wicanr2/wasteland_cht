@@ -17,7 +17,11 @@ import (
 	"github.com/wicanr2/wasteland_cht/internal/game"
 	"github.com/wicanr2/wasteland_cht/internal/input"
 	"github.com/wicanr2/wasteland_cht/internal/lang"
+	"github.com/wicanr2/wasteland_cht/internal/textlayout"
 )
+
+// exeTableRoster 是角色建立／刪除那一組訊息的字串表（`docs/re/17` §3 的第 3 張）。
+const exeTableRoster = 3
 
 // rosterState 是角色管理畫面的狀態。
 type rosterState struct {
@@ -30,10 +34,20 @@ type rosterState struct {
 // recRosterUsed 是角色記錄「這一格有沒有人」的旗標位移（`docs/re/21` §5）。
 const recRosterUsed = 0x29
 
+// 角色管理用到的原版字串編號（**字串表 3**，不是表 1）。
+const (
+	strNoMoreChars = 1 // `You cannot create any more characters.`
+	strDeleteWho   = 5 // `Which player do you want to delete?`
+)
+
+// rosterMenu 是三個選項那一行。原版的選單字串在 `ds:CE12h`（`docs/re/72` §3），
+// 還沒抽進字串表，所以顯示文字走 `ui:`——**熱鍵字母不跟著翻譯走**。
+const rosterMenu = "CREATE  DELETE  PLAY   (C/D/P)"
+
 // beginRoster 進角色管理畫面。
 func (s *Scene) beginRoster() {
 	s.roster = rosterState{active: true}
-	s.message = "CREATE  DELETE  PLAY   (C/D/P)"
+	s.sayEN(rosterMenu, "roster.menu")
 	s.dirty = true
 }
 
@@ -152,26 +166,28 @@ func (s *Scene) updateRoster(in input.Input) (bool, error) {
 	switch input.Upper(in.Char) {
 	case 'C':
 		if _, ok := s.freeRecord(); !ok {
-			s.message = "You cannot create any more characters."
-			s.dirty = true
+			s.sayT(exeTableRoster, strNoMoreChars, textlayout.Options{})
 			return true, nil
 		}
 		s.roster.naming = true
 		s.roster.entry = input.TextEntry{Max: input.MaxName}
-		s.message = "Name: "
+		s.sayEN("Name: ", "roster.name")
 		s.dirty = true
 	case 'D':
 		if len(s.world.Party.Members) == 0 {
-			s.message = "Nobody to delete."
-			s.dirty = true
+			s.sayEN("Nobody to delete.", "roster.nobody")
 			return true, nil
 		}
 		s.roster.del = true
 		s.message = "Delete who? " + s.memberMenu()
+		if zh := s.cjkExe(exeTableRoster, strDeleteWho, textlayout.Options{}); zh != nil {
+			s.cjk = append(append([]byte{}, zh...), []byte(" "+s.memberMenu())...)
+			s.message = ""
+		}
 		s.dirty = true
 	case 'P':
 		s.roster = rosterState{}
-		s.message = ""
+		s.message, s.cjk = "", nil
 		s.dirty = true
 		s.LeaveFacility()
 	}
@@ -204,19 +220,20 @@ func (s *Scene) updateNaming(in input.Input) (bool, error) {
 	switch res {
 	case input.EntryCancel:
 		s.roster.naming = false
-		s.message = "CREATE  DELETE  PLAY   (C/D/P)"
+		s.sayEN(rosterMenu, "roster.menu")
 	case input.EntryDone:
 		// 名字存的是 Big5 bytes（中文名字就是這樣進記錄的）。
 		name := strings.TrimSpace(string(s.roster.entry.Text()))
 		s.roster.naming = false
 		if name == "" {
-			s.message = "CREATE  DELETE  PLAY   (C/D/P)"
+			s.sayEN(rosterMenu, "roster.menu")
 			break
 		}
 		if err := s.createCharacter(name); err != nil {
 			s.message = "ERROR: " + err.Error()
 		} else {
 			s.message = name + " joins the Rangers."
+			s.cjkFmt("roster.joined", name)
 		}
 	default:
 		s.message = "Name: " + s.nameForDisplay()
@@ -269,6 +286,7 @@ func (s *Scene) updateRosterDelete(in input.Input) (bool, error) {
 		s.message = "ERROR: " + err.Error()
 	} else {
 		s.message = name + " is gone."
+		s.cjkFmt("roster.gone", name)
 	}
 	s.dirty = true
 	return true, nil

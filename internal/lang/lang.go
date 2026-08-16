@@ -86,6 +86,16 @@ func (c *Catalogue) Len() int {
 	return len(c.entries)
 }
 
+// Each 逐條走過目錄。給**盤點與門檻測試**用——遊戲本體只查單一 key。
+func (c *Catalogue) Each(f func(key string, value []byte)) {
+	if c == nil {
+		return
+	}
+	for k, v := range c.entries {
+		f(k, v)
+	}
+}
+
 // BlockKey 是地圖區塊字串的 key（docs/spec/11 §3）。
 func BlockKey(file string, resourceID, slot int) string {
 	return fmt.Sprintf("blk:%s:%d:%d", file, resourceID, slot)

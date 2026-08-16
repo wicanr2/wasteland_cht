@@ -10,6 +10,13 @@ import (
 	"fmt"
 
 	"github.com/wicanr2/wasteland_cht/internal/input"
+	"github.com/wicanr2/wasteland_cht/internal/textlayout"
+)
+
+// 這一檔用到的原版字串編號（字串表 1）。
+const (
+	strNoMoreDisband = 21 // `No more can disband.`
+	strWhoDisbands   = 22 // `Who wants to disband?`
 )
 
 // Command 是指令列的一項，順序就是原版字串的順序（`docs/re/91` §1）。
@@ -90,8 +97,7 @@ func (s *Scene) runCommand(c Command) (bool, error) {
 // 沒有可寫的目錄時就照實說（`SetSaveDir` 沒設 ＝ 無頭工具與測試）。
 func (s *Scene) cmdSave() (bool, error) {
 	if s.save == nil {
-		s.message = "No save loaded."
-		s.dirty = true
+		s.sayEN("No save loaded.", "save.none")
 		return true, nil
 	}
 	if err := s.StoreTo(s.save); err != nil {
@@ -101,14 +107,15 @@ func (s *Scene) cmdSave() (bool, error) {
 	}
 	switch {
 	case s.saveDir == "":
-		s.message = "Game state updated (not written to disk)."
+		s.sayEN("Game state updated (not written to disk).", "save.memoryonly")
 	case s.rom == nil:
-		s.message = "Game state updated (no data files loaded)."
+		s.sayEN("Game state updated (no data files loaded).", "save.nodata")
 	default:
 		if err := s.rom.WriteSave(s.save, s.saveDir); err != nil {
 			s.message = "SAVE FAILED: " + err.Error()
+			s.cjk = nil
 		} else {
-			s.message = "Game saved."
+			s.sayEN("Game saved.", "save.done")
 		}
 	}
 	s.dirty = true
@@ -152,9 +159,9 @@ func (s *Scene) cmdRadio() (bool, error) {
 		}
 	}
 	if total == 0 && praise == 0 {
-		s.message = "HQ: nothing to report."
+		s.sayEN("HQ: nothing to report.", "radio.nothing")
 	} else if len(lines) == 0 {
-		s.message = "HQ: nothing to report."
+		s.sayEN("HQ: nothing to report.", "radio.nothing")
 	} else {
 		s.message = lines[0]
 		if len(lines) > 1 {
@@ -176,8 +183,7 @@ func (s *Scene) cmdView() (bool, error) {
 	n, ok := s.nextGroup()
 	if !ok {
 		// 繞回起點：原版就是把畫面切回原本那組，什麼都沒發生。
-		s.message = "No other party."
-		s.dirty = true
+		s.sayEN("No other party.", "view.none")
 		return true, nil
 	}
 	if err := s.SwitchGroup(n); err != nil {
@@ -186,6 +192,7 @@ func (s *Scene) cmdView() (bool, error) {
 		return true, nil
 	}
 	s.message = fmt.Sprintf("Party %d.", n+1)
+	s.cjkFmt("view.switched", n+1)
 	s.dirty = true
 	return true, nil
 }
@@ -201,17 +208,21 @@ func (s *Scene) cmdDisband() (bool, error) {
 		}
 	}
 	if alive <= 1 {
-		s.message = "Can't disband a single ranger."
-		s.dirty = true
+		s.sayEN("Can't disband a single ranger.", "disband.single")
 		return true, nil
 	}
 	if _, ok := s.freeGroup(); !ok {
-		s.message = fmt.Sprintf("Already %d parties.", PartyGroupCount)
-		s.dirty = true
+		// 原版字串 21：`No more can disband.`
+		s.say(strNoMoreDisband, textlayout.Options{})
 		return true, nil
 	}
 	s.disband = true
+	// 原版字串 22：`Who wants to disband?`，後面接隊員清單。
 	s.message = "Who leaves? " + s.memberMenu()
+	if zh := s.cjkExe(exeTable1, strWhoDisbands, textlayout.Options{}); zh != nil {
+		s.cjk = append(append([]byte{}, zh...), []byte(" "+s.memberMenu())...)
+		s.message = ""
+	}
 	s.dirty = true
 	return true, nil
 }
@@ -238,6 +249,7 @@ func (s *Scene) updateDisband(in input.Input) (bool, error) {
 		s.message = "ERROR: " + err.Error()
 	} else {
 		s.message = name + " leaves the party."
+		s.cjkFmt("disband.left", name)
 	}
 	s.dirty = true
 	return true, nil
