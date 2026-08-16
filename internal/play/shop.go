@@ -68,10 +68,9 @@ const (
 // shopState 是設施選單的狀態。放在 FacilityScene 裡，
 // 離開設施就整個丟掉——原版也沒有跨場次保留的東西。
 type shopState struct {
-	Step  FacilityStep
-	Who   int // 目前在櫃檯的隊伍成員索引
-	Stock map[byte]byte
-	Page  int // 目前這一頁的起始列（docs/re/53 §4）
+	Step FacilityStep
+	Who  int // 目前在櫃檯的隊伍成員索引
+	Page int // 目前這一頁的起始列（docs/re/53 §4）
 }
 
 // PageRows 是一頁最多列幾件。
@@ -87,7 +86,7 @@ const PageRows = 9
 // 那是原版的正常路徑，不是錯誤分支。
 func (f *FacilityScene) Key(k byte, p *game.Party, items game.ItemTable) bool {
 	if f.state == nil {
-		f.state = &shopState{Stock: map[byte]byte{}}
+		f.state = &shopState{}
 	}
 	st := f.state
 	if k == keyEscape {
@@ -279,7 +278,7 @@ func (f *FacilityScene) buyList(items game.ItemTable) []game.BuyListEntry {
 			if !ok {
 				return game.StockNone
 			}
-			return f.stockOf(id, it.Stock)
+			return it.Stock // 庫存就在表上，賣過的已經改進去了
 		})
 }
 
@@ -296,7 +295,7 @@ func (f *FacilityScene) buyOne(p *game.Party, items game.ItemTable, n int) {
 		f.setNote("You don't have enough money.", exeTableDoctor, strNoMoney)
 		return
 	}
-	f.state.Stock[e.ID] = stock
+	f.setStock(e.ID, stock)
 	f.setNoteUI(fmt.Sprintf("Bought for $%d.", e.Price), "facility.bought", e.Price)
 }
 
@@ -368,22 +367,22 @@ func (f *FacilityScene) sellOne(p *game.Party, items game.ItemTable, n int) {
 		return
 	}
 	price := f.Facility.SellPrice(item.Price)
-	stock, sold := game.Sell(c, e.Slot, price, f.stockOf(e.Item, item.Stock))
+	stock, sold := game.Sell(c, e.Slot, price, item.Stock)
 	if sold {
-		f.state.Stock[e.Item] = stock
+		f.setStock(e.Item, stock)
 		f.setNoteUI(fmt.Sprintf("Sold for $%d.", price), "facility.sold", price)
 	}
 }
 
-// stockOf 取這家店目前的庫存（賣過的以會話裡的為準）。
-func (f *FacilityScene) stockOf(id, base byte) byte {
-	if f.state == nil {
-		return base
+// setStock 改一筆的店家庫存。
+//
+// ⚠ **不要留在會話裡。** 物品表在存檔區、每個存檔槽一份（`docs/re/45` §2），
+// 庫存 `+0x02` 是遊戲狀態：賣一件 `+1`、買一件 `−1`（`docs/re/42` §3、§4）。
+// 記在設施場景上的話，走出店門那一刻就沒了。
+func (f *FacilityScene) setStock(id, v byte) {
+	if f.SetStock != nil {
+		f.SetStock(id, v)
 	}
-	if v, ok := f.state.Stock[id]; ok {
-		return v
-	}
-	return base
 }
 
 // member 是目前在櫃檯的人。

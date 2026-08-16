@@ -51,6 +51,10 @@ type FacilityScene struct {
 	CJKItemName  func(byte) []byte
 	CJKSkillName func(byte) []byte
 
+	// SetStock 改一筆物品的店家庫存（買賣之後）。由 Scene 接上——
+	// 庫存住在**物品表**上，跟著存檔走，不是設施場景的狀態。
+	SetStock func(id, v byte)
+
 	// Str 查原版字串表的**原文**、CJK 查譯文、UI 查重製版自己的介面文字。
 	// 三個都可以是 nil——那時設施畫面就是英文字面，遊戲照跑。
 	Str func(table, n int) string
@@ -154,13 +158,14 @@ func (s *Scene) EnterFacility(record []byte) *FacilityScene {
 	fs := &FacilityScene{
 		Facility: f,
 		Picture:  facilityPicture[f.Kind],
-		state:    &shopState{Stock: map[byte]byte{}},
+		state:    &shopState{},
 	}
 	if f.Name != "" {
 		fs.Lines = append(fs.Lines, f.Name)
 	}
 	fs.ItemName, fs.SkillName = s.itemName, s.skillName
 	fs.CJKItemName, fs.CJKSkillName = s.itemNameCJK, s.skillNameCJK
+	fs.SetStock = s.setStock
 	fs.Str = s.exeStringN
 	fs.CJK = s.cjkExe
 	fs.UI = s.uiText

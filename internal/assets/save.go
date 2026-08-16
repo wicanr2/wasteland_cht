@@ -152,6 +152,42 @@ func (r *Rom) WriteSave(s *Save, dir string) error {
 	return nil
 }
 
+// SetItemTable 把改過的物品表寫回**記憶體裡的**資料檔。
+//
+// 物品表是存檔區旁邊的另一個 MSQ 資源（自己的 magic ＋ checksum，
+// `docs/re/45` §2），每個存檔槽一份。**它是遊戲狀態不是常數**：
+// 賣一件東西給店家，庫存 `+0x02` 會 `+1`（`docs/re/42` §3）——
+// 不寫回去的話，重開遊戲店家的庫存就跳回出廠值。
+//
+// 只改記憶體那一份；真正落地是 `WriteSave`（它寫的是整個檔案緩衝區）。
+// 兩支分開是因為**存檔與物品表是兩個資源**，但住在同一個檔案裡。
+func (r *Rom) SetItemTable(file string, slot int, plain []byte) error {
+	base, ok := SaveOffset[file]
+	if !ok {
+		return fmt.Errorf("%s 沒有已知的存檔位移", file)
+	}
+	if slot < 0 || slot >= len(ItemSlotOffsets) {
+		return fmt.Errorf("存檔槽 %d 不在 0–%d", slot, len(ItemSlotOffsets)-1)
+	}
+	if len(plain) != itemTableLen {
+		return fmt.Errorf("物品表要 %d bytes，收到 %d", itemTableLen, len(plain))
+	}
+	data, err := r.File(file)
+	if err != nil {
+		return err
+	}
+	at := base + itemTableDelta + ItemSlotOffsets[slot]
+	if at+6+itemTableLen > len(data) {
+		return fmt.Errorf("%s 太短，放不下 %#x 的物品表", file, at)
+	}
+	// checksum 一定重算——改了內容不重算，原版讀進去會拒收。
+	checksum := saveChecksum(plain)
+	data[at+4] = byte(checksum)
+	data[at+5] = byte(checksum >> 8)
+	copy(data[at+6:at+6+itemTableLen], encryptSave(plain, checksum))
+	return nil
+}
+
 // saveChecksum ＝ 0 − Σ 明文位元組（16-bit，docs/re/30 §2.1）。
 func saveChecksum(plain []byte) uint16 {
 	var sum uint16

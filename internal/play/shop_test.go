@@ -17,6 +17,10 @@ func mkShop(t *testing.T, kind game.FacilityKind) (*FacilityScene, *game.Party, 
 	rec[0x04] = 5 // 醫生：每點 CON 的價格
 	copy(rec[0x07:], "Store\x00")
 	s := &Scene{}
+	// 庫存住在物品表上（跟著存檔走），所以場景要先拿到那張表——
+	// `SetStock` 改的就是它。
+	s.items = game.ItemTable{{}, {Price: 40, Stock: 3},
+		{Price: 10, Stock: game.StockUnlimited}}
 	f := s.EnterFacility(rec)
 	if f == nil {
 		t.Fatal("設施解不開")
@@ -27,8 +31,7 @@ func mkShop(t *testing.T, kind game.FacilityKind) (*FacilityScene, *game.Party, 
 		m.MaxCON = 30
 		m.Items = make([]game.Slot, game.ItemSlots)
 	}
-	items := game.ItemTable{{}, {Price: 40, Stock: 3}, {Price: 10, Stock: game.StockUnlimited}}
-	return f, p, items
+	return f, p, s.items
 }
 
 // 驗收 1：背包滿了按 B 回主選單，不離開商店。
@@ -79,13 +82,13 @@ func TestSellOneItem(t *testing.T) {
 	if c.Money <= before {
 		t.Errorf("錢應該增加：%d → %d", before, c.Money)
 	}
-	if got := f.state.Stock[1]; got != 4 {
+	if got := items[1].Stock; got != 4 {
 		t.Errorf("店家庫存應該從 3 變 4，得到 %d", got)
 	}
 
 	// 0xFF 那一種賣多少次都不變。
 	f.Key('1', p, items)
-	if got := f.state.Stock[2]; got != game.StockUnlimited {
+	if got := items[2].Stock; got != game.StockUnlimited {
 		t.Errorf("0xFF 的庫存不該變，得到 %#02x", got)
 	}
 }
@@ -166,8 +169,9 @@ func TestBuyListSkipsOutOfStock(t *testing.T) {
 }
 
 func TestBuyOneDeductsMoneyAndStock(t *testing.T) {
-	f, p, _ := mkShop(t, game.FacilityShop)
-	items := game.ItemTable{{}, {Price: 40, Stock: 2}}
+	// 用場景那一張表——庫存改在它身上（跟著存檔走）。
+	f, p, items := mkShop(t, game.FacilityShop)
+	items.SetStock(1, 2)
 	c := p.Members[0]
 	c.Money = 100
 
@@ -183,7 +187,7 @@ func TestBuyOneDeductsMoneyAndStock(t *testing.T) {
 	if c.Items[0].ID != 1 {
 		t.Errorf("第一個空槽應該放進物品 1，得到 %d", c.Items[0].ID)
 	}
-	if got := f.state.Stock[1]; got != 1 {
+	if got := items[1].Stock; got != 1 {
 		t.Errorf("店家庫存應該從 2 變 1，得到 %d", got)
 	}
 }
