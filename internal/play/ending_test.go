@@ -113,8 +113,12 @@ func TestEndingSetsMissionFlagAndRadioPraises(t *testing.T) {
 		t.Fatal("一開始就有 Mission 旗標")
 	}
 	// 還沒去過結局：Radio 不該有賀詞。
-	if _, err := s.cmdRadio(); err != nil {
-		t.Fatalf("cmdRadio：%v", err)
+	//
+	// 這裡直接叫 `doRadio`（跳過 Y／N 確認）：`BeginEnding` 之後場景不在地圖上，
+	// 按鍵那條路進不來。**確認流程本身由 `confirm_test.go` 守著**，
+	// 這一份只管賀詞的旗標。
+	if _, err := s.doRadio(); err != nil {
+		t.Fatalf("doRadio：%v", err)
 	}
 	if strings.Contains(s.Message(), "Congratulations") {
 		t.Fatalf("沒去過結局就被表揚了：%q", s.Message())
@@ -124,8 +128,8 @@ func TestEndingSetsMissionFlagAndRadioPraises(t *testing.T) {
 	if !m.Mission {
 		t.Fatal("結局沒有設 Mission 旗標")
 	}
-	if _, err := s.cmdRadio(); err != nil {
-		t.Fatalf("cmdRadio：%v", err)
+	if _, err := s.doRadio(); err != nil {
+		t.Fatalf("doRadio：%v", err)
 	}
 	if !strings.Contains(s.Message(), "Congratulations") {
 		t.Fatalf("Radio 沒念賀詞：%q", s.Message())
@@ -134,8 +138,8 @@ func TestEndingSetsMissionFlagAndRadioPraises(t *testing.T) {
 		t.Fatal("表揚完沒有設 Praised 旗標")
 	}
 	// 第二次不該再念（原版 +0x4C 就是為了這個）。
-	if _, err := s.cmdRadio(); err != nil {
-		t.Fatalf("cmdRadio 第二次：%v", err)
+	if _, err := s.doRadio(); err != nil {
+		t.Fatalf("doRadio 第二次：%v", err)
 	}
 	if strings.Contains(s.Message(), "Congratulations") {
 		t.Fatalf("賀詞念了第二次：%q", s.Message())

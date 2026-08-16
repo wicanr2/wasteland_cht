@@ -51,9 +51,7 @@ func TestRadioLevelsUp(t *testing.T) {
 	// 給到剛好夠升兩級的經驗值。**不扣經驗值**，所以門檻是累計值。
 	need := game.XPForLevel(int(before) + 2)
 	m.XP = need
-	if _, err := s.Update(input.Input{Dir: input.DirNone, Char: 'R'}); err != nil {
-		t.Fatal(err)
-	}
+	confirmed(t, s, 'R')
 	if m.Level != before+2 {
 		t.Errorf("經驗值 %d 應該升到等級 %d，得到 %d", need, before+2, m.Level)
 	}
@@ -64,9 +62,7 @@ func TestRadioLevelsUp(t *testing.T) {
 
 	// 再按一次不該再升——經驗值沒變。
 	lvl := m.Level
-	if _, err := s.Update(input.Input{Dir: input.DirNone, Char: 'R'}); err != nil {
-		t.Fatal(err)
-	}
+	confirmed(t, s, 'R')
 	if m.Level != lvl {
 		t.Errorf("經驗值沒增加卻又升了：%d → %d", lvl, m.Level)
 	}
@@ -86,9 +82,7 @@ func TestRadioSkipsDownMembers(t *testing.T) {
 	m.CON = -5
 	before := m.Level
 	m.XP = game.XPForLevel(int(before) + 3)
-	if _, err := s.Update(input.Input{Dir: input.DirNone, Char: 'R'}); err != nil {
-		t.Fatal(err)
-	}
+	confirmed(t, s, 'R')
 	if m.Level != before {
 		t.Errorf("CON −5 的人不該升級，%d → %d", before, m.Level)
 	}
@@ -107,9 +101,7 @@ func TestSaveCommandWritesSave(t *testing.T) {
 	// 寫到暫存目錄——`Save` 現在會真的寫檔，不給目錄它會照實說沒寫
 	// （寫出去讀不讀得回來由 `TestSaveCommandWritesToDisk` 守著）。
 	s.SetSaveDir(t.TempDir())
-	if _, err := s.Update(input.Input{Dir: input.DirNone, Char: 'S'}); err != nil {
-		t.Fatal(err)
-	}
+	confirmed(t, s, 'S')
 	if s.Message() != "Game saved." {
 		t.Errorf("存檔訊息不對：%q", s.Message())
 	}

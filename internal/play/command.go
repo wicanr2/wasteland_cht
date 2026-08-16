@@ -87,10 +87,10 @@ func (s *Scene) runCommand(c Command) (bool, error) {
 	}
 }
 
-// cmdSave 是 `Save`（`0x1A290`）：把目前狀態寫回存檔。
+// cmdSave 是 `Save`（`0x1A290`）：問一句 Y／N，答 Y 才把狀態寫回存檔。
 //
-// 原版先印訊息 0x49 問 Y／N 再寫；這一版直接寫，**確認流程還沒接**
-// （與 Radio 共用的 `sub_19B4F` 是同一套，兩邊要一起做）。
+// 確認流程與 `Radio` 共用同一套（`sub_19B4F`，`docs/re/91` §2）——
+// 原版只有訊息編號不同。
 //
 // ⚠ **一定要真的寫到檔案。** 只更新記憶體那份明文的話，畫面上會出現
 // 「Game saved.」而下一次開遊戲什麼都沒保留——這種謊比當掉還難查。
@@ -100,6 +100,11 @@ func (s *Scene) cmdSave() (bool, error) {
 		s.sayEN("No save loaded.", "save.none")
 		return true, nil
 	}
+	return s.askConfirm(confirmSaveString, s.doSave)
+}
+
+// doSave 是答 Y 之後真的寫檔那一段。
+func (s *Scene) doSave() (bool, error) {
 	if err := s.StoreTo(s.save); err != nil {
 		s.message = "ERROR: " + err.Error()
 		s.dirty = true
@@ -142,6 +147,12 @@ func (s *Scene) cmdSave() (bool, error) {
 //
 // 倒下的人兩輪都跳過（`loc_172BE` ＝ CON ≤ 0，`docs/re/89` §2）。
 func (s *Scene) cmdRadio() (bool, error) {
+	// 與 `Save` 共用同一套確認（`sub_19B4F`）——原版只有訊息編號不同。
+	return s.askConfirm(confirmRadioString, s.doRadio)
+}
+
+// doRadio 是答 Y 之後真的呼叫總部那一段。
+func (s *Scene) doRadio() (bool, error) {
 	var lines []string
 	total := 0
 

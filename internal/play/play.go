@@ -75,6 +75,9 @@ type Scene struct {
 	// wipe 是全隊倒下的死亡畫面（`docs/spec/28`、`docs/re/99`）。
 	wipe wipeState
 
+	// confirm 是指令列的 Y／N 確認（`sub_19B4F`，Save 與 Radio 共用）。
+	confirm confirmState
+
 	// cursors 是 `CURS` 的八個滑鼠游標；nil ＝ 沒有游標圖，滑鼠照樣能點。
 	// ⚠ **哪個圖形對應哪個狀態沒有解**（`docs/re/57` §4），固定用第 0 個。
 	cursors []assets.Cursor
@@ -627,6 +630,8 @@ func (s *Scene) Mode() string {
 		return "quit"
 	case s.wipe.active:
 		return "wipe"
+	case s.confirm.active:
+		return "confirm"
 	case s.help:
 		return "help"
 	case s.settingsOpen:
@@ -729,6 +734,10 @@ func (s *Scene) Update(in input.Input) (bool, error) {
 	}
 	if s.wipe.active {
 		return s.updateWipe(in)
+	}
+	// 確認蓋在其他模式上面：它自己收 Y／N，其餘按鍵一律不往下傳。
+	if s.confirm.active {
+		return s.updateConfirm(in)
 	}
 	if s.roster.active {
 		return s.updateRoster(in)
