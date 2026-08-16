@@ -1,10 +1,12 @@
 package play
 
 import (
+	"os"
 	"strings"
 	"testing"
 
 	"github.com/wicanr2/wasteland_cht/internal/input"
+	"github.com/wicanr2/wasteland_cht/internal/render"
 )
 
 // TestHelpPanelOpensAndCloses：F1 叫得出說明，任何鍵關掉，關掉之後方向鍵照走。
@@ -101,20 +103,69 @@ func TestMusicTrackFollowsMode(t *testing.T) {
 	}
 }
 
-// TestHelpListsTheKeysItClaims：說明列的按鍵字母要與實際收的鍵一致。
+// TestHelpFitsTheMessageWindow：說明面板要塞得進訊息視窗的六行，
+// 而且字母欄只能是 ASCII。
 //
-// 說明文件與程式碼分兩處寫就會漂：這一條讓「F5／F9 快速存讀檔」這種
-// 敘述被改掉時有人會紅。
-func TestHelpListsTheKeysItClaims(t *testing.T) {
-	want := []string{"F1", "F2", "F5 / F9", "F10", "ESC"}
-	var keys []string
-	for _, l := range helpLines {
-		keys = append(keys, l.key)
+// 兩條都不會噴錯，只會安靜地壞掉：超出的行被切掉、中文字母欄變成 Big5 亂碼。
+func TestHelpFitsTheMessageWindow(t *testing.T) {
+	const messageRows = 6 // `docs/re/25` §2：訊息視窗六行
+	if n := len(helpLines) + 1; n > messageRows {
+		t.Errorf("說明有 %d 行（含標題），訊息視窗只有 %d 行，多的會被切掉",
+			n, messageRows)
 	}
-	joined := strings.Join(keys, "|")
-	for _, w := range want {
+	for _, l := range helpLines {
+		for i := 0; i < len(l.key); i++ {
+			if l.key[i] >= 0x80 {
+				t.Errorf("字母欄 %q 不是 ASCII——接進 Big5 串會變亂碼", l.key)
+				break
+			}
+		}
+	}
+	// 說明文件與程式碼分兩處寫就會漂：這一條讓功能鍵被拿掉時有人會紅。
+	joined := strings.Join(func() (k []string) {
+		for _, l := range helpLines {
+			k = append(k, l.key)
+		}
+		return
+	}(), "|")
+	for _, w := range []string{"F1", "F2", "F5", "F9", "F10", "ESC"} {
 		if !strings.Contains(joined, w) {
 			t.Errorf("說明沒有列出 %s（實際列了 %s）", w, joined)
 		}
+	}
+}
+
+// TestTitleScreenHasNoCommandBar：標題畫面不畫地圖的指令列。
+//
+// `Frame` 在標題那一支提早 return，`HiFrame` 卻是照模式旗標判斷——
+// 兩邊的條件不一致時，中文畫面會在標題上多出一整條指令列，
+// 還會蓋掉同一列的 `Start`（`docs/re/95`）。**低解畫面完全正常**，
+// 所以這個 bug 只在有倚天字型的時候看得到。
+func TestTitleScreenHasNoCommandBar(t *testing.T) {
+	s := newScene(t)
+	dir := os.Getenv("WL_ETEN")
+	if dir == "" {
+		dir = "../../workplace/eten"
+	}
+	if err := s.LoadFont(dir); err != nil {
+		t.Skipf("沒有倚天字型（%v），這一條驗不到", err)
+	}
+	if err := s.LoadCatalogue("../../translations/zh-Hant.cat"); err != nil {
+		t.Skipf("沒有翻譯目錄（%v），這一條驗不到", err)
+	}
+	s.BeginTitle()
+
+	// 指令列那一列（字元列 24）在高解畫面上是 y ∈ [24×16, 25×16)。
+	// `Start` 只占最左邊幾格，右半邊必須全黑。
+	on := 0
+	for y := render.CmdRow * 16; y < (render.CmdRow+1)*16 && y < render.HiScreenHeight; y++ {
+		for x := 12 * 16; x < render.HiScreenWidth; x++ {
+			if s.HiFrame().At(x, y) != 0 {
+				on++
+			}
+		}
+	}
+	if on != 0 {
+		t.Errorf("標題畫面的指令列那一列右半邊有 %d 個像素——指令列畫上去了", on)
 	}
 }

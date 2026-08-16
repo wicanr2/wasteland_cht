@@ -48,14 +48,11 @@ ui:facility.skillrow	%d) %s  費用 %d
 ui:facility.sellrow	%d)%s %s
 ui:facility.buyrow	%d) $%-6d %s
 ui:help.title	按鍵說明
-ui:help.move	移動
-ui:help.cmdbar	指令列
-ui:help.journal	手札（段落書）
-ui:help.f1	這一頁說明
-ui:help.f2	設定
+ui:help.move	移動（方向鍵也可以）
+ui:help.cmdbar	指令列與手札
+ui:help.panels	說明／設定
 ui:help.f5f9	快速存檔／快速讀檔
-ui:help.f10	離開（會先問，也會先存檔）
-ui:help.esc	取消／退一層，不會離開遊戲
+ui:help.quit	離開（先問先存）／取消
 ui:settings.title	設定
 ui:settings.music	音樂：
 ui:settings.volume	音量：

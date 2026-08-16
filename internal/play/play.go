@@ -183,7 +183,10 @@ func (s *Scene) HiFrame() *render.HiFrame {
 	if s.eten == nil {
 		return h
 	}
-	if s.facility == nil && s.combat == nil && !s.ending.active {
+	// ⚠ 這一行要與 `Frame` 的條件一致，**再加上標題畫面**：`Frame` 在標題那一支
+	// 提早 return，這裡卻是照著模式旗標判斷，漏掉 `s.title` 就會把指令列
+	// 畫到標題畫面上，還會蓋掉同一列的 `Start`（`docs/re/95`）。
+	if !s.title && s.facility == nil && s.combat == nil && !s.ending.active {
 		s.drawCJKLine(h, s.uiText("cmd.bar"), 0, render.CmdRow)
 	}
 	if s.journalOpen && len(s.journalHead) > 0 {
