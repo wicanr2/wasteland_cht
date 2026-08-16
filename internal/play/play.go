@@ -91,6 +91,15 @@ type Scene struct {
 	// question 是 nibble 8 的問答（`docs/re/46` §4）：密語、暗號、控制面板。
 	question questionState
 
+	// 重製版自己加的三個面板與快速存檔（原版都沒有）。
+	// **ESC 一層都不會結束遊戲，F10 是唯一的離開手勢**
+	// （`esc-cancel-f10-quit-autosave`）。
+	help         bool          // F1
+	settingsOpen bool          // F2
+	quitAsk      bool          // F10 的 Y／N
+	settings     settingsState // 音樂開關與音量
+	quickPath    string        // F5／F9 的存檔檔案；空 ＝ 沒開
+
 	// portrait 是這場遭遇要顯示的敵人肖像圖編號（−1 ＝ 沒有）。
 	portrait int
 
@@ -318,6 +327,7 @@ func New(rom *assets.Rom) (*Scene, error) {
 		s.message = "ITEM TABLE: " + err.Error()
 	}
 	s.asking = input.DirNone // 零值是 DirUp，會被誤判成「正在問」
+	s.settings = defaultSettings()
 	s.blockFile, s.blockID = block.Resource.File, block.Resource.ID
 	// 回程從存檔的隊伍槽表讀（+0x0B–+0x0D，docs/re/60 §3）。
 	g := save.SlotGroups()[0]
@@ -437,6 +447,12 @@ func (s *Scene) CJK() []byte { return s.cjk }
 // 這種接線斷掉的情況，模式看得出來。
 func (s *Scene) Mode() string {
 	switch {
+	case s.quitAsk:
+		return "quit"
+	case s.help:
+		return "help"
+	case s.settingsOpen:
+		return "settings"
 	case s.title:
 		return "title"
 	case s.ending.active:
@@ -486,9 +502,34 @@ func (s *Scene) Invalidate() { s.dirty = true }
 // （`sub_17FEE` 在旗標非 0 時擋住地圖繪製，docs/re/25 §2.5）——
 // 轉下去會變成「在戰鬥裡走路」。
 func (s *Scene) Update(in input.Input) (bool, error) {
-	// F10 任何模式都能離開。
+	// 離開確認蓋在所有模式上面：**它自己收 Y／N，其餘按鍵一律不往下傳**。
+	if s.quitAsk {
+		return s.updateQuit(in)
+	}
+	// F10 是唯一的離開手勢，而且**不直接離開**——先問一句、答 Y 才先存檔再退出
+	// （`esc-cancel-f10-quit-autosave` 鐵則 2、3、4）。
 	if in.Action == input.ActionQuit {
-		return false, nil
+		s.openQuit()
+		return true, nil
+	}
+	if s.help {
+		return s.updateHelp(in)
+	}
+	if s.settingsOpen {
+		return s.updateSettings(in)
+	}
+	// 功能鍵不管在哪一層都叫得出來（與 ESC 的「退一層」語意分開）。
+	switch in.Fn {
+	case input.FnHelp:
+		s.openHelp()
+		return true, nil
+	case input.FnSettings:
+		s.openSettings()
+		return true, nil
+	case input.FnQuickSave:
+		return s.doQuickSave()
+	case input.FnQuickLoad:
+		return s.doQuickLoad()
 	}
 	if s.title {
 		return s.updateTitle(in)

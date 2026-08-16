@@ -44,6 +44,14 @@ func keyOf(k ebiten.Key) input.Key {
 		return input.KeyD
 	case ebiten.KeyEscape:
 		return input.KeyEscape
+	case ebiten.KeyF1:
+		return input.KeyF1
+	case ebiten.KeyF2:
+		return input.KeyF2
+	case ebiten.KeyF5:
+		return input.KeyF5
+	case ebiten.KeyF9:
+		return input.KeyF9
 	case ebiten.KeyF10:
 		return input.KeyF10
 	case ebiten.KeyEnter, ebiten.KeyNumpadEnter:
@@ -100,7 +108,12 @@ type Game struct {
 	buf   []input.Key
 	// animTick 是動畫的分頻計數（見 animTicksPerFrame）。
 	animTick int
+	// music 是背景音樂（重製版自己加的，nil ＝ 沒有）。
+	music *Music
 }
+
+// SetMusic 掛上背景音樂播放器。nil 就沒有音樂，遊戲照跑。
+func (g *Game) SetMusic(m *Music) { g.music = m }
 
 // New 建立一個 Game。**不開音訊**——測試與檢視器用這一支。
 func New(scene Scene) *Game {
@@ -123,11 +136,7 @@ func NewWithAudio(scene Scene, synth *wlaudio.Synth) (*Game, error) {
 	if synth == nil {
 		return g, nil
 	}
-	ctx := audio.CurrentContext()
-	if ctx == nil {
-		ctx = audio.NewContext(wlaudio.SampleRate)
-	}
-	pl, err := ctx.NewPlayer(synth)
+	pl, err := audioContext().NewPlayer(synth)
 	if err != nil {
 		return nil, fmt.Errorf("開音訊：%w", err)
 	}
@@ -163,6 +172,12 @@ func (g *Game) Update() error {
 			a.TickAnim()
 		}
 	}
+	// 背景音樂跟著場景走：換模式換曲、設定裡關掉就停。
+	if m, ok := g.scene.(Musical); ok && g.music != nil {
+		on, vol := m.MusicSetting()
+		g.music.Apply(m.MusicTrack(), on, vol)
+	}
+
 	// 音效在輸入之後、Update 之前取：這一幀觸發的音效由下一幀送出，
 	// 與原版「呼叫端設好狀態、計時器中斷再播」的時序一致。
 	if s, ok := g.scene.(Sounder); ok && g.synth != nil {
@@ -208,16 +223,37 @@ func (g *Game) Layout(int, int) (int, int) {
 	return render.ScreenWidth, render.ScreenHeight
 }
 
+// audioContext 回傳這個行程唯一的 audio.Context。
+//
+// ⚠ **一個行程只能有一個**，而且取樣率固定在 `wlaudio.SampleRate`——
+// 音效與背景音樂共用它。第二次用不同取樣率建會失敗。
+func audioContext() *audio.Context {
+	if ctx := audio.CurrentContext(); ctx != nil {
+		return ctx
+	}
+	return audio.NewContext(wlaudio.SampleRate)
+}
+
 // Run 開視窗跑起來。**無頭環境不能呼叫。**
 //
 // synth 非 nil 時一併開音訊；場景要實作 Sounder 才會有聲音。
-func Run(scene Scene, title string, scale int, synth *wlaudio.Synth) error {
+// musicDir 非空時從那裡讀 `*.ogg` 當背景音樂，場景要實作 Musical；
+// **讀不到就沒有音樂，不是錯誤**（見 LoadMusic）。
+func Run(scene Scene, title string, scale int, synth *wlaudio.Synth, musicDir string) error {
 	if scale < 1 {
 		return fmt.Errorf("縮放倍率要 ≥ 1，收到 %d", scale)
 	}
 	g, err := NewWithAudio(scene, synth)
 	if err != nil {
 		return err
+	}
+	if musicDir != "" {
+		m, merr := LoadMusic(audioContext(), musicDir)
+		if merr != nil {
+			return merr
+		}
+		g.SetMusic(m)
+		defer m.Close()
 	}
 	w, h := g.Layout(0, 0)
 	ebiten.SetWindowSize(w*scale, h*scale)

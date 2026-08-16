@@ -179,4 +179,11 @@ var uiCatalogueKeys = []string{
 	"facility.examined", "facility.cured", "facility.bought", "facility.sold",
 	"facility.learned", "facility.row", "facility.skillrow",
 	"facility.sellrow", "facility.buyrow",
+	// F1 說明、F2 設定、F10 離開確認、F5／F9 快速存讀檔（重製版自己加的）。
+	"help.title", "help.move", "help.cmdbar", "help.journal",
+	"help.f1", "help.f2", "help.f5f9", "help.f10", "help.esc",
+	"settings.title", "settings.music", "settings.volume", "settings.sfx",
+	"settings.on", "settings.off", "settings.close",
+	"quit.ask", "quit.savefailed",
+	"quick.saved", "quick.loaded", "quick.savefailed", "quick.loadfailed",
 }

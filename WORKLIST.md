@@ -18,7 +18,7 @@
 改成**機制與劇本觸發全部接上 ＋ 抽樣驗證**——與腳本、遭遇、設施、戰鬥
 那幾把尺同一套做法（見 §7）。
 
-最後更新：2026-08-16（抽樣試玩 `docs/re/97` ＋ 補完 A0 `docs/re/98`）。
+最後更新：2026-08-16（結局觸發點 `docs/re/100` ＋ 功能鍵／快速存檔／背景音樂 `docs/spec/27`）。
 
 ---
 
@@ -107,6 +107,8 @@
 | 5.5 | 結局 | **完成** | 播放全解並實作（`docs/re/96`），**觸發點也解了**（`docs/re/100`）：資料裡沒有第 4 格是設計——`sub_1CB30`（主迴圈 `0x16C28`）在科奇斯基地自毀倒數 240 刻到期時合成 `al ← 84h`。倒數由腳本 opcode 35（資源 20 記錄 4）啟動。`TestCochiseEndgame` 從四把鑰匙走到結局
 | 5.7 | 全隊陣亡的處置 | **未開始** | 原版有兩條（`docs/re/99`）：全倒但救得回來 → **自動 `View` 切下一支隊伍**（`0x16C69`）；全員到底 → **死亡畫面**（`0x1C570`：地點名 ← `Grim Reaper`、載入 `ALLPICS` 第 0x3B 張、印 `ds:DE6Dh` 的 `Your life has ended in The Wasteland.`、等按鍵）。remake 兩條都沒接，全倒之後停在地圖上什麼都不會發生 |
 | 5.6 | 存讀檔選單 | **不做** | **原版沒有**——主選單只有 `Start`，存檔就是 `GAME1`／`GAME2` 本身（`docs/re/95` §4）。指令列的 `Save` 就是全部 |
+| 5.8 | 功能鍵與面板（F1／F2／F5／F9／F10） | **完成** | 規格 27。**原版都沒有**：ESC 只取消不離開、F10 先問再先存後退、F5／F9 走獨立的 `WLQS` 快速存檔（不碰玩家的原版資料）。門檻 `TestQuickSaveRoundTrip`、`TestF10SavesBeforeQuitting`、`TestEscapeNeverQuits`、`TestSettingsTogglesMusic` |
+| 5.9 | 背景音樂 | **完成** | 規格 27 §3。**原版沒有 BGM**（九首 PC 喇叭音效，`docs/re/44`），曲子是重製版自己寫的，`tools/make_music.py` 譜 → `tools/render_music.sh` 用 Roland MT-32／CM-32L 算成 ogg。ROM 與 ogg 都不入版控，`-music` 讀不到就沒有音樂、遊戲照跑 |
 
 ## 6. 中文化
 
@@ -242,6 +244,20 @@ RE 與 remake 的主線都走完了。抽樣試玩（`docs/re/97`）列的 A0 �
 **做完了**（2026-08-16）。三份都在版控裡：`docs/manual-cht/`（中文說明書逐頁轉錄）、
 `docs/manual/`（官方英文手冊中英對照）、`docs/walkthrough/`（攻略）。
 
+### T7 — 功能鍵、快速存檔、背景音樂（已完成，2026-08-16）
+
+使用者要求的五件事都接上了，規格寫在 [`docs/spec/27`](docs/spec/27-remake-ui-additions.md)：
+F1 說明、F2 設定、F5／F9 快速存讀檔、F10 離開（先問再先存後退）、ESC 一律只取消。
+
+音樂那一項先確認了**原版沒有 BGM**（九首 PC 喇叭音效，只有音效 4 是 1.8 秒的旋律，
+`docs/re/44`），所以不是「找不到原版音樂」而是「原版沒有這個東西」，
+曲子由重製版自己寫。音源選 Roland MT-32／CM-32L：1988 年 DOS 遊戲的高階音源，
+年代與機種對得上，比自寫合成器接近當年的聽感。
+
+⚠ **ROM 與算出來的 ogg 都不入版控**，與倚天字型、原版資料同一個政策。
+要有音樂就自己跑 `tools/render_music.sh`（需要 `docker/media.Dockerfile` 建的
+`wasteland-media` image 與自備的 MT-32 ROM）。
+
 ### 這一輪新增、下一個 session 要知道的
 
 - **找一張跳表的觸發點時，先問「這個索引還能從哪裡變出來」。** 結局的索引 4
@@ -295,6 +311,18 @@ RE 與 remake 的主線都走完了。抽樣試玩（`docs/re/97`）列的 A0 �
 - **8×8 字模畫不出中文**：指令列在有字型時由 `HiFrame` 畫，
   低解那張不先畫英文（先畫再蓋會留殘影）。
 - `wl-shot` 新增 `-journal <頁>`、`-ending`、`-ending-ticks`。
+- **ESC 不准變成離開遊戲，任何一層都不行**（規格 27 §1）。以前有兩個測試寫著
+  「F10 應該離開」，那是把誤觸變成資料損失的寫法；現在 F10 是**開確認**，
+  `TestEscapeNeverQuits` 與 `TestF10SavesBeforeQuitting` 成對守著。
+- **快速存檔寫自己的 `WLQS` 檔，不碰玩家的原版目錄**（那份驗 SHA-256）。
+  讀檔的三道拒絕裡最重要的是「明文長度不合就拒絕」——硬套會讓角色記錄整個錯位，
+  症狀像解碼壞了而不像讀錯檔。
+- **`resetModes` 裡的 `s.asking = input.DirNone` 不能省**：`input.Direction` 的
+  零值是 `DirUp`，忘了寫的話讀完檔畫面會停在「進新地點？」等 Y／N。
+- **MT-32 不是 GM**：MIDI channel 1 不用（八個聲部吃 2–9、節奏在 10），
+  音色編號走 MT-32 內建表。放在 channel 1 會**安靜地**沒聲音。
+- **音效與音樂共用同一個 `audio.Context`**（44100 Hz）。一個行程只能有一個，
+  第二次用不同取樣率建會失敗。
 
 ## 下一步的順序
 

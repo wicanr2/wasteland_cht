@@ -47,3 +47,25 @@ ui:facility.row	%d) %s
 ui:facility.skillrow	%d) %s  費用 %d
 ui:facility.sellrow	%d)%s %s
 ui:facility.buyrow	%d) $%-6d %s
+ui:help.title	按鍵說明
+ui:help.move	移動
+ui:help.cmdbar	指令列
+ui:help.journal	手札（段落書）
+ui:help.f1	這一頁說明
+ui:help.f2	設定
+ui:help.f5f9	快速存檔／快速讀檔
+ui:help.f10	離開（會先問，也會先存檔）
+ui:help.esc	取消／退一層，不會離開遊戲
+ui:settings.title	設定
+ui:settings.music	音樂：
+ui:settings.volume	音量：
+ui:settings.sfx	音效：
+ui:settings.on	開
+ui:settings.off	關
+ui:settings.close	ESC 關閉
+ui:quit.ask	要離開遊戲嗎？會先自動存檔。　Y 是　N 否
+ui:quit.savefailed	存檔失敗：%s
+ui:quick.saved	已快速存檔。
+ui:quick.loaded	已讀取快速存檔。
+ui:quick.savefailed	快速存檔失敗：%s
+ui:quick.loadfailed	快速讀檔失敗：%s

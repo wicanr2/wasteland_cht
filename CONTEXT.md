@@ -87,6 +87,8 @@
 | 英文手冊 | 全文轉 markdown ＋ **中英對照**，7 章（`docs/manual/`）。技能與武器譯名對過遊戲內字串表 |
 | 攻略 | **自建**（`docs/walkthrough/`，八章 ＋ `generated/` 四份機器產出的表）。資料由 `cmd/wl-atlas` 從 `game1`／`game2` 倒出，不是翻譯來的 |
 | 段落書 | 162 段全部轉錄，編號連續無缺（`docs/paragraphs/`）。**三層防拷結構已辨識**：3 個陷阱段落（1／22／145）、64 段變體組（同場景不同密語）、33 段火星誘餌假劇情 |
+| **結局的觸發點** | **已解**：資料裡沒有跳表第 4 格是設計不是漏掃——索引 4 由主迴圈的 `sub_1CB30`（`0x16C28`）在科奇斯基地自毀倒數 240 刻到期時**自己合成**（`al ← 84h`）。倒數由腳本 opcode 35 啟動，全 42 張地圖只有資源 20 記錄 4 用它（`docs/re/100`）。`TestCochiseEndgame` 從四把鑰匙走到結局 |
+| **功能鍵與背景音樂** | **完成**（規格 27，**原版都沒有**）：F1 說明、F2 設定、F5／F9 快速存讀檔、F10 離開（先問 → 先存 → 才退）、ESC 一律只取消。快速存檔走獨立的 `WLQS` 檔，不碰玩家的原版資料。音樂由 `tools/make_music.py` 譜、Roland MT-32／CM-32L 算成 ogg；**ROM 與 ogg 都不入版控** |
 
 ### 進行中／未開始
 
@@ -252,6 +254,7 @@
 | [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
 | [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |
 | [`docs/spec/03-screen-and-text.md`](docs/spec/03-screen-and-text.md) | READY：畫布、五個視窗、座標單位、控制碼、中文版面的兩條路 |
+| [`docs/spec/27-remake-ui-additions.md`](docs/spec/27-remake-ui-additions.md) | READY：**原版沒有的東西**——F1／F2／F5／F9／F10、ESC 只取消、`WLQS` 快速存檔、MT-32 背景音樂。不引用 IDA 位址 |
 | `internal/` | 已實作：`assets`（規格 01）、`textlayout`／`render`（規格 03）、`game/rng`（規格 02）。`tools/go.sh` 是 Go 的唯一入口，編譯與測試走 docker |
 | [`docs/manual-cht/`](docs/manual-cht/) | 軟體世界 1990 中文說明書全 60 頁節轉錄 ＋ 當年譯名表 |
 | [`docs/manual/`](docs/manual/) | 官方英文手冊全文 markdown，**中英對照** |
