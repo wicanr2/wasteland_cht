@@ -61,6 +61,9 @@ func (s *Scene) updateTitle(in input.Input) (bool, error) {
 	s.title = false
 	s.titlePic = nil
 	s.message = ""
+	// 進地圖第一眼就告訴玩家人在哪：開場那句地點名在標題畫面上被清掉了，
+	// 這裡補回來（翻譯目錄這時候一定已經載好了）。
+	s.sayPlace()
 	s.dirty = true
 	return true, nil
 }
