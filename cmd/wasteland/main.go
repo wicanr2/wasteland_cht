@@ -35,7 +35,9 @@ func main() {
 	paraFile := flag.String("paragraphs", "translations/paragraphs-zh-Hant.cat", "段落正文")
 	block := flag.Int("block", 0, "MSQ 區塊編號（0–41）")
 	pic := flag.Int("pic", 0, "ALLPICS 圖片編號")
-	scale := flag.Int("scale", 3, "視窗放大倍率")
+	// ⚠ 中文畫面本身已經是原版的 3 倍（960 × 600），所以這裡預設 2 就好——
+	// 再乘 3 會開出 2880 × 1800 的視窗。檢視器模式是 320 × 200，要 3 才夠看。
+	scale := flag.Int("scale", 2, "視窗放大倍率（play 是 960×600 的畫布，檢視器是 320×200）")
 	// 指令列的 `Save` 要寫回哪裡。原版是就地寫回自己的 `GAME1`／`GAME2`，
 	// 但**預設不指到 `-rom`**：那份是驗過 SHA-256 的原版，寫過就開不起來
 	// （`assets.Open`），而且專案規定不覆蓋原版資料。要真的存檔就先複製

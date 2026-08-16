@@ -8,6 +8,7 @@ import (
 
 	"github.com/wicanr2/wasteland_cht/internal/assets"
 	"github.com/wicanr2/wasteland_cht/internal/input"
+	"github.com/wicanr2/wasteland_cht/internal/render"
 )
 
 func openRom(t *testing.T) *assets.Rom {
@@ -249,11 +250,11 @@ func TestHiFrame(t *testing.T) {
 	if h == nil {
 		t.Fatal("畫不出高解畫面")
 	}
-	// 640 × 400 應該是 320 × 200 的乾淨 2×。
+	// 高解畫布應該是 320 × 200 的乾淨整數倍（`render.HiScale`）。
 	f := s.Frame()
 	for _, p := range [][2]int{{0, 0}, {100, 50}, {319, 199}} {
 		want := f.At(p[0], p[1])
-		if got := h.At(p[0]*2, p[1]*2); got != want {
+		if got := h.At(p[0]*render.HiScale, p[1]*render.HiScale); got != want {
 			t.Fatalf("(%d,%d) 放大後應該是 %d，得到 %d", p[0], p[1], want, got)
 		}
 	}

@@ -6,37 +6,96 @@ import (
 	"path/filepath"
 )
 
-// 倚天中文系統 3.53 的 16 × 15 點陣字（docs/spec/10 §4）。
+// 倚天中文系統 3.53 的點陣字（docs/spec/10 §4）。
 //
 // **字型檔玩家自備、不隨專案散布**（CLAUDE.md §7）。
 // 載入失敗時遊戲要能只用英文跑，不得直接崩。
+//
+// 支援兩種字級，優先用 24 點：
+//
+//	24 點  STDFONT.24（漢字 24×24）＋ SPCFONT.24（全形符號）＋ ASCFONT.24（半形 16×24）
+//	15 點  STDFONT.15（漢字 16×15）＋ SPCFONT.15（全形符號）＋ ASCFONT.15（半形 8×15）
+//
+// ⚠ `STDFONT.24` **不是光碟上的原始檔**：光碟給的是 ETUNPACK 壓縮的
+// `STD.24M`（明體）等六種字體，要先用 `tools/etunpack.py` 解開。
+//
+// ⚠ **英數不要拿遊戲原版的 8×8 字模放大。** 倚天自己就附了同高度的半形
+// ASCII（`ASCFONT.*`），用它英數才會與中文同一套設計、同一個粗細；
+// 拿 8×8 放大出來的字筆劃是兩倍粗，擺在中文旁邊像另一種字型。
 
 const (
-	ETenWidth   = 16
-	ETenHeight  = 15
-	etenStride  = 30 // 每列 2 bytes × 15 列
-	etenCommonN = 5401
+	etenCommonN = 5401 // 常用字區的字數（兩種字級一樣）
 )
 
 // ETenFont 是解開的倚天字型。
 type ETenFont struct {
-	std []byte // STDFONT.15，漢字
-	spc []byte // SPCFONT.15，全形標點與符號
+	std []byte // 漢字區
+	spc []byte // 全形符號與標點
+	asc []byte // 半形 ASCII（可能沒有）
+
+	// Width／Height 是漢字的字模尺寸（16×15 或 24×24）。
+	Width, Height int
+	stride        int
+
+	// ASCIIWidth／ASCIIHeight 是半形字模的尺寸（8×15 或 16×24）。
+	ASCIIWidth, ASCIIHeight int
+	ascStride               int
 }
 
-// LoadETen 從一個目錄載入 STDFONT.15 與 SPCFONT.15（檔名大小寫都試）。
+// etenSet 是一個字級的檔名與尺寸。
+type etenSet struct {
+	std, spc, asc          string
+	w, h, stride           int
+	ascW, ascH, ascStride  int
+}
+
+// 24 點排在前面：有 24 點就用 24 點（`docs/spec/10` §4 的字級取捨）。
+var etenSets = []etenSet{
+	{
+		std: "STDFONT.24", spc: "SPCFONT.24", asc: "ASCFONT.24",
+		w: 24, h: 24, stride: 72,
+		ascW: 16, ascH: 24, ascStride: 48,
+	},
+	{
+		std: "STDFONT.15", spc: "SPCFONT.15", asc: "ASCFONT.15",
+		w: 16, h: 15, stride: 30,
+		ascW: 8, ascH: 15, ascStride: 15,
+	},
+}
+
+// LoadETen 從一個目錄載入倚天字型（檔名大小寫都試）。
+//
+// 24 點與 15 點都找不到才算失敗。半形 ASCII 找不到**不算失敗**——
+// 那時英數退回遊戲原版的 8×8 字模，只是粗細對不上中文。
 func LoadETen(dir string) (*ETenFont, error) {
-	std, err := readAnyCase(dir, "STDFONT.15")
-	if err != nil {
-		return nil, err
+	var firstErr error
+	for _, s := range etenSets {
+		std, err := readAnyCase(dir, s.std)
+		if err != nil {
+			if firstErr == nil {
+				firstErr = err
+			}
+			continue
+		}
+		// ⚠ 只帶 STDFONT 會讓所有全形標點掉 fallback——它從「一」開始，
+		// 不含 A140–A3BF 的標點（docs/spec/10 §4）。
+		spc, err := readAnyCase(dir, s.spc)
+		if err != nil {
+			return nil, fmt.Errorf("有 %s 卻沒有 %s：沒有它全形標點會全部缺字：%w",
+				s.std, s.spc, err)
+		}
+		f := &ETenFont{
+			std: std, spc: spc,
+			Width: s.w, Height: s.h, stride: s.stride,
+		}
+		if asc, err := readAnyCase(dir, s.asc); err == nil {
+			f.asc = asc
+			f.ASCIIWidth, f.ASCIIHeight, f.ascStride = s.ascW, s.ascH, s.ascStride
+		}
+		return f, nil
 	}
-	// ⚠ 只帶 STDFONT 會讓所有全形標點掉 fallback——它從「一」開始，
-	// 不含 A140–A3BF 的標點（docs/spec/10 §4）。
-	spc, err := readAnyCase(dir, "SPCFONT.15")
-	if err != nil {
-		return nil, fmt.Errorf("找不到 SPCFONT.15：沒有它的話全形標點會全部缺字：%w", err)
-	}
-	return &ETenFont{std: std, spc: spc}, nil
+	return nil, fmt.Errorf("%s 裡沒有倚天字型（找 STDFONT.24 或 STDFONT.15）：%w",
+		dir, firstErr)
 }
 
 func readAnyCase(dir, name string) ([]byte, error) {
@@ -74,7 +133,7 @@ var (
 	etenBaseC940   = etenRaw(0xC9, 0x40) // 次常用起點
 )
 
-// Glyph 回傳一個 Big5 字的點陣（30 bytes，每列 2 bytes、MSB-first）。
+// Glyph 回傳一個 Big5 字的點陣（每列 (W+7)/8 bytes、MSB-first）。
 // 查不到就回 nil——呼叫者要自己決定 fallback，不要靜靜畫成空白。
 func (f *ETenFont) Glyph(hi, lo byte) []byte {
 	if f == nil || hi < 0xA1 {
@@ -93,28 +152,50 @@ func (f *ETenFont) Glyph(hi, lo byte) []byte {
 	default:
 		src, idx = f.std, etenCommonN+(r-etenBaseC940)
 	}
-	at := idx * etenStride
-	if idx < 0 || at+etenStride > len(src) {
+	at := idx * f.stride
+	if idx < 0 || at+f.stride > len(src) {
 		return nil
 	}
-	return src[at : at+etenStride]
+	return src[at : at+f.stride]
 }
 
-// GlyphRows 把點陣攤成 15 列、每列 16 個 bool（畫起來比較直觀）。
+// rowsOf 把點陣攤成 h 列、每列 w 個 bool。
+func rowsOf(g []byte, w, h int) [][]bool {
+	rowBytes := (w + 7) / 8
+	rows := make([][]bool, h)
+	for y := 0; y < h; y++ {
+		row := make([]bool, w)
+		for x := 0; x < w; x++ {
+			b := g[y*rowBytes+x/8]
+			row[x] = b&(0x80>>(x%8)) != 0
+		}
+		rows[y] = row
+	}
+	return rows
+}
+
+// GlyphRows 把漢字的點陣攤成 Height 列、每列 Width 個 bool。
 func (f *ETenFont) GlyphRows(hi, lo byte) [][]bool {
 	g := f.Glyph(hi, lo)
 	if g == nil {
 		return nil
 	}
-	rows := make([][]bool, ETenHeight)
-	for y := 0; y < ETenHeight; y++ {
-		row := make([]bool, ETenWidth)
-		hiByte, loByte := g[y*2], g[y*2+1]
-		for x := 0; x < 8; x++ {
-			row[x] = hiByte&(0x80>>x) != 0
-			row[8+x] = loByte&(0x80>>x) != 0
-		}
-		rows[y] = row
+	return rowsOf(g, f.Width, f.Height)
+}
+
+// HasASCII 回報這份字型帶不帶半形 ASCII。
+func (f *ETenFont) HasASCII() bool { return f != nil && f.asc != nil }
+
+// ASCIIRows 把一個 ASCII 字元的半形點陣攤成 ASCIIHeight 列。
+//
+// 沒有 `ASCFONT.*` 時回 nil，呼叫端要退回遊戲原版的 8×8 字模。
+func (f *ETenFont) ASCIIRows(c byte) [][]bool {
+	if !f.HasASCII() {
+		return nil
 	}
-	return rows
+	at := int(c) * f.ascStride
+	if at+f.ascStride > len(f.asc) {
+		return nil
+	}
+	return rowsOf(f.asc[at:at+f.ascStride], f.ASCIIWidth, f.ASCIIHeight)
 }
