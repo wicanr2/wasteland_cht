@@ -31,6 +31,14 @@ type Battle struct {
 	Party   *Party
 	RNG     *rng.State
 
+	// MovePlan 是敵方這一回合的移動計畫（原版 `ds:711Dh` 的那一格，
+	// `docs/re/101`）。一整筆遭遇共用一個值——原版的表也是一筆記錄一格。
+	//
+	// remake 沒有實作敵人在地圖上移動（`docs/re/87` §2），所以它永遠是
+	// `NoMovePlan`；命中基礎值因此是 50。實作移動之後這裡跟著每回合重設，
+	// `HitBase` 那一支就會自己開始回 60。
+	MovePlan int
+
 	order []Combatant
 	Round int
 }
@@ -40,8 +48,11 @@ type Battle struct {
 const MaxRounds = 200
 
 // NewBattle 建一場戰鬥。
+//
+// ⚠ `MovePlan` 要明寫成 `NoMovePlan`——它是 `-1`，不是零值。
+// 漏了的話零值 0 是一個**合法的步向**，命中基礎值會安靜地變成 60。
 func NewBattle(p *Party, r *rng.State) *Battle {
-	return &Battle{Party: p, RNG: r}
+	return &Battle{Party: p, RNG: r, MovePlan: NoMovePlan}
 }
 
 // AddEnemy 把敵人放進第 g 組的第 n 格。

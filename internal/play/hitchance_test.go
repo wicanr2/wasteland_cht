@@ -53,7 +53,10 @@ func TestHitChanceSpread(t *testing.T) {
 		for k := 1; k <= kindsHere && k*8+8 <= len(raw); k++ {
 			off := k * 8
 			d := game.ParseEnemyData(raw[off : off+8])
-			acc := game.HitChance(member, 60, d)
+			// 基礎值走遊戲裡真的會用的那一個——沒有移動計畫 ＝ 50
+			// （`ds:711Dh`，`docs/re/101` §5）。寫死 60 的話這份分布
+			// 描述的是一個沒有人走到的世界。
+			acc := game.HitChance(member, game.HitBase(game.NoMovePlan), d)
 			hist[acc]++
 			kinds++
 			if d.Weapon == game.ClassMelee {

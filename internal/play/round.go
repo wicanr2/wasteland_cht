@@ -12,18 +12,6 @@ import (
 	"github.com/wicanr2/wasteland_cht/internal/textlayout"
 )
 
-// 隊伍攻擊敵方的命中基礎值（`0x1AF40`，docs/re/20 §1.2）。
-//
-// 原版查 `ds:711Dh` 那張表：回 `0xFF` 用 50，否則 60。**那張表還沒解**，
-// 所以這一版一律用「否則」那一支的 60。
-//
-// 敵方打隊伍那條不走這個常數——它的基礎值已經解完，
-// 是被打者這回合的指令（`Phase.Defence`）。
-//
-// ⚠ **不要用 0**：累加值 0 等於永遠打不中，而症狀是「戰鬥打不完」，
-// 看起來像回合迴圈壞了。
-const baseHitDefault = 60
-
 // RoundResult 是一回合結算完的結果。
 type RoundResult struct {
 	Lines []string // 這一回合的訊息，照發生順序
@@ -115,7 +103,9 @@ func (s *CombatScene) partyActs(actor game.Combatant) msgs {
 	// 命中累加值只跟隊伍成員的 Brawling 與 Agility、以及目標的行動值有關
 	// （docs/re/88）——**裝備不進命中**，只進傷害。
 	w := s.weaponOf(m)
-	acc := game.HitChance(m, baseHitDefault, target.Data)
+	// 命中基礎值看**目標這一回合的移動計畫**（`ds:711Dh`，docs/re/101 §5）：
+	// 會移動的 60、留在原地的 50。remake 沒有敵人地圖移動，所以是 50。
+	acc := game.HitChance(m, game.HitBase(b.MovePlan), target.Data)
 	if !game.PartyHits(b.RNG, acc) {
 		// 整句就是原版字串 35（`\x0B misses.`），名字由 `\x0B` 代入。
 		out.add(m.Name+" misses.",
