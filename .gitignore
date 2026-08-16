@@ -33,3 +33,7 @@ ida-batch.log
 # 抽出來的原版英文文本＝原版資料，不散布（CLAUDE.md §7）。
 # 用 tools/extract_strings.py 從自己那份原版重新產生。
 translations/source/
+
+# 交付物打包（含原版衍生素材與影片，不入版控）
+dist-all/
+dist-build/

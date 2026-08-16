@@ -242,24 +242,3 @@ func (s *Scene) cjkFmtText(name string, args ...any) []byte {
 	}
 	return []byte(fmt.Sprintf(string(f), args...))
 }
-
-// MusicTrack 是這一幀該播的曲子（`ui.Musical`）。
-//
-// **原版沒有背景音樂**，所以這張對照表是重製版的決定不是逆向結論：
-// 標題與結局走主題曲、戰鬥走戰鬥曲、設施與角色管理走城鎮、其餘走沙漠。
-func (s *Scene) MusicTrack() string {
-	switch {
-	case s.title, s.ending.active:
-		return "theme"
-	case s.combat != nil:
-		return "combat"
-	case s.facility != nil, s.roster.active:
-		return "town"
-	}
-	return "desert"
-}
-
-// MusicSetting 是玩家在 F2 設定裡選的開關與音量（`ui.Musical`）。
-func (s *Scene) MusicSetting() (bool, int) {
-	return s.settings.MusicOn, s.settings.MusicVol
-}

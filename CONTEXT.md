@@ -88,7 +88,8 @@
 | 攻略 | **自建**（`docs/walkthrough/`，八章 ＋ `generated/` 四份機器產出的表）。資料由 `cmd/wl-atlas` 從 `game1`／`game2` 倒出，不是翻譯來的 |
 | 段落書 | 162 段全部轉錄，編號連續無缺（`docs/paragraphs/`）。**三層防拷結構已辨識**：3 個陷阱段落（1／22／145）、64 段變體組（同場景不同密語）、33 段火星誘餌假劇情 |
 | **結局的觸發點** | **已解**：資料裡沒有跳表第 4 格是設計不是漏掃——索引 4 由主迴圈的 `sub_1CB30`（`0x16C28`）在科奇斯基地自毀倒數 240 刻到期時**自己合成**（`al ← 84h`）。倒數由腳本 opcode 35 啟動，全 42 張地圖只有資源 20 記錄 4 用它（`docs/re/100`）。`TestCochiseEndgame` 從四把鑰匙走到結局 |
-| **功能鍵與背景音樂** | **完成**（規格 27，**原版都沒有**）：F1 說明、F2 設定、F5／F9 快速存讀檔、F10 離開（先問 → 先存 → 才退）、ESC 一律只取消。快速存檔走獨立的 `WLQS` 檔，不碰玩家的原版資料。音樂由 `tools/make_music.py` 譜、Roland MT-32／CM-32L 算成 ogg；**ROM 與 ogg 都不入版控** |
+| **功能鍵與背景音樂** | **完成**（規格 27，**原版都沒有**）：F1 說明、F2 設定、F5／F9 快速存讀檔、F10 離開（先問 → 先存 → 才退）、ESC 一律只取消。快速存檔走獨立的 `WLQS` 檔，不碰玩家的原版資料。配樂**十首**，由 `tools/make_music.py` 譜、Roland MT-32／CM-32L 算成 ogg，跟著場景與晝夜切換（`internal/play/music.go`）；**ROM 與 ogg 都不入版控** |
+| **交付物打包** | `tools/dist.sh` → `dist-all/`：`release/`（可散布，附 `setup.sh` 讓玩家從自己的原版產合成映像）、`local/`（本機完整包，含原版資料與音樂）、`promo/`（推廣片）。腳本會檢查 release 沒混進不可散布的檔 |
 
 ### 進行中／未開始
 
@@ -261,6 +262,7 @@
 | [`docs/paragraphs/`](docs/paragraphs/) | 段落書 162 段全文與索引，含防拷結構標註 |
 | [`docs/walkthrough/`](docs/walkthrough/) | **自建攻略**：八章正文 ＋ `generated/` 四份機器產出的表（地圖與傳送、條件閘、問答密語、設施）。來源是 `cmd/wl-atlas` ＋ `tools/summarize_walkthrough.py` |
 | [`docs/promo-video.md`](docs/promo-video.md) | 推廣片的三段管線、視覺 token 的出處、六種版面、踩過的坑。**成品不入版控** |
+| [`docs/mt32-rhythm-probe.md`](docs/mt32-rhythm-probe.md) | MT-32 節奏鍵位的量測：哪些鍵沒有指派（含 GM 的腳踏鈸 42）、怎麼從能量與過零率挑鼓 |
 | `docs/re/generated/ida94/` | 工具匯出的清冊（JSON ＋ markdown），不含人的推論 |
 
 ## 4. oracle 優先序
