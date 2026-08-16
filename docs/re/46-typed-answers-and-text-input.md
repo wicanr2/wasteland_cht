@@ -153,6 +153,16 @@ $ python3 tools/scan_callers.py workplace/analysis/unpacked/wl.merged.exe 1000:8
 比對是**照順序試，第一個相等的贏**；全部不中就落到「答案數」那一格
 （`ds:0A651h` ＝ 答案數），也就是「答錯」的那一支。
 
+### 4.0 remake 這一側
+
+規則層在 `internal/game/answers.go`（數答案、比對、算分支位移），
+**呈現層在 `internal/play/question.go`**：單鍵與打字兩種模式、
+輸入緩衝走 `input.TextEntry`（16 bytes、Enter 吃掉尾端空白）、
+比完就用 `PatchHere` 改寫腳下那一格。
+
+⚠ **答案不走翻譯目錄**：比對逐 byte 全等而輸入層是 ASCII（§3），
+翻成中文玩家就永遠打不出來。`translations/must-not-translate.tsv` 擋的就是這一批。
+
 ### 4.1 分支要做什麼：`sub_169B1` ＝ 改寫腳下那一格
 
 `sub_169B1(al ＝ 記錄裡的位移)` 只是把玩家所在的座標（`ds:46A6h`／`46A7h`）

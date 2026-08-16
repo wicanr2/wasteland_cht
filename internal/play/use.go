@@ -293,17 +293,20 @@ func (s *Scene) applyUse(o useOption) {
 		s.dirty = true
 		return
 	}
-	hit, passed := s.world.Party.UseGate(s.world.RNG, rec, m, kind, o.id, s.world.Skills)
+	res := s.world.Party.UseOn(s.world.RNG, rec, m, kind, o.id, s.world.Skills)
 	switch {
-	case hit < 0:
-		// 沒有吻合的條件——原版就是什麼都不發生。
+	case res.Hit < 0:
 		say("%s uses %s. Nothing happens.", "use.nothinghappens")
-	case passed:
+	case res.Passed:
 		say("%s uses %s. It works!", "use.works")
 		s.playSound(7)
 	default:
 		say("%s uses %s. It fails.", "use.fails")
 	}
+	// **收尾要改寫腳下那一格**（`0x13D23`／`0x13D7C` 的 `sub_17CFF`）。
+	// 這一步以前沒接：黑色圓柱插了黑星鑰匙會說 It works!，但下一根圓柱
+	// 永遠不會出現，科奇斯基地的啟動序列就停在第一站（`docs/re/100` §3）。
+	s.world.PatchHere(rec, res.PatchAt)
 	s.dirty = true
 }
 

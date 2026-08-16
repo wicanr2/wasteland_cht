@@ -88,6 +88,9 @@ type Scene struct {
 	// use 是 `USE` 指令的三層選單狀態（`docs/re/92`）。
 	use useState
 
+	// question 是 nibble 8 的問答（`docs/re/46` §4）：密語、暗號、控制面板。
+	question questionState
+
 	// portrait 是這場遭遇要顯示的敵人肖像圖編號（−1 ＝ 沒有）。
 	portrait int
 
@@ -454,6 +457,11 @@ func (s *Scene) Mode() string {
 		return fmt.Sprintf("journal:%d", s.journalAt)
 	case s.use.stage != useStageOff:
 		return fmt.Sprintf("use:%d", int(s.use.stage))
+	case s.question.active:
+		if s.question.q.SingleKey {
+			return "question:key"
+		}
+		return "question:typed"
 	case s.order.active:
 		return "order"
 	case s.disband:
@@ -503,6 +511,9 @@ func (s *Scene) Update(in input.Input) (bool, error) {
 	if s.use.stage != useStageOff {
 		return s.updateUse(in)
 	}
+	if s.question.active {
+		return s.updateQuestion(in)
+	}
 	if s.order.active {
 		return s.updateOrder(in)
 	}
@@ -512,7 +523,18 @@ func (s *Scene) Update(in input.Input) (bool, error) {
 	if s.encAsk != 0 {
 		return s.updateEncAsk(in)
 	}
-	return s.updateMap(in)
+	ok, err := s.updateMap(in)
+	if !ok || err != nil {
+		return ok, err
+	}
+	// 主迴圈每一輪檢查一次自毀倒數（`0x16C28` 的 `call sub_1CB30`，
+	// 位置就在全隊陣亡那道檢查前面）。**結局是這樣進來的**，
+	// 不是踩到某一格——那一格只負責啟動倒數（`docs/re/100`）。
+	if s.world.SelfDestructDue() {
+		s.world.DisarmSelfDestruct()
+		s.BeginEnding()
+	}
+	return true, nil
 }
 
 // updateFacility 是設施模式：只有離開。買賣與治療的選單這一版不接
@@ -805,6 +827,11 @@ func (s *Scene) walk(dir game.Direction) (bool, error) {
 		}
 	}
 
+	// 踩上 nibble 8 就進問答（密語、暗號、控制面板，`docs/re/46` §4）。
+	if res.Moved && res.Event.Kind == game.EventMenu {
+		s.beginQuestion(res.Event.Data)
+	}
+
 	// 走一步的點擊聲（音效 1，`0x16575` 在 `sub_1656D` 裡，docs/re/44 §6）。
 	// **只有真的移動了才響**——被擋住時原版走的是別條路。
 	if res.Moved {
@@ -955,7 +982,9 @@ func (s *Scene) describe(res game.StepResult) string {
 	case game.EventChest:
 		return "SOMETHING IS HERE."
 	case game.EventMenu:
-		return "CHOOSE."
+		// 題目由 beginQuestion 印（`docs/re/46` §4）——這裡回空的，
+		// 不然那一句會蓋在題目上面。
+		return ""
 	case game.EventGate:
 		// 走得過去的條件格踩上去會印記錄 +0x01 的訊息（docs/re/66）。
 		if len(res.Event.Strings) > 0 {

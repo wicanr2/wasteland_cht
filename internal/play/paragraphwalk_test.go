@@ -70,6 +70,14 @@ func TestWalkOntoParagraphShowsText(t *testing.T) {
 					if _, err := s.Update(input.Input{Dir: d.dir}); err != nil {
 						continue
 					}
+					// ⚠ 同一格會被四個方向各踩一次，而**踩過的格子會被改寫**
+					// （nibble 1 的收尾），有的會變成 nibble 8 的問答。
+					// 開著問答就不再收方向鍵，整個走訪會卡在那裡——按 ESC 退掉，
+					// 與玩家碰到不想回答的題目時做的事一樣。
+					if s.question.active {
+						_, _ = s.Update(input.Input{
+							Dir: input.DirNone, Action: input.ActionCancel})
+					}
 					if s.journalAt == 0 {
 						continue
 					}

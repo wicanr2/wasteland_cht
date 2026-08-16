@@ -157,7 +157,7 @@
 | [`docs/re/00-master-index.md`](docs/re/00-master-index.md) | **RE 總表**：位址換算、資料格式、結構佈局、位址表、關鍵函式、工具。**查已知事實先看這份** |
 | [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md) | **RE 完成度檢查表**：remake 需要的每一項知識、狀態與入口 |
 | [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 435）。讀任何 `sub_XXXXX` 前先查 |
-| [`docs/re/00-wiring-status.md`](docs/re/00-wiring-status.md) | **接線狀態**：95 份筆記的結論，remake 有沒有真的用上。`TestWiringStatus` 雙向守著（`CLAUDE.md` §0 的 G4）|
+| [`docs/re/00-wiring-status.md`](docs/re/00-wiring-status.md) | **接線狀態**：100 份筆記的結論，remake 有沒有真的用上。`TestWiringStatus` 雙向守著（`CLAUDE.md` §0 的 G4）|
 | [`docs/re/01-binary-identity.md`](docs/re/01-binary-identity.md) | 20 檔 SHA-256、`wl.exe` 的 MZ header、第一份資料庫與「不可用作證據」的結論 |
 | [`docs/re/02-exepack-unpack.md`](docs/re/02-exepack-unpack.md) | EXEPACK 格式、解包器、relocation 起點的坑、解包後基準資料庫 |
 | [`docs/re/03-boot-and-asset-loading.md`](docs/re/03-boot-and-asset-loading.md) | 開機序列、`info` 安裝資訊、檔名表、七個開機素材的載入位址、`TITLE.PIC` XOR 解碼 |
@@ -246,7 +246,8 @@
 | [`docs/re/70-nibble1-and-facility-entry.md`](docs/re/70-nibble1-and-facility-entry.md) | nibble 1 ＝ 氛圍敘述串列 ＋ 收尾改寫；`0xFE`／`0xFD` 的 153 處用途；商店入口再排除四條 |
 | [`docs/re/69-gate-flags.md`](docs/re/69-gate-flags.md) | 條件閘的四個旗標（記錄 `+0x00` 低位）；條件串列的 `0xFF` 之後接一張**逐條件改寫表**；`0xFE`／`0xFD` 的沿用暫存 |
 | [`docs/re/97-playtest-sampling.md`](docs/re/97-playtest-sampling.md) | 抽樣試玩第一輪：七段流程各走一遍，修掉六個「編得過、測得過、玩不動」的缺口，剩下的列在 §4 |
-| [`docs/re/98-a0-wiring.md`](docs/re/98-a0-wiring.md) | 補完 A0：中文的三層接線、店家庫存跟著存檔走、「全隊倒下」確認是原版行為，以及結局觸發點縮到一個具體的下一步 |
+| [`docs/re/98-a0-wiring.md`](docs/re/98-a0-wiring.md) | 補完 A0：中文的三層接線、店家庫存跟著存檔走、「全隊倒下」確認是原版行為 |
+| [`docs/re/100-ending-trigger.md`](docs/re/100-ending-trigger.md) | **結局的觸發點**：不在資料裡，在主迴圈的 `sub_1CB30`；自毀倒數 240 刻、opcode 35、科奇斯基地反應爐層的完整啟動序列 |
 | [`docs/spec/00-index.md`](docs/spec/00-index.md) | **規格索引與閘門狀態**：哪些可以動工、其餘擋在什麼上 |
 | [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
 | [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |
@@ -304,7 +305,8 @@
 `cmd/wasteland -mode play` 從**標題畫面**開場（按 `S` 進遊戲，`docs/re/95`），
 可以走地圖、用指令列七項（`USE`／`ENC`／`ORDER`／`DISBAND`／`VIEW`／`SAVE`／`RADIO` 全部接上）、
 遇敵進戰鬥（名單畫面下指令、逐回合打完）、踩進設施買賣、治療、學技能、在 Ranger Center 建角色（名字可打中文）、存檔，設施圖上的局部動畫會動。
-結局播得出來（`wl-shot -mode end`），但**資料裡沒有觸發點**（`docs/re/97` §4.2）。
+**結局玩得到**：科奇斯基地反應爐層的四根圓柱（四把鑰匙）→ 按鈕 → 紅黃綠藍四站 →
+自毀倒數 240 刻 → 結局。觸發點不在資料裡而在主迴圈（`docs/re/100`）。
 **中文化完成**：4,854 條可翻字串 ＋ 段落書 162 段，**而且畫面上真的是中文**——
 戰鬥全程、設施選單與清單、角色管理、指令列訊息都走目錄（`docs/re/98` §2）。
 
@@ -314,13 +316,16 @@
 折價指數 0 變全免、角色管理叫不出來、`Save` 沒寫檔、設施進場沒選單、
 清單印編號不印名字。接著把它列的 A0 五項補完（`docs/re/98`）：
 中文接線、店家庫存持久化、病名，加上確認「全隊倒下遊戲照走」是原版行為。
-**只剩結局的資料側觸發點沒解**——跳表第 4 格在 42 張地圖裡零筆。
+結局的觸發點也解了（`docs/re/100`）：跳表第 4 格在 42 張地圖裡零筆是**設計**——
+索引 4 由 `sub_1CB30` 在自毀倒數到期時合成。連帶補上三段接線：
+`USE` 的收尾改寫、nibble 8 問答的呈現層、腳本 opcode 35。
+**`TestCochiseEndgame` 從四把鑰匙走到結局，這個遊戲玩得完了。**
 
 ### 7.1 下一輪要做的
 
 > **交接用的 TODO 在 [`WORKLIST.md`](WORKLIST.md) 的「TODO：下一個 session
-> 從這裡接」一節**（第三版：T1 ＝ 結局的資料側觸發點，是唯一還擋玩家的）。
-> 換 session 先讀那一份。
+> 從這裡接」一節**。T1（結局的觸發點）2026-08-16 完成，**現在沒有一項擋著
+> 把遊戲玩完**。換 session 先讀那一份。
 
 下面兩條是已經結案的紀錄，留著是因為它們是驗收數字的來源。
 

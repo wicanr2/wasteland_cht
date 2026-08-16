@@ -727,6 +727,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | [`94`](94-enc-command.md) | `ENC` ＝ 遭遇驅動器的手動入口（`0x11CE7` 是 `sub_11CD0` 的中途入口）|
 | [`95`](95-main-menu.md) | 主選單 `sub_1630C`：只有 `Start` 一項，沒有新遊戲／讀檔 |
 | [`96`](96-ending.md) | 結局 `0x1B4F0` ＝ 設施跳表 `ds:A4E0h` 第 4 格；`END.CPA` 第二段是動畫腳本 |
+| [`100`](100-ending-trigger.md) | **結局的觸發點**：資料裡沒有第 4 格，是 `sub_1CB30`（主迴圈 `0x16C28`）在自毀倒數 240 刻到期時合成 `al ← 84h`；倒數由腳本 opcode 35（資源 20 記錄 4）啟動 |
 | [`21`](21-attributes.md) | 七個屬性的記錄位移、屬性→修正值階梯、檢定骰、角色建立 |
 | [`22`](22-shop-and-items.md) | 商店、價格公式、物品資料表（95 筆 × 8 bytes） |
 | [`23`](23-picture-format.md) | 圖片格式：packed 4bpp ＋ 列間 XOR delta、82 張 `ALLPICS` |

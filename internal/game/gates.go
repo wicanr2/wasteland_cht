@@ -386,6 +386,62 @@ func (p *Party) UseGate(r *rng.State, record []byte, c *Character,
 	return -1, false
 }
 
+// UseResult 是 `USE` 打在一格條件閘上的完整結果。
+//
+// `UseGate` 只回答「哪一條吻合、過了沒」，但原版在那之後還有收尾
+// （`0x13D18` 與 `loc_13D3F`）：**兩條路都會改寫腳下那一格**。
+// 少了這一步，科奇斯基地的四根圓柱插了鑰匙也不會有下一根出現——
+// 整個結局的啟動序列走不動（`docs/re/100` §3）。
+type UseResult struct {
+	Hit     int  // 命中的條件序號，−1 ＝ 沒有吻合的條件
+	Passed  bool // 命中那一條過了沒
+	PatchAt int  // 收尾要拿記錄的哪個位移去改寫這一格
+	Message int  // 要印的字串編號（0 ＝ 不印）
+	// Failed 是失敗那條路套出去的懲罰（記錄 `+0x08`／`+0x09`）。
+	Failed []GateHurt
+}
+
+// UseOn 是 `USE` 的完整規則層：判定 ＋ 收尾。
+//
+// 三條路照原版（`docs/re/92` §4）：
+//
+//	命中且通過   → 位移 4（`GateCondPatch` 設起來時改由通過的那一條算），印 +0x02
+//	命中但沒通過 → 位移 6，印 +0x03，套懲罰
+//	沒有吻合的   → `loc_13D3F` 同一條：位移 6，套懲罰
+//
+// ⚠ **「沒有吻合的條件」不是什麼都不做**——原版照樣改寫這一格。
+// 多數記錄的 `+0x06`／`+0x07` 是 `0xFF 0xFF`（不改），所以看起來像沒事。
+func (p *Party) UseOn(r *rng.State, record []byte, c *Character,
+	kind UseKind, id byte, tbl SkillTable) UseResult {
+	hit, passed := p.UseGate(r, record, c, kind, id, tbl)
+	out := UseResult{Hit: hit, Passed: passed, PatchAt: gatePatchFail}
+	if hit >= 0 && passed {
+		out.PatchAt = gatePatchPass
+		if len(record) > 0 && record[0]&GateCondPatch != 0 {
+			out.PatchAt = CondPatchOffsetFor(record, hit)
+		}
+		out.Message = recordString(record, 2)
+		return out
+	}
+	out.Message = recordString(record, 3)
+	// 懲罰的形狀與自動評估同一支：`GateWholeParty` 設起來就全隊各套一次。
+	if len(record) > 0 && record[0]&GateWholeParty != 0 {
+		for j, m := range p.Members {
+			field, amount := applyGatePenalty(r, m, record)
+			out.Failed = append(out.Failed, GateHurt{Member: j, Field: field, Amount: amount})
+		}
+		return out
+	}
+	for j, m := range p.Members {
+		if m != c {
+			continue
+		}
+		field, amount := applyGatePenalty(r, m, record)
+		out.Failed = append(out.Failed, GateHurt{Member: j, Field: field, Amount: amount})
+	}
+	return out
+}
+
 // matchUse 是「這一條條件吃不吃這個東西」。
 func matchUse(g Gate, kind UseKind, id byte) bool {
 	switch kind {
