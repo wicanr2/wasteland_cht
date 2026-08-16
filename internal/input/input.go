@@ -29,6 +29,21 @@ const (
 	KeySpace
 )
 
+// Mouse 是這一幀的滑鼠狀態（`docs/spec/29`）。
+//
+// ⚠ **座標是高解畫布上的像素**（960 × 600），不是視窗像素也不是字元格。
+// 換算成格子是消費端的事——視窗放大倍率由呈現層吃掉。
+//
+// Left／Right 是**這一幀剛按下**（edge），不是按住：按住不放應該只算一次，
+// 否則點一下會連走好幾格。
+type Mouse struct {
+	X, Y        int
+	Left, Right bool
+}
+
+// Any 回報這一幀有沒有按鍵動作。
+func (m Mouse) Any() bool { return m.Left || m.Right }
+
 // Direction 照原版的方向編號（docs/re/26 §2）。
 type Direction int
 
@@ -78,6 +93,10 @@ type Input struct {
 	Runes []rune
 	// Fn 是這一幀按下的功能鍵（F1／F2／F5／F9）。
 	Fn Function
+
+	// Mouse 是這一幀的滑鼠。**滑鼠不是新的一條輸入路徑**：
+	// 場景會把點擊翻成與鍵盤等價的 Input 再走同一條路（`docs/spec/29` §2）。
+	Mouse Mouse
 }
 
 // Bindings 是預設對應。

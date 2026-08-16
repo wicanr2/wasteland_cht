@@ -74,10 +74,10 @@ type Scene interface {
 // Poller 是有亂數產生器要跟著輪詢推進的場景（規格 02 §1.1）。
 type Poller interface{ PollRNG() }
 
-// HiScene 是會輸出 640 × 400 高解析畫面的場景（中文用，`docs/spec/10`）。
+// HiScene 是會輸出 960 × 600 高解析畫面的場景（中文用，`docs/spec/10`）。
 //
-// 中文點陣字是 16 × 15，塞不進原版 8 × 8 的字元格——所以 CJK 那條路
-// 把畫面放大兩倍再疊字。場景實作了這個介面，整個視窗就走 640 × 400。
+// 中文點陣字是 24 × 24，塞不進原版 8 × 8 的字元格——所以 CJK 那條路
+// 把畫面放大三倍再疊字。場景實作了這個介面，整個視窗就走 960 × 600。
 type HiScene interface{ HiFrame() *render.HiFrame }
 
 // Sounder 是會發出 PC 喇叭音效的場景。
@@ -108,6 +108,8 @@ type Game struct {
 	buf   []input.Key
 	// animTick 是動畫的分頻計數（見 animTicksPerFrame）。
 	animTick int
+	// mouse 是這一幀的滑鼠（`docs/spec/29`）。
+	mouse input.Mouse
 	// music 是背景音樂（重製版自己加的，nil ＝ 沒有）。
 	music *Music
 }
@@ -157,6 +159,17 @@ func (g *Game) Update() error {
 			g.buf = append(g.buf, mapped)
 		}
 	}
+	// 滑鼠：Ebiten 的 CursorPosition 回的就是 Layout 的邏輯座標，
+	// 也就是高解畫布的像素——不必再除視窗放大倍率。
+	// **只送剛按下那一幀**（`inpututil` 的 JustPressed）：按住不放應該只算一次，
+	// 否則點一下會連走好幾格。
+	mx, my := ebiten.CursorPosition()
+	g.mouse = input.Mouse{
+		X: mx, Y: my,
+		Left:  inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft),
+		Right: inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight),
+	}
+
 	// 每幀推進一次亂數產生器 ＝ 原版的鍵盤輪詢（規格 02 §1.1）。
 	// **不叫它每一局的遭遇序列都會一樣**——產生器沒有種子。
 	if p, ok := g.scene.(Poller); ok {
@@ -185,7 +198,9 @@ func (g *Game) Update() error {
 			g.synth.Trigger(n)
 		}
 	}
-	keep, err := g.scene.Update(input.Read(g.buf, g.runes))
+	in := input.Read(g.buf, g.runes)
+	in.Mouse = g.mouse
+	keep, err := g.scene.Update(in)
 	if err != nil {
 		return err
 	}
@@ -214,8 +229,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	screen.DrawImage(g.img, nil)
 }
 
-// Layout 回傳內部解析度：中文畫面 640 × 400，其餘 320 × 200。
-// 放大由 Ebiten 處理，內部座標永遠是原版的（或原版的兩倍）。
+// Layout 回傳內部解析度：中文畫面 960 × 600，其餘 320 × 200。
+// 放大由 Ebiten 處理，內部座標永遠是原版的（或原版的三倍）。
+//
+// ⚠ 滑鼠座標跟著這個走：`ebiten.CursorPosition` 回的就是這裡的座標系，
+// 所以 `internal/play` 收到的是高解畫布的像素，不是視窗像素。
 func (g *Game) Layout(int, int) (int, int) {
 	if g.hi != nil {
 		return render.HiScreenWidth, render.HiScreenHeight

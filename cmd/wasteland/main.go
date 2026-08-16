@@ -93,6 +93,11 @@ func main() {
 				if jerr := s.LoadJournal(*refsFile, *paraFile); jerr != nil {
 					fmt.Fprintln(os.Stderr, "提示：段落手札載不到 —", jerr)
 				}
+				// 滑鼠游標（原版的 `CURS`）。載不到就沒有游標圖，
+				// 滑鼠照樣能點（`docs/spec/29` §6）。
+				if cerr := s.LoadCursors(); cerr != nil {
+					fmt.Fprintln(os.Stderr, "提示：滑鼠游標載不到 —", cerr)
+				}
 			}
 			// 音效資料在執行檔的 seg005 裡（docs/re/44），拿不到就靜音跑，
 			// **不要讓沒有聲音變成開不起來**。

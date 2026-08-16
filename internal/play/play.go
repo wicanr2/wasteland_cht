@@ -75,6 +75,12 @@ type Scene struct {
 	// wipe 是全隊倒下的死亡畫面（`docs/spec/28`、`docs/re/99`）。
 	wipe wipeState
 
+	// cursors 是 `CURS` 的八個滑鼠游標；nil ＝ 沒有游標圖，滑鼠照樣能點。
+	// ⚠ **哪個圖形對應哪個狀態沒有解**（`docs/re/57` §4），固定用第 0 個。
+	cursors []assets.Cursor
+	// mouse 是最後一次收到的滑鼠位置，畫游標用。
+	mouse input.Mouse
+
 	// journalHead 是手札的標題列（中文，Big5）。空的就走英文 message。
 	journalHead []byte
 
@@ -275,22 +281,66 @@ func (s *Scene) HiFrame() *render.HiFrame {
 		return h
 	}
 	// 英文訊息占掉第一行時，中文從第二行起——不要疊上去。
-	col, row := render.MsgCol, render.MsgRow
+	row := render.MsgRow
 	if s.message != "" || len(s.journalHead) > 0 {
 		row++
 	}
-	// ⚠ **不能整串兩兩配對。** 譯文裡會夾 ASCII（人名、數字、標點），
-	// 把它當成 Big5 的高位元組會讓**之後整行都錯位**——症狀是畫面上
-	// 出現一串看得懂筆畫卻不成字的東西，而不是空白。
-	for i := 0; i < len(s.cjk); {
+	eachMessageCell(s.cjk, row, func(col, row int, ascii, hi, lo byte) {
+		if ascii != 0 {
+			s.drawASCII(h, ascii, col, row)
+			return
+		}
+		h.DrawCJK(s.eten, hi, lo, col, row, 15)
+	})
+	s.drawCursor(h)
+	return h
+}
+
+// drawCursor 把滑鼠游標畫在高解畫布上。
+//
+// ⚠ 游標是**唯一不對齊字元格的東西**：位置是像素。
+// 合成照疊圖那一套（`螢幕 ← (背景 AND 遮罩) OR 圖形`，`docs/re/57` §2）。
+func (s *Scene) drawCursor(h *render.HiFrame) {
+	if len(s.cursors) == 0 || (s.mouse.X == 0 && s.mouse.Y == 0) {
+		return
+	}
+	c := s.cursors[0] // 哪個圖形對應哪個狀態沒有解，固定用第 0 個
+	for y := 0; y < assets.CursorSize; y++ {
+		for x := 0; x < assets.CursorSize; x++ {
+			i := y*assets.CursorSize + x
+			// 遮罩比圖形大一圈：先把背景清掉，再疊圖形。
+			px, py := s.mouse.X+x*render.HiScale, s.mouse.Y+y*render.HiScale
+			for dy := 0; dy < render.HiScale; dy++ {
+				for dx := 0; dx < render.HiScale; dx++ {
+					if c.Mask[i] {
+						h.Set(px+dx, py+dy, 0)
+					}
+					if v := c.Pix.Pix[i]; v != 0 {
+						h.Set(px+dx, py+dy, v)
+					}
+				}
+			}
+		}
+	}
+}
+
+// eachMessageCell 逐格走訊息視窗裡的中文正文：會自己換行、滿了就停。
+//
+// 與 `eachCell` 的差別只有「會換行」。同樣是**繪製與滑鼠命中共用**的那一支。
+//
+// ⚠ 訊息視窗滿了就停（`row > MsgRowEnd`）——分頁是控制碼的事
+// （`docs/re/14` §4），不是這裡偷偷把字擠進去。
+func eachMessageCell(text []byte, row int, f func(col, row int, ascii, hi, lo byte)) {
+	col := render.MsgCol
+	for i := 0; i < len(text); {
 		if col >= render.MsgCol+render.MsgWidth {
 			col = render.MsgCol
 			row++
 		}
 		if row > render.MsgRowEnd {
-			break // 訊息視窗滿了；分頁是控制碼的事（docs/re/14 §4）
+			return
 		}
-		c := s.cjk[i]
+		c := text[i]
 		switch {
 		case c == '\r' || c == '\n':
 			// 原版的斷行控制碼：換一行、不佔格。
@@ -299,19 +349,17 @@ func (s *Scene) HiFrame() *render.HiFrame {
 			i++
 			continue
 		case c < 0x80:
-			s.drawASCII(h, c, col, row)
+			f(col, row, c, 0, 0)
 			i++
 		default:
-			if i+1 >= len(s.cjk) {
-				i++ // 落單的高位元組：跳過，不要拿下一輪的 byte 湊
-				continue
+			if i+1 >= len(text) {
+				return // 落單的高位元組：跳過，不要拿下一輪的 byte 湊
 			}
-			h.DrawCJK(s.eten, s.cjk[i], s.cjk[i+1], col, row, 15)
+			f(col, row, 0, text[i], text[i+1])
 			i += 2
 		}
 		col++
 	}
-	return h
 }
 
 // drawHiTextLayer 把原本畫在低解那張上的英文與數字，改用倚天半形字模
@@ -632,6 +680,18 @@ func (s *Scene) Invalidate() { s.dirty = true }
 // （`sub_17FEE` 在旗標非 0 時擋住地圖繪製，docs/re/25 §2.5）——
 // 轉下去會變成「在戰鬥裡走路」。
 func (s *Scene) Update(in input.Input) (bool, error) {
+	// 滑鼠先翻成與鍵盤等價的輸入，再走同一條路（`docs/spec/29` §2）。
+	if in.Mouse.X != 0 || in.Mouse.Y != 0 {
+		s.mouse = in.Mouse
+		s.dirty = true
+	}
+	if in.Mouse.Any() {
+		m, ok := s.translateMouse(in.Mouse)
+		if !ok {
+			return true, nil
+		}
+		in = m
+	}
 	// 離開確認蓋在所有模式上面：**它自己收 Y／N，其餘按鍵一律不往下傳**。
 	if s.quitAsk {
 		return s.updateQuit(in)
@@ -1606,21 +1666,36 @@ func (s *Scene) drawASCII(h *render.HiFrame, c byte, col, row int) {
 // ⚠ **逐 byte 判型別，不能整串兩兩配對**——這一行一定夾著熱鍵字母
 // （「U 使用」），把 `U` 當成 Big5 高位元組會讓整行往後錯開。
 func (s *Scene) drawCJKLine(h *render.HiFrame, text []byte, col, row int) {
+	eachCell(text, col, row, func(col, row int, c byte, hi, lo byte) {
+		if c != 0 {
+			s.drawASCII(h, c, col, row)
+			return
+		}
+		h.DrawCJK(s.eten, hi, lo, col, row, 15)
+	})
+}
+
+// eachCell 逐格走一行中英混排的 Big5，把「第幾格畫什麼」交給呼叫端。
+//
+// **繪製與滑鼠命中判定共用這一支**（`docs/spec/29` §3）：兩邊各走一次的話，
+// 遲早會漂成「看到的字」與「點到的字」不一致，而那種錯不會有任何症狀。
+//
+// ⚠ **逐 byte 判型別，不能整串兩兩配對**——這一行一定夾著熱鍵字母
+// （「U 使用」），把 `U` 當成 Big5 高位元組會讓整行往後錯開。
+// ⚠ **一個中文字佔一格，不是兩格**（`docs/spec/10` §3）。
+func eachCell(text []byte, col, row int, f func(col, row int, ascii, hi, lo byte)) {
 	for i := 0; i < len(text); {
 		c := text[i]
 		if c < 0x80 {
-			s.drawASCII(h, c, col, row)
+			f(col, row, c, 0, 0)
 			col++
 			i++
 			continue
 		}
 		if i+1 >= len(text) {
-			break
+			return
 		}
-		h.DrawCJK(s.eten, text[i], text[i+1], col, row, 15)
-		// ⚠ **一個中文字佔一格，不是兩格**（`docs/spec/10` §3：倚天 16 × 15
-		// 剛好是放大後的一個字元格）。前進兩格會把整行拉開一倍——
-		// 指令列與設施清單都會變成「使 用」這種疏排，而且尾巴掉出畫面。
+		f(col, row, 0, text[i], text[i+1])
 		col++
 		i += 2
 	}
