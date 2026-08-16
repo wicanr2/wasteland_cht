@@ -72,6 +72,9 @@ type Scene struct {
 	// ending 是結局播放的狀態（`docs/re/96`）。
 	ending endingState
 
+	// wipe 是全隊倒下的死亡畫面（`docs/spec/28`、`docs/re/99`）。
+	wipe wipeState
+
 	// journalHead 是手札的標題列（中文，Big5）。空的就走英文 message。
 	journalHead []byte
 
@@ -238,11 +241,18 @@ func (s *Scene) HiFrame() *render.HiFrame {
 	// ⚠ 這一行要與 `Frame` 的條件一致，**再加上標題畫面**：`Frame` 在標題那一支
 	// 提早 return，這裡卻是照著模式旗標判斷，漏掉 `s.title` 就會把指令列
 	// 畫到標題畫面上，還會蓋掉同一列的 `Start`（`docs/re/95`）。
-	if !s.title && s.facility == nil && s.combat == nil && !s.ending.active {
+	if !s.title && !s.wipe.active && s.facility == nil && s.combat == nil &&
+		!s.ending.active {
 		s.drawCJKLine(h, s.uiText("cmd.bar"), 0, render.CmdRow)
 	}
 	if s.journalOpen && len(s.journalHead) > 0 {
 		s.drawCJKLine(h, s.journalHead, render.MsgCol, render.MsgRow)
+	}
+	// 死亡畫面的地點名那一行（與設施招牌同一個位置）。
+	if s.wipe.active {
+		if zh := s.wipePlaceCJK(); len(zh) > 0 {
+			s.drawCJKLine(h, zh, render.FacilityNameCol, render.FacilityNameRow)
+		}
 	}
 	// 戰鬥名單的表頭：原版是寫死的 ASCII，中文走 `ui:combat.hdr*`
 	// （與指令列同一條路，8 × 8 的字模畫不出中文）。
@@ -314,7 +324,7 @@ func (s *Scene) drawHiTextLayer(h *render.HiFrame) {
 		return
 	}
 	// 時鐘：外框上緣，切模式不影響它（`docs/re/27` §4）。
-	if !s.ending.active {
+	if !s.ending.active && !s.wipe.active {
 		c := s.world.Clock
 		s.drawASCIILine(h, fmt.Sprintf("%02d:%02d", c.Hour, c.Minute),
 			render.ClockCol, render.ClockRow)
@@ -567,6 +577,8 @@ func (s *Scene) Mode() string {
 	switch {
 	case s.quitAsk:
 		return "quit"
+	case s.wipe.active:
+		return "wipe"
 	case s.help:
 		return "help"
 	case s.settingsOpen:
@@ -655,6 +667,9 @@ func (s *Scene) Update(in input.Input) (bool, error) {
 	if s.ending.active {
 		return s.updateEnding(in)
 	}
+	if s.wipe.active {
+		return s.updateWipe(in)
+	}
 	if s.roster.active {
 		return s.updateRoster(in)
 	}
@@ -692,7 +707,10 @@ func (s *Scene) Update(in input.Input) (bool, error) {
 	if s.world.SelfDestructDue() {
 		s.world.DisarmSelfDestruct()
 		s.BeginEnding()
+		return true, nil
 	}
+	// 全隊倒下的三分支（`0x16C2B`，就接在自毀那道後面）。
+	s.checkWipe()
 	return true, nil
 }
 
@@ -1290,7 +1308,9 @@ func (s *Scene) Frame() *render.Frame {
 		s.dirty = false
 		return f
 	}
-	if s.ending.active {
+	if s.wipe.active {
+		s.drawWipe(f)
+	} else if s.ending.active {
 		s.drawEnding(f)
 	} else {
 	switch {
@@ -1305,14 +1325,15 @@ func (s *Scene) Frame() *render.Frame {
 	}
 	// 時鐘在外框上緣，不屬於地圖視窗——切模式不影響它（docs/re/27 §4）。
 	// **結局沒有時鐘也沒有指令列**：那時候已經不在遊戲裡了。
-	if !s.ending.active && !s.hiText() {
+	if !s.ending.active && !s.wipe.active && !s.hiText() {
 		_ = f.DrawClock(s.font, int(s.world.Clock.Hour), int(s.world.Clock.Minute))
 	}
 
 	// 地圖模式才有指令列（`docs/re/91`）——戰鬥與設施有自己的選單。
 	// **有中文字型時這一行改由 HiFrame 畫**（見 drawCommandBarCJK）：
 	// 8 × 8 的字模畫不出中文，先畫英文再蓋會留下殘影。
-	if s.facility == nil && s.combat == nil && !s.ending.active && s.eten == nil {
+	if s.facility == nil && s.combat == nil && !s.ending.active && !s.wipe.active &&
+		s.eten == nil {
 		_ = f.DrawLineAt(s.font, commandBar(), 0, render.CmdRow)
 	}
 

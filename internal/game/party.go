@@ -139,3 +139,50 @@ func (p *Party) Tick16(tick uint8) {
 		}
 	}
 }
+
+// WipeState 是「這一組倒了沒」的三種結果（`docs/spec/28` §2）。
+type WipeState int
+
+const (
+	// WipeNone：還有人站著，什麼都不做。
+	WipeNone WipeState = iota
+	// WipeSwitch：全倒但至少一個人救得回來 —— 原版自動切到下一支隊伍。
+	WipeSwitch
+	// WipeDead：每個人都倒下而且都有傷勢或狀態 —— 死亡畫面。
+	WipeDead
+)
+
+// Wipe 判斷這一組的處置（`0x16C2B`，`docs/re/99` §3）。
+//
+// ⚠ **「救不救得回來」不是「倒了幾個」。** CON ≤ 0 但傷勢等級 0、
+// 狀態位元也是 0 的人是**會自己醒的昏迷**（`docs/re/35`：不省人事會自己醒，
+// 重傷開始才會一路往下掉）。只要有這種人，這一組就還有救，原版走換隊。
+//
+// 原版的寫法是「找到第一個**不是**『倒下且有傷勢或狀態』的人就跳出迴圈」，
+// 跳出去之後再問一次「還有沒有人站著」。這裡照它的語意寫成三個分支，
+// 行為一樣而讀得懂。
+func (p *Party) Wipe() WipeState {
+	if p == nil || len(p.Members) == 0 {
+		return WipeDead // 0 人也走死亡畫面（原版的第一個分支）
+	}
+	standing, salvageable := false, false
+	for _, c := range p.Members {
+		if c == nil {
+			continue
+		}
+		if !c.Down() {
+			standing = true
+			continue
+		}
+		if c.WoundLevel() == 0 && c.Status == 0 {
+			salvageable = true
+		}
+	}
+	switch {
+	case standing:
+		return WipeNone
+	case salvageable:
+		return WipeSwitch
+	}
+	return WipeDead
+}
