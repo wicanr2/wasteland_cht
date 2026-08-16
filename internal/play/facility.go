@@ -47,6 +47,9 @@ type FacilityScene struct {
 	// 但那是「還沒接上」的樣子，不是假裝有名字。
 	ItemName  func(byte) string
 	SkillName func(byte) string
+	// CJKPlace 把招牌的英文原名換成中文（`internal/play/places.go`）。
+	// **招牌不在字串表裡**，所以它走查表不走目錄 key。
+	CJKPlace func(string) []byte
 	// CJKName 是同兩張表的中文（Big5）。查不到回 nil，那一行就退回英文。
 	CJKItemName  func(byte) []byte
 	CJKSkillName func(byte) []byte
@@ -160,8 +163,14 @@ func (s *Scene) EnterFacility(record []byte) *FacilityScene {
 		Picture:  facilityPicture[f.Kind],
 		state:    &shopState{},
 	}
+	fs.CJKPlace = s.placeCJK
 	if f.Name != "" {
 		fs.Lines = append(fs.Lines, f.Name)
+		// ⚠ 這裡與 `shop.go` 的選單重建**兩處都要設**：進場先擺一份
+		// （角色管理那條路不重建選單），商店那條路每次重建又會蓋掉，
+		// 所以那邊也要走同一個查表 hook。少設一處的症狀是
+		// 「有些設施的招牌是中文、有些是英文」。
+		fs.CJKLines = append(fs.CJKLines, fs.CJKPlace(f.Name))
 	}
 	fs.ItemName, fs.SkillName = s.itemName, s.skillName
 	fs.CJKItemName, fs.CJKSkillName = s.itemNameCJK, s.skillNameCJK

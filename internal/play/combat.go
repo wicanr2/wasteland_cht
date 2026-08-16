@@ -347,3 +347,56 @@ func (s *CombatScene) PartyFlees(dir game.FleeDirection) {
 
 // Done 回報指令階段是不是問完了。
 func (s *CombatScene) Done() bool { return s.Turn < 0 }
+
+// rosterHeaderCJK 組戰鬥名單的中文表頭。
+//
+// **原版的表頭是寫死的 ASCII**（`RosterHeader`），不在字串表裡，所以翻譯走
+// `ui:combat.hdr*` 這條路，與指令列同一個做法。
+//
+// ⚠ 與原版的一個差別：**中文標籤對齊值的欄座標**。原版的標籤位置與資料欄
+// 差了一兩格（`RosterHeader` 的註解），照抄那個偏移在中文下會看起來像沒對準。
+// 值的欄座標一格都沒動，動的只有標籤。
+func rosterHeaderCJK(ui func(string) []byte) []byte {
+	if ui == nil {
+		return nil
+	}
+	var line []byte
+	// ⚠ 欄座標的單位是**格**不是 byte：一個中文字兩個 byte、只佔一格
+	// （`docs/spec/10` §3）。拿 len 去對欄位會越補越偏。
+	pad := func(to int) {
+		for cjkCells(line) < to {
+			line = append(line, ' ')
+		}
+	}
+	for _, f := range []struct {
+		col  int
+		name string
+	}{
+		{colName, "combat.hdrname"},
+		{colAC, "combat.hdrac"},
+		{colAmmo, "combat.hdrammo"},
+		{colMaxCON, "combat.hdrmax"},
+		{colCON, "combat.hdrcon"},
+		{colWeapon, "combat.hdrweapon"},
+	} {
+		t := ui(f.name)
+		if len(t) == 0 {
+			return nil // 少一條就整條退回英文，不要拼出半中半英的表頭
+		}
+		pad(f.col)
+		line = append(line, t...)
+	}
+	return line
+}
+
+// cjkCells 是這串 Big5 佔幾格。
+func cjkCells(b []byte) int {
+	n := 0
+	for i := 0; i < len(b); i++ {
+		if b[i] >= 0x80 {
+			i++
+		}
+		n++
+	}
+	return n
+}

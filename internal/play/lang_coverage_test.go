@@ -105,8 +105,19 @@ func TestTranslationCoverage(t *testing.T) {
 		uiKeys++
 	}
 
-	orphans := cat.Len() - hit - uiKeys
+	// `place:` 那組是**地點招牌**（地圖記錄與存檔裡的明文 ASCII，不在字串表裡）。
+	// 這裡只把數量扣掉；「有沒有多餘或漏掉的招牌」由 places_test.go 兩條
+	// 對著遊戲資料雙向驗——那比在這裡列一份手抄清單可靠。
+	placeKeys := 0
+	cat.Each(func(key string, _ []byte) {
+		if strings.HasPrefix(key, "place:") {
+			placeKeys++
+		}
+	})
+
+	orphans := cat.Len() - hit - uiKeys - placeKeys
 	t.Logf("介面文字（ui:）：%d 條", uiKeys)
+	t.Logf("地點招牌（place:）：%d 條", placeKeys)
 	t.Logf("目錄裡對不上任何原文的 key：%d 條", orphans)
 	if orphans < 0 {
 		t.Fatalf("hit(%d) 超過目錄長度(%d)——key 算法有重複", hit, cat.Len())
@@ -180,6 +191,8 @@ var uiCatalogueKeys = []string{
 	"facility.learned", "facility.row", "facility.skillrow",
 	"facility.sellrow", "facility.buyrow",
 	// F1 說明、F2 設定、F10 離開確認、F5／F9 快速存讀檔（重製版自己加的）。
+	"combat.hdrname", "combat.hdrac", "combat.hdrammo",
+	"combat.hdrmax", "combat.hdrcon", "combat.hdrweapon",
 	"help.title", "help.move", "help.cmdbar",
 	"help.panels", "help.f5f9", "help.quit",
 	"settings.title", "settings.music", "settings.volume", "settings.sfx",

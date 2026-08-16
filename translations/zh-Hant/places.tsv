@@ -1,0 +1,29 @@
+# 地點招牌。**這些字不在字串表裡**——它們是地圖記錄與存檔裡的明文 ASCII
+# （`docs/re/29` §5.4、`docs/re/30`），所以翻譯走「顯示時查表」，
+# 一個 byte 都不改玩家的存檔（`CLAUDE.md` §4 的存檔策略）。
+#
+# ⚠ 譯文的格數不可超過原文：招牌畫在設施畫面固定的一行上。
+# 「Vegas Lib.」只有 10 格，塞不下「維加斯圖書館」，所以用「賭城圖書館」。
+place:AG. store	農業雜貨
+place:Blackmarket	黑市
+place:Books	書店
+place:Chopper Sim.	直升機模擬
+place:Clone prep.	複製準備室
+place:HOLY KNOWING	聖知識中心
+place:Infirmary	醫護室
+place:Library	圖書館
+place:LV Infirmary	維加斯醫護室
+place:Market	市場
+place:New Thoughts	新思想
+place:NUCLEAR AID	核子救護
+place:Old Doc Bobs	老鮑伯醫生
+place:Patch em' up	補一補診所
+place:Q. Emergency	石英城急診
+place:Q. Emporium	石英城商場
+place:Ranger Ctr.	遊俠中心
+place:Sickbay	醫務室
+place:Store	商店
+place:Tech section	技術部門
+place:Thrift store	二手商店
+place:Trading car	交易車廂
+place:Vegas Lib.	賭城圖書館

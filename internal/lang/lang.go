@@ -119,3 +119,9 @@ func ParagraphKey(n int) string {
 // 原版把指令列與幾個選單寫成 ASCII 字面值、不走字串表，所以抽不出 key；
 // 但它們玩家看得到，一樣要進語言資料檔（`CLAUDE.md` §3.3）。
 func UIKey(name string) string { return "ui:" + name }
+
+// PlaceKey 是地點招牌的 key。
+//
+// 地點名是**資料裡的明文 ASCII**（地圖記錄與存檔），不在字串表裡，
+// 所以 key 就是英文原名本身——查表用的是畫面上原本要印的那串字。
+func PlaceKey(name string) string { return "place:" + name }
