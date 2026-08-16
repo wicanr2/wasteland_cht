@@ -75,6 +75,11 @@ type Scene struct {
 	// journalHead 是手札的標題列（中文，Big5）。空的就走英文 message。
 	journalHead []byte
 
+	// placeIntro 是開場那句地點名的英文原文（存檔的全域狀態，`docs/re/30`）。
+	// 留著是因為**它要在三個不同的時機重印**：建場景、載完翻譯目錄、
+	// 從標題畫面按 Start 進地圖。
+	placeIntro string
+
 	// title 為 true 時停在標題畫面的主選單（`docs/re/95`）。
 	title    bool
 	titlePic *assets.Indexed
@@ -152,19 +157,32 @@ func (s *Scene) LoadCatalogue(path string) error {
 	// ⚠ **順序**：`New` 比 `LoadCatalogue` 早跑，所以開場那句地點名在建場景
 	// 的時候還查不到中文（目錄還沒載）。載完目錄要回頭補一次，
 	// 否則畫面第一句永遠是英文——而那看起來像「這一句沒翻」。
-	s.sayPlace()
+	//
+	// ⚠ 標題畫面時不補：那時訊息視窗不該有字，補上去會印在標題圖上。
+	// 進地圖那一下由 `updateTitle` 補（`docs/re/95`）。
+	if !s.title {
+		s.sayPlace()
+	}
 	return nil
 }
 
-// sayPlace 把開場那句地點名換成中文。查不到就維持英文。
+// sayPlace 印開場那句地點名：查得到中文就印中文，查不到印英文原文。
+//
+// ⚠ **不要用「現在的訊息是不是等於地點名」當條件。** 那個寫法在
+// `cmd/wasteland` 的順序（`New` → `BeginTitle` → `LoadCatalogue`）下不成立——
+// `BeginTitle` 已經把訊息清空了，於是整句話消失。
+// 而 `wl-shot` 的順序剛好相反，截圖看起來完全正常：**這個 bug 只在
+// 真的開視窗玩的時候看得到**。所以這裡改成看自己記下來的 placeIntro。
 func (s *Scene) sayPlace() {
-	if s.save == nil || s.message != s.save.Place() {
+	if s.placeIntro == "" {
 		return
 	}
-	if zh := s.placeCJK(s.message); len(zh) > 0 {
+	if zh := s.placeCJK(s.placeIntro); len(zh) > 0 {
 		s.message, s.cjk = "", zh
-		s.dirty = true
+	} else {
+		s.message, s.cjk = s.placeIntro, nil
 	}
+	s.dirty = true
 }
 
 // LoadFont 載入倚天字型；載不到就維持英文，不當成錯誤。
@@ -417,7 +435,8 @@ func New(rom *assets.Rom) (*Scene, error) {
 	if raw, err := rom.SkillTableRaw(); err == nil {
 		s.world.Skills = game.SkillBytes(raw)
 	}
-	s.message = save.Place()
+	s.placeIntro = save.Place()
+	s.sayPlace()
 	if raw, err := rom.LoadItemTable(save.File, 0); err == nil {
 		s.items, s.itemsRaw = game.ParseItemTable(raw), raw
 	} else {

@@ -219,3 +219,42 @@ func sceneWithCatalogue(t *testing.T) *Scene {
 	}
 	return s
 }
+
+// TestPlaceIntroSurvivesTitleScreen：**照 `cmd/wasteland` 的順序**驗開場那句地點名。
+//
+// 真正的執行檔是 `New` → `BeginTitle` → `LoadCatalogue`；`wl-shot` 卻是
+// `New` → `LoadCatalogue` → `BeginTitle`。第一版的實作用「現在的訊息是不是
+// 等於地點名」當條件，於是在遊戲裡整句話消失、在截圖裡完全正常——
+// **只有開視窗玩才看得到**。這一條把那個順序釘住。
+func TestPlaceIntroSurvivesTitleScreen(t *testing.T) {
+	rom := openRom(t)
+	s, err := New(rom)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// 以下三行的順序要與 cmd/wasteland/main.go 一致，換順序這條就白測了。
+	s.BeginTitle()
+	if err := s.LoadCatalogue("../../translations/zh-Hant.cat"); err != nil {
+		t.Skipf("沒有翻譯目錄（%v）", err)
+	}
+
+	// 標題畫面上訊息視窗不該有字。
+	if s.Message() != "" || len(s.CJK()) != 0 {
+		t.Errorf("標題畫面上有字：%q／% X", s.Message(), s.CJK())
+	}
+
+	if _, err := s.Update(input.Input{Dir: input.DirNone, Char: 'S'}); err != nil {
+		t.Fatal(err)
+	}
+	if s.Mode() != "map" {
+		t.Fatalf("按 S 之後停在 %s", s.Mode())
+	}
+	want := s.placeCJK(s.placeIntro)
+	if len(want) == 0 {
+		t.Fatalf("地點名 %q 查不到中文", s.placeIntro)
+	}
+	if string(s.CJK()) != string(want) {
+		t.Errorf("進地圖第一句是 %q／% X，預期中文的 % X",
+			s.Message(), s.CJK(), want)
+	}
+}
