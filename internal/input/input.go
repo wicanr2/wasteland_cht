@@ -20,6 +20,10 @@ const (
 	KeyS
 	KeyD
 	KeyEscape
+	KeyF1
+	KeyF2
+	KeyF5
+	KeyF9
 	KeyF10
 	KeyEnter
 	KeySpace
@@ -47,7 +51,21 @@ const (
 	ActionNone Action = iota
 	ActionConfirm
 	ActionCancel // ESC：取消／返回，**不是離開**
-	ActionQuit   // F10：離開
+	ActionQuit   // F10：離開（要先跳確認、先存檔，見 Scene.updateQuit）
+)
+
+// Function 是功能鍵。
+//
+// **與 Action 分開**是刻意的：`ActionCancel` 有「退一層」的語意，會被每一層
+// 子模式接住；功能鍵要的是「不管在哪一層都叫得出來」，兩者的路由不一樣。
+type Function int
+
+const (
+	FnNone      Function = iota
+	FnHelp               // F1
+	FnSettings           // F2
+	FnQuickSave          // F5
+	FnQuickLoad          // F9
 )
 
 // Input 是一幀收到的輸入。
@@ -58,6 +76,8 @@ type Input struct {
 	Char byte
 	// Runes 是這一幀輸入的完整字元（含中文）。
 	Runes []rune
+	// Fn 是這一幀按下的功能鍵（F1／F2／F5／F9）。
+	Fn Function
 }
 
 // Bindings 是預設對應。
@@ -87,6 +107,14 @@ func Read(justPressed []Key, runes []rune) Input {
 			in.Action = ActionCancel
 		case KeyF10:
 			in.Action = ActionQuit
+		case KeyF1:
+			in.Fn = FnHelp
+		case KeyF2:
+			in.Fn = FnSettings
+		case KeyF5:
+			in.Fn = FnQuickSave
+		case KeyF9:
+			in.Fn = FnQuickLoad
 		case KeyEnter, KeySpace:
 			if in.Action == ActionNone {
 				in.Action = ActionConfirm

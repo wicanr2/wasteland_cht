@@ -67,12 +67,20 @@ func TestQuitWorksInEveryMode(t *testing.T) {
 			rec[0] = 0x80 | byte(game.FacilityShop)
 			s.EnterFacility(rec)
 		}
-		keep, err := s.Update(input.Input{Action: input.ActionQuit})
+		// F10 **不直接離開**：先跳確認，答 Y 才走（`esc-cancel-f10-quit-autosave`）。
+		keep, err := s.Update(input.Input{Dir: input.DirNone, Action: input.ActionQuit})
+		if err != nil {
+			t.Fatalf("%s：%v", name, err)
+		}
+		if !keep || s.Mode() != "quit" {
+			t.Errorf("%s模式下 F10 應該先跳確認，實際 keep=%v mode=%s", name, keep, s.Mode())
+		}
+		keep, err = s.Update(input.Input{Dir: input.DirNone, Char: 'Y'})
 		if err != nil {
 			t.Fatalf("%s：%v", name, err)
 		}
 		if keep {
-			t.Errorf("%s模式下 F10 應該離開", name)
+			t.Errorf("%s模式下確認之後應該離開", name)
 		}
 	}
 }

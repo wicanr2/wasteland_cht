@@ -38,11 +38,16 @@
 | [`24-scene-modes.md`](24-scene-modes.md) | **READY**（已實作） | `internal/play` ✅ | — |
 | [`25-facility-menus.md`](25-facility-menus.md) | **READY**（已實作） | `internal/play` ✅ | 每列回呼的參數怎麼傳未解（`docs/re/53` §5）|
 | [`26-picture-animation.md`](26-picture-animation.md) | **READY**（已實作） | `internal/assets`／`internal/render` ✅ | 一拍多長沒與實機錄影對過（§5）|
+| [`27-remake-ui-additions.md`](27-remake-ui-additions.md) | **READY**（已實作） | `internal/play`／`internal/ui` ✅ | **原版沒有的東西**：功能鍵、快速存檔、背景音樂。不引用 IDA 位址，也不得被別份規格當成逆向結論 |
 
 **二十六份 READY 規格涵蓋資產層、呈現層、亂數、規則層十一塊、戰鬥畫面、段落手札、中文排版與翻譯管線**——
 走一步、遊戲時鐘、體力隨時間恢復、事件分派，以及**從視野掃出遭遇、生怪、下指令、
 排行動順序到打完一場戰鬥或逃走**的整條路。
 **規格全部 READY，沒有未寫的了。**
+
+第 27 份是唯一的例外體例：它寫的是**原版沒有、重製版自己加的介面**
+（功能鍵、快速存檔、背景音樂）。放進這個目錄是為了讓這些決策有一份可稽核的依據，
+但它不引用任何 IDA 位址——**別的規格不可以拿它當逆向結論引用**。
 
 ## 2. 為什麼這些現在就能寫
 

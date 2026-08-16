@@ -108,16 +108,64 @@ func TestWalkAdvancesWorld(t *testing.T) {
 	}
 }
 
-// F10 離開。
-func TestQuitStopsScene(t *testing.T) {
+// F10 是唯一的離開手勢，而且**先問再走**（`esc-cancel-f10-quit-autosave`）。
+//
+// ⚠ 這一條以前驗的是「F10 直接結束」。那正是那份鐵則列的反模式：
+// 沒有確認的離開路徑，玩家手滑就丟進度。
+func TestQuitAsksBeforeLeaving(t *testing.T) {
 	rom := openRom(t)
 	s, err := New(rom)
 	if err != nil {
 		t.Fatalf("開場失敗：%v", err)
 	}
-	ok, err := s.Update(input.Input{Action: input.ActionQuit})
-	if err != nil || ok {
-		t.Fatalf("F10 應該讓場景結束：ok=%v err=%v", ok, err)
+	ok, err := s.Update(input.Input{Dir: input.DirNone, Action: input.ActionQuit})
+	if err != nil || !ok {
+		t.Fatalf("F10 應該先跳確認而不是直接離開：ok=%v err=%v", ok, err)
+	}
+	if s.Mode() != "quit" {
+		t.Fatalf("按過 F10 之後模式 = %s，預期 quit", s.Mode())
+	}
+	// N（與 ESC）取消，遊戲要留著。
+	if ok, err = s.Update(input.Input{Dir: input.DirNone, Char: 'N'}); err != nil || !ok {
+		t.Fatalf("選 N 應該取消離開：ok=%v err=%v", ok, err)
+	}
+	if s.Mode() == "quit" {
+		t.Fatal("選 N 之後還停在確認畫面")
+	}
+	// 再來一次，這次選 Y。
+	step(t, s, input.Input{Dir: input.DirNone, Action: input.ActionQuit})
+	if ok, err = s.Update(input.Input{Dir: input.DirNone, Char: 'Y'}); err != nil || ok {
+		t.Fatalf("選 Y 應該離開：ok=%v err=%v", ok, err)
+	}
+}
+
+// ESC 在**任何一層**都不能結束遊戲（鐵則 1）。
+func TestEscapeNeverQuits(t *testing.T) {
+	rom := openRom(t)
+	s, err := New(rom)
+	if err != nil {
+		t.Fatalf("開場失敗：%v", err)
+	}
+	for i, mode := range []string{"標題", "地圖", "手札", "設定", "說明"} {
+		switch mode {
+		case "標題":
+			s.BeginTitle()
+		case "地圖":
+			s.title = false
+		case "手札":
+			s.openJournal(1)
+		case "設定":
+			s.openSettings()
+		case "說明":
+			s.openHelp()
+		}
+		ok, err := s.Update(input.Input{Dir: input.DirNone, Action: input.ActionCancel})
+		if err != nil {
+			t.Fatalf("%s：%v", mode, err)
+		}
+		if !ok {
+			t.Fatalf("第 %d 層（%s）按 ESC 結束了遊戲——ESC 只能取消", i, mode)
+		}
 	}
 }
 

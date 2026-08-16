@@ -5,6 +5,9 @@
 //	-mode title   標題畫面
 //	-mode pic     ALLPICS 的一張圖
 //
+// 遊戲中的功能鍵：F1 說明、F2 設定（音樂開關與音量）、F5／F9 快速存讀檔、
+// F10 離開（先問再存再退）。ESC 一律只取消，任何一層都不會結束遊戲。
+//
 //	go run ./cmd/wasteland -rom workplace/orig/wastland \
 //	    -image workplace/analysis/unpacked/wl.merged.exe -mode play
 package main
@@ -39,6 +42,13 @@ func main() {
 	// 一份資料目錄出來、把 `-save-dir` 指到副本。空字串 ＝ 不寫檔，
 	// `Save` 會照實說它沒寫出去。
 	saveDir := flag.String("save-dir", "", "存檔寫回的**可寫**資料目錄副本（空 ＝ 不寫檔）")
+	// F5／F9／F10 的快速存檔。**與 `-save-dir` 是兩條不同的路**：
+	// 那條是原版的 `Save`（就地改寫 GAME1／GAME2），這條寫自己的容器格式，
+	// 一個 byte 都不碰原版資料，所以預設就能用。
+	quickSave := flag.String("quicksave", play.DefaultQuickSavePath(), "快速存檔檔案（空 ＝ 關掉 F5／F9）")
+	// 背景音樂目錄。**原版沒有 BGM**，這是重製版加的；曲子要自己跑
+	// `tools/render_music.sh` 算出來（ogg 不入版控）。載不到就靜靜沒有音樂。
+	musicDir := flag.String("music", "workplace/music", "背景音樂目錄（*.ogg，空 ＝ 不播）")
 	flag.Parse()
 
 	rom, err := assets.Open(*romDir)
@@ -55,6 +65,7 @@ func main() {
 			scene, title = s, "Wasteland（荒野遊俠）"
 			if err == nil {
 				s.SetSaveDir(*saveDir)
+				s.SetQuickSavePath(*quickSave)
 				if *saveDir == "" {
 					fmt.Fprintln(os.Stderr,
 						"提示：沒給 -save-dir，指令列的 Save 只會更新記憶體、不寫檔")
@@ -95,7 +106,12 @@ func main() {
 		}
 	}
 	if err == nil {
-		err = ui.Run(scene, title, *scale, synth)
+		// 檢視器模式沒有 Musical，傳了也不會播；只有 play 需要。
+		music := ""
+		if *mode == "play" {
+			music = *musicDir
+		}
+		err = ui.Run(scene, title, *scale, synth, music)
 	}
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "錯誤：", err)
