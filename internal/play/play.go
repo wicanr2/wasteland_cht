@@ -1664,7 +1664,10 @@ func (s *Scene) uiText(name string) []byte {
 // 沒有 `ASCFONT.*` 時退回遊戲原版的 8 × 8 字模放大——那個筆劃比中文粗，
 // 是後備不是首選。
 func (s *Scene) drawASCII(h *render.HiFrame, c byte, col, row int) {
-	if h.DrawETenASCII(s.eten, c, col, row, 15) {
+	// ⚠ `0x7F` 在原版是**死亡的骷髏字模**（`docs/re/17` §4.4），不是 DEL。
+	// 倚天半形字型那一格是別的圖形（實測有 40 個亮點），所以這一格
+	// 一律走原版 8 × 8 字模——否則名單上死掉的人會顯示成一個看不懂的方框。
+	if c != game.WoundDead[0] && h.DrawETenASCII(s.eten, c, col, row, 15) {
 		return
 	}
 	h.DrawASCIIAt(s.font, c, col, row, 15)

@@ -9,8 +9,21 @@ import "github.com/wicanr2/wasteland_cht/internal/game/rng"
 // 傷勢門檻（ds:CCCEh，docs/re/15 §3）。
 var woundThresholds = [4]int16{-11, -20, -30, -40}
 
-// WoundNames 對應原版的五個狀態字（docs/re/17 §4.4）。
-var WoundNames = [6]string{"", "SER", "CRT", "MRT", "COM", "UNC"}
+// WoundNames 是傷勢等級的狀態字，**索引就是等級**（docs/re/17 §4.4）。
+//
+// 原版的訊息碼表 `ds:B233h` ＝ `85 9A 9B 9C 9D 84`，索引 0–5 依序是
+// `UNC`／`SER`／`CRT`／`MRT`／`COM`／骷髏字模。
+//
+// ⚠ **等級 0 是「昏迷」不是「沒事」**：`sub_19A1D` 只在角色倒下時才被呼叫
+// （`docs/re/99` §3），CON 為正的人根本不查這張表。把索引 0 放成空字串
+// 會逼呼叫端自己補一層對照，而那層對照在等級 5 上就對錯了。
+var WoundNames = [6]string{"UNC", "SER", "CRT", "MRT", "COM", WoundDead}
+
+// WoundDead 是等級 5（CON 恰為 0）的字模：原版主文字字型第 `0x7F` 格的骷髏。
+//
+// ⚠ **不是 DEL**。倚天半形字型那一格是別的東西，所以呈現層要把它
+// 送回原版 8 × 8 字模那條路（`internal/play/play.go` 的 `drawASCII`）。
+const WoundDead = "\x7f"
 
 // EnemyData 是敵人資料表的一筆（記錄區標頭 +0x04，8 bytes，docs/re/37 §3.1）。
 //

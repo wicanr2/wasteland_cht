@@ -72,11 +72,16 @@ func TestRosterColumns(t *testing.T) {
 		at = i
 	}
 
-	// CON ≤ 0 的五個帶都要印狀態字，不能印數字。
+	// CON ≤ 0 的六個帶都要印狀態字，不能印數字。
+	//
+	// ⚠ **CON ＝ 0 是死亡（等級 5），不是昏迷**——那一格印的是原版主文字
+	// 字型第 `0x7F` 格的骷髏字模（`docs/re/17` §4.4）。昏迷（`UNC`）是等級 0，
+	// 也就是 CON 在 −1…−10 之間、還救得回來的那一段（`docs/re/99` §3.1）。
 	for _, tc := range []struct {
 		con  int16
 		want string
-	}{{0, "UNC"}, {-5, "UNC"}, {-11, "SER"}, {-20, "CRT"}, {-30, "MRT"}, {-45, "COM"}} {
+	}{{0, game.WoundDead}, {-5, "UNC"}, {-10, "UNC"}, {-11, "SER"}, {-19, "SER"},
+		{-20, "CRT"}, {-29, "CRT"}, {-30, "MRT"}, {-39, "MRT"}, {-40, "COM"}, {-45, "COM"}} {
 		got := Roster(mkParty(tc.con))[0].CON
 		if got != tc.want {
 			t.Errorf("CON %d：印 %q，預期 %q", tc.con, got, tc.want)
