@@ -260,6 +260,7 @@
 | [`docs/manual/`](docs/manual/) | 官方英文手冊全文 markdown，**中英對照** |
 | [`docs/paragraphs/`](docs/paragraphs/) | 段落書 162 段全文與索引，含防拷結構標註 |
 | [`docs/walkthrough/`](docs/walkthrough/) | **自建攻略**：八章正文 ＋ `generated/` 四份機器產出的表（地圖與傳送、條件閘、問答密語、設施）。來源是 `cmd/wl-atlas` ＋ `tools/summarize_walkthrough.py` |
+| [`docs/promo-video.md`](docs/promo-video.md) | 推廣片的三段管線、視覺 token 的出處、六種版面、踩過的坑。**成品不入版控** |
 | `docs/re/generated/ida94/` | 工具匯出的清冊（JSON ＋ markdown），不含人的推論 |
 
 ## 4. oracle 優先序

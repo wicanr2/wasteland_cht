@@ -23,15 +23,20 @@ import (
 //
 // **熱鍵字母不跟著翻譯走**（`docs/re/40` §4）：這裡列的字母是 Go 這邊的常數，
 // 譯文只換說明文字。
+//
+// ⚠ 兩個限制決定了這張表的長度與字母欄的內容：
+//
+//   - **訊息視窗只有六行**（`docs/re/25` §2）。標題佔一行，所以最多五條。
+//     多寫的不會捲動也不會報錯，**會安靜地被切掉**。
+//   - **字母欄只能放 ASCII**。這一欄是直接接進 Big5 位元組串的，
+//     寫中文會被當成 Big5 解讀成亂碼（`方向鍵` 會變成三個不相干的字）。
+//     中文一律走譯文那一欄。
 var helpLines = []struct{ key, en, ui string }{
-	{"方向鍵／IKJL", "Move", "help.move"},
-	{"U E O D V S R", "Command bar", "help.cmdbar"},
-	{"P", "Journal (paragraph book)", "help.journal"},
-	{"F1", "This help", "help.f1"},
-	{"F2", "Settings", "help.f2"},
-	{"F5 / F9", "Quick save / quick load", "help.f5f9"},
-	{"F10", "Quit (asks first, saves first)", "help.f10"},
-	{"ESC", "Cancel / back — never quits", "help.esc"},
+	{"IKJL", "Move (arrow keys too)", "help.move"},
+	{"U E O D V S R  P", "Command bar / journal", "help.cmdbar"},
+	{"F1  F2", "Help / settings", "help.panels"},
+	{"F5  F9", "Quick save / quick load", "help.f5f9"},
+	{"F10 ESC", "Quit (asks, saves) / cancel", "help.quit"},
 }
 
 // openHelp／openSettings 由功能鍵路由進來（見 Scene.Update）。
@@ -115,10 +120,10 @@ func (s *Scene) showSettings() {
 	if t := s.uiText("settings.title"); len(t) > 0 {
 		zh = append(zh, t...)
 		zh = append(zh, '\r')
-		zh = appendUILine(zh, s.uiText("settings.music"), 'M', s.uiText(mUI))
-		zh = appendUILine(zh, s.uiText("settings.volume"), 0,
+		zh = appendUILine(zh, s.uiText("settings.music"), "M", s.uiText(mUI))
+		zh = appendUILine(zh, s.uiText("settings.volume"), "- +",
 			[]byte(fmt.Sprintf("%d", s.settings.MusicVol)))
-		zh = appendUILine(zh, s.uiText("settings.sfx"), 'X', s.uiText(xUI))
+		zh = appendUILine(zh, s.uiText("settings.sfx"), "X", s.uiText(xUI))
 		zh = append(zh, s.uiText("settings.close")...)
 		s.message = ""
 	}
@@ -126,10 +131,13 @@ func (s *Scene) showSettings() {
 	s.dirty = true
 }
 
-// appendUILine 組一行「〔熱鍵〕標籤：值」。熱鍵是 0 就不印。
-func appendUILine(dst, label []byte, key byte, value []byte) []byte {
-	if key != 0 {
-		dst = append(dst, key, ' ')
+// appendUILine 組一行「〔熱鍵〕標籤：值」。熱鍵是空字串就不印。
+//
+// ⚠ 熱鍵**只能是 ASCII**：這一行會接進 Big5 位元組串（同 helpLines 的字母欄）。
+func appendUILine(dst, label []byte, key string, value []byte) []byte {
+	if key != "" {
+		dst = append(dst, key...)
+		dst = append(dst, ' ')
 	}
 	dst = append(dst, label...)
 	dst = append(dst, value...)

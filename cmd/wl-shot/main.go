@@ -12,6 +12,7 @@ import (
 	"image"
 	"image/png"
 	"os"
+	"strings"
 
 	"github.com/wicanr2/wasteland_cht/internal/assets"
 	"github.com/wicanr2/wasteland_cht/internal/input"
@@ -42,12 +43,20 @@ func main() {
 	journal := flag.Int("journal", 0, "play 模式：打開手札停在這一頁（1 起算，0 ＝ 不開）")
 	ending := flag.Bool("ending", false, "play 模式：直接進結局")
 	endingTicks := flag.Int("ending-ticks", 130, "結局播到第幾個 tick 再截圖")
+	// 功能鍵不是字元，`-keys` 送不出去（那一支收的是 ASCII）。
+	fn := flag.String("fn", "", "play 模式：`-keys` 之後送的功能鍵，逗號分隔（help｜settings｜quit）")
+	// ⚠ 原版的亂數靠鍵盤輪詢推進（`docs/re/13`），無頭預設不推是為了可重現。
+	// 代價是序列退化成「初值全零的前幾項」——那時候走再多步也不會遇到敵人，
+	// 而畫面看起來只是「運氣不好」。要截遭遇畫面就給 `-poll`（同 `wl-play`）。
+	poll := flag.Int("poll", 0, "play 模式：每個按鍵之前推進亂數 N 次")
+	titleScreen := flag.Bool("title", false, "play 模式：停在標題畫面（玩家開機看到的那一張）")
 	flag.Parse()
 
 	opt := shotOptions{
 		lang: *langFile, font: *fontDir, refs: *refsFile,
 		paragraphs: *paraFile, keys: *keys, mapID: *mapID,
 		journal: *journal, ending: *ending, endingTicks: *endingTicks,
+		fn: *fn, poll: *poll, title: *titleScreen,
 	}
 	if err := run(*romDir, *imagePath, *mode, *block, *pic, *out, *at, *hour, opt); err != nil {
 		fmt.Fprintln(os.Stderr, "錯誤：", err)
@@ -88,6 +97,29 @@ type shotOptions struct {
 	journal                      int
 	ending                       bool
 	endingTicks                  int
+	fn                           string
+	poll                         int
+	title                        bool
+}
+
+// sendFn 送一個面板類的功能鍵。
+//
+// 只收這三個：快速存讀檔會寫檔，截圖工具不該有副作用。
+// ⚠ F10 走 `Action` 不走 `Fn`（`internal/input`）——離開是動作不是功能鍵。
+func sendFn(scene *play.Scene, name string) error {
+	in := input.Input{Dir: input.DirNone}
+	switch name {
+	case "help":
+		in.Fn = input.FnHelp
+	case "settings":
+		in.Fn = input.FnSettings
+	case "quit":
+		in.Action = input.ActionQuit
+	default:
+		return fmt.Errorf("-fn 不認得 %q（help｜settings｜quit）", name)
+	}
+	_, err := scene.Update(in)
+	return err
 }
 
 func run(romDir, imagePath, mode string, blockID, picID int,
@@ -126,6 +158,9 @@ func run(romDir, imagePath, mode string, blockID, picID int,
 		} else if err := place(scene, at, hour); err != nil {
 			return err
 		}
+		if opt.title {
+			scene.BeginTitle()
+		}
 		if opt.ending {
 			scene.BeginEnding()
 			for i := 0; i < opt.endingTicks; i++ {
@@ -136,6 +171,9 @@ func run(romDir, imagePath, mode string, blockID, picID int,
 			scene.OpenJournal(opt.journal)
 		}
 		for i := 0; i < len(opt.keys); i++ {
+			for p := 0; p < opt.poll; p++ {
+				scene.PollRNG()
+			}
 			// `IKJL` 是原版的方向鍵（`docs/re/72` §4），其餘當字元送。
 			in := input.Input{Dir: input.DirNone, Char: opt.keys[i]}
 			switch opt.keys[i] {
@@ -150,6 +188,14 @@ func run(romDir, imagePath, mode string, blockID, picID int,
 			}
 			if _, err := scene.Update(in); err != nil {
 				return fmt.Errorf("送第 %d 個按鍵 %q：%w", i, opt.keys[i], err)
+			}
+		}
+		for _, name := range strings.Split(opt.fn, ",") {
+			if name == "" {
+				continue
+			}
+			if err := sendFn(scene, name); err != nil {
+				return err
 			}
 		}
 		if hasFont {
