@@ -75,3 +75,8 @@ ui:combat.hdrweapon	武器
 ui:wipe.place	死神
 ui:wipe.message	你在荒野的生命到此為止。
 ui:use.morepage	0 翻頁
+ui:wound.unc	昏迷
+ui:wound.ser	重傷
+ui:wound.crt	危急
+ui:wound.mrt	瀕死
+ui:wound.com	深昏迷

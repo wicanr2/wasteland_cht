@@ -74,11 +74,14 @@ func spaces(n int) string {
 	return string(b)
 }
 
-// Roster 把隊伍排成名單。
+// Roster 把隊伍排成名單（`sub_1708B`，docs/re/103）。
 //
 // ⚠ **CON ≤ 0 印狀態字不印數字**（docs/re/15 §4）——負的 CON 直接顯示會讓
 // 玩家以為那是血量，而原版在那個欄位放的是 UNC／SER／CRT／MRT／COM。
-func Roster(p *game.Party) []RosterRow {
+//
+// items 與 name 是 `AMM` 與 `WEAPON` 兩欄要用的（裝備武器的類別與名字）。
+// 兩個都可以是 nil／空——那時候那兩欄留白，與接上去之前一樣。
+func Roster(p *game.Party, items game.ItemTable, name func(byte) string) []RosterRow {
 	rows := make([]RosterRow, 0, len(p.Members))
 	for _, m := range p.Members {
 		if m == nil {
@@ -87,20 +90,62 @@ func Roster(p *game.Party) []RosterRow {
 		con := fmt.Sprintf("%d", m.CON)
 		if m.CON <= 0 {
 			// 傷勢等級直接當索引（`docs/re/17` §4.4）：0 是 `UNC`、
-			// 5（CON 恰為 0）是骷髏字模。**這裡不做二次對照**——
+			// 5（CON ＝ 0）是骷髏字模。**這裡不做二次對照**——
 			// 原版的表本來就是六格對六個等級。
 			con = game.WoundNames[m.WoundLevel()]
 		}
 		rows = append(rows, RosterRow{
 			Name:   m.Name,
 			AC:     fmt.Sprintf("%d", m.AC),
-			Ammo:   "",
+			Ammo:   ammoColumn(m, items),
 			MaxCON: fmt.Sprintf("%d", m.MaxCON),
 			CON:    con,
-			Weapon: "",
+			Weapon: weaponColumn(m, name),
 		})
 	}
 	return rows
+}
+
+// equippedSlot 取出裝備武器那一格（`sub_196C9` ＋ `sub_19AC8`）。
+//
+// ⚠ **`+0x1F` 是 1 起算的**：原版算的是 `0xBB ＋ 2n`，而物品陣列從 `+0xBD` 起，
+// 所以 n ＝ 1 指的是第 0 格。0 ＝ 沒有裝備。
+func equippedSlot(c *game.Character) (game.Slot, bool) {
+	n := int(c.EquipIndex)
+	if n <= 0 || n > len(c.Items) {
+		return game.Slot{}, false
+	}
+	return c.Items[n-1], true
+}
+
+// ammoColumn 是 `AMM` 那一欄（`0x170C4`–`0x170F3`）。
+//
+// 原版的三道閘，少一道就會在不該有數字的地方印數字：
+//
+//	沒有裝備（`+0x1F` ＝ 0）                → 0
+//	那一格的附屬 byte bit7 設起來            → 0
+//	武器類別不在 `ds:CD00h` 那張表裡（近戰）  → 0
+//
+// 過了三道才印**低 6 位**——高 2 位不是次數（`docs/re/45`）。
+func ammoColumn(c *game.Character, items game.ItemTable) string {
+	slot, ok := equippedSlot(c)
+	if !ok || slot.Value&0x80 != 0 {
+		return "0"
+	}
+	if int(slot.ID) >= len(items) || !items[slot.ID].Class.Ranged() {
+		return "0"
+	}
+	return fmt.Sprintf("%d", slot.Value&0x3F)
+}
+
+// weaponColumn 是 `WEAPON` 那一欄（`0x17165`–`0x17185`）：裝備武器的名字。
+// 沒有裝備就留白。
+func weaponColumn(c *game.Character, name func(byte) string) string {
+	slot, ok := equippedSlot(c)
+	if !ok || name == nil {
+		return ""
+	}
+	return name(slot.ID)
 }
 
 // CommandOption 是指令選單的一個選項。
@@ -384,6 +429,68 @@ func rosterHeaderCJK(ui func(string) []byte) []byte {
 		line = append(line, t...)
 	}
 	return line
+}
+
+// rosterRowCJK 組戰鬥名單資料行的中文版。
+//
+// 只有兩欄會變成中文：**傷勢狀態字**（`UNC`／`SER`／`CRT`／`MRT`／`COM`）
+// 與**武器名**。數字欄與名字欄本來就不必翻。
+//
+// 查不到翻譯就回 nil，呼叫端畫英文那一行——**不要拼出半中半英的名單**。
+// 死亡那一格是字模不是文字（`game.WoundDead`），原樣送過去。
+func rosterRowCJK(r RosterRow, ui func(string) []byte, item func(byte) []byte,
+	weaponID byte, hasWeapon bool) []byte {
+	if ui == nil {
+		return nil
+	}
+	con := []byte(r.CON)
+	if key, ok := woundKeys[r.CON]; ok {
+		t := ui(key)
+		if len(t) == 0 {
+			return nil
+		}
+		con = t
+	}
+	weapon := []byte(r.Weapon)
+	if hasWeapon && item != nil {
+		if t := item(weaponID); len(t) > 0 {
+			weapon = t
+		}
+	}
+
+	var line []byte
+	pad := func(to int) {
+		for cjkCells(line) < to {
+			line = append(line, ' ')
+		}
+	}
+	for _, f := range []struct {
+		col  int
+		text []byte
+	}{
+		{colName, []byte(r.Name)},
+		{colAC, []byte(r.AC)},
+		{colAmmo, []byte(r.Ammo)},
+		{colMaxCON, []byte(r.MaxCON)},
+		{colCON, con},
+		{colWeapon, weapon},
+	} {
+		if len(f.text) == 0 {
+			continue
+		}
+		pad(f.col)
+		line = append(line, f.text...)
+	}
+	return line
+}
+
+// woundKeys 把狀態字對到翻譯目錄的鍵。
+//
+// ⚠ **死亡（`game.WoundDead`）不在裡面**：那一格是字型第 `0x7F` 格的骷髏字模，
+// 不是可以翻譯的文字（`docs/re/17` §4.4）。
+var woundKeys = map[string]string{
+	"UNC": "wound.unc", "SER": "wound.ser", "CRT": "wound.crt",
+	"MRT": "wound.mrt", "COM": "wound.com",
 }
 
 // cjkCells 是這串 Big5 佔幾格。
