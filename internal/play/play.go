@@ -380,12 +380,22 @@ func (s *Scene) drawHiTextLayer(h *render.HiFrame) {
 		s.drawASCIILine(h, fmt.Sprintf("%02d:%02d", c.Hour, c.Minute),
 			render.ClockCol, render.ClockRow)
 	}
-	// 戰鬥名單那幾行（表頭是中文，走另一條）。
+	// 戰鬥名單那幾行。狀態字與武器名有中文就走中文，查不到就整行畫英文。
 	if s.combat != nil {
-		for i, r := range Roster(s.world.Party) {
+		for i, m := range s.world.Party.Members {
+			if m == nil {
+				continue
+			}
 			row := render.RosterHeaderRow + 1 + i
 			if row > render.MsgRow-1 {
 				break // 名單與訊息視窗在字元列上會撞（docs/spec/03 §3）
+			}
+			r := Roster(&game.Party{Members: []*game.Character{m}},
+				s.items, s.itemName)[0]
+			slot, has := equippedSlot(m)
+			if zh := rosterRowCJK(r, s.uiText, s.itemNameCJK, slot.ID, has); len(zh) > 0 {
+				s.drawCJKLine(h, zh, 0, row)
+				continue
 			}
 			s.drawASCIILine(h, r.Text(), 0, row)
 		}
@@ -1465,7 +1475,7 @@ func (s *Scene) drawRoster(f *render.Frame) {
 	if s.hiText() {
 		return // 名單那幾行由 HiFrame 用倚天半形字畫
 	}
-	for i, r := range Roster(s.world.Party) {
+	for i, r := range Roster(s.world.Party, s.items, s.itemName) {
 		if row+1+i > render.MsgRow-1 {
 			break // 名單與訊息視窗在字元列上會撞（docs/spec/03 §3）
 		}

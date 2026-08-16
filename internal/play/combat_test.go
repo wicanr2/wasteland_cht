@@ -43,7 +43,7 @@ func TestScreenMode(t *testing.T) {
 // 驗收 2：六個欄位落在對的欄座標；CON ≤ 0 印狀態字。
 func TestRosterColumns(t *testing.T) {
 	p := mkParty(25)
-	rows := Roster(p)
+	rows := Roster(p, nil, nil)
 	if len(rows) != 1 {
 		t.Fatalf("應該有 1 行，得到 %d", len(rows))
 	}
@@ -82,7 +82,7 @@ func TestRosterColumns(t *testing.T) {
 		want string
 	}{{0, game.WoundDead}, {-5, "UNC"}, {-10, "UNC"}, {-11, "SER"}, {-19, "SER"},
 		{-20, "CRT"}, {-29, "CRT"}, {-30, "MRT"}, {-39, "MRT"}, {-40, "COM"}, {-45, "COM"}} {
-		got := Roster(mkParty(tc.con))[0].CON
+		got := Roster(mkParty(tc.con), nil, nil)[0].CON
 		if got != tc.want {
 			t.Errorf("CON %d：印 %q，預期 %q", tc.con, got, tc.want)
 		}
@@ -93,7 +93,7 @@ func TestRosterColumns(t *testing.T) {
 func TestRosterReflectsCurrentState(t *testing.T) {
 	s := mkScene(20, 20)
 	s.Battle.Party.Members[1].CON = -25
-	rows := Roster(s.Battle.Party)
+	rows := Roster(s.Battle.Party, nil, nil)
 	if rows[1].CON != "CRT" {
 		t.Errorf("第二個人已經重傷，名單應該印 CRT，得到 %q", rows[1].CON)
 	}

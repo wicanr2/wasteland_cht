@@ -193,6 +193,9 @@ var uiCatalogueKeys = []string{
 	// F1 說明、F2 設定、F10 離開確認、F5／F9 快速存讀檔（重製版自己加的）。
 	"combat.hdrname", "combat.hdrac", "combat.hdrammo",
 	"combat.hdrmax", "combat.hdrcon", "combat.hdrweapon",
+	// 名片行的傷勢狀態字（`docs/re/17` §4.4）。**死亡那一格不在這裡**——
+	// 它是字型第 `0x7F` 格的骷髏字模，不是可以翻譯的文字。
+	"wound.unc", "wound.ser", "wound.crt", "wound.mrt", "wound.com",
 	"help.title", "help.move", "help.cmdbar",
 	"help.panels", "help.f5f9", "help.quit",
 	"settings.title", "settings.music", "settings.volume", "settings.sfx",
