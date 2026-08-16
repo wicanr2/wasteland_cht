@@ -86,13 +86,10 @@ func Roster(p *game.Party) []RosterRow {
 		}
 		con := fmt.Sprintf("%d", m.CON)
 		if m.CON <= 0 {
-			// CON 為負但還沒破 −11 時 WoundLevel 是 0；那一段與 CON ＝ 0
-			// 一樣印 UNC（docs/re/20 §5 的五個帶）。
-			w := m.WoundLevel()
-			if w == 0 {
-				w = len(game.WoundNames) - 1
-			}
-			con = game.WoundNames[w]
+			// 傷勢等級直接當索引（`docs/re/17` §4.4）：0 是 `UNC`、
+			// 5（CON 恰為 0）是骷髏字模。**這裡不做二次對照**——
+			// 原版的表本來就是六格對六個等級。
+			con = game.WoundNames[m.WoundLevel()]
 		}
 		rows = append(rows, RosterRow{
 			Name:   m.Name,
