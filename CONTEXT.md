@@ -84,7 +84,8 @@
 | **角色記錄** | **定址已確認**：記錄 ＝ `0x7131 ＋ 角色編號 × 256`，每筆 256 bytes，經隊伍槽表兩層間接。名字、金錢（24-bit）、七個屬性、MAXCON／CON、**技能與物品兩個 30 槽陣列（已分辨）**、傷勢門檻（−11／−20／−30／−40）都已定位（`docs/re/15`） |
 | 逐指令基準 | 整個 CODE 區倒成 JSON（20,177 條指令、827 個全域、4,932 筆直接定址存取），後續形狀比對改在離線做（`tools/ida/export_listing.py`、`export_memops.py`） |
 | 儲存層 | 雙模式（硬碟 DOS 檔案／磁片 `int 25h` 絕對磁區）與分流旗標；資源表 8 筆全解，六個檔名的引用點就在表的 `+6` 欄位（`docs/re/05`） |
-| 英文手冊 | 全文轉 markdown，7 章 646 行（`docs/manual/`） |
+| 英文手冊 | 全文轉 markdown ＋ **中英對照**，7 章（`docs/manual/`）。技能與武器譯名對過遊戲內字串表 |
+| 攻略 | **自建**（`docs/walkthrough/`，八章 ＋ `generated/` 四份機器產出的表）。資料由 `cmd/wl-atlas` 從 `game1`／`game2` 倒出，不是翻譯來的 |
 | 段落書 | 162 段全部轉錄，編號連續無缺（`docs/paragraphs/`）。**三層防拷結構已辨識**：3 個陷阱段落（1／22／145）、64 段變體組（同場景不同密語）、33 段火星誘餌假劇情 |
 
 ### 進行中／未開始
@@ -97,7 +98,7 @@
 | MSQ 尾段 | 已解：無 magic 的 Huffman 流，42/42 解出 4,096 或 1,024 bytes ＝ 地圖第 3 層（每格 1 byte，`docs/re/24`） |
 | **Huffman 解壓** | **已實作並驗證**（`tools/huffman.py`）：`allhtds1/2`、`allpics1/2`、`end.cpa` 共 173 個子區塊全部解出，長度精確吻合、檔案 100% 用完（`docs/re/11`） |
 | 載入器分工 | 已解：`DL`＝0 ALLPICS、1 GAME／存檔、2 ALLHTDS、6 END.CPA，各有位移表 |
-| 說明書整理 | 英文手冊、段落書、軟體世界中文說明書都完成；社群攻略未開始 |
+| 說明書整理 | **四份全部完成**：英文手冊（中英對照）、段落書、軟體世界中文說明書逐頁轉錄、攻略（自建） |
 | **規格（G2）** | **二十六份全部 READY**，沒有未寫的規格了（`docs/spec/00-index.md`）|
 | **`internal/assets`** | **已實作並通過驗收**：SHA-256 驗證、資源定址、MSQ 解密、Huffman、5-bit 文字、兩套字型、圖片／圖磚／地圖三層。9 個測試全綠，含 `Raw` 的 byte-for-byte round-trip（`tools/go.sh test ./...`）|
 | **`internal/textlayout`** | **已實作**：18 個控制碼含**變形機制與巢狀**（單複數／性別／三選一／數量）、組行與分頁。4,889 條語料全部排得過，未解碼只剩 `0x08` 的 7 次 |
@@ -252,8 +253,9 @@
 | [`docs/spec/03-screen-and-text.md`](docs/spec/03-screen-and-text.md) | READY：畫布、五個視窗、座標單位、控制碼、中文版面的兩條路 |
 | `internal/` | 已實作：`assets`（規格 01）、`textlayout`／`render`（規格 03）、`game/rng`（規格 02）。`tools/go.sh` 是 Go 的唯一入口，編譯與測試走 docker |
 | [`docs/manual-cht/`](docs/manual-cht/) | 軟體世界 1990 中文說明書全 60 頁節轉錄 ＋ 當年譯名表 |
-| [`docs/manual/`](docs/manual/) | 官方英文手冊全文 markdown |
+| [`docs/manual/`](docs/manual/) | 官方英文手冊全文 markdown，**中英對照** |
 | [`docs/paragraphs/`](docs/paragraphs/) | 段落書 162 段全文與索引，含防拷結構標註 |
+| [`docs/walkthrough/`](docs/walkthrough/) | **自建攻略**：八章正文 ＋ `generated/` 四份機器產出的表（地圖與傳送、條件閘、問答密語、設施）。來源是 `cmd/wl-atlas` ＋ `tools/summarize_walkthrough.py` |
 | `docs/re/generated/ida94/` | 工具匯出的清冊（JSON ＋ markdown），不含人的推論 |
 
 ## 4. oracle 優先序

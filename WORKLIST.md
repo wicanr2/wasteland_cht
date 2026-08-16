@@ -115,9 +115,9 @@
 | 6.1 | 可翻字串（文本） | **完成** | 4,806／4,806（21 個不可翻的槽有清單）；地圖敘述在畫面上真的看得到（`TestWalkShowsTranslatedMessage`）|
 | 6.2 | 段落書 162 段 | **完成** | `translations/zh-Hant/paragraphs/` |
 | 6.3 | 遊戲內手札 | **完成** | 按 `P` 開，方向鍵翻頁，陷阱段落標 `[decoy]`；讀到編號直接顯示正文（162／162 有中文） |
-| 6.4 | 中文說明書逐頁轉錄 | **部分** | `docs/manual-cht/`；33 張掃描 |
-| 6.5 | 官方英文手冊 markdown ＋ 繁中 | **部分** | `docs/manual/` |
-| 6.6 | 社群攻略繁中化 | **未開始** | `docs/walkthrough/` |
+| 6.4 | 中文說明書逐頁轉錄 | **完成** | `docs/manual-cht/` 八章 ＋ 1990 年譯名對照；33 張掃描全部有對應（封面、48 頁內頁、封底廣告、CD 盒、IBM 補充 6 頁、磁片標籤），讀不清的標 `〔字跡不清〕` |
+| 6.5 | 官方英文手冊 markdown ＋ 繁中 | **完成** | `docs/manual/` 七章**中英對照**：英文照原樣（含錯字），中文接在每段之後或另立一欄。技能與武器譯名對過遊戲內字串表 |
+| 6.6 | 攻略 | **完成** | **自建**，不是翻譯來的：`cmd/wl-atlas` 從 `game1`／`game2` 倒出 42 張地圖的設施、鎖、密語、傳送，`tools/summarize_walkthrough.py` 整理成表，正文按地區分八章（`docs/walkthrough/`）|
 | 6.7 | 譯名表 | **完成** | `translations/glossary.md` |
 | 6.9 | 中文角色名字 | **完成** | `lang.ToBig5`／`TextEntry.KeyRune`；`input.Input` 加 `Runes` 保留 IME 提交的完整字元（`Char` 是單一 byte，中文進不去）|
 | 6.10 | 中文**接線**：畫面上真的是中文 | **完成** | 三層都接上（`docs/re/98` §2）：控制碼解碼（`textlayout.RenderBytes`）、表 1 以外的字串表（`exeStringN`）、`ui:` 37 條。戰鬥全程、設施選單與清單、角色管理、USE 結果、指令列訊息都走目錄。門檻 `TestPlayerMessagesAreTranslated`（六條玩家動作）、`TestCatalogueRendersWithoutControlCodes`（4,817 條解完不留控制碼）|
@@ -175,9 +175,6 @@ RE 與 remake 的主線都走完了。抽樣試玩（`docs/re/97`）列的 A0 �
 
 | # | 項目 | 狀況 |
 |---|---|---|
-| 6.4 | 中文說明書逐頁轉錄 | `docs/manual-cht/`，33 張掃描 |
-| 6.5 | 官方英文手冊 markdown ＋ 繁中 | `docs/manual/` |
-| 6.6 | 社群攻略繁中化 | `docs/walkthrough/` |
 | 7.2 | DOSBox 實機對拍 | 移動與畫面對過，**戰鬥與設施沒有** |
 | 7.5 | 抽樣試玩 | 無頭七段走完（`docs/re/97`），剩開視窗的人工試玩 |
 
@@ -238,10 +235,28 @@ RE 與 remake 的主線都走完了。抽樣試玩（`docs/re/97`）列的 A0 �
 
 ### T6 — 文件（`WORKLIST` 6.4–6.6）
 
-中文說明書逐頁轉錄（`docs/manual-cht/`，33 張掃描）、
-官方英文手冊 markdown ＋ 繁中（`docs/manual/`）、社群攻略（`docs/walkthrough/`）。
+**做完了**（2026-08-16）。三份都在版控裡：`docs/manual-cht/`（中文說明書逐頁轉錄）、
+`docs/manual/`（官方英文手冊中英對照）、`docs/walkthrough/`（攻略）。
 
 ### 這一輪新增、下一個 session 要知道的
+
+- **攻略是自建的，不是翻譯來的。** `cmd/wl-atlas` 把 42 張地圖裡玩家碰得到的東西
+  倒成 JSON（設施招牌、條件閘、問答、傳送、藏東西的格），
+  `tools/summarize_walkthrough.py` 整理成 `docs/walkthrough/generated/` 四份表，
+  正文按地區分八章引用它們。**改攻略內容之前先想這句話是不是資料講的**——
+  資料看不出來的東西不要寫進去。
+- **`wl-atlas` 有兩個坑寫在程式碼註解裡**，兩個都會產生「看起來完全正常」的錯資料：
+  - `SectionRecord` 回傳「從記錄起點到區塊尾」，記錄沒有長度欄位。條件串列讀到
+    `0xFF` 才停，**沒有終止碼的記錄會一路吃進下一筆**——症狀是「這一格的條件跟
+    隔壁那一格一模一樣」。`boundedRecord` 用同一個 section 裡下一個更大的指標當上界。
+  - **nibble 5 與 8 不能無條件列舉 section 記錄**：section 邊界是靠「第一個非空指標」
+    推出來的，沒有格子佐證時讀出來的是雜訊（資源 0 會生出一句地圖敘述配一串不成話
+    的答案）。nibble 8 改用三道篩（答案清單有終止碼、題目編號在字串數之內、
+    打字題至少一條答案打得出來）。
+- **nibble 10 記錄 `+0x00` 的低 6 位是字串編號**（`sub_16B17`，`docs/re/60` §3.1）
+  ——就是「進入石英城。」那一句。以前兩條路都印死的 `TELEPORT.`：
+  會問「進新地點？」的格子由 `0x16AEA` 在問之前印，不問的由 `0x16A21` 印。
+  `TestTeleportPrintsLocationName` 守著兩條路。
 
 - **中文的三層**：目錄有譯文 → 消費端查得到 → **控制碼解得開**
   （`textlayout.RenderBytes`）。三層任何一層斷了，症狀都是「畫面上是英文」，

@@ -168,6 +168,9 @@ type StepResult struct {
 	Blocked int
 	// Ask 非 0 時這一步**停在原地等玩家回答**（進新地點的確認）。
 	Ask int
+	// AskString 是問之前先印的那一句（目標地點名，`0x16AEA` 的 `sub_16B17`）。
+	// 原版兩句一起出現：「進入石英城。」＋「要進入新地點嗎？」
+	AskString int
 	// Gate 是踩上 nibble 2 之後條件閘跑出來的結果（沒過的人已經受罰）。
 	Gate      GateResult
 	Moved     bool // 被擋住時是 false，而且時鐘與遭遇都不會動
@@ -191,6 +194,7 @@ func (w *World) Step(dir Direction) (StepResult, error) {
 	// 第三道閘：進新地點之前要先問（原版會停在原地等 Yes／No）。
 	if !w.confirmed && w.confirmNeeded(nx, ny) {
 		res.Ask = AskEnterString
+		res.AskString = w.teleportMessage(nx, ny)
 		return res, nil
 	}
 	w.confirmed = false
@@ -474,6 +478,27 @@ func (w *World) confirmNeeded(x, y int) bool {
 	return rec[0]&0x40 != 0
 }
 
+// teleportString 取出 nibble 10 記錄要印的字串編號（`+0x00` 的低 6 位）。
+func teleportString(rec []byte) int {
+	if len(rec) == 0 {
+		return 0
+	}
+	return int(rec[0] & 0x3F)
+}
+
+// teleportMessage 是同一件事的座標版，給確認流程用。
+func (w *World) teleportMessage(x, y int) int {
+	terrain, record, _, err := w.Block.At(x, y)
+	if err != nil || terrain != nibbleTeleport {
+		return 0
+	}
+	rec, err := w.Block.SectionRecord(int(terrain), int(record))
+	if err != nil {
+		return 0
+	}
+	return teleportString(rec)
+}
+
 // rollEncounter 照 docs/spec/04 §5：分母為 0 就不擲。
 func (w *World) rollEncounter() bool {
 	denom := w.Block.Header[0x2F]
@@ -549,6 +574,14 @@ func (w *World) trigger(x, y int) Event {
 		ev.Kind = EventMenu
 	case nibbleTeleport:
 		ev.Kind = EventTeleport
+		// 記錄 +0x00 的**低 6 位是字串編號**（`sub_16B17`：
+		// `mov bl,0` → `and al,3Fh` → `sub_17920`）。那句話就是
+		// 「進入石英城。」——`0x16A21` 在 `ds:AAD3h ＝ 0` 時印它，
+		// 也就是**不問「進新地點？」的傳送格**；會問的那一種改由
+		// `0x16AEA` 在問之前先印（`Step` 的 `AskString`）。
+		if s := teleportString(ev.Data); s != 0 {
+			ev.Strings = []int{s}
+		}
 	default:
 		ev.Kind = EventNone
 	}
