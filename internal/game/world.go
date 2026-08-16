@@ -150,6 +150,18 @@ type World struct {
 	Skills SkillTable
 	// SelfDestruct 是科奇斯基地的自毀倒數，也就是**結局的觸發點**。
 	SelfDestruct SelfDestruct
+
+	// MapID／GroupIndex／Groups 是腳本 opcode 0 要比對的東西：
+	// 目前這張地圖的編號、目前是第幾組、四組各自的位置。
+	// **由呈現層在換地圖／切組時填**（存檔的隊伍槽表是 `internal/play` 拿著的）。
+	// 沒填的話 opcode 0 一律走「沒有別組站在上面」那一條。
+	MapID      byte
+	GroupIndex int
+	Groups     [PartyGroups]GroupPos
+
+	// Stash 是腳本 opcode 4 寄放的角色，opcode 39 領回（`docs/re/102` §6）。
+	// **不進存檔**：原版放在執行檔資料段的 `ds:065Ch`，與自毀倒數同一類。
+	Stash map[byte]StashSlot
 }
 
 // NewWorld 把隊伍放到指定座標並對齊視窗原點。
