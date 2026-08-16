@@ -55,7 +55,19 @@ for mid in *.mid; do
     ffmpeg -y -loglevel error -i "$name.wav" -af "loudnorm=I=-18:TP=-3:LRA=11" \
         -c:a libvorbis -q:a 5 "$name.ogg"
     rm -f "$name.wav"
-    printf "%-10s %s\n" "$name" "$(ffprobe -v error -show_entries format=duration:stream=channels -of csv=p=0 "$name.ogg" | tr "\n" " ")"
+    # 驗收（`rulebook/93` 鐵則 2）：**不准只看檔案存在**。
+    # 一首安靜的曲子與一首好曲子在 `ls` 底下長得一模一樣，
+    # 而最常見的壞法就是某個聲部整條沒聲音。這裡量長度、聲道、平均與尖峰音量；
+    # 尖峰貼到 0 dB 是削波，平均低於 −40 dB 基本上是靜音。
+    dur=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$name.ogg")
+    chn=$(ffprobe -v error -select_streams a:0 -show_entries stream=channels -of csv=p=0 "$name.ogg")
+    # ⚠ `volumedetect` 把結果印在 **info** 層：習慣性加上 `-v error` 會把它
+    # 一起壓掉，而那時候這一欄是空的、指令仍然 exit 0——看起來像「量不到」，
+    # 其實是自己把輸出關掉了。
+    vol=$(ffmpeg -hide_banner -nostats -v info -i "$name.ogg" \
+        -af volumedetect -f null /dev/null 2>&1 |
+        sed -n "s/.*_volume: \(.*\) dB/\1/p" | tr "\n" " ")
+    printf "%-10s %6.1f 秒  %s 聲道  平均/尖峰 %s dB\n" "$name" "$dur" "$chn" "$vol"
 done
 chown -R "$HOST_UID:$HOST_GID" /music
 '

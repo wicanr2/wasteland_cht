@@ -108,7 +108,8 @@
 | 5.7 | 全隊陣亡的處置 | **未開始** | 原版有兩條（`docs/re/99`）：全倒但救得回來 → **自動 `View` 切下一支隊伍**（`0x16C69`）；全員到底 → **死亡畫面**（`0x1C570`：地點名 ← `Grim Reaper`、載入 `ALLPICS` 第 0x3B 張、印 `ds:DE6Dh` 的 `Your life has ended in The Wasteland.`、等按鍵）。remake 兩條都沒接，全倒之後停在地圖上什麼都不會發生 |
 | 5.6 | 存讀檔選單 | **不做** | **原版沒有**——主選單只有 `Start`，存檔就是 `GAME1`／`GAME2` 本身（`docs/re/95` §4）。指令列的 `Save` 就是全部 |
 | 5.8 | 功能鍵與面板（F1／F2／F5／F9／F10） | **完成** | 規格 27。**原版都沒有**：ESC 只取消不離開、F10 先問再先存後退、F5／F9 走獨立的 `WLQS` 快速存檔（不碰玩家的原版資料）。門檻 `TestQuickSaveRoundTrip`、`TestF10SavesBeforeQuitting`、`TestEscapeNeverQuits`、`TestSettingsTogglesMusic` |
-| 5.9 | 背景音樂 | **完成** | 規格 27 §3。**原版沒有 BGM**（九首 PC 喇叭音效，`docs/re/44`），曲子是重製版自己寫的，`tools/make_music.py` 譜 → `tools/render_music.sh` 用 Roland MT-32／CM-32L 算成 ogg。ROM 與 ogg 都不入版控，`-music` 讀不到就沒有音樂、遊戲照跑 |
+| 5.9 | 背景音樂 | **完成** | 規格 27 §3。**原版沒有 BGM**（九首 PC 喇叭音效，`docs/re/44`），**十首**曲子是重製版自己寫的，`tools/make_music.py` 譜 → `tools/render_music.sh` 用 Roland MT-32／CM-32L 算成 ogg。曲子跟著場景與晝夜走（`internal/play/music.go`）。節奏鍵位是量出來的（`docs/mt32-rhythm-probe.md`）。ROM 與 ogg 都不入版控，`-music` 讀不到就沒有音樂、遊戲照跑 |
+| 5.10 | 交付物打包 | **完成** | `tools/dist.sh` → `dist-all/`：`release/`（可散布，不含原版衍生素材，附 `setup.sh` 讓玩家自己產合成映像）、`local/`（本機完整包）、`promo/`（推廣片）。腳本會**檢查** release 裡沒有混進不可散布的檔，混到就中止 |
 
 ## 6. 中文化
 
@@ -333,6 +334,13 @@ F1 說明、F2 設定、F5／F9 快速存讀檔、F10 離開（先問再先存�
   零值是 `DirUp`，忘了寫的話讀完檔畫面會停在「進新地點？」等 Y／N。
 - **MT-32 不是 GM**：MIDI channel 1 不用（八個聲部吃 2–9、節奏在 10），
   音色編號走 MT-32 內建表。放在 channel 1 會**安靜地**沒聲音。
+- **音源的鍵位不要照別的標準抄，要量。** MT-32 的節奏鍵只有 49 個有指派，
+  而 **GM 的腳踏鈸 42 不在裡面**——第一版的鼓組因此少了一整層，
+  檔案長度、音量、格式全部正常。`tools/mt32_probe.py` 三分鐘量完
+  （能量看有沒有指派、過零率看高低、尾巴分腳踏鈸與碎音鈸），
+  結果在 `docs/mt32-rhythm-probe.md`，`make_music.py` 開跑前擋一次。
+- **`volumedetect` 印在 info 層**：習慣性加 `-v error` 會把它一起壓掉，
+  那時候音量欄是空的而指令仍然 exit 0——看起來像量不到，其實是自己關掉的。
 - **音效與音樂共用同一個 `audio.Context`**（44100 Hz）。一個行程只能有一個，
   第二次用不同取樣率建會失敗。
 - **`HiFrame` 的模式條件要與 `Frame` 對齊。** `Frame` 在標題那一支提早 return，

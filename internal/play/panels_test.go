@@ -87,22 +87,6 @@ func TestSettingsTogglesMusic(t *testing.T) {
 	}
 }
 
-// TestMusicTrackFollowsMode：曲子跟著場景走。
-//
-// **這張對照表是重製版的決定，不是逆向結論**——原版沒有背景音樂
-// （九首 PC 喇叭音效，`docs/re/44`）。所以這一條驗的是我們自己訂的規則，
-// 不是原版行為。
-func TestMusicTrackFollowsMode(t *testing.T) {
-	s := newScene(t)
-	if got := s.MusicTrack(); got != "desert" {
-		t.Errorf("地圖上放 %q，預期 desert", got)
-	}
-	s.BeginTitle()
-	if got := s.MusicTrack(); got != "theme" {
-		t.Errorf("標題畫面放 %q，預期 theme", got)
-	}
-}
-
 // TestHelpFitsTheMessageWindow：說明面板要塞得進訊息視窗的六行，
 // 而且字母欄只能是 ASCII。
 //

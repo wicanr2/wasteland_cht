@@ -182,7 +182,7 @@ slide "$TMP/p10.png" facility.png \
 add "$TMP/p10.png" $PACE_SHOT
 
 slide "$TMP/p11.png" help.png \
-    'F1 說明、F2 設定、F5／F9 快速存讀檔，還有原版沒有的背景音樂。'
+    'F1 說明、F2 設定、F5／F9 快速存讀檔，還配了十首原版沒有的背景音樂。'
 add "$TMP/p11.png" $PACE_SHOT
 
 slide "$TMP/p12.png" 05-ending.png \
@@ -190,7 +190,7 @@ slide "$TMP/p12.png" 05-ending.png \
 add "$TMP/p12.png" $PACE_SHOT
 
 stat5 "$TMP/p13.png" '42|張地圖全部解開' '100|份逆向筆記' \
-    '4,873|條文本譯成中文' '162|段劇本' '27|份可實作規格'
+    '4,873|條文本譯成中文' '162|段劇本' '10|首自製配樂'
 add "$TMP/p13.png" $PACE_CARD
 
 card "$TMP/p14.png" '荒野遊俠' 'github.com/wicanr2/wasteland_cht' \
