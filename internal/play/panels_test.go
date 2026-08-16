@@ -142,8 +142,9 @@ func TestTitleScreenHasNoCommandBar(t *testing.T) {
 	// 指令列那一列（字元列 24）在高解畫面上是 y ∈ [24×16, 25×16)。
 	// `Start` 只占最左邊幾格，右半邊必須全黑。
 	on := 0
-	for y := render.CmdRow * 16; y < (render.CmdRow+1)*16 && y < render.HiScreenHeight; y++ {
-		for x := 12 * 16; x < render.HiScreenWidth; x++ {
+	for y := render.CmdRow * render.HiCellHeight; y < (render.CmdRow+1)*render.HiCellHeight &&
+		y < render.HiScreenHeight; y++ {
+		for x := 12 * render.HiCellWidth; x < render.HiScreenWidth; x++ {
 			if s.HiFrame().At(x, y) != 0 {
 				on++
 			}

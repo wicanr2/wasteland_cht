@@ -34,12 +34,11 @@ mkbg() {
         "$TMP/_bg.png"
 }
 
-# shot3x：把 640 × 400 的截圖放大成 960 × 600。
+# shot3x：把截圖擺成 960 × 600。
 #
-# ⚠ **倍率不是隨便挑的。** 截圖本身已經是原版 320 × 200 的 2 倍，
-# 再乘 1.5 剛好讓原版的一個像素變成 3 × 3 的方塊——每個像素一樣大。
-# 非整數倍會讓有些像素兩格寬、有些三格寬，pixel art 看起來就髒了，
-# 所以一律 `-filter point`（不插值）配整數倍。
+# 截圖本身就是 960 × 600（原版 320 × 200 的 3 倍），所以這裡是原尺寸放上去。
+# ⚠ 真的需要縮放時**一律 `-filter point` 配整數倍**：非整數倍會讓有些像素
+# 兩格寬、有些三格寬，pixel art 看起來就髒了。
 shot3x() { convert "$SHOT/$1" -filter point -resize 960x600 "$2"; }
 
 # ── 版面一：標題卡 ───────────────────────────────────────────────────────
@@ -66,15 +65,16 @@ slide() { # $1 out $2 截圖 $3 字幕
 # ── 版面三：上下對照（同一個畫面的英文與中文）───────────────────────────
 #
 # 只裁訊息視窗那一條：整張截圖並排會小到看不清字，而**要比的就是那幾行字**。
-# 訊息視窗在原版是字元列 18–23，換算到 640 × 400 的截圖是 y ∈ [288, 384)。
+# 訊息視窗在原版是字元列 18–23，換算到 960 × 600 的截圖是 y ∈ [432, 576)。
 compare2() { # $1 out $2 英文截圖 $3 中文截圖 $4 標題 $5 底部說明
     mkbg
     for i in 1 2; do
         [ $i = 1 ] && src=$2 || src=$3
-        # ⚠ 高度切到 100 就好：指令列在字元列 24（640 × 400 的 y ≥ 384），
+        # ⚠ 停在字元列 24 之前：指令列在那一列（960 × 600 的 y ≥ 576），
         # 切太高會把它的上半截一起帶進來，看起來像壞掉的字。
-        convert "$SHOT/$src" -crop 640x100+0+282 +repage \
-            -filter point -resize 960x150 -bordercolor "$RUST" -border 2 "$TMP/_c$i.png"
+        # 訊息視窗是字元列 18–23 → y ∈ [432, 576)。
+        convert "$SHOT/$src" -crop 960x150+0+426 +repage \
+            -bordercolor "$RUST" -border 2 "$TMP/_c$i.png"
     done
     convert "$TMP/_bg.png" \
         -font "$FT" -fill "$SAND" -gravity north -pointsize 40 -annotate +0+66 "$4" \
@@ -161,7 +161,7 @@ slide "$TMP/p05.png" combat.png \
 add "$TMP/p05.png" $PACE_SHOT
 
 compare2 "$TMP/p06.png" skills-en.png 03-use.png '螢幕上的字都換過了' \
-    '可翻的 4,873 條全部譯完，連戰鬥訊息與設施清單都走翻譯目錄。'
+    '4,902 條譯文，連戰鬥表頭與店家招牌這種不在字串表裡的都補上了。'
 add "$TMP/p06.png" $PACE_CARD
 
 slide "$TMP/p07.png" 07-question.png \
@@ -182,7 +182,7 @@ slide "$TMP/p10.png" facility.png \
 add "$TMP/p10.png" $PACE_SHOT
 
 slide "$TMP/p11.png" help.png \
-    'F1 說明、F2 設定、F5／F9 快速存讀檔，還配了十首原版沒有的背景音樂。'
+    '畫面拉到 960 × 600：中文換 24 × 24，英數用倚天同高的半形字。'
 add "$TMP/p11.png" $PACE_SHOT
 
 slide "$TMP/p12.png" 05-ending.png \
@@ -190,7 +190,7 @@ slide "$TMP/p12.png" 05-ending.png \
 add "$TMP/p12.png" $PACE_SHOT
 
 stat5 "$TMP/p13.png" '42|張地圖全部解開' '100|份逆向筆記' \
-    '4,873|條文本譯成中文' '162|段劇本' '10|首自製配樂'
+    '4,902|條文本譯成中文' '162|段劇本' '10|首自製配樂'
 add "$TMP/p13.png" $PACE_CARD
 
 card "$TMP/p14.png" '荒野遊俠' 'github.com/wicanr2/wasteland_cht' \

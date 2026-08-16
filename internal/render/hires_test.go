@@ -140,9 +140,10 @@ func TestUpscaleIsNearest(t *testing.T) {
 			want := f.At(x, y)
 			for dy := 0; dy < HiScale; dy++ {
 				for dx := 0; dx < HiScale; dx++ {
-					if got := h.At(x*2+dx, y*2+dy); got != want {
-						t.Fatalf("(%d,%d) 的 2×2 區塊應該全是 %d，(%d,%d) 是 %d",
-							x, y, want, x*2+dx, y*2+dy, got)
+					if got := h.At(x*HiScale+dx, y*HiScale+dy); got != want {
+						t.Fatalf("(%d,%d) 的 %d×%d 區塊應該全是 %d，(%d,%d) 是 %d",
+							x, y, HiScale, HiScale, want,
+							x*HiScale+dx, y*HiScale+dy, got)
 					}
 				}
 			}
@@ -150,7 +151,7 @@ func TestUpscaleIsNearest(t *testing.T) {
 	}
 }
 
-// 驗收 4：中文字畫在原版字元格的位置上、字高 15 垂直置中。
+// 驗收 4：中文字畫在原版字元格的位置上，字模比格子小時垂直置中。
 func TestDrawCJKPosition(t *testing.T) {
 	f := openETen(t)
 	h := NewHiFrame()
@@ -165,21 +166,25 @@ func TestDrawCJKPosition(t *testing.T) {
 			if h.At(x, y) == 0 {
 				continue
 			}
-			if x < x0 || x >= x0+assets.ETenWidth ||
+			if x < x0 || x >= x0+HiCellWidth ||
 				y < y0 || y >= y0+HiCellHeight {
 				t.Fatalf("(%d,%d) 有像素，超出第 (%d,%d) 格", x, y, col, row)
 			}
 		}
 	}
-	// 垂直置中：格子的第一列（y0）應該是空的（字高 15、格高 16）。
+	// 字模比格子小的時候要**置中**：24 點剛好填滿（沒有留白），
+	// 15 點放進 24 的格子則上下都要留白。這裡只驗「不超出格子」，
+	// 上面那個迴圈已經做完了；置中的算式在 HiFrame.blit。
 	blank := true
-	for x := x0; x < x0+assets.ETenWidth; x++ {
-		if h.At(x, y0+HiCellHeight-1) != 0 {
-			blank = false
+	if f.Height < HiCellHeight {
+		for x := x0; x < x0+HiCellWidth; x++ {
+			if h.At(x, y0+HiCellHeight-1) != 0 {
+				blank = false
+			}
 		}
 	}
 	if !blank {
-		t.Error("字高 15 放進 16 的格子，最後一列應該留白")
+		t.Errorf("字高 %d 放進 %d 的格子，最後一列應該留白", f.Height, HiCellHeight)
 	}
 
 	// 查不到的字要回 false，不能靜靜畫成空白。

@@ -62,6 +62,8 @@ cp "$ROOT/README.md" "$ROOT/CONTEXT.md" "$ROOT/WORKLIST.md" "$REL/docs/"
 mkdir -p "$REL/tools"
 cp "$ROOT/tools/unpack_exepack.py" "$ROOT/tools/apply_overlay.py" "$REL/tools/"
 cp "$ROOT/tools/make_music.py" "$ROOT/tools/mt32_probe.py" "$ROOT/tools/render_music.sh" "$REL/tools/"
+# 24 點中文字型在倚天光碟上是 ETUNPACK 壓縮的，玩家要自己解。
+cp "$ROOT/tools/etunpack.py" "$REL/tools/"
 mkdir -p "$REL/docs"
 cp "$ROOT/docs/mt32-rhythm-probe.md" "$REL/docs/"
 
@@ -97,8 +99,20 @@ cat > "$REL/README.md" <<README
 **這份不含任何原版素材。** 要玩需要你自己準備三樣東西：
 
 1. 合法的原版《Wasteland》資料（解壓成一個目錄，裡面有 \`wl.exe\`、\`game1\`…）
-2. 倚天 16 × 15 點陣字型目錄（中文顯示要用；沒有就跑英文）
+2. 倚天點陣字型目錄（中文顯示要用；沒有就跑英文）
 3. Python 3（只在第一次的 \`setup.sh\` 用到，純標準函式庫）
+
+### 字型：優先放 24 點
+
+畫面是 960 × 600（原版的三倍），一個字元格 24 × 24，所以**倚天 24 點的字剛好填滿**：
+
+| 檔案 | 從哪來 |
+|---|---|
+| \`STDFONT.24\` | 光碟上是 ETUNPACK 壓縮的 \`STD.24M\`（明體），用 \`python3 tools/etunpack.py STD.24M STDFONT.24\` 解開 |
+| \`SPCFONT.24\` | 光碟上直接可用（全形標點，**少了它標點會全部缺字**）|
+| \`ASCFONT.24\` | 光碟上直接可用（半形英數，**少了它英文會變成粗胖的放大字**）|
+
+只有 15 點（\`STDFONT.15\` 等）也跑得動，字會小一號、畫在格子中央。
 
 ## 開始玩
 
@@ -130,7 +144,7 @@ tools/render_music.sh music ~/mt32
 
 | 目錄 | 內容 |
 |---|---|
-| \`translations/\` | 繁中翻譯目錄（4,873 條）與 162 段劇本 |
+| \`translations/\` | 繁中翻譯目錄（4,902 條）與 162 段劇本 |
 | \`docs/manual-cht/\` | 軟體世界 1990 年中文說明書逐頁轉錄 |
 | \`docs/manual/\` | 官方英文手冊中英對照 |
 | \`docs/paragraphs/\` | 段落書整理與翻譯 |
@@ -186,7 +200,7 @@ cat > "$LOC/請勿散布.md" <<LOCALNOTE
 |---|---|---|
 | \`data/\` | 原版《Wasteland》資料檔 | Interplay／EA 的原版素材 |
 | \`build/wl.merged.exe\` | 原版執行檔解包 ＋ 疊 overlay | 同上，是它的衍生物 |
-| \`eten/\` | 倚天 16 × 15 點陣字型 | 字型本身有授權 |
+| \`eten/\` | 倚天點陣字型（24 點與 15 點） | 字型本身有授權 |
 | \`music/\` | 背景音樂 ogg | 曲子是自己寫的，但波形裡有 Roland MT-32 的 PCM 取樣 |
 
 要給別人的是隔壁的 \`release/\`，那一份不含上面任何一項。

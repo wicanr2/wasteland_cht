@@ -149,7 +149,22 @@ func (s *Scene) LoadCatalogue(path string) error {
 	}
 	s.cat = c
 	s.dirty = true
+	// ⚠ **順序**：`New` 比 `LoadCatalogue` 早跑，所以開場那句地點名在建場景
+	// 的時候還查不到中文（目錄還沒載）。載完目錄要回頭補一次，
+	// 否則畫面第一句永遠是英文——而那看起來像「這一句沒翻」。
+	s.sayPlace()
 	return nil
+}
+
+// sayPlace 把開場那句地點名換成中文。查不到就維持英文。
+func (s *Scene) sayPlace() {
+	if s.save == nil || s.message != s.save.Place() {
+		return
+	}
+	if zh := s.placeCJK(s.message); len(zh) > 0 {
+		s.message, s.cjk = "", zh
+		s.dirty = true
+	}
 }
 
 // LoadFont 載入倚天字型；載不到就維持英文，不當成錯誤。
@@ -176,6 +191,25 @@ func (s *Scene) SetCJK(b []byte) {
 // 一個中文字剛好佔原版一個字元格，所以訊息視窗仍然是 6 行 × 38 格。
 // cjkVisible 回報這一幀會不會畫中文（有字型 ＋ 有內容）。
 func (s *Scene) cjkVisible() bool { return s.eten != nil && len(s.cjk) > 0 }
+
+// hiText 回報「文字層要不要整層改走高解畫布」。
+//
+// 條件是**有倚天的半形 ASCII 字模**：那時英數與中文同高、同一套設計，
+// 整層搬上去才會齊。只有漢字沒有 ASCFONT 時維持原樣——
+// 那時英數只能用遊戲原版的 8 × 8 放大，搬上去也不會比較好看。
+//
+// ⚠ 開了這個之後，低解那張 **不可以再畫同一批字**：先畫再蓋會留殘影
+// （8 × 8 放大的筆劃比 24 點的粗，蓋不乾淨）。
+func (s *Scene) hiText() bool { return s.eten != nil && s.eten.HasASCII() }
+
+// drawASCIILine 在高解畫面上畫一整行純 ASCII。
+func (s *Scene) drawASCIILine(h *render.HiFrame, text string, col, row int) {
+	for i := 0; i < len(text); i++ {
+		if text[i] != ' ' {
+			s.drawASCII(h, text[i], col+i, row)
+		}
+	}
+}
 
 func (s *Scene) HiFrame() *render.HiFrame {
 	h := render.NewHiFrame()
@@ -208,6 +242,7 @@ func (s *Scene) HiFrame() *render.HiFrame {
 			s.drawCJKLine(h, l, render.FacilityNameCol, render.FacilityNameRow+i)
 		}
 	}
+	s.drawHiTextLayer(h)
 	if len(s.cjk) == 0 {
 		return h
 	}
@@ -236,7 +271,7 @@ func (s *Scene) HiFrame() *render.HiFrame {
 			i++
 			continue
 		case c < 0x80:
-			h.DrawASCIIAt(s.font, c, col, row, 15)
+			s.drawASCII(h, c, col, row)
 			i++
 		default:
 			if i+1 >= len(s.cjk) {
@@ -249,6 +284,60 @@ func (s *Scene) HiFrame() *render.HiFrame {
 		col++
 	}
 	return h
+}
+
+// drawHiTextLayer 把原本畫在低解那張上的英文與數字，改用倚天半形字模
+// 畫在高解畫布上——**這是英數與中文對齊的那一半**。
+//
+// 對應關係要與 `Frame` 一一對上：那邊在 `hiText()` 為真時跳過的每一項，
+// 這裡都要補回來。少補一項的症狀是「那一行不見了」。
+func (s *Scene) drawHiTextLayer(h *render.HiFrame) {
+	if !s.hiText() {
+		return
+	}
+	// 時鐘：外框上緣，切模式不影響它（`docs/re/27` §4）。
+	if !s.ending.active {
+		c := s.world.Clock
+		s.drawASCIILine(h, fmt.Sprintf("%02d:%02d", c.Hour, c.Minute),
+			render.ClockCol, render.ClockRow)
+	}
+	// 戰鬥名單那幾行（表頭是中文，走另一條）。
+	if s.combat != nil {
+		for i, r := range Roster(s.world.Party) {
+			row := render.RosterHeaderRow + 1 + i
+			if row > render.MsgRow-1 {
+				break // 名單與訊息視窗在字元列上會撞（docs/spec/03 §3）
+			}
+			s.drawASCIILine(h, r.Text(), 0, row)
+		}
+	}
+	// 設施那幾行裡沒有中文的（店名以外的清單多半是英文物品名）。
+	if s.facility != nil {
+		for i, l := range s.facility.Lines {
+			if i < len(s.facility.CJKLines) && len(s.facility.CJKLines[i]) > 0 {
+				continue
+			}
+			s.drawASCIILine(h, l, render.FacilityNameCol, render.FacilityNameRow+i)
+		}
+	}
+	// 訊息視窗的英文。有中文正文時只留第一行當標題（與 `Frame` 同一條規則）。
+	if s.message == "" {
+		return
+	}
+	out, err := textlayout.Layout([]byte(s.message), textlayout.Options{Width: render.MsgWidth})
+	if err != nil {
+		return
+	}
+	lines := out.Lines
+	if s.cjkVisible() && len(lines) > 1 {
+		lines = lines[:1]
+	}
+	for i, l := range lines {
+		if render.MsgRow+i > render.MsgRowEnd {
+			break
+		}
+		s.drawASCIILine(h, l.String(), render.MsgCol, render.MsgRow+i)
+	}
 }
 
 // New 從出廠存檔開一個場景：挑序號大的那一份、讀出隊伍與所在地圖。
@@ -329,7 +418,6 @@ func New(rom *assets.Rom) (*Scene, error) {
 		s.world.Skills = game.SkillBytes(raw)
 	}
 	s.message = save.Place()
-	s.cjk = s.placeCJK(save.Place())
 	if raw, err := rom.LoadItemTable(save.File, 0); err == nil {
 		s.items, s.itemsRaw = game.ParseItemTable(raw), raw
 	} else {
@@ -1198,7 +1286,7 @@ func (s *Scene) Frame() *render.Frame {
 	}
 	// 時鐘在外框上緣，不屬於地圖視窗——切模式不影響它（docs/re/27 §4）。
 	// **結局沒有時鐘也沒有指令列**：那時候已經不在遊戲裡了。
-	if !s.ending.active {
+	if !s.ending.active && !s.hiText() {
 		_ = f.DrawClock(s.font, int(s.world.Clock.Hour), int(s.world.Clock.Minute))
 	}
 
@@ -1209,7 +1297,7 @@ func (s *Scene) Frame() *render.Frame {
 		_ = f.DrawLineAt(s.font, commandBar(), 0, render.CmdRow)
 	}
 
-	if s.message != "" {
+	if s.message != "" && !s.hiText() {
 		out, err := textlayout.Layout([]byte(s.message), textlayout.Options{Width: render.MsgWidth})
 		if err == nil {
 			lines := out.Lines
@@ -1264,6 +1352,9 @@ func (s *Scene) drawRoster(f *render.Frame) {
 	if s.eten == nil || len(rosterHeaderCJK(s.uiText)) == 0 {
 		_ = f.DrawLineAt(s.font, RosterHeader, 0, row)
 	}
+	if s.hiText() {
+		return // 名單那幾行由 HiFrame 用倚天半形字畫
+	}
 	for i, r := range Roster(s.world.Party) {
 		if row+1+i > render.MsgRow-1 {
 			break // 名單與訊息視窗在字元列上會撞（docs/spec/03 §3）
@@ -1288,6 +1379,9 @@ func (s *Scene) drawFacility(f *render.Frame) {
 		// 先畫英文再蓋會留下殘影（與指令列同一條）。
 		if s.eten != nil && i < len(fs.CJKLines) && len(fs.CJKLines[i]) > 0 {
 			continue
+		}
+		if s.hiText() {
+			continue // 純英文那幾行也交給 HiFrame，字才會與中文同高
 		}
 		_ = f.DrawLineAt(s.font, l, render.FacilityNameCol, render.FacilityNameRow+i)
 	}
@@ -1455,6 +1549,18 @@ func (s *Scene) uiText(name string) []byte {
 	return nil
 }
 
+// drawASCII 在高解畫面上畫一個 ASCII 字元。
+//
+// **優先用倚天自己的半形字模**：它與漢字同高、同一套設計，中英混排才會齊。
+// 沒有 `ASCFONT.*` 時退回遊戲原版的 8 × 8 字模放大——那個筆劃比中文粗，
+// 是後備不是首選。
+func (s *Scene) drawASCII(h *render.HiFrame, c byte, col, row int) {
+	if h.DrawETenASCII(s.eten, c, col, row, 15) {
+		return
+	}
+	h.DrawASCIIAt(s.font, c, col, row, 15)
+}
+
 // drawCJKLine 在高解畫面上畫一行中英混排的字（Big5）。
 //
 // ⚠ **逐 byte 判型別，不能整串兩兩配對**——這一行一定夾著熱鍵字母
@@ -1463,7 +1569,7 @@ func (s *Scene) drawCJKLine(h *render.HiFrame, text []byte, col, row int) {
 	for i := 0; i < len(text); {
 		c := text[i]
 		if c < 0x80 {
-			h.DrawASCIIAt(s.font, c, col, row, 15)
+			s.drawASCII(h, c, col, row)
 			col++
 			i++
 			continue
