@@ -206,6 +206,14 @@ func (s *Script) Step() ScriptResult {
 		// 是**有格子指到的未實作 opcode 裡最多的一個**。
 		res.Sound = 7
 
+	case OpStartTimer:
+		// **啟動科奇斯基地的自毀**（`0x1AB0E`）：記下現在的時鐘、
+		// 把遭遇分母歸零，再播兩次音效 7。240 刻之後主迴圈的
+		// `sub_1CB30` 會合成一個 kind 4 的分派——那就是結局
+		//（`docs/re/100`）。全 42 張地圖只有一筆記錄用這個 opcode。
+		s.World.ArmSelfDestruct()
+		res.Sound = 7 // 原版連播兩次（`call sub_1142B; jmp sub_1142B`）
+
 	case OpAbort:
 		res.Continue = false
 

@@ -88,7 +88,7 @@ func TestScriptOpcodeCoverage(t *testing.T) {
 		t.Errorf("有格子指到的 opcode 還有 %d 格沒實作", missCells)
 	}
 	// 記錄數是遞減的門檻——實作了新的 opcode 就把這個數字調小。
-	if missRecords > 86 {
-		t.Errorf("未實作的 opcode 記錄數 %d 超過門檻 86", missRecords)
+	if missRecords > 85 {
+		t.Errorf("未實作的 opcode 記錄數 %d 超過門檻 85", missRecords)
 	}
 }

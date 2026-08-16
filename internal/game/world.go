@@ -148,6 +148,8 @@ type World struct {
 	lastRecord byte
 	// Skills 是技能資料表（條件閘的技能型別要用）。
 	Skills SkillTable
+	// SelfDestruct 是科奇斯基地的自毀倒數，也就是**結局的觸發點**。
+	SelfDestruct SelfDestruct
 }
 
 // NewWorld 把隊伍放到指定座標並對齊視窗原點。

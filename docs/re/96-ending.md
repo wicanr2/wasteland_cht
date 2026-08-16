@@ -6,11 +6,14 @@
 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`。
 
 `END.CPA` 的第一段是畫面（`docs/re/23` §9）。這一份解開**第二段**、
-播放器、四段敘述文字，以及最後一個問題：**誰觸發結局**。
+播放器、四段敘述文字，以及結局那一段程式掛在哪裡。
+
+**誰觸發它在 [`docs/re/100`](100-ending-trigger.md)**：不是走進某一格，
+是科奇斯基地的自毀倒數走完 240 刻之後，主迴圈自己合成一次分派。
 
 ---
 
-## 1. 觸發：走進一格「設施」
+## 1. 結局那一段掛在設施跳表的第 4 格
 
 `sub_1B7FE` 的唯一呼叫端是 `0x1B51D`，而 `0x1B4F0`（那一段的開頭）
 **沒有任何 near call 或 jmp 指到它**——自己掃 `E8`／`E9`／`EB` 全檔零命中，
@@ -37,9 +40,8 @@
 | 3 | `0xA2C0` | Ranger Center |
 | **4** | **`0xB4F0`** | **結局** |
 
-remake 先前把第 4 種叫 `FacilityUnknown`「身分未定」，圖片編號 `-1`
-——看起來只是一種沒有店面的設施，走進去會出現一個空畫面。
-它其實是遊戲的終點：**走進那一格，遊戲就結束了**。
+第 4 種不是一種「設施」——它是遊戲的終點。**而且沒有任何一筆地圖記錄指到它**：
+索引 4 由 `sub_1CB30` 在倒數到期時合成（`al ← 84h`，`docs/re/100` §2）。
 
 推論等級：**已確認**（跳表的位址是全檔掃描 ＋ 消費點的定址方式一起定的）。
 
@@ -163,8 +165,8 @@ sub_10FD3: 讀 4 bytes ＝ 8 個 nibble，位切片成四個平面
 ## 4. remake 這一側
 
 **已接**：`Rom.EndAnim`（`internal/assets/endanim.go`）＋
-`Scene.BeginEnding`／`TickEnding`（`internal/play/ending.go`），
-`FacilityEnding`（原本叫 `FacilityUnknown`）走進去直接進結局。
+`Scene.BeginEnding`／`TickEnding`（`internal/play/ending.go`）。
+進結局的路只有一條：自毀倒數到期（`docs/re/100`）。
 
 清算照原版依地圖判定（`Scene.collectToll`），旗標寫進角色記錄
 （`Mission`／`Praised`，`StoreTo` **只動 bit0**，其餘七位未解不碰）。
