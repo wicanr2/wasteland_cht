@@ -26,6 +26,8 @@ type Scene struct {
 	gfx   *render.Graphics
 	world *game.World
 	save  *assets.Save
+	// saveDir 是 `Save` 指令要寫回的資料目錄；空的就不寫檔（見 SetSaveDir）。
+	saveDir string
 
 	frame   *render.Frame
 	dirty   bool
@@ -411,6 +413,47 @@ func (s *Scene) PollRNG() {
 // 中文走 cjk，兩者不會同時空著。
 func (s *Scene) Message() string { return s.message }
 
+// CJK 是這一步的中文訊息（Big5）。空的表示這一步走英文路徑。
+// 給驗收工具看的——畫面自己直接讀內部欄位。
+func (s *Scene) CJK() []byte { return s.cjk }
+
+// Mode 是畫面現在停在哪一層，順序與 Update 的路由完全一致
+// （`docs/spec/24`）。**驗收工具用**：訊息列看不出「進了設施但選單沒開」
+// 這種接線斷掉的情況，模式看得出來。
+func (s *Scene) Mode() string {
+	switch {
+	case s.title:
+		return "title"
+	case s.ending.active:
+		return "ending"
+	case s.roster.active:
+		switch {
+		case s.roster.naming:
+			return "roster:naming"
+		case s.roster.del:
+			return "roster:delete"
+		}
+		return "roster"
+	case s.facility != nil:
+		return "facility:" + s.facility.Facility.Name
+	case s.combat != nil:
+		return "combat"
+	case s.journalOpen:
+		return fmt.Sprintf("journal:%d", s.journalAt)
+	case s.use.stage != useStageOff:
+		return fmt.Sprintf("use:%d", int(s.use.stage))
+	case s.order.active:
+		return "order"
+	case s.disband:
+		return "disband"
+	case s.encAsk != 0:
+		return "encask"
+	case s.asking != input.DirNone:
+		return "asking"
+	}
+	return "map"
+}
+
 // World 讓測試與 cmd/wl-shot 拿得到規則層的狀態。
 func (s *Scene) World() *game.World { return s.world }
 
@@ -609,6 +652,9 @@ func dirOf(d game.Direction) input.Direction {
 // 兩張表的索引空間完全不同，拿錯會安靜地取到別的句子——
 // 技能 1 在這張是 `Brawling`，在那張是 `Radio?YesNo`。
 func (s *Scene) nameString(n int) string {
+	if s.rom == nil {
+		return "" // 沒有映像的場景（單元測試用）查不到名字
+	}
 	tables, err := s.rom.ExeStrings()
 	if err != nil || len(tables) < 3 || n < 0 || n >= len(tables[2]) {
 		return ""
@@ -617,6 +663,9 @@ func (s *Scene) nameString(n int) string {
 }
 
 func (s *Scene) exeString(n int) string {
+	if s.rom == nil {
+		return ""
+	}
 	tables, err := s.rom.ExeStrings()
 	if err != nil || len(tables) < 2 || n < 0 || n >= len(tables[1]) {
 		return ""
@@ -856,6 +905,12 @@ func (s *Scene) StoreTo(save *assets.Save) error {
 
 // Save 回傳目前這一份存檔（呼叫者負責寫檔）。
 func (s *Scene) Save() *assets.Save { return s.save }
+
+// SetSaveDir 指定指令列的 `Save` 要把存檔寫回哪個目錄。
+//
+// 空字串 ＝ **只更新記憶體、不寫檔**，無頭工具與測試用；
+// 那時 `Save` 會照實說它沒有寫出去，不會報一句「存好了」。
+func (s *Scene) SetSaveDir(dir string) { s.saveDir = dir }
 
 // translate 查這一步的訊息有沒有中文。查不到就回 nil，顯示原文
 // （docs/spec/11 §7：半成品的中文化要能玩）。

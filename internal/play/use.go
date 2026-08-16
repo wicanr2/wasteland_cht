@@ -255,6 +255,9 @@ func (s *Scene) applyUse(o useOption) {
 	m := s.world.Party.Members[s.use.member]
 	kind := s.use.kind
 	s.use = useState{}
+	// 選單收起來，它的中文也要跟著收。留著的話結果那一行會疊在
+	// 上一層的清單上——畫面上是「1 鬥毆 2 攀爬…」底下印著結果。
+	s.cjk = nil
 
 	rec, _, err := s.world.Block.CellRecord(int(s.world.Party.X), int(s.world.Party.Y))
 	if err != nil || len(rec) == 0 {
@@ -280,7 +283,7 @@ func (s *Scene) applyUse(o useOption) {
 func (s *Scene) updateUse(in input.Input) (bool, error) {
 	if in.Action == input.ActionCancel {
 		s.use = useState{}
-		s.message = ""
+		s.message, s.cjk = "", nil
 		s.dirty = true
 		return true, nil
 	}

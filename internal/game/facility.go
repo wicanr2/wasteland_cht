@@ -91,7 +91,14 @@ func ParseFacility(record []byte) (Facility, bool) {
 // ShopPrice 是商店價格：基礎價 − (基礎價 >> n)。
 //
 // n 來自這筆地圖記錄的 +0x03：0 ＝ 原價、1 ＝ 半價、2 ＝ 75%…
+//
+// ⚠ **n ＝ 0 要提早回原價**，不能讓公式自己算：`base >> 0` 就是 `base`，
+// 相減得 0——指數 0 的店會變成全館免費。原版 `sub_1C1CC` 是
+// 「`dl ＝ 0` → 直接 return」，右移迴圈根本不跑（`docs/re/22` §3）。
 func ShopPrice(base uint16, discount byte) uint16 {
+	if discount == 0 {
+		return base
+	}
 	return base - (base >> discount)
 }
 
@@ -165,10 +172,11 @@ func (f Facility) Buy(c *Character, itemID byte, base uint16) (ok bool, reason s
 	if c.Money < price {
 		return false, "錢不夠"
 	}
-	if len(c.Items) >= slotCount {
+	slot, ok := FirstEmptyItemSlot(c.Items)
+	if !ok {
 		return false, "帶不下了"
 	}
 	c.Money -= price
-	c.Items = append(c.Items, Slot{ID: itemID, Value: 1})
+	c.Items = putSlot(c.Items, slot, Slot{ID: itemID, Value: 1})
 	return true, ""
 }

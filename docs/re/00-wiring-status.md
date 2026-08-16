@@ -147,3 +147,4 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 94 | [`ENC` —— 它不是新指令，是自動遭遇的手動入口](94-enc-command.md) | 已接 | `internal/play/enc.go`、`internal/play/command.go` |
 | 95 | [主選單只有一個選項，而且沒有「讀檔」](95-main-menu.md) | 已接 | `internal/play/mainmenu.go`、`cmd/wasteland/main.go` |
 | 96 | [結局 —— 它掛在設施跳表的第 4 格](96-ending.md) | 已接 | `internal/assets/endanim.go`、`internal/game/character.go`、`internal/play/ending.go`（共 7 處） |
+| 97 | [抽樣試玩（第二輪）—— 七段流程各走一遍](97-playtest-sampling.md) | 不適用 | 驗收紀錄與方法，不產生程式碼（修掉的缺口各自引用它們的依據筆記） |

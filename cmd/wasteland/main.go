@@ -33,6 +33,12 @@ func main() {
 	block := flag.Int("block", 0, "MSQ 區塊編號（0–41）")
 	pic := flag.Int("pic", 0, "ALLPICS 圖片編號")
 	scale := flag.Int("scale", 3, "視窗放大倍率")
+	// 指令列的 `Save` 要寫回哪裡。原版是就地寫回自己的 `GAME1`／`GAME2`，
+	// 但**預設不指到 `-rom`**：那份是驗過 SHA-256 的原版，寫過就開不起來
+	// （`assets.Open`），而且專案規定不覆蓋原版資料。要真的存檔就先複製
+	// 一份資料目錄出來、把 `-save-dir` 指到副本。空字串 ＝ 不寫檔，
+	// `Save` 會照實說它沒寫出去。
+	saveDir := flag.String("save-dir", "", "存檔寫回的**可寫**資料目錄副本（空 ＝ 不寫檔）")
 	flag.Parse()
 
 	rom, err := assets.Open(*romDir)
@@ -47,6 +53,13 @@ func main() {
 			var s *play.Scene
 			s, err = play.New(rom)
 			scene, title = s, "Wasteland（荒野遊俠）"
+			if err == nil {
+				s.SetSaveDir(*saveDir)
+				if *saveDir == "" {
+					fmt.Fprintln(os.Stderr,
+						"提示：沒給 -save-dir，指令列的 Save 只會更新記憶體、不寫檔")
+				}
+			}
 			// 原版開機是「標題畫面 → Start → 地圖」（`docs/re/95`）。
 			// **沒有新遊戲／讀檔**：存檔就是 GAME1／GAME2 本身。
 			if err == nil && !*skipTitle {

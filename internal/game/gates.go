@@ -331,8 +331,16 @@ func (p *Party) Current() *Character {
 // UseItem 找一件物品並消耗一次（sub_1968C ＋ sub_19A58）。
 //
 // 附屬 byte 的**低 6 位是剩餘次數**，高 2 位原樣保留；
-// 次數只剩 1 的時候再用就把整個槽移除。
+// 次數只剩 1 的時候再用就把那一槽清成 0。
+//
+// ⚠ **清空不是移除**：物品陣列是固定 30 槽（`docs/re/15`），賣掉一件
+// 也是「把那兩個 byte 清成 0」而不搬動後面的（`docs/re/42` §3）。
+// 把後面的往前搬會讓角色記錄 `+0x1F`／`+0x25` 存的槽號指到別件東西——
+// 症狀是用掉一件消耗品之後，裝備欄安靜地換成另一把武器。
 func (c *Character) UseItem(id byte) bool {
+	if id == 0 {
+		return false // 0 是空槽，不是一件物品
+	}
 	for i := range c.Items {
 		if c.Items[i].ID != id {
 			continue
@@ -342,7 +350,7 @@ func (c *Character) UseItem(id byte) bool {
 		case uses == 0:
 			return true // 次數為 0 的不遞減（原版直接離開）
 		case uses == 1:
-			c.Items = append(c.Items[:i], c.Items[i+1:]...)
+			c.Items[i] = Slot{}
 		default:
 			c.Items[i].Value = (c.Items[i].Value & 0xC0) | (uses - 1)
 		}

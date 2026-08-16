@@ -397,7 +397,7 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 		from, to := f.page(len(f.Skills))
 		for i, sk := range f.Skills[from:to] {
 			f.Lines = append(f.Lines,
-				fmt.Sprintf("%d) skill %d  cost %d", i+1, sk.ID,
+				fmt.Sprintf("%d) %s  cost %d", i+1, f.skillLabel(sk.ID),
 					game.SkillCost(sk.Data.BaseCost, int(c.SkillLevel(sk.ID))+1)))
 		}
 	case f.Facility.Kind == game.FacilityDoctor && f.state.Step == StepHeal:
@@ -422,14 +422,14 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 			if e.Equipped {
 				mark = "*" // 裝備中要標出來，但賣得掉（docs/re/42 §3.1）
 			}
-			f.Lines = append(f.Lines, fmt.Sprintf("%d)%s item %d", i+1, mark, e.Item))
+			f.Lines = append(f.Lines, fmt.Sprintf("%d)%s %s", i+1, mark, f.itemLabel(e.Item)))
 		}
 	case f.state.Step == StepBuy:
 		f.Lines = append(f.Lines, "   PRICE     ITEM")
 		list := f.buyList(items)
 		from, to := f.page(len(list))
 		for i, e := range list[from:to] {
-			f.Lines = append(f.Lines, fmt.Sprintf("%d) $%-6d item %d", i+1, e.Price, e.ID))
+			f.Lines = append(f.Lines, fmt.Sprintf("%d) $%-6d %s", i+1, e.Price, f.itemLabel(e.ID)))
 		}
 	default:
 		f.Lines = append(f.Lines, "Do you want to:  Buy / Sell")

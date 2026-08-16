@@ -131,7 +131,7 @@ func (c *Character) GiveStartingKit(list []byte, tbl ItemTable) {
 		if d, ok := tbl.Get(id); ok {
 			full = d.Capacity
 		}
-		c.Items[slot] = Slot{ID: id, Value: full}
+		c.Items = putSlot(c.Items, slot, Slot{ID: id, Value: full})
 	}
 }
 

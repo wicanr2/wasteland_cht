@@ -310,7 +310,13 @@ func statusMask(index byte) uint8 {
 }
 
 // HasItem 回傳角色身上有沒有這件物品（不消耗）。
+//
+// 編號 0 是空槽的值，不是一件物品——固定 30 槽的陣列裡幾乎一定有空槽，
+// 不擋掉的話「身上有沒有第 0 件」永遠回 true。
 func (c *Character) HasItem(id byte) bool {
+	if id == 0 {
+		return false
+	}
 	for _, it := range c.Items {
 		if it.ID == id {
 			return true

@@ -104,6 +104,9 @@ func TestSaveCommandWritesSave(t *testing.T) {
 	if err := s.LoadMap(4, 18, 2); err != nil {
 		t.Fatal(err)
 	}
+	// 寫到暫存目錄——`Save` 現在會真的寫檔，不給目錄它會照實說沒寫
+	// （寫出去讀不讀得回來由 `TestSaveCommandWritesToDisk` 守著）。
+	s.SetSaveDir(t.TempDir())
 	if _, err := s.Update(input.Input{Dir: input.DirNone, Char: 'S'}); err != nil {
 		t.Fatal(err)
 	}
