@@ -105,9 +105,7 @@ func TestPlayerMessagesAreTranslated(t *testing.T) {
 
 	t.Run("存檔訊息", func(t *testing.T) {
 		s := openZhScene(t)
-		if _, err := s.Update(input.Input{Dir: input.DirNone, Char: 'S'}); err != nil {
-			t.Fatal(err)
-		}
+		confirmed(t, s, 'S')
 		mustCJK(t, s, "Game state updated")
 	})
 

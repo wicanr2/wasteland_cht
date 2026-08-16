@@ -65,9 +65,7 @@ func TestSaveCommandWritesToDisk(t *testing.T) {
 	}
 	wantX, wantY := s.World().Party.X, s.World().Party.Y
 	wantClock := s.World().Clock
-	if _, err := s.Update(input.Input{Dir: input.DirNone, Char: 'S'}); err != nil {
-		t.Fatalf("按 S：%v", err)
-	}
+	confirmed(t, s, 'S')
 	if got := s.Message(); got != "Game saved." {
 		t.Fatalf("存檔訊息是 %q，預期 \"Game saved.\"", got)
 	}
@@ -100,9 +98,7 @@ func TestSaveWithoutDirSaysSo(t *testing.T) {
 	if err != nil {
 		t.Fatalf("開場失敗：%v", err)
 	}
-	if _, err := s.Update(input.Input{Dir: input.DirNone, Char: 'S'}); err != nil {
-		t.Fatal(err)
-	}
+	confirmed(t, s, 'S')
 	if got := s.Message(); got == "Game saved." {
 		t.Errorf("沒給 save-dir 卻報 %q——那是謊", got)
 	}
@@ -167,9 +163,7 @@ func TestShopStockSurvivesSave(t *testing.T) {
 	}
 	s.setStock(byte(target), before+1)
 
-	if _, err := s.Update(input.Input{Dir: input.DirNone, Char: 'S'}); err != nil {
-		t.Fatal(err)
-	}
+	confirmed(t, s, 'S')
 	if got := s.Message(); got != "Game saved." && len(s.CJK()) == 0 {
 		t.Fatalf("存檔訊息是 %q，看起來沒寫出去", got)
 	}
