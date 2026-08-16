@@ -165,5 +165,70 @@ RE 與 remake 的主線都走完了。剩下的分成三類，**沒有一項擋�
 | 7.2 | DOSBox 實機對拍 | 移動與畫面對過，**戰鬥與設施沒有** |
 | 7.5 | 抽樣試玩（人工） | 機制與觸發都接上了，可以開始 |
 
+## TODO：下一個 session 從這裡接（2026-08-16 交接）
+
+> 先讀 [`CONTEXT.md`](CONTEXT.md) §0（目標與節奏）、
+> [`docs/re/00-master-index.md`](docs/re/00-master-index.md)（速查）、
+> [`docs/re/00-wiring-status.md`](docs/re/00-wiring-status.md)（哪些結論接上了）。
+> **RE 與 remake 的主線都走完了**，`cmd/wasteland -mode play` 從標題畫面
+> 到結局全程可玩，畫面全中文。下面每一項都**不擋玩完**。
+
+### T1 — 抽樣試玩（優先，使用者定的驗收方式）
+
+機制與劇本觸發都接上了，該實際走幾段看看。**不追求一次通關**：
+挑代表性的地點與流程各走一段，記下卡住的地方。
+
+```bash
+tools/go.sh run ./cmd/wl-shot -mode play -at 20,30 -keys "IIKKUL" -out /tmp/a.png
+tools/go.sh run ./cmd/wasteland          # 互動玩
+```
+
+要驗的清單：Ranger Center 建角色 → 出城遇敵打一場 → 進商店買賣 →
+用 USE 開一道條件閘 → 讀一段段落 → 存檔重開 → 走進 Base Cochise 觸發結局。
+**每一段都要記「原版會怎樣」的依據**，不要只看「remake 沒有 crash」。
+
+### T2 — 戰鬥與設施的 DOSBox 實機對拍（`WORKLIST` 7.2）
+
+移動與畫面對過了（`docs/re/47`、`59`、`62`），這兩塊沒有。
+⚠ 長 timeline 每個按鍵後要補 `key:Return`（`docs/re/68` §3.1）。
+
+### T3 — 地點名 `Ranger Ctr.` 還是英文
+
+它來自**存檔資料**不是字串表（`translations/glossary.md` 記著
+「存檔裡的 `Ranger Ctr.` 縮寫要另外處理」）。翻它要碰玩家存檔，
+是另一個題目。下一個入口：`tools/dump_save.py` 看那個欄位在哪、
+誰讀它，再決定是「顯示時查表」還是「改寫存檔」。
+**傾向前者**——存檔策略是改寫不是重建（`CLAUDE.md` §4）。
+
+### T4 — 三個「原版就沒有消費端」的（解完了，接不上去）
+
+| 項目 | 狀況 |
+|---|---|
+| `CURS` 八個滑鼠游標 | 版面已解（`docs/re/57`）；主線不用滑鼠 |
+| `TRANSTBL` 50 組對照表 | 形狀已解，三層掃描找不到讀它的人（`docs/re/56`）|
+| attract mode | `sub_16385` 那一長串播什麼（`docs/re/95` §5）|
+
+### T5 — 走不到的程式碼路徑
+
+- 地圖腳本 **17 個 opcode 沒有格子指到**（27/44 已實作，`docs/re/76`，
+  覆蓋率測試守著）。要驗只能改寫存檔或造測試資料。
+- 命中基礎值查表 `ds:711Dh` 未解，remake 用 60（`docs/re/88` §5）。
+
+### T6 — 文件（`WORKLIST` 6.4–6.6）
+
+中文說明書逐頁轉錄（`docs/manual-cht/`，33 張掃描）、
+官方英文手冊 markdown ＋ 繁中（`docs/manual/`）、社群攻略（`docs/walkthrough/`）。
+
+### 這一輪新增、下一個 session 要知道的
+
+- **`ui:` 那組 key**（`translations/{source,zh-Hant}/ui.tsv`）是重製版自己的
+  介面文字——原版寫死成 ASCII 不走字串表。加一條要**同時改 tsv 與
+  `internal/play/lang_coverage_test.go` 的 `uiCatalogueKeys`**，
+  否則不是被當成孤兒就是漏檢。
+- **熱鍵字母不跟著翻譯走**：譯文寫成「U使用」，比對用靜態字母。
+- **8×8 字模畫不出中文**：指令列在有字型時由 `HiFrame` 畫，
+  低解那張不先畫英文（先畫再蓋會留殘影）。
+- `wl-shot` 新增 `-journal <頁>`、`-ending`、`-ending-ticks`。
+
 ## 下一步的順序
 
