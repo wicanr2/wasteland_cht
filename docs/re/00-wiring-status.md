@@ -47,7 +47,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 
 ## 統計
 
-筆記 **100** 份：已接 **95**、未接 **0**、不適用 **5**。
+筆記 **101** 份：已接 **96**、未接 **0**、不適用 **5**。
 
 | # | 筆記 | 狀態 | 接在哪／為什麼 |
 |---:|---|---|---|
@@ -151,3 +151,4 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 98 | [補完 A0 —— 中文接線、庫存持久化，與結局觸發點的定位](98-a0-wiring.md) | 不適用 | 同上：接線紀錄與一份未解的定位，結論各自引用 `docs/re/40`／`42`／`45`／`96` |
 | 99 | [全隊陣亡怎麼處理 —— Grim Reaper 那一格](99-party-wipe.md) | 已接 | `game.Party.Wipe` 三分支 ＋ `internal/play/wipe.go`：全倒自動 `View`、救不回來走死亡畫面（圖 0x3B、地點名與訊息從映像直讀）。規格 28 |
 | 100 | [結局的觸發點 —— 不在資料裡，在主迴圈裡](100-ending-trigger.md) | 已接 | `internal/game/selfdestruct.go`、`internal/game/script.go`、`internal/game/gates.go`、`internal/play/question.go`、`internal/play/play.go` |
+| 101 | [`ds:711Dh` 是敵方這一回合的移動計畫表](101-enemy-move-plan-table.md) | 已接 | `internal/game/combat.go`（`HitBase`／`NoMovePlan`）、`internal/game/rounds.go`（`Battle.MovePlan`）、`internal/play/round.go`（命中基礎值）|

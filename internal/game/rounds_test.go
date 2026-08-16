@@ -248,11 +248,13 @@ func TestNegativeConIsDownNotDead(t *testing.T) {
 		t.Fatal("CON −5 應該算倒下（sub_172BB 的 js 分支）")
 	}
 
-	b := &Battle{RNG: rng.New(), Party: &Party{Members: []*Character{
+	// 走 NewBattle 而不是結構字面值：`MovePlan` 的零值 0 是一個合法的步向，
+	// 字面值會安靜地把命中基礎值變成 60（`docs/re/101` §7）。
+	b := NewBattle(&Party{Members: []*Character{
 		hurt,
 		{Name: "Fine", CON: 20},
 		{Name: "Zero", CON: 0},
-	}}}
+	}}, rng.New())
 	if n := b.PartyLeft(); n != 1 {
 		t.Errorf("三個人裡只有一個能打，PartyLeft 得到 %d", n)
 	}
