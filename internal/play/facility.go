@@ -10,6 +10,7 @@ import (
 
 	"github.com/wicanr2/wasteland_cht/internal/game"
 	"github.com/wicanr2/wasteland_cht/internal/render"
+	"github.com/wicanr2/wasteland_cht/internal/textlayout"
 )
 
 // facilityPicture 是每個設施進場要載的 ALLPICS 圖（docs/re/29 §5.4 那張表）。
@@ -46,6 +47,71 @@ type FacilityScene struct {
 	// 但那是「還沒接上」的樣子，不是假裝有名字。
 	ItemName  func(byte) string
 	SkillName func(byte) string
+	// CJKName 是同兩張表的中文（Big5）。查不到回 nil，那一行就退回英文。
+	CJKItemName  func(byte) []byte
+	CJKSkillName func(byte) []byte
+
+	// Str 查原版字串表的**原文**、CJK 查譯文、UI 查重製版自己的介面文字。
+	// 三個都可以是 nil——那時設施畫面就是英文字面，遊戲照跑。
+	Str func(table, n int) string
+	CJK func(table, n int, opt textlayout.Options) []byte
+	UI  func(name string) []byte
+
+	// CJKLines 與 Lines 一一對應的中文（Big5）。某一行查不到就是 nil，
+	// 那一行改畫英文——**不要整片放棄**，設施畫面每一行的來源都不一樣。
+	CJKLines [][]byte
+
+	noteCJK []byte // note 那一行的中文
+}
+
+// setNote 設一行註記：英文字面 ＋ 原版字串表的譯文。
+func (f *FacilityScene) setNote(en string, table, n int) {
+	f.note = en
+	f.noteCJK = f.zh(table, n, textlayout.Options{})
+}
+
+// setNoteUI 設一行註記，中文走重製版的 `ui:`（原版沒有對應字串的那些）。
+func (f *FacilityScene) setNoteUI(en, uiName string, args ...any) {
+	f.note = en
+	f.noteCJK = nil
+	if f.UI == nil {
+		return
+	}
+	if b := f.UI(uiName); len(b) > 0 {
+		f.noteCJK = []byte(fmt.Sprintf(string(b), args...))
+	}
+}
+
+// setNoteReason 設一行來自規則層的失敗理由。
+//
+// 規則層回的是中文字面（`internal/game` 的 `"錢不夠"`），不是 Big5——
+// 那是給開發者看的，**畫面上要走目錄**。查不到就照原樣顯示。
+func (f *FacilityScene) setNoteReason(reason string) {
+	f.note = reason
+	f.noteCJK = nil
+}
+
+// zh 查原版字串表第 table 張第 n 條的譯文。
+func (f *FacilityScene) zh(table, n int, opt textlayout.Options) []byte {
+	if f.CJK == nil {
+		return nil
+	}
+	return f.CJK(table, n, opt)
+}
+
+// zhItem／zhSkill 是清單那一欄的中文名。
+func (f *FacilityScene) zhItem(id byte) []byte {
+	if f.CJKItemName == nil {
+		return nil
+	}
+	return f.CJKItemName(id)
+}
+
+func (f *FacilityScene) zhSkill(id byte) []byte {
+	if f.CJKSkillName == nil {
+		return nil
+	}
+	return f.CJKSkillName(id)
 }
 
 // itemLabel／skillLabel 是清單那一欄要印的字，沒接名稱表就退回編號。
@@ -94,10 +160,18 @@ func (s *Scene) EnterFacility(record []byte) *FacilityScene {
 		fs.Lines = append(fs.Lines, f.Name)
 	}
 	fs.ItemName, fs.SkillName = s.itemName, s.skillName
+	fs.CJKItemName, fs.CJKSkillName = s.itemNameCJK, s.skillNameCJK
+	fs.Str = s.exeStringN
+	fs.CJK = s.cjkExe
+	fs.UI = s.uiText
 	if f.Kind == game.FacilityTrainer {
 		fs.Skills = s.trainableSkills()
 	}
 	s.facility = fs
+	// 進了設施就把地圖那一步的訊息收掉。設施畫面從字元列 12 起
+	// （`docs/re/54`），與訊息視窗（列 18–23）重疊——留著會有一行
+	// 「TELEPORT.」壓在商品清單中間。
+	s.message, s.cjk = "", nil
 	// 動畫從頭起：遮罩清空、播放器重建（規格 26 §3）。
 	s.animMask = make([]byte, render.FacilityPicWidth*render.FacilityPicHeight)
 	s.player = nil

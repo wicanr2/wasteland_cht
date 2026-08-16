@@ -43,7 +43,7 @@ func (s *Scene) beginOrder() {
 		}
 	}
 	if n <= 1 {
-		s.message = "Nothing to reorder."
+		s.sayEN("Nothing to reorder.", "order.nothing")
 		s.dirty = true
 		return
 	}

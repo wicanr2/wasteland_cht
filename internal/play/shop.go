@@ -9,6 +9,34 @@ import (
 	"fmt"
 
 	"github.com/wicanr2/wasteland_cht/internal/game"
+	"github.com/wicanr2/wasteland_cht/internal/textlayout"
+)
+
+// 設施訊息的原版字串表與編號（`docs/re/17` §3）。
+// ⚠ **商店在表 7、醫生在表 8、訓練在表 6**——拿表 1 去查會安靜地取到別的句子。
+const (
+	exeTableShop    = 7
+	exeTableDoctor  = 8
+	exeTableTrainer = 6
+
+	strOutOfStock   = 1  // 7：`We are temporarily out of stock.`
+	strYouHave      = 4  // 7：`You have $`
+	strNothingWant  = 5  // 7：`You don't have anything they want!`
+	strBuyOrSell    = 6  // 7：`Do you want to:` ＋ Buy／Sell
+	strPriceItem    = 7  // 7：`   PRICE     ITEM`
+	strInvFull      = 8  // 7：`Your inventory is full.`
+	strSkillPoints  = 4  // 6：`Skill points = `
+	strNoSkillPts   = 7  // 6：`Not enough skill points!`
+	strDiseaseFirst = 1  // 8：第 1–8 條 ＝ 八個狀態位元的病名
+	strExamPrice    = 11 // 8：`Exam $`
+	strHealing      = 12 // 8：`Healing`
+	strCuring       = 13 // 8：`Curing`
+	strNeedToHeal   = 15 // 8：`You need to heal `
+	strPointsYouCan = 16 // 8：` points. You can:` ＋ Heal／Continue
+	strNoDiseases   = 17 // 8：`You have no diseases.`
+	strNoMoney      = 18 // 8：`You don't have enough money.`
+	strWhichCure    = 20 // 8：`Which to cure at $`
+	strCureTail     = 21 // 8：`:` ＋ 清單開頭
 )
 
 // FacilityStep 是設施選單的一個狀態。
@@ -111,20 +139,20 @@ func (f *FacilityScene) shopKey(k byte, p *game.Party, items game.ItemTable) {
 		st.Who = nextAble(p, st.Who)
 	case keyBuy:
 		if _, ok := game.FirstEmptyItemSlot(f.member(p).Items); !ok {
-			f.note = "Your inventory is full."
+			f.setNote("Your inventory is full.", exeTableShop, strInvFull)
 			st.Step = StepMain
 			return
 		}
 		if len(f.buyList(items)) == 0 {
 			// 全部缺貨。原版的 sub_1C140 回 0 之後也是印字串 8 回主迴圈。
-			f.note = "We are temporarily out of stock."
+			f.setNote("We are temporarily out of stock.", exeTableShop, strOutOfStock)
 			st.Step = StepMain
 			return
 		}
 		st.Step, st.Page = StepBuy, 0
 	case keySell:
 		if len(f.sellable(p, items)) == 0 {
-			f.note = "You don't have anything they want!"
+			f.setNote("You don't have anything they want!", exeTableShop, strNothingWant)
 			st.Step = StepMain
 			return
 		}
@@ -162,9 +190,9 @@ func (f *FacilityScene) doctorKey(k byte, p *game.Party) {
 		case keyHeal:
 			h := game.HealSession{Facility: f.Facility, Char: f.member(p)}
 			if ok, reason := h.HealOne(); !ok {
-				f.note = reason
+				f.setNoteReason(reason)
 			} else {
-				f.note = ""
+				f.note, f.noteCJK = "", nil
 			}
 		}
 	case StepCure:
@@ -176,16 +204,16 @@ func (f *FacilityScene) doctorKey(k byte, p *game.Party) {
 		case keyExam:
 			ok, reason := f.Facility.Exam(f.member(p))
 			if !ok {
-				f.note = reason
+				f.setNoteReason(reason)
 			} else {
-				f.note = "Examined."
+				f.setNoteUI("Examined.", "facility.examined")
 			}
 		case keyHeal:
 			st.Step = StepHeal
 		case keyCure:
 			if len(game.Diseases(f.member(p))) == 0 {
 				// 沒有病就不開選單（docs/re/42 §6），留在主選單。
-				f.note = "You have no diseases."
+				f.setNote("You have no diseases.", exeTableDoctor, strNoDiseases)
 				return
 			}
 			st.Step = StepCure
@@ -201,10 +229,10 @@ func (f *FacilityScene) cureOne(p *game.Party, n int) {
 		return
 	}
 	if ok, reason := f.Facility.Cure(c, list[n]); !ok {
-		f.note = reason
+		f.setNoteReason(reason)
 		return
 	}
-	f.note = "Cured."
+	f.setNoteUI("Cured.", "facility.cured")
 	if len(game.Diseases(c)) == 0 {
 		f.state.Step = StepMain // 病治完了就回主選單
 	}
@@ -265,11 +293,11 @@ func (f *FacilityScene) buyOne(p *game.Party, items game.ItemTable, n int) {
 	stock, ok := game.Buy(f.member(p), e.ID, uint32(e.Price), e.Stock)
 	if !ok {
 		// 錢不夠或背包滿了——**不是錯誤，是正常路徑**（docs/spec/25 §2）。
-		f.note = "You don't have enough money."
+		f.setNote("You don't have enough money.", exeTableDoctor, strNoMoney)
 		return
 	}
 	f.state.Stock[e.ID] = stock
-	f.note = fmt.Sprintf("Bought for $%d.", e.Price)
+	f.setNoteUI(fmt.Sprintf("Bought for $%d.", e.Price), "facility.bought", e.Price)
 }
 
 // trainerKey 是訓練師（docs/re/52 §2）。
@@ -293,7 +321,7 @@ func (f *FacilityScene) learnOne(p *game.Party, n int) {
 		return
 	}
 	if c.SkillPts == 0 {
-		f.note = "You have no skill points."
+		f.setNote("You have no skill points.", exeTableTrainer, strNoSkillPts)
 		return
 	}
 	list := f.Skills
@@ -302,10 +330,11 @@ func (f *FacilityScene) learnOne(p *game.Party, n int) {
 	}
 	ok, reason := c.LearnSkill(list[n].ID, list[n].Data)
 	if !ok {
-		f.note = reason
+		f.setNoteReason(reason)
 		return
 	}
-	f.note = fmt.Sprintf("Learned skill %d.", list[n].ID)
+	name := f.skillLabel(list[n].ID)
+	f.setNoteUI(fmt.Sprintf("Learned %s.", name), "facility.learned", name)
 }
 
 // sellable 是這個人身上賣得掉的東西。
@@ -342,7 +371,7 @@ func (f *FacilityScene) sellOne(p *game.Party, items game.ItemTable, n int) {
 	stock, sold := game.Sell(c, e.Slot, price, f.stockOf(e.Item, item.Stock))
 	if sold {
 		f.state.Stock[e.Item] = stock
-		f.note = fmt.Sprintf("Sold for $%d.", price)
+		f.setNoteUI(fmt.Sprintf("Sold for $%d.", price), "facility.sold", price)
 	}
 }
 
@@ -381,40 +410,80 @@ func nextAble(p *game.Party, from int) int {
 
 // refresh 重排這個設施畫面要印的字。
 func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
-	f.Lines = f.Lines[:0]
+	f.Lines, f.CJKLines = f.Lines[:0], f.CJKLines[:0]
+	// add 一次放一行：英文與中文並排，中文查不到就是 nil（那一行畫英文）。
+	add := func(en string, zh []byte) {
+		f.Lines = append(f.Lines, en)
+		f.CJKLines = append(f.CJKLines, zh)
+	}
+	num := func(n int) []byte { return []byte(fmt.Sprintf("%d", n)) }
+	// ui 是重製版自己排的那幾行（清單的每一列、價格欄位的順序）。
+	ui := func(name string, args ...any) []byte {
+		if f.UI == nil {
+			return nil
+		}
+		b := f.UI(name)
+		if len(b) == 0 {
+			return nil
+		}
+		return []byte(fmt.Sprintf(string(b), args...))
+	}
+
 	if f.Facility.Name != "" {
-		f.Lines = append(f.Lines, f.Facility.Name)
+		// 地點名來自**存檔資料**不是字串表，另一個題目（`WORKLIST` T3）。
+		add(f.Facility.Name, nil)
 	}
 	c := f.member(p)
 	if c == nil {
 		return
 	}
-	f.Lines = append(f.Lines, fmt.Sprintf("%s  You have $%d", c.Name, c.Money))
+	// 「某某 你有 $N」：名字 ＋ 字串 7:4（`You have $`）＋ 數字。
+	add(fmt.Sprintf("%s  You have $%d", c.Name, c.Money),
+		zhJoin([]byte(c.Name), []byte("  "),
+			f.zh(exeTableShop, strYouHave, textlayout.Options{}), num(int(c.Money))))
 
 	switch {
 	case f.Facility.Kind == game.FacilityTrainer:
-		f.Lines = append(f.Lines, fmt.Sprintf("Skill points: %d", c.SkillPts))
+		add(fmt.Sprintf("Skill points: %d", c.SkillPts),
+			zhJoin(f.zh(exeTableTrainer, strSkillPoints, textlayout.Options{}),
+				num(int(c.SkillPts))))
 		from, to := f.page(len(f.Skills))
 		for i, sk := range f.Skills[from:to] {
-			f.Lines = append(f.Lines,
-				fmt.Sprintf("%d) %s  cost %d", i+1, f.skillLabel(sk.ID),
-					game.SkillCost(sk.Data.BaseCost, int(c.SkillLevel(sk.ID))+1)))
+			cost := game.SkillCost(sk.Data.BaseCost, int(c.SkillLevel(sk.ID))+1)
+			var zh []byte
+			if n := f.zhSkill(sk.ID); n != nil {
+				zh = ui("facility.skillrow", i+1, string(n), cost)
+			}
+			add(fmt.Sprintf("%d) %s  cost %d", i+1, f.skillLabel(sk.ID), cost), zh)
 		}
 	case f.Facility.Kind == game.FacilityDoctor && f.state.Step == StepHeal:
 		h := game.HealSession{Facility: f.Facility, Char: c}
-		f.Lines = append(f.Lines,
-			fmt.Sprintf("%d points. You can:  Heal 1 point / Continue", h.Remaining()))
+		add(fmt.Sprintf("%d points. You can:  Heal 1 point / Continue", h.Remaining()),
+			zhJoin(f.zh(exeTableDoctor, strNeedToHeal, textlayout.Options{}),
+				num(h.Remaining()),
+				f.zh(exeTableDoctor, strPointsYouCan, textlayout.Options{})))
 	case f.Facility.Kind == game.FacilityDoctor && f.state.Step == StepCure:
-		f.Lines = append(f.Lines,
-			fmt.Sprintf("Which to cure at $%d:", f.Facility.Price(0x06)))
+		price := int(f.Facility.Price(0x06))
+		add(fmt.Sprintf("Which to cure at $%d:", price),
+			zhJoin(f.zh(exeTableDoctor, strWhichCure, textlayout.Options{}), num(price),
+				f.zh(exeTableDoctor, strCureTail, textlayout.Options{})))
 		for i, bit := range game.Diseases(c) {
-			f.Lines = append(f.Lines, fmt.Sprintf("%d) status bit %d", i+1, bit))
+			// 病名是字串表 8 的第 1–8 條（位元 0–7，`docs/re/35` §1）。
+			name := f.zh(exeTableDoctor, strDiseaseFirst+bit, textlayout.Options{})
+			var zh []byte
+			if name != nil {
+				zh = ui("facility.row", i+1, string(name))
+			}
+			add(fmt.Sprintf("%d) %s", i+1, f.diseaseLabel(bit)), zh)
 		}
 	case f.Facility.Kind == game.FacilityDoctor:
-		f.Lines = append(f.Lines,
-			fmt.Sprintf("Exam $%d / Healing / Curing", f.Facility.Price(0x05)))
+		price := int(f.Facility.Price(0x05))
+		add(fmt.Sprintf("Exam $%d / Healing / Curing", price),
+			zhJoin(f.zh(exeTableDoctor, strExamPrice, textlayout.Options{}), num(price),
+				f.zh(exeTableDoctor, strHealing, textlayout.Options{}),
+				f.zh(exeTableDoctor, strCuring, textlayout.Options{})))
 	case f.state.Step == StepSell:
-		f.Lines = append(f.Lines, "   PRICE     ITEM")
+		add("   PRICE     ITEM", f.zh(exeTableShop, strPriceItem, textlayout.Options{}))
 		list := f.sellable(p, items)
 		from, to := f.page(len(list))
 		for i, e := range list[from:to] {
@@ -422,19 +491,39 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 			if e.Equipped {
 				mark = "*" // 裝備中要標出來，但賣得掉（docs/re/42 §3.1）
 			}
-			f.Lines = append(f.Lines, fmt.Sprintf("%d)%s %s", i+1, mark, f.itemLabel(e.Item)))
+			var zh []byte
+			if n := f.zhItem(e.Item); n != nil {
+				zh = ui("facility.sellrow", i+1, mark, string(n))
+			}
+			add(fmt.Sprintf("%d)%s %s", i+1, mark, f.itemLabel(e.Item)), zh)
 		}
 	case f.state.Step == StepBuy:
-		f.Lines = append(f.Lines, "   PRICE     ITEM")
+		add("   PRICE     ITEM", f.zh(exeTableShop, strPriceItem, textlayout.Options{}))
 		list := f.buyList(items)
 		from, to := f.page(len(list))
 		for i, e := range list[from:to] {
-			f.Lines = append(f.Lines, fmt.Sprintf("%d) $%-6d %s", i+1, e.Price, f.itemLabel(e.ID)))
+			var zh []byte
+			if n := f.zhItem(e.ID); n != nil {
+				zh = ui("facility.buyrow", i+1, int(e.Price), string(n))
+			}
+			add(fmt.Sprintf("%d) $%-6d %s", i+1, e.Price, f.itemLabel(e.ID)), zh)
 		}
 	default:
-		f.Lines = append(f.Lines, "Do you want to:  Buy / Sell")
+		add("Do you want to:  Buy / Sell",
+			f.zh(exeTableShop, strBuyOrSell, textlayout.Options{}))
 	}
 	if f.note != "" {
-		f.Lines = append(f.Lines, f.note)
+		add(f.note, f.noteCJK)
 	}
+}
+
+// diseaseLabel 是病名的英文（字串表 8 的第 1–8 條，`docs/re/35` §1）。
+// 查不到就退回位元編號——那是「還沒接上」的樣子，不是編一個病名。
+func (f *FacilityScene) diseaseLabel(bit int) string {
+	if f.Str != nil {
+		if s := f.Str(exeTableDoctor, strDiseaseFirst+bit); s != "" {
+			return s
+		}
+	}
+	return fmt.Sprintf("status bit %d", bit)
 }

@@ -17,6 +17,7 @@ import (
 	"fmt"
 
 	"github.com/wicanr2/wasteland_cht/internal/input"
+	"github.com/wicanr2/wasteland_cht/internal/textlayout"
 )
 
 // encOffMapPrompt 是字串 `0x36` ＋ `0x4C` 接起來的那一句。
@@ -29,8 +30,7 @@ const encOffMapPrompt = "This party isn't on this map and isn't in battle. " +
 // cmdEnc 是 `Enc`：先讓目前這一組打，沒得打就問別組要不要打。
 func (s *Scene) cmdEnc() (bool, error) {
 	if s.InFacility() {
-		s.message = "Not in here."
-		s.dirty = true
+		s.sayEN("Not in here.", "enc.inside")
 		return true, nil
 	}
 	c, err := s.StartEncounter()
@@ -40,22 +40,39 @@ func (s *Scene) cmdEnc() (bool, error) {
 		return true, nil
 	}
 	if c != nil {
-		s.message = "YOU ARE BEING ATTACKED!"
-		s.dirty = true
+		s.sayAttacked()
+		s.showCombatPrompt()
 		return true, nil
 	}
 
 	// 這一組沒得打。原版接著往下一組走；不同地圖的要先問一句。
 	n, ok := s.encOffMapGroup()
 	if !ok {
-		s.message = "Nothing to fight here."
-		s.dirty = true
+		s.sayEN("Nothing to fight here.", "enc.none")
 		return true, nil
 	}
 	s.encAsk = n + 1 // 0 保留給「沒在問」
 	s.message = encOffMapPrompt
+	// 中文是同兩條原版字串接起來（54 ＋ 76）。
+	s.cjk = zhJoin(s.cjkExe(exeTable1, strNotOnMap, textlayout.Options{}),
+		s.cjkExe(exeTable1, strExecuteRound, textlayout.Options{}))
+	if s.cjk != nil {
+		s.message = ""
+	}
 	s.dirty = true
 	return true, nil
+}
+
+// 這一支用到的原版字串編號（字串表 1）。
+const (
+	strNotOnMap     = 0x36 // `This party isn't on this map and isn't in battle. `
+	strExecuteRound = 0x4C // `Do you want them to execute a battle round?` ＋ Yes／No
+)
+
+// sayAttacked 是「被攻擊了」那一句。原版沒有這一條字串
+//（遭遇開始印的是 30 `Encounter begins...`），所以走 `ui:`。
+func (s *Scene) sayAttacked() {
+	s.sayEN("YOU ARE BEING ATTACKED!", "combat.attacked")
 }
 
 // encOffMapGroup 找第一支「有人、不是目前這組、而且不在這張地圖上」的隊伍。
@@ -101,9 +118,14 @@ func (s *Scene) updateEncAsk(in input.Input) (bool, error) {
 		case err != nil:
 			s.message = "ERROR: " + err.Error()
 		case c != nil:
-			s.message = "YOU ARE BEING ATTACKED!"
+			s.sayAttacked()
+			s.showCombatPrompt()
 		default:
 			s.message = fmt.Sprintf("Party %d: nothing to fight.", n+1)
+			if f := s.uiText("enc.groupnone"); len(f) > 0 {
+				s.cjk = []byte(fmt.Sprintf(string(f), n+1))
+				s.message = ""
+			}
 		}
 		s.dirty = true
 		return true, nil

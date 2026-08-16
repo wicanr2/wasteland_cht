@@ -275,6 +275,43 @@ func Layout(text []byte, opt Options) (Result, error) {
 	return res, nil
 }
 
+// noWrapWidth 是「大到不會斷行」的行寬。原版最長的字串也只有幾百個位元組。
+const noWrapWidth = 1 << 20
+
+// RenderBytes 把一段字串的控制碼**解掉**，回傳可以直接畫的位元組流：
+// 變形分段只留選中的那一段、`\x0B` 換成名字、`\x0F` 換成數量、
+// 換行留成 `\n`，其餘控制碼（反白、清畫面、等按鍵、`\x10` 的熱鍵標記）丟掉。
+//
+// 給**中文那條路**用：譯文是 Big5，一個字佔一個字元格而不是一個位元組，
+// 所以斷行交給呈現層自己按格子排，這裡只負責把碼解乾淨。
+//
+// ⚠ 不解的話症狀很像「這句沒翻」：`\x0A` 就是 `\n`，畫面上會把單複數
+// **兩段都印出來**、中間多一個換行；`\x0B`／`\x0F`／`\x10` 則變成怪字元。
+// 譯文裡這些碼很常見（`\x0A` 近四百處），不是邊緣情況。
+//
+// Big5 的頭位元組（0xA1–0xF9）與尾位元組（0x40–0x7E、0xA1–0xFE）
+// **全部 ≥ 0x40**，都落在控制碼 0x01–0x11 之外，所以逐位元組掃描是安全的。
+func RenderBytes(text []byte, opt Options) []byte {
+	// 寬度給到不可能斷行——斷行是呼叫端的事（中文一個字兩個 byte 一格）。
+	// ⚠ 不能用 `len(text)`：`\x0B`／`\x0F` 會把名字與數字**展開**成比原文長，
+	// 剛好夠的寬度會在展開之後被撐破，斷在名字中間。
+	opt.Width = noWrapWidth
+	res, err := Layout(text, opt)
+	if err != nil {
+		return text
+	}
+	var out []byte
+	for i, l := range res.Lines {
+		if i > 0 {
+			out = append(out, '\n')
+		}
+		for _, c := range l.Cells {
+			out = append(out, c.Char)
+		}
+	}
+	return out
+}
+
 // itoa 只處理非負小數字，避免為了一個數字拉進 strconv。
 func itoa(n int) string {
 	if n == 0 {

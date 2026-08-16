@@ -16,6 +16,7 @@ import (
 	"github.com/wicanr2/wasteland_cht/internal/game"
 	"github.com/wicanr2/wasteland_cht/internal/input"
 	"github.com/wicanr2/wasteland_cht/internal/lang"
+	"github.com/wicanr2/wasteland_cht/internal/textlayout"
 )
 
 // useStage 是三層選單走到哪一層。
@@ -233,6 +234,20 @@ func (s *Scene) skillName(id byte) string {
 	return fmt.Sprintf("skill %d", id)
 }
 
+// skillNameCJK／itemNameCJK 是同兩個名稱的中文（Big5）。
+//
+// 名稱帶單複數分段（`字根\x0A單數\x0A複數\x0A`，`docs/re/17` §4.1），
+// 交給 `RenderBytes` 依 Count ＝ 1 取單數——**不要自己找 `\x0A` 切**，
+// 譯文的分段位置與原文不一定一樣。
+func (s *Scene) skillNameCJK(id byte) []byte {
+	return trimSpaceBytes(s.cjkExe(nameTable, int(id), textlayout.Options{Count: 1}))
+}
+
+func (s *Scene) itemNameCJK(id byte) []byte {
+	return trimSpaceBytes(s.cjkExe(nameTable, int(id)+itemNameBase,
+		textlayout.Options{Count: 1}))
+}
+
 // itemName 查物品名。同一張表的 36–130 是物品段落。
 func (s *Scene) itemName(id byte) string {
 	if n := singular(s.nameString(int(id) + itemNameBase)); n != "" {
@@ -259,9 +274,22 @@ func (s *Scene) applyUse(o useOption) {
 	// 上一層的清單上——畫面上是「1 鬥毆 2 攀爬…」底下印著結果。
 	s.cjk = nil
 
+	// 名字那一欄中文優先（清單裡看到的是中文，結果那一句也該是）。
+	zhLabel := o.label
+	if o.nameSlot != 0 {
+		if b := trimSpaceBytes(s.cjkExe(nameTable, o.nameSlot,
+			textlayout.Options{Count: 1})); b != nil {
+			zhLabel = string(b)
+		}
+	}
+	say := func(en string, uiName string) {
+		s.message = fmt.Sprintf(en, m.Name, o.label)
+		s.cjkFmt(uiName, m.Name, zhLabel)
+	}
+
 	rec, _, err := s.world.Block.CellRecord(int(s.world.Party.X), int(s.world.Party.Y))
 	if err != nil || len(rec) == 0 {
-		s.message = fmt.Sprintf("%s uses %s. Nothing happens.", m.Name, o.label)
+		say("%s uses %s. Nothing happens.", "use.nothinghappens")
 		s.dirty = true
 		return
 	}
@@ -269,12 +297,12 @@ func (s *Scene) applyUse(o useOption) {
 	switch {
 	case hit < 0:
 		// 沒有吻合的條件——原版就是什麼都不發生。
-		s.message = fmt.Sprintf("%s uses %s. Nothing happens.", m.Name, o.label)
+		say("%s uses %s. Nothing happens.", "use.nothinghappens")
 	case passed:
-		s.message = fmt.Sprintf("%s uses %s. It works!", m.Name, o.label)
+		say("%s uses %s. It works!", "use.works")
 		s.playSound(7)
 	default:
-		s.message = fmt.Sprintf("%s uses %s. It fails.", m.Name, o.label)
+		say("%s uses %s. It fails.", "use.fails")
 	}
 	s.dirty = true
 }

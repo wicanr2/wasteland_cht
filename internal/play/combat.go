@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/wicanr2/wasteland_cht/internal/game"
+	"github.com/wicanr2/wasteland_cht/internal/textlayout"
 )
 
 // 戰鬥畫面（docs/spec/16、docs/re/40）。
@@ -192,6 +193,76 @@ type CombatScene struct {
 	Items game.ItemTable
 	// Names 是六個敵人種類的名稱，訊息要用（`docs/re/85`）。
 	Names EnemyNames
+	// CJKNames 是同六個種類的中文名（Big5），與 Names 同一組編號。
+	CJKNames [6][]byte
+
+	// CJK 查執行檔字串表 1 第 n 條的譯文（Big5，控制碼已解）。
+	// 由 `Scene` 開場時接上；nil ＝ 沒有中文，畫面走英文那一份。
+	CJK func(n int, opt textlayout.Options) []byte
+	// UI 查重製版自己的介面文字（`translations/*/ui.tsv`）。
+	// 原版沒有對應字串、或組法是重製版自己決定的句子走這一支。
+	UI func(name string) []byte
+
+	// LastCJK 是 `Log` 最後一句的中文（Big5）。指令階段那幾句
+	//（卡彈、逃跑）不走 `ResolveRound`，所以另外留一格。
+	LastCJK []byte
+}
+
+// firstName 是隊伍第一個人的名字（`\x0B` 的代入來源）。
+func (s *CombatScene) firstName() string {
+	for _, m := range s.Battle.Party.Members {
+		if m != nil {
+			return m.Name
+		}
+	}
+	return ""
+}
+
+// 戰鬥訊息用到的原版字串編號（字串表 1，`docs/re/40` §3）。
+//
+// ⚠ 這些是**片段**不是整句：`\x0B` 是名字、`\x0F` 是數量、`\x0A`／`\x0C`
+// 是單複數與性別分段。整句是原版字串的（35／31／48／39＋40／30／56／43）
+// 就照用；由重製版自己拼出來的（命中那一句，`docs/re/86` §2）走 `ui:`。
+const (
+	strEncounterBegins = 30 // `Encounter begins...`
+	strEnemyMisses     = 31 // ` miss\x0Aes\x0A\x0A.`
+	strPartyMisses     = 35 // `\x0B misses.`
+	strGainsXP         = 39 // `\x0B gains `
+	strExperience      = 40 // ` experience.`
+	strRuns            = 43 // `\x0B runs.`
+	strDied            = 48 // ` died!`
+	strChoose          = 55 // `, choose:` ＋ 七個 `\x10<文字>`
+	strJammed          = 56 // `Your weapon is jammed.`
+)
+
+// zhStr 取字串表 1 第 n 條的譯文。沒接上或查不到回 nil。
+func (s *CombatScene) zhStr(n int, opt textlayout.Options) []byte {
+	if s.CJK == nil {
+		return nil
+	}
+	return s.CJK(n, opt)
+}
+
+// zhJoin 把幾段接起來；**任何一段是 nil 就整句放棄**——
+// 半句中文半句英文比整句英文更難讀，也讓「哪裡沒翻」看不出來。
+func zhJoin(parts ...[]byte) []byte {
+	var out []byte
+	for _, p := range parts {
+		if p == nil {
+			return nil
+		}
+		out = append(out, p...)
+	}
+	return out
+}
+
+// zhEnemy 是敵人的中文名（Big5）。查不到回 nil，整句就跟著放棄。
+func (s *CombatScene) zhEnemy(e *game.Enemy) []byte {
+	k := int(e.Data.Kind)
+	if k < 0 || k >= len(s.CJKNames) || len(s.CJKNames[k]) == 0 {
+		return nil
+	}
+	return s.CJKNames[k]
 }
 
 // NewCombatScene 開一場戰鬥的畫面：模式切成名單，開一個新的指令階段。
@@ -256,6 +327,7 @@ func (s *CombatScene) Choose(key byte, armed bool) bool {
 	}
 	if cmd == game.CmdAttack && !armed {
 		s.Log = append(s.Log, "Your weapon is jammed.")
+		s.LastCJK = s.zhStr(strJammed, textlayout.Options{})
 		return false // 重問這個人
 	}
 	s.Phase.Set(s.Turn, cmd, 0)
@@ -269,6 +341,8 @@ func (s *CombatScene) PartyFlees(dir game.FleeDirection) {
 	s.Turn = -1
 	s.Mode = ModeMap
 	s.Log = append(s.Log, "The party runs.")
+	// 字串 43（`\x0B runs.`）的 `\x0B` 是逃跑的人；整隊逃就用第一個人的名字。
+	s.LastCJK = s.zhStr(strRuns, textlayout.Options{Name: s.firstName})
 }
 
 // Done 回報指令階段是不是問完了。

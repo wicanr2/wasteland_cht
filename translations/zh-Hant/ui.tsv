@@ -10,3 +10,40 @@ ui:use.which	要哪一位？
 ui:use.kind	使用：物品／技能／屬性　（I／S／A，ESC 取消）
 ui:use.nothing	沒有東西可以用。
 ui:use.nobody	沒有人做得到。
+ui:gate.party	全隊
+ui:gate.damage	 點傷害。
+ui:use.nothinghappens	%s 使用%s，沒有任何反應。
+ui:use.works	%s 使用%s，成功了！
+ui:use.fails	%s 使用%s，失敗了。
+ui:combat.attacked	你們遭到攻擊！
+ui:combat.hit	%s 命中 %s，%d 點傷害
+ui:combat.fallen	全隊倒下了。
+ui:combat.over	戰鬥結束。
+ui:combat.partyxp	全隊獲得 %d 點經驗值。
+ui:enc.inside	這裡面不行。
+ui:enc.none	這裡沒有可打的敵人。
+ui:enc.groupnone	第 %d 隊：沒有可打的敵人。
+ui:save.none	沒有可用的存檔。
+ui:save.done	已存檔。
+ui:save.memoryonly	狀態已更新（沒有寫進檔案）。
+ui:save.nodata	狀態已更新（沒有載入資料檔）。
+ui:radio.nothing	總部：沒有事情要回報。
+ui:view.none	沒有別的隊伍。
+ui:view.switched	第 %d 隊。
+ui:disband.single	只剩一個人，不能分隊。
+ui:disband.left	%s 離開了隊伍。
+ui:order.nothing	沒有人可以重排。
+ui:roster.menu	C建立  D刪除  P開始遊戲
+ui:roster.name	名字：
+ui:roster.nobody	沒有人可以刪除。
+ui:roster.joined	%s 加入了遊俠。
+ui:roster.gone	%s 已經離開。
+ui:facility.examined	檢查完畢。
+ui:facility.cured	已經治好。
+ui:facility.bought	以 $%d 買下。
+ui:facility.sold	以 $%d 賣出。
+ui:facility.learned	學會了%s。
+ui:facility.row	%d) %s
+ui:facility.skillrow	%d) %s  費用 %d
+ui:facility.sellrow	%d)%s %s
+ui:facility.buyrow	%d) $%-6d %s
