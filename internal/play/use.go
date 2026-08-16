@@ -47,6 +47,36 @@ type useState struct {
 	member  int // 隊伍索引
 	kind    game.UseKind
 	options []useOption
+	// page 是清單分到第幾頁（0 起算）。
+	//
+	// ⚠ **分頁是重製版的決定，不是原版行為**：原版清單選擇走 `sub_198F0`，
+	// 那一支還沒逆向（`docs/re/92` §3），所以它超過九項時怎麼呈現是未知的。
+	// 這裡不假裝知道——用數字鍵選、`0` 翻頁，都是重製版自己的介面。
+	page int
+}
+
+// usePageSize 是一頁幾項。九是因為選項用數字鍵 `1`–`9`。
+const usePageSize = 9
+
+// usePages 是清單共幾頁（至少 1）。
+func (u *useState) pages() int {
+	if len(u.options) == 0 {
+		return 1
+	}
+	return (len(u.options) + usePageSize - 1) / usePageSize
+}
+
+// pageSlice 是這一頁的選項。
+func (u *useState) pageSlice() []useOption {
+	lo := u.page * usePageSize
+	if lo >= len(u.options) {
+		return nil
+	}
+	hi := lo + usePageSize
+	if hi > len(u.options) {
+		hi = len(u.options)
+	}
+	return u.options[lo:hi]
 }
 
 // beginUse 是按下 `U` 之後的第一步。
@@ -153,8 +183,8 @@ func (s *Scene) pickUseKind(k game.UseKind) {
 		return
 	}
 	s.use.stage = useStagePick
-	s.message = s.useMenu()
-	s.cjk = s.useMenuCJK()
+	s.use.page = 0
+	s.showUseMenu()
 	if len(s.cjk) > 0 {
 		s.message = "" // 中文清單出來了就不要再疊一份英文
 	}
@@ -170,10 +200,7 @@ func (s *Scene) useMenuCJK() []byte {
 		return nil
 	}
 	var out []byte
-	for i, o := range s.use.options {
-		if i >= 9 {
-			break
-		}
+	for i, o := range s.use.pageSlice() {
 		if o.nameSlot == 0 {
 			return nil // 屬性那條沒有對應的原版字串
 		}
@@ -187,7 +214,37 @@ func (s *Scene) useMenuCJK() []byte {
 		out = append(out, byte('1'+i), ' ')
 		out = append(out, singularBytes(b)...)
 	}
+	// 翻頁那一行。⚠ **不要在這一行放阿拉伯數字的頁碼**：
+	// 滑鼠的規則是「點到哪一格就送那一格的字元」（`docs/spec/29` §3），
+	// 頁碼裡的 `2` 會被當成「選第 2 項」。頁碼用中文數字。
+	if s.use.pages() > 1 {
+		if more := s.uiText("use.morepage"); len(more) > 0 {
+			out = append(out, '\r')
+			out = append(out, more...)
+			out = append(out, cjkPageLabel(s.use.page+1, s.use.pages())...)
+		}
+	}
 	return out
+}
+
+// cjkPageLabel 是「（第二頁／共三頁）」這種**不含阿拉伯數字**的頁碼。
+func cjkPageLabel(now, total int) []byte {
+	num := func(n int) string {
+		const digits = "〇一二三四五六七八九"
+		r := []rune(digits)
+		if n < 10 {
+			return string(r[n])
+		}
+		if n < 20 {
+			return "十" + map[bool]string{true: "", false: string(r[n%10])}[n%10 == 0]
+		}
+		return string(r[n/10]) + "十" + map[bool]string{true: "", false: string(r[n%10])}[n%10 == 0]
+	}
+	b, ok := lang.ToBig5("（第" + num(now) + "頁／共" + num(total) + "頁）")
+	if !ok {
+		return nil // Big5 編不出來就不印頁碼，不要印半截
+	}
+	return b
 }
 
 // singularBytes 是 `singular` 的 byte 版：譯文同樣用 `\x0A` 分單複數
@@ -199,18 +256,17 @@ func singularBytes(raw []byte) []byte {
 	return bytes.TrimSpace(raw)
 }
 
-// useMenu 是第三層的清單（最多九項一頁——**超過的部分還沒做分頁**）。
+// useMenu 是第三層的清單（英文後備）。一頁九項，多的翻頁。
 func (s *Scene) useMenu() string {
 	var b strings.Builder
-	for i, o := range s.use.options {
-		if i >= 9 {
-			b.WriteString(" …")
-			break
-		}
+	for i, o := range s.use.pageSlice() {
 		if b.Len() > 0 {
 			b.WriteString(" ")
 		}
 		fmt.Fprintf(&b, "%d %s", i+1, o.label)
+	}
+	if s.use.pages() > 1 {
+		fmt.Fprintf(&b, "\r0 More")
 	}
 	return b.String()
 }
@@ -339,11 +395,31 @@ func (s *Scene) updateUse(in input.Input) (bool, error) {
 			s.pickUseKind(game.UseAttribute)
 		}
 	case useStagePick:
+		// `0` 或上下鍵翻頁。**這是重製版的介面**——原版的清單選擇（`sub_198F0`）
+		// 還沒逆向，超過九項時它怎麼做是未知的（`docs/re/92` §3）。
+		if ch == '0' || in.Dir == input.DirUp || in.Dir == input.DirDown {
+			if s.use.pages() > 1 {
+				s.use.page = (s.use.page + 1) % s.use.pages()
+				s.showUseMenu()
+			}
+			return true, nil
+		}
 		if ch >= '1' && ch <= '9' {
-			if i := int(ch - '1'); i < len(s.use.options) {
+			// ⚠ 數字是**這一頁的第幾項**，不是整份清單的第幾項。
+			if i := s.use.page*usePageSize + int(ch-'1'); i < len(s.use.options) {
 				s.applyUse(s.use.options[i])
 			}
 		}
 	}
 	return true, nil
+}
+
+// showUseMenu 把目前這一頁的清單放上畫面。
+func (s *Scene) showUseMenu() {
+	s.message = s.useMenu()
+	s.cjk = s.useMenuCJK()
+	if len(s.cjk) > 0 {
+		s.message = "" // 有中文就不要再印英文（兩份會疊在同一個視窗）
+	}
+	s.dirty = true
 }

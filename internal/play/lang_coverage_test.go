@@ -178,7 +178,7 @@ var uiCatalogueKeys = []string{
 	"journal.header", "journal.hint",
 	"journal.decoy", "journal.appendix", "journal.epilogue",
 	"journal.untranslated",
-	"use.which", "use.kind", "use.nothing", "use.nobody",
+	"use.which", "use.kind", "use.nothing", "use.nobody", "use.morepage",
 	"use.nothinghappens", "use.works", "use.fails",
 	"gate.party", "gate.damage",
 	"combat.attacked", "combat.hit", "combat.fallen", "combat.over", "combat.partyxp",
