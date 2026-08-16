@@ -199,4 +199,7 @@ var uiCatalogueKeys = []string{
 	"settings.on", "settings.off", "settings.close",
 	"quit.ask", "quit.savefailed",
 	"quick.saved", "quick.loaded", "quick.savefailed", "quick.loadfailed",
+	// 全隊倒下的死亡畫面（`docs/spec/28`）。這兩句在原版是**明文 ASCII**，
+	// 不在打包字串表裡，所以走 `ui:`。
+	"wipe.place", "wipe.message",
 }

@@ -120,8 +120,9 @@ func (r *Rom) Title() (*Indexed, error) {
 // 解出來的是雜訊；而雜訊的值域一樣是 0–15，**值域檢查擋不住**
 // （是顏色分布看出來的：最多的一種只佔 6%）。
 //
-// 檔案剩下的部分是第二段（`sub_1B7FE` 讀 `0x3A98` bytes 到
-// `seg003:0x5120`），多半是結局敘述——這一支不碰。
+// 檔案剩下的部分是第二段（`sub_1B7FE` 讀 `0x3A98` bytes 到 `seg003:0x5120`）：
+// **那是 15 格的動畫腳本**，不是敘述（`docs/re/96` §3，結局播放在用它）。
+// 這一支只回畫面。
 func (r *Rom) End() (*Indexed, error) {
 	data, err := r.File("end.cpa")
 	if err != nil {

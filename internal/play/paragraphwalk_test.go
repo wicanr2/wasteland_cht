@@ -66,6 +66,15 @@ func TestWalkOntoParagraphShowsText(t *testing.T) {
 						t.Fatalf("走了 %d 步都沒有踩到引用段落的格子", stepBudget)
 					}
 					w.Teleport(uint8(nx), uint8(ny))
+					// ⚠ 這一支是**走訪工具不是生存測試**：一萬多步走下來會吃到
+					// 輻射與高溫，全隊倒下之後畫面切到死亡畫面（規格 28），
+					// 剩下的步數就全部空轉——症狀是「走了一萬多步一格都沒踩到」，
+					// 看起來像資料裡沒有段落格。每一步把 CON 補滿讓那道檢查沉默。
+					for _, c := range w.Party.Members {
+						if c != nil {
+							c.CON = c.MaxCON
+						}
+					}
 					s.journalAt = 0
 					if _, err := s.Update(input.Input{Dir: d.dir}); err != nil {
 						continue
