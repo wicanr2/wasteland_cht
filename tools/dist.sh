@@ -3,10 +3,11 @@
 #
 #	tools/dist.sh [輸出目錄]      # 預設 dist-all/
 #
-# 產出三塊：
+# 產出四塊：
 #
 #	dist-all/release/   **可散布**：引擎、翻譯、文件、工具。不含任何原版衍生素材
 #	dist-all/local/     **不可散布**：release 的全部 ＋ 原版資料、倚天字型、背景音樂
+#	dist-all/music/     配樂單獨一份：`midi/`（可散布）與 `ogg/`（不可散布）
 #	dist-all/promo/     推廣片
 #
 # ⚠ 分兩份的理由是硬規則不是潔癖（`CLAUDE.md` §7）：原版執行檔、資料檔、
@@ -25,13 +26,14 @@ OUT="${1:-$ROOT/dist-all}"
 REL="$OUT/release"
 LOC="$OUT/local"
 PROMO="$OUT/promo"
+MUSIC="$OUT/music"
 
 STAMP=$(git -C "$ROOT" log -1 --format=%cs 2>/dev/null || echo unknown)
 REV=$(git -C "$ROOT" rev-parse --short HEAD 2>/dev/null || echo unknown)
 
 echo "== 清掉舊的"
 rm -rf "$OUT"
-mkdir -p "$REL" "$LOC" "$PROMO"
+mkdir -p "$REL" "$LOC" "$PROMO" "$MUSIC"
 
 echo "== 編譯（docker）"
 "$ROOT/tools/go.sh" build -o dist-build/wasteland ./cmd/wasteland
@@ -192,6 +194,63 @@ cat > "$LOC/請勿散布.md" <<LOCALNOTE
 直接玩：\`./run.sh\`
 LOCALNOTE
 
+# ── 配樂單獨放一份 ──────────────────────────────────────────────────────
+#
+# `local/music/` 是給遊戲讀的，這一份是給人拿的（單獨聽、丟進影片、換音源重算）。
+# **`.mid` 與 `.ogg` 的散布條件不一樣**，所以分開放並在 README 講明：
+# 譜是我們自己寫的，波形裡有 Roland MT-32 的 PCM 取樣。
+echo "== 組 music/"
+mkdir -p "$MUSIC/ogg" "$MUSIC/midi"
+for f in "$ROOT"/workplace/music/*.ogg; do
+    [ -e "$f" ] && cp "$f" "$MUSIC/ogg/"
+done
+for f in "$ROOT"/workplace/music/*.mid; do
+    [ -e "$f" ] && cp "$f" "$MUSIC/midi/"
+done
+if [ -z "$(ls -A "$MUSIC/ogg" 2>/dev/null)" ]; then
+    echo "   略過配樂（workplace/music/ 是空的，先跑 tools/render_music.sh）"
+fi
+
+cat > "$MUSIC/README.md" <<'MUSICNOTE'
+# 配樂
+
+**原版《Wasteland》沒有背景音樂**——DOS 版只有九首 PC 喇叭音效，
+其中只有音效 4 是旋律，1.8 秒。這裡的十首曲子是重製版自己寫的新作品，
+不是抽自原版，也不冒充原版音色。
+
+| 曲名 | 什麼時候放 |
+|---|---|
+| `theme` | 標題畫面 |
+| `desert` | 大地圖，白天 |
+| `night` | 大地圖，夜間（6 時前、18 時後）|
+| `town` | 一般城鎮與室內 |
+| `facility` | 商店、醫生、訓練師、遊俠中心 |
+| `sewer` | 下水道與地底隧道 |
+| `vegas` | 拉斯維加斯 |
+| `base` | 科奇斯基地 |
+| `combat` | 戰鬥 |
+| `ending` | 結局 |
+
+## 兩個目錄的散布條件不一樣
+
+- **`midi/`（可散布）**：譜本身，我們自己寫的。由 `tools/make_music.py` 產生，
+  純標準函式庫、不含任何第三方素材。想換音源就拿這個去算。
+- **`ogg/`（不可散布）**：用 Roland MT-32／CM-32L 算出來的波形。
+  曲子是我們的，但**取樣是 Roland 的韌體**——與倚天字型、原版遊戲資料同一個政策。
+
+要自己算一份：
+
+```bash
+tools/render_music.sh <輸出目錄> <你的 MT-32 ROM 目錄>
+```
+
+## 音源為什麼選 MT-32
+
+1988 年 DOS 遊戲的高階音源，年代與機種都對得上。聲部安排照 MT-32 的規矩
+不是 General MIDI：channel 1 不用（八個聲部吃 2–9、節奏在 10）、
+音色編號走內建表、節奏鍵位是量出來的（`docs/mt32-rhythm-probe.md`）。
+MUSICNOTE
+
 # ── 推廣片 ──────────────────────────────────────────────────────────────
 echo "== 組 promo/"
 copy_if "$ROOT/workplace/promo/out/wasteland-cht-promo.mp4" \
@@ -234,7 +293,11 @@ cat > "$OUT/README.md" <<TOP
 |---|---|---|
 | \`release/\` | **可以** | 引擎、翻譯、文件、工具。不含任何原版素材，玩家自備原版與字型 |
 | \`local/\` | **不可以** | 上面全部 ＋ 原版資料、倚天字型、合成映像、背景音樂。自己留檔用 |
+| \`music/\` | 分兩半 | 十首配樂。\`midi/\` 是我們寫的譜（**可以**），\`ogg/\` 是 MT-32 算的波形（**不可以**）|
 | \`promo/\` | 看情況 | 推廣片。畫面是原版的、配樂是自己寫的，公開前先想清楚 |
+
+⚠ 三個「不可以」的理由都不是潔癖：原版資料與倚天字型有授權，
+MT-32 算出來的波形裡有 Roland 的 PCM 取樣。譜與程式碼是我們自己的，那些可以給。
 
 \`SHA256SUMS\` 收全部檔案的校驗碼。
 
@@ -242,6 +305,6 @@ cat > "$OUT/README.md" <<TOP
 TOP
 
 echo
-du -sh "$REL" "$LOC" "$PROMO" 2>/dev/null || true
+du -sh "$REL" "$LOC" "$MUSIC" "$PROMO" 2>/dev/null || true
 echo "---"
 echo "產出在 $OUT（不入版控）"
