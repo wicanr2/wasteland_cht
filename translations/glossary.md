@@ -11,6 +11,7 @@
 | 原文 | 譯名 | 取捨 |
 |---|---|---|
 | Wasteland | 荒野遊俠 | 軟體世界的譯名，遊戲標題沿用 |
+| Desert Rangers | 沙漠遊俠 | 玩家所屬的組織，與遊戲標題的「遊俠」同字 |
 | Quartz | 石英城 | |
 | Highpool | 高池鎮 | |
 | Needles | 針岩城 | |
@@ -49,23 +50,62 @@
 | MAXCON | 體力上限 |
 | AC | 護甲 |
 
-## 技能（部分，35 條見 `docs/re/32` §2）
+## 技能（35 條全列，順序即遊戲內編號）
 
-| 原文 | 譯名 |
-|---|---|
-| Brawling | 鬥毆 |
-| Climb | 攀爬 |
-| Swim | 游泳 |
-| Perception | 觀察 |
-| Medic | 醫護 |
-| Doctor | 醫術 |
-| Picklock | 開鎖 |
-| Gamble | 賭博 |
-| Safecrack | 開保險箱 |
-| Demolitions | 爆破 |
-| Bomb disarm | 拆彈 |
-| Alarm disarm | 解除警報 |
-| Toaster repair | 修烤麵包機 |
+編號與最低 IQ／點數見 `docs/re/32` §2；文字在執行檔字串表 `exe:2:1`–`exe:2:35`。
+**手冊的譯名以這張表為準**——玩家在遊戲裡看到的是這一欄。
+
+| # | 原文 | 譯名 | 取捨 |
+|---:|---|---|---|
+| 1 | Brawling | 鬥毆 | |
+| 2 | Climb | 攀爬 | |
+| 3 | Clip pistol | 手槍 | 原文強調「用彈匣的手槍」，中文欄寬放不下，取通稱 |
+| 4 | Knife fight | 刀鬥 | |
+| 5 | Pugilism | 拳擊 | |
+| 6 | Rifle | 步槍 | 不用「來福槍」——同表已有突擊步槍／雷射步槍，音譯會對不起來 |
+| 7 | Swim | 游泳 | |
+| 8 | Knife throw | 擲刀 | 物品名的 throwing knife 譯「飛刀」，技能是動作故用「擲刀」 |
+| 9 | Perception | 觀察 | |
+| 10 | Assault rifle | 突擊步槍 | |
+| 11 | AT weapon | 反戰車武器 | |
+| 12 | SMG | 衝鋒槍 | |
+| 13 | Acrobat | 特技 | |
+| 14 | Gamble | 賭博 | |
+| 15 | Picklock | 開鎖 | |
+| 16 | Silent move | 潛行 | |
+| 17 | Combat shooting | 速射 | |
+| 18 | Confidence | 威信 | |
+| 19 | Sleight of hand | 手法 | |
+| 20 | Demolitions | 爆破 | |
+| 21 | Forgery | 偽造 | |
+| 22 | Alarm disarm | 解除警報 | |
+| 23 | Bureaucracy | 官僚 | |
+| 24 | Bomb disarm | 拆彈 | |
+| 25 | Medic | 醫護 | 與 Doctor 成對：醫護是止血穩住，醫術是治得好 |
+| 26 | Safecrack | 開保險箱 | |
+| 27 | Cryptology | 密碼學 | |
+| 28 | Metallurgy | 冶金 | |
+| 29 | Helicopter pilot | 駕駛直升機 | |
+| 30 | Electronics | 電子學 | |
+| 31 | Toaster repair | 修烤麵包機 | |
+| 32 | Doctor | 醫術 | |
+| 33 | Clone tech | 複製人技術 | |
+| 34 | Energy weapon | 能量武器 | |
+| 35 | Cyborg tech | 生化技術 | |
+
+## 物品
+
+95 件物品的完整譯名在 `translations/zh-Hant/exe-skills-items.tsv`（`exe:2:36` 起，
+第 n 件是 `exe:2:{36+n}`），那份檔是唯一真相。這裡只記需要說明取捨的幾件：
+
+| 原文 | 譯名 | 取捨 |
+|---|---|---|
+| M19 rifle | M19 步槍 | 與技能 Rifle 同字 |
+| Uzi SMG Mark 27 | 烏茲衝鋒槍 27 型 | |
+| LAW rocket | 反戰車火箭 | 縮寫 LAW 不留，與技能 AT weapon 對得起來 |
+| Red Ryder | 紅騎士氣槍 | 原文是玩具氣槍的商品名，補「氣槍」二字才看得懂 |
+| Snake squeezin | 蛇汁 | 原文是俚語拼法（少了 `'`），照原樣不補 |
+| Rom board | 唯讀記憶體板 | |
 
 ## 狀態與疾病（八個位元，見 `docs/re/35` §1）
 

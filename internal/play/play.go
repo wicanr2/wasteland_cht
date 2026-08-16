@@ -777,9 +777,21 @@ func (s *Scene) walk(dir game.Direction) (bool, error) {
 		return true, err
 	}
 	// 停下來問「Enter new location?」：不移動、不推進時間。
+	// **先印目標地點名**（`0x16AEA` 的 `sub_16B17`）——原版兩句一起出現，
+	// 只印問句會少掉「進入石英城。」那一行。
 	if res.Ask != 0 {
 		s.asking = dirOf(dir)
 		s.say(res.Ask, textlayout.Options{})
+		if n := res.AskString; n > 0 && n < len(s.world.Block.Strings) {
+			zh := s.cjkLookup(lang.BlockKey(s.blockFile, s.blockID, n), textlayout.Options{})
+			// 有中文就只加中文——`sayT` 已經把英文那一份清掉了，
+			// 兩份疊上去訊息視窗六行放不下（`docs/spec/10` §2）。
+			if s.cjk != nil && zh != nil {
+				s.cjk = append(append([]byte{}, zh...), s.cjk...)
+			} else if s.cjk == nil {
+				s.message = s.world.Block.Strings[n] + s.message
+			}
+		}
 		return true, nil
 	}
 	s.dirty = true
@@ -932,7 +944,14 @@ func (s *Scene) describe(res game.StepResult) string {
 		}
 		return strings.Join(out, "")
 	case game.EventTeleport:
-		return "TELEPORT."
+		// 記錄 +0x00 的低 6 位就是「進入石英城。」那一句（`sub_16B17`）。
+		// 會先問「進新地點？」的傳送格由 walk 印，這裡是不問的那一種。
+		if len(res.Event.Strings) > 0 {
+			if n := res.Event.Strings[0]; n > 0 && n < len(s.world.Block.Strings) {
+				return s.world.Block.Strings[n]
+			}
+		}
+		return ""
 	case game.EventChest:
 		return "SOMETHING IS HERE."
 	case game.EventMenu:
@@ -1061,7 +1080,7 @@ func (s *Scene) stringSlots(res game.StepResult) []int {
 		return nil
 	}
 	switch res.Event.Kind {
-	case game.EventMessage, game.EventRadiation:
+	case game.EventMessage, game.EventRadiation, game.EventTeleport:
 		return res.Event.Strings
 	case game.EventGate:
 		if len(res.Event.Strings) > 0 {

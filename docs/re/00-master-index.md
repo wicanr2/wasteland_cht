@@ -690,6 +690,8 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `tools/summarize_sfx.py` | `seg005` 的音高／音長／音效表 ＋ 九首位元組碼反組譯 | 否 |
 | `tools/scan_callers.py` | 全檔掃某函式的直接呼叫點（far ＋ 同段 near），替 xref 做正對照 | 否 |
 | `tools/gen_func_index.py` | 產生 `00-function-index.md` | 否 |
+| `cmd/wl-atlas` | 42 張地圖裡玩家碰得到的東西倒成 JSON（設施招牌、條件閘、問答、傳送、藏東西的格）。攻略的資料來源 | 否 |
+| `tools/summarize_walkthrough.py` | 把上面那份 JSON 整理成 `docs/walkthrough/generated/` 四份表 | 否 |
 
 產物一律落在 `docs/re/generated/ida94/`（工具輸出，不含人的推論）。
 
@@ -776,7 +778,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | [`63`](63-resource-id-vs-index.md) | 資源目錄 ID 與 `Resources()` 索引不同（28/42）；遊戲的地圖編號是 ID，拿索引會安靜載錯地圖 |
 | [`62`](62-fourth-gate-terrain-blocking.md) | 第四道閘 `sub_15CE0`：nibble 11 一律擋、nibble 4 條件式；擋住時印記錄 `+0x00` 的訊息 |
 | [`61`](61-map-id-table.md) | `ds:BF1Ch` 一表兩用：低半部決定標頭 `0x600`／`0x1800`，高半部把建築編號換成資源 5／11 |
-| [`60`](60-teleport-and-map-change.md) | nibble 10 ＝ 傳送並換地圖；記錄 `+0x03` ＝ 目標地圖（`0xFF` ＝ 回程）；槽表 `+0x0B`–`+0x0D` ＝ 回程 |
+| [`60`](60-teleport-and-map-change.md) | nibble 10 ＝ 傳送並換地圖；記錄 `+0x03` ＝ 目標地圖（`0xFF` ＝ 回程）；槽表 `+0x0B`–`+0x0D` ＝ 回程；**`+0x00` 低 6 位 ＝ 地點名字串編號**（`sub_16B17`，§3.1）|
 | [`59`](59-playtest-against-original.md) | 玩家路徑對原版驗收：`cmd/wl-play`、輻射帶團滅是原版行為、Rad suit（物品 41）免疫 |
 | [`58`](58-line-flush-and-scrollback.md) | 控制碼 `0x08` ＝ 沖出一行不捲動（`0x0D` 多包一層 `sub_19EFC`）；scrollback 40 × 256 環形 |
 | [`57`](57-curs.md) | `CURS` ＝ 8 個 32 × 16 的滑鼠游標（左半遮罩、右半 2 色圖形）；平面連續不是逐列交錯 |

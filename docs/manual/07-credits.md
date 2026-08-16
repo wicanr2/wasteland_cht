@@ -1,19 +1,23 @@
-# 第七章　CREDITS
+# 第七章　CREDITS（製作名單）
 
 原文以 tab 對齊成兩欄，同一職務有多列人名，此處併入同一格並以換行分隔。
+**人名一律保留原文**（`translations/glossary.md`：人名不譯），只譯職務。
 
-## CREDITS
+## CREDITS（製作名單）
 
-| 職務（原文） | 人員（原文） |
-|---|---|
-| IBM version | Michael Quarles |
-| Original program | Alan Pavlish |
-| Design | Brian Fargo, Ken St. Andre<br>Alan Pavlish, Michael A. Stackpole |
-| Maps | Bruce Balfour, Elizabeth T. Danforth<br>Chris Christensen, Jeff  “T.G.” Berman<br>Bill “Weez” Dugan, Nishan Hossepian<br>Stance Nixon, Alan Pavlish<br>Ken St. Andre, Michael Stackpole<br>Mike Williams, Daniel Carver |
-| Graphics | Todd J. Camasta, Charles Weidman<br>Bruce Schlickbernd |
-| Directed by | Troy P. Worrell |
-| Playtest and Development | Bruce Schlickbernd<br>Thomas R. Decker |
-| Moral Support | Susan Quarles |
+| 職務（原文） | 職務（繁中） | 人員 |
+|---|---|---|
+| IBM version | IBM 版 | Michael Quarles |
+| Original program | 原始程式 | Alan Pavlish |
+| Design | 設計 | Brian Fargo, Ken St. Andre<br>Alan Pavlish, Michael A. Stackpole |
+| Maps | 地圖 | Bruce Balfour, Elizabeth T. Danforth<br>Chris Christensen, Jeff  “T.G.” Berman<br>Bill “Weez” Dugan, Nishan Hossepian<br>Stance Nixon, Alan Pavlish<br>Ken St. Andre, Michael Stackpole<br>Mike Williams, Daniel Carver |
+| Graphics | 美術 | Todd J. Camasta, Charles Weidman<br>Bruce Schlickbernd |
+| Directed by | 監製 | Troy P. Worrell |
+| Playtest and Development | 測試與開發 | Bruce Schlickbernd<br>Thomas R. Decker |
+| Moral Support | 精神支持 | Susan Quarles |
+
+> `Bill “Weez” Dugan` 也以角色身分出現在遊戲裡（血之神殿的代表，
+> 譯名「比爾·杜根」見 `translations/glossary.md`）。
 
 ---
 

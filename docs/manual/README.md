@@ -1,21 +1,27 @@
 # Wasteland 官方英文手冊（1988，IBM PC 版）
 
-原版隨盒手冊的純文字檔，逐節整理成 markdown。英文內容全部照原樣保留，
-沒有翻譯、沒有摘要、沒有修訂錯字；中文只出現在章節框架與註記。
+原版隨盒手冊的純文字檔，逐節整理成 markdown，**中英對照**。
 
-翻譯要等文字編碼與遊戲內文字表解出來之後才做，這一輪只做結構化。
+英文內容全部照原樣保留——不修訂錯字、不改標點、不摘要（原文有不少
+拼字與文法錯誤，例如 `the fame`、`whey can do nothing`、`three’s someplace`，
+都照抄）。繁中譯文接在每一段之後，表格則另立一欄。
+
+譯名依 [`translations/glossary.md`](../../translations/glossary.md)（唯一真相）；
+人名、地名的專名與武器型號保留原文。手冊在本專案的 oracle 優先序裡排第三
+（原版執行檔 > DOSBox 實跑 > **官方英文手冊** > 中文說明書 > 社群攻略，
+`CLAUDE.md` §5），所以譯文只用來讀懂原文，不拿來當規則的依據。
 
 ## 分章索引
 
 | 檔案 | 對應原文章節 | 行數 |
 |---|---|---|
-| [`01-introduction-and-characters.md`](01-introduction-and-characters.md) | Table of Contents、INTRODUCTION、OBJECTIVE、THE PARTY、CREATING CHARACTERS | 99 |
-| [`02-character-profile.md`](02-character-profile.md) | CHARACTER PROFILE（Attributes and Personal Statistics／ITEMS.／Skills）、Onscreen Statistics、Getting Promoted、Recruiting Allies | 135 |
-| [`03-commands-and-combat.md`](03-commands-and-combat.md) | Commands、Combat（Hand-to-Hand／Missile Weapon／Selective Fire／Explosives） | 59 |
-| [`04-weapons.md`](04-weapons.md) | Weapons List（Long／Medium／Short Range Weapons） | 24 |
-| [`05-injuries-time-places.md`](05-injuries-time-places.md) | INJURIES AND DEATH、TIME AND DISTANCE、SPECIAL PLACES（Quartz／Needles／Vegas／Deserts） | 49 |
-| [`06-command-summary.md`](06-command-summary.md) | COMMAND SUMMARY 全節（Game Play 至 Macro Functions） | 133 |
-| [`07-credits.md`](07-credits.md) | CREDITS | 20 |
+| [`01-introduction-and-characters.md`](01-introduction-and-characters.md) | Table of Contents、INTRODUCTION、OBJECTIVE、THE PARTY、CREATING CHARACTERS | 140 |
+| [`02-character-profile.md`](02-character-profile.md) | CHARACTER PROFILE（Attributes and Personal Statistics／ITEMS.／Skills）、Onscreen Statistics、Getting Promoted、Recruiting Allies | 184 |
+| [`03-commands-and-combat.md`](03-commands-and-combat.md) | Commands、Combat（Hand-to-Hand／Missile Weapon／Selective Fire／Explosives） | 82 |
+| [`04-weapons.md`](04-weapons.md) | Weapons List（Long／Medium／Short Range Weapons） | 29 |
+| [`05-injuries-time-places.md`](05-injuries-time-places.md) | INJURIES AND DEATH、TIME AND DISTANCE、SPECIAL PLACES（Quartz／Needles／Vegas／Deserts） | 80 |
+| [`06-command-summary.md`](06-command-summary.md) | COMMAND SUMMARY 全節（Game Play 至 Macro Functions） | 182 |
+| [`07-credits.md`](07-credits.md) | CREDITS | 24 |
 
 原文目錄共列 31 個項目（17 個一級章節、14 個子節），本專案切成 7 個檔案，章節本身沒有增刪。
 
