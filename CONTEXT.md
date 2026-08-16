@@ -4,7 +4,7 @@
 > 再依索引跳到需要的文件。工作紀律與硬規則在 [`CLAUDE.md`](./CLAUDE.md)。
 > **逆向結果的速查表在 [`docs/re/00-master-index.md`](docs/re/00-master-index.md)。**
 >
-> 最後更新：2026-08-15
+> 最後更新：2026-08-16
 
 ---
 
@@ -244,6 +244,7 @@
 | [`docs/re/71-nibble12-batch-patch.md`](docs/re/71-nibble12-batch-patch.md) | nibble 12 是**遠端批次改寫器**（2,450 筆）；商店入口的資料側四條路也掃完 |
 | [`docs/re/70-nibble1-and-facility-entry.md`](docs/re/70-nibble1-and-facility-entry.md) | nibble 1 ＝ 氛圍敘述串列 ＋ 收尾改寫；`0xFE`／`0xFD` 的 153 處用途；商店入口再排除四條 |
 | [`docs/re/69-gate-flags.md`](docs/re/69-gate-flags.md) | 條件閘的四個旗標（記錄 `+0x00` 低位）；條件串列的 `0xFF` 之後接一張**逐條件改寫表**；`0xFE`／`0xFD` 的沿用暫存 |
+| [`docs/re/97-playtest-sampling.md`](docs/re/97-playtest-sampling.md) | 抽樣試玩第一輪：七段流程各走一遍，修掉六個「編得過、測得過、玩不動」的缺口，剩下的列在 §4 |
 | [`docs/spec/00-index.md`](docs/spec/00-index.md) | **規格索引與閘門狀態**：哪些可以動工、其餘擋在什麼上 |
 | [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
 | [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |
@@ -300,13 +301,22 @@
 `cmd/wasteland -mode play` 從**標題畫面**開場（按 `S` 進遊戲，`docs/re/95`），
 可以走地圖、用指令列七項（`USE`／`ENC`／`ORDER`／`DISBAND`／`VIEW`／`SAVE`／`RADIO` 全部接上）、
 遇敵進戰鬥（名單畫面下指令、逐回合打完）、踩進設施買賣、治療、學技能、在 Ranger Center 建角色（名字可打中文）、存檔，設施圖上的局部動畫會動。
-結局圖也解得出來（`wl-shot -mode end`），還沒接進流程。
-**中文化的文本工作已全部完成**：4,806 條可翻字串 ＋ 段落書 162 段。
+結局播得出來（`wl-shot -mode end`），但**資料裡沒有觸發點**（`docs/re/97` §4.2）。
+**中文化的文本工作已全部完成**：4,806 條可翻字串 ＋ 段落書 162 段；
+**接線還沒完**——戰鬥與設施那幾層的訊息是 Go 字面值，畫面上還有一大片英文
+（清單在 `docs/re/97` §4.1）。
+
+**抽樣試玩第一輪已做**（`docs/re/97`）：七段流程各走一遍，
+建角色、遇敵打完、商店買賣、`USE` 開閘、讀段落、存檔重開都通了。
+那一輪修掉六個「編得過、測得過、玩不動」的缺口——物品欄讀到 0 就停、
+折價指數 0 變全免、角色管理叫不出來、`Save` 沒寫檔、設施進場沒選單、
+清單印編號不印名字。
 
 ### 7.1 下一輪要做的
 
 > **交接用的 TODO 在 [`WORKLIST.md`](WORKLIST.md) 的「TODO：下一個 session
-> 從這裡接」一節**（T1–T6 ＋ 這一輪新增的注意事項）。換 session 先讀那一份。
+> 從這裡接」一節**（第二版：T1 中文接線、T1b 結局觸發點，其餘不擋玩家）。
+> 換 session 先讀那一份。
 
 下面兩條是已經結案的紀錄，留著是因為它們是驗收數字的來源。
 

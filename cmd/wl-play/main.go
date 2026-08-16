@@ -19,6 +19,15 @@
 //	path=29:43               自動尋路走到 (29, 43)，中途照常觸發事件
 //	shot=/tmp/a.png          當下截一張圖
 //
+// 幾個會改變結論的旗標：
+//
+//	-poll N        每一步之前推進亂數 N 次。**預設 0 ＝ 序列退化**
+//	               （產生器初值全零、熵來自鍵盤輪詢，`docs/re/13`），
+//	               那時候「走 N 步沒遇到敵人」證明不了任何事。
+//	-save-dir DIR  `S` 指令寫回哪個**可寫的**資料目錄；空的就不寫檔。
+//	-modified      那個目錄已經被寫過，跳過 SHA-256 驗證（存檔重開要用）。
+//	-lang／-font   中文那兩條路徑，預設接上；trace 會把中文印在〔〕裡。
+//
 // 這支不依賴 Ebiten，所以在沒有 X／Wayland 的容器裡也跑得動。
 package main
 
@@ -32,6 +41,7 @@ import (
 
 	"github.com/wicanr2/wasteland_cht/internal/assets"
 	"github.com/wicanr2/wasteland_cht/internal/input"
+	"github.com/wicanr2/wasteland_cht/internal/lang"
 	"github.com/wicanr2/wasteland_cht/internal/play"
 )
 
@@ -42,9 +52,28 @@ func main() {
 	trace := flag.Bool("trace", false, "每一步印出狀態")
 	stopOnMsg := flag.String("stop-on", "", "訊息含這段字就停下來並回非 0")
 	emitKeys := flag.Bool("emit-keys", false, "把走過的方向印成 tools/dosbox.sh 的 timeline")
+	// 中文那三條路徑與 wl-shot 同一組預設。載不到就跑英文，不是錯誤
+	// （`docs/spec/11` §7）——`-lang ""` 可以明確關掉。
+	langFile := flag.String("lang", "translations/zh-Hant.cat", "翻譯目錄")
+	fontDir := flag.String("font", "workplace/eten", "倚天點陣字目錄（玩家自備）")
+	refsFile := flag.String("refs", "docs/re/generated/paragraph-refs.tsv", "段落引用表")
+	paraFile := flag.String("paragraphs", "translations/paragraphs-zh-Hant.cat", "段落正文")
+	// ⚠ **熵**：原版的亂數靠鍵盤輪詢推進（`docs/re/13`），呈現層每幀叫一次
+	// `PollRNG`。無頭預設不叫是為了可重現，代價是序列退化成
+	// 「初值全零的前幾項」——那時候「走 49 步沒遇到敵人」證明不了任何事。
+	// 要抽樣遭遇率就給 `-poll N`，模擬玩家按一次鍵之間的輪詢次數。
+	poll := flag.Int("poll", 0, "每一步之前推進亂數 N 次（模擬玩家按鍵的輪詢）")
+	// 存檔驗收：把原版資料複製一份出來，`-rom` 與 `-save-dir` 都指到副本，
+	// 第二次開就要加 `-modified`（寫過之後 SHA-256 當然對不上）。
+	saveDir := flag.String("save-dir", "", "`S` 指令寫回的**可寫**資料目錄（空 ＝ 不寫檔）")
+	modified := flag.Bool("modified", false, "資料目錄已經被寫過，跳過 SHA-256 驗證")
 	flag.Parse()
 
-	rom, err := assets.Open(*romDir)
+	open := assets.Open
+	if *modified {
+		open = assets.OpenModified
+	}
+	rom, err := open(*romDir)
 	if err != nil {
 		fail("開啟原版資料：%v", err)
 	}
@@ -55,12 +84,21 @@ func main() {
 	if err != nil {
 		fail("建立場景：%v", err)
 	}
+	scene.SetSaveDir(*saveDir)
+	if *langFile != "" {
+		_ = scene.LoadCatalogue(*langFile)
+	}
+	hasFont := *fontDir != "" && scene.LoadFont(*fontDir) == nil
+	if *refsFile != "" {
+		_ = scene.LoadJournal(*refsFile, *paraFile)
+	}
 
 	steps, err := parse(*script)
 	if err != nil {
 		fail("腳本：%v", err)
 	}
-	r := &runner{scene: scene, trace: *trace, stopOn: *stopOnMsg, emit: *emitKeys}
+	r := &runner{scene: scene, trace: *trace, stopOn: *stopOnMsg, emit: *emitKeys,
+		hi: hasFont, poll: *poll}
 	for i, s := range steps {
 		if err := r.do(s); err != nil {
 			fail("第 %d 步（%s）：%v", i+1, s.raw, err)
@@ -94,28 +132,55 @@ type runner struct {
 	tripped string
 	n       int
 	emit    bool
+	hi      bool     // 有字型：截圖走 640 × 400 的中文畫面
+	poll    int      // 每一步前推進亂數的次數
 	keys    []string // -emit-keys：走過的方向，送得進 tools/dosbox.sh
 }
 
+// tick 模擬玩家按下一個鍵之前，主迴圈輪詢了幾次鍵盤（熵的唯一來源）。
+func (r *runner) tick() {
+	for i := 0; i < r.poll; i++ {
+		r.scene.PollRNG()
+	}
+}
+
 // state 是一行狀態摘要，出事時看它就知道走到哪裡。
+//
+// 模式取自 `Scene.Mode()`——訊息列看不出「進了設施但選單沒開」，模式看得出來。
 func (r *runner) state() string {
 	w := r.scene.World()
-	mode := "地圖"
-	switch {
-	case r.scene.InFacility():
-		mode = "設施"
-	case r.scene.InCombat():
-		mode = "戰鬥"
-	}
 	alive := 0
 	for _, c := range w.Party.Members {
 		if c.CON > 0 {
 			alive++
 		}
 	}
-	return fmt.Sprintf("地圖 %-3d (%d, %d) %02d:%02d %s 活著 %d/%d｜%s",
-		r.scene.MapID(), w.Party.X, w.Party.Y, w.Clock.Hour, w.Clock.Minute, mode,
-		alive, len(w.Party.Members), r.scene.Message())
+	return fmt.Sprintf("地圖 %-3d (%2d,%2d) %02d:%02d %-16s 活 %d/%d｜%s%s%s",
+		r.scene.MapID(), w.Party.X, w.Party.Y, w.Clock.Hour, w.Clock.Minute,
+		r.scene.Mode(), alive, len(w.Party.Members), r.scene.Message(), cjkOf(r.scene),
+		facilityLines(r.scene))
+}
+
+// facilityLines 是設施畫面印在地點名底下那幾行（選單與清單）。
+// 它們**不走訊息列**，所以只看 Message() 會以為設施是一片空白。
+func facilityLines(s *play.Scene) string {
+	if !s.InFacility() {
+		return ""
+	}
+	return " ⟨" + strings.Join(s.Facility().Lines, " ／ ") + "⟩"
+}
+
+// cjkOf 把這一步的中文訊息解回 UTF-8 印在終端機上。
+// 解不出來就照 byte 印十六進位——**不要靜靜吞掉**，那正是要驗的東西。
+func cjkOf(s *play.Scene) string {
+	b := s.CJK()
+	if len(b) == 0 {
+		return ""
+	}
+	if txt, ok := lang.FromBig5(b); ok {
+		return "〔" + txt + "〕"
+	}
+	return fmt.Sprintf("〔Big5 解不開：% x〕", b)
 }
 
 func (r *runner) do(s step) error {
@@ -146,8 +211,9 @@ func (r *runner) do(s step) error {
 			return fmt.Errorf("這一格附近沒有打得起來的遭遇（視窗裡沒有敵人格，或距離過不了門檻）")
 		}
 	case s.shot != "":
-		return writePNG(r.scene, s.shot)
+		return writePNG(r.scene, s.shot, r.hi)
 	default:
+		r.tick()
 		if _, err := r.scene.Update(s.in); err != nil {
 			return err
 		}
@@ -164,12 +230,17 @@ func (r *runner) do(s step) error {
 	return nil
 }
 
-func writePNG(scene *play.Scene, path string) error {
+// writePNG 截一張圖。有字型就走 640 × 400 的中文畫面——
+// 低解那張畫不出中文，拿它驗中文化會每次都「看起來沒翻」（`docs/spec/10`）。
+func writePNG(scene *play.Scene, path string, hi bool) error {
 	f, err := os.Create(path)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
+	if hi {
+		return png.Encode(f, scene.HiFrame().ToImage())
+	}
 	return png.Encode(f, scene.Frame().ToImage())
 }
 
@@ -303,6 +374,7 @@ func (r *runner) walkTo(tx, ty int) error {
 		if !ok {
 			return fmt.Errorf("從 (%d, %d) 找不到往 (%d, %d) 的路", w.Party.X, w.Party.Y, tx, ty)
 		}
+		r.tick()
 		if _, err := r.scene.Update(input.Input{Dir: dir}); err != nil {
 			return err
 		}

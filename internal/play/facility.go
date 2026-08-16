@@ -6,6 +6,8 @@ package play
 // 這個檔只做場景：載圖、印地點名、離開時切回地圖。
 
 import (
+	"fmt"
+
 	"github.com/wicanr2/wasteland_cht/internal/game"
 	"github.com/wicanr2/wasteland_cht/internal/render"
 )
@@ -38,6 +40,27 @@ type FacilityScene struct {
 	// 原版的清單走 `sub_1BDFF`，那一支與商店的清單框架同源、還沒逆向
 	// （docs/re/52 §4），所以不在這裡假裝算得出來。
 	Skills []TrainableSkill
+
+	// ItemName／SkillName 由 Scene 進場時接上（`docs/re/17` §4 的名稱表）。
+	// 沒接就退回 `item 43` 這種編號——**清單印編號玩家看不懂買的是什麼**，
+	// 但那是「還沒接上」的樣子，不是假裝有名字。
+	ItemName  func(byte) string
+	SkillName func(byte) string
+}
+
+// itemLabel／skillLabel 是清單那一欄要印的字，沒接名稱表就退回編號。
+func (f *FacilityScene) itemLabel(id byte) string {
+	if f.ItemName != nil {
+		return f.ItemName(id)
+	}
+	return fmt.Sprintf("item %d", id)
+}
+
+func (f *FacilityScene) skillLabel(id byte) string {
+	if f.SkillName != nil {
+		return f.SkillName(id)
+	}
+	return fmt.Sprintf("skill %d", id)
 }
 
 // TrainableSkill 是訓練師教得了的一個技能。
@@ -70,6 +93,7 @@ func (s *Scene) EnterFacility(record []byte) *FacilityScene {
 	if f.Name != "" {
 		fs.Lines = append(fs.Lines, f.Name)
 	}
+	fs.ItemName, fs.SkillName = s.itemName, s.skillName
 	if f.Kind == game.FacilityTrainer {
 		fs.Skills = s.trainableSkills()
 	}
@@ -80,6 +104,25 @@ func (s *Scene) EnterFacility(record []byte) *FacilityScene {
 	if fs.Picture >= 0 && fs.Picture < len(s.anims) {
 		s.player = render.NewPicPlayer(s.anims[fs.Picture])
 	}
+	// 進場就把主選單畫出來。原版是走進去**當下**就印
+	// 「Do you want to: Buy / Sell」那一行（`docs/re/42` §1 的主迴圈
+	// 開頭就在印），不是等玩家先按一個鍵——只在 `Key()` 裡 refresh 的話，
+	// 玩家進去看到的是一片只有店名的畫面，不知道能按什麼。
+	//
+	// 角色管理（設施 3）不走這一支：它的選單是 `CREATE DELETE PLAY`，
+	// 套商店那份會印出一行不存在的 Buy／Sell。
+	// （`s.world` 為 nil 的是只驗版面的測試場景，那時沒有隊伍可印。）
+	switch f.Kind {
+	case game.FacilityShop, game.FacilityDoctor, game.FacilityTrainer:
+		if s.world != nil {
+			fs.refresh(s.world.Party, s.items)
+		}
+	}
+	// 設施 3 進去就是角色管理畫面（`docs/re/72` §3）。
+	// ⚠ 這一行要留在**進場的唯一入口**：兩條路（踩到 nibble 6、傳送收尾
+	// 改寫腳下）都經過這裡，掛在其中一條會有一條走不到——
+	// 症狀是走進 Ranger Center 之後 C／D／P 通通沒反應。
+	s.enterRosterIfNeeded()
 	s.dirty = true
 	return fs
 }

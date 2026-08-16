@@ -114,19 +114,40 @@ func (c *Character) StoreTo(raw []byte) {
 // readSlots 讀 30 格的陣列。技能是「偶數位移 ＝ 編號」，
 // 物品是「奇數位移 ＝ 編號」——原版兩個陣列的起點差一個 byte，
 // 所以用同一支就好：base 指到編號那一格。
+//
+// ⚠ **一定要讀滿 30 格，遇到 0 不能停。** 原版的陣列是**固定 30 槽、
+// 0 ＝ 空**，而且中間會有洞：賣掉一件是「把那兩個 byte 清成 0」、
+// 不把後面的往前搬（`docs/re/42` §3，已確認），連清單的繪製回呼都寫著
+// 「`al ＝ 0` → 這一列跳過」（§3.1）。角色記錄 `+0x1F`／`+0x25` 存的
+// 又是**槽號**，往前搬會讓裝備指到別件東西。
+//
+// 提早停會製造兩個安靜的錯：買東西時找不到空槽（回報「背包滿了」），
+// 以及賣掉中間一件之後重讀存檔，洞後面的物品全部消失。
 func readSlots(raw []byte, base int) []Slot {
-	out := make([]Slot, 0, slotCount)
+	out := make([]Slot, slotCount)
 	for i := 0; i < slotCount; i++ {
 		at := base + i*2
 		if at+1 >= len(raw) {
 			break
 		}
-		if raw[at] == 0 {
-			break // 0 ＝ 空槽，後面不再有
-		}
-		out = append(out, Slot{ID: raw[at], Value: raw[at+1]})
+		out[i] = Slot{ID: raw[at], Value: raw[at+1]}
 	}
 	return out
+}
+
+// putSlot 把一格寫進 30 槽陣列，切片比 slot 短就先補空槽。
+//
+// 存檔讀出來的一定是滿 30 格（readSlots），這一支是給
+// 手工建出來的角色（測試、`CreateCharacter` 之外的路徑）用的保險。
+func putSlot(slots []Slot, slot int, v Slot) []Slot {
+	if slot < 0 || slot >= slotCount {
+		return slots
+	}
+	for len(slots) <= slot {
+		slots = append(slots, Slot{})
+	}
+	slots[slot] = v
+	return slots
 }
 
 func writeSlots(raw []byte, base int, slots []Slot) {

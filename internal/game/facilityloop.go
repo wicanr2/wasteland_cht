@@ -79,9 +79,13 @@ func Sell(c *Character, slot int, price uint32, stock byte) (byte, bool) {
 
 // FirstEmptyItemSlot 找物品陣列的第一個空槽（sub_1968A）。
 // 滿了就回 false——買的清單根本不會開（docs/re/42 §2）。
+//
+// ⚠ **上界是 30 槽，不是切片長度。** 拿 `len(items)` 當上界的話，
+// 一個帶著 15 件東西的角色會被判成「滿了」——原版掃的是記錄裡固定的
+// 30 格（`docs/re/15`），切片短只代表後面那幾格是空的。
 func FirstEmptyItemSlot(items []Slot) (int, bool) {
-	for i := 0; i < len(items) && i < ItemSlots; i++ {
-		if items[i].ID == 0 {
+	for i := 0; i < ItemSlots; i++ {
+		if i >= len(items) || items[i].ID == 0 {
 			return i, true
 		}
 	}
@@ -134,7 +138,7 @@ func Buy(c *Character, id byte, price uint32, stock byte) (byte, bool) {
 		return stock, false
 	}
 	c.Money -= price
-	c.Items[slot] = Slot{ID: id}
+	c.Items = putSlot(c.Items, slot, Slot{ID: id})
 	// 0xFF 是無限，買再多也不會減（與賣的 +1 對稱，docs/re/42 §4）。
 	if stock != StockUnlimited && stock > 0 {
 		stock--

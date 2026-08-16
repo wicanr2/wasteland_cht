@@ -84,6 +84,10 @@ func (s *Scene) runCommand(c Command) (bool, error) {
 //
 // 原版先印訊息 0x49 問 Y／N 再寫；這一版直接寫，**確認流程還沒接**
 // （與 Radio 共用的 `sub_19B4F` 是同一套，兩邊要一起做）。
+//
+// ⚠ **一定要真的寫到檔案。** 只更新記憶體那份明文的話，畫面上會出現
+// 「Game saved.」而下一次開遊戲什麼都沒保留——這種謊比當掉還難查。
+// 沒有可寫的目錄時就照實說（`SetSaveDir` 沒設 ＝ 無頭工具與測試）。
 func (s *Scene) cmdSave() (bool, error) {
 	if s.save == nil {
 		s.message = "No save loaded."
@@ -95,7 +99,18 @@ func (s *Scene) cmdSave() (bool, error) {
 		s.dirty = true
 		return true, nil
 	}
-	s.message = "Game saved."
+	switch {
+	case s.saveDir == "":
+		s.message = "Game state updated (not written to disk)."
+	case s.rom == nil:
+		s.message = "Game state updated (no data files loaded)."
+	default:
+		if err := s.rom.WriteSave(s.save, s.saveDir); err != nil {
+			s.message = "SAVE FAILED: " + err.Error()
+		} else {
+			s.message = "Game saved."
+		}
+	}
 	s.dirty = true
 	return true, nil
 }

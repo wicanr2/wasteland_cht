@@ -191,9 +191,13 @@ func TestScriptOpcodesInRange(t *testing.T) {
 	}
 }
 
-// 物品消耗：低 6 位是次數，用完把整個槽移除，高 2 位保留。
+// 物品消耗：低 6 位是次數，用完把那一槽清成 0，高 2 位保留。
+//
+// **清空不是移除**：物品陣列是固定 30 槽、0 ＝ 空（`docs/re/15`），
+// 賣掉一件也只是把那兩個 byte 清成 0（`docs/re/42` §3）。
+// 後面那一槽的**槽號不能變**——角色記錄 `+0x1F`／`+0x25` 存的就是槽號。
 func TestUseItemConsumes(t *testing.T) {
-	c := &Character{Items: []Slot{{ID: 9, Value: 0xC3}}} // 高 2 位 11、次數 3
+	c := &Character{Items: []Slot{{ID: 9, Value: 0xC3}, {ID: 7, Value: 1}}}
 	for want := byte(2); want >= 1; want-- {
 		if !c.UseItem(9) {
 			t.Fatal("應該找得到這件物品")
@@ -205,8 +209,11 @@ func TestUseItemConsumes(t *testing.T) {
 	if !c.UseItem(9) {
 		t.Fatal("最後一次應該還是找得到")
 	}
-	if len(c.Items) != 0 {
-		t.Fatalf("次數用完應該把整個槽移除，還剩 %v", c.Items)
+	if c.Items[0] != (Slot{}) {
+		t.Fatalf("次數用完那一槽應該清成 0，得到 %v", c.Items[0])
+	}
+	if c.Items[1] != (Slot{ID: 7, Value: 1}) {
+		t.Fatalf("後面那一槽不該被搬動，得到 %v", c.Items[1])
 	}
 	if c.UseItem(9) {
 		t.Fatal("沒有這件物品了不該回 true")

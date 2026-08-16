@@ -23,6 +23,19 @@ func ToBig5(s string) ([]byte, bool) {
 	return out, true
 }
 
+// FromBig5 把 Big5 bytes 解回 UTF-8，給**驗收工具**印在終端機上用
+// （`cmd/wl-play` 的 trace）。遊戲本體不需要這個方向——畫面直接吃 Big5
+// 查倚天字模，中間不經過 UTF-8。
+//
+// 解不出來的回 false，呼叫端自己決定要不要退回十六進位。
+func FromBig5(b []byte) (string, bool) {
+	out, _, err := transform.Bytes(traditionalchinese.Big5.NewDecoder(), b)
+	if err != nil {
+		return "", false
+	}
+	return string(out), true
+}
+
 // RuneToBig5 是單一字元的版本，給逐鍵輸入用。
 func RuneToBig5(r rune) ([]byte, bool) {
 	if r < 0x20 {

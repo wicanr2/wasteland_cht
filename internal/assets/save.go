@@ -3,6 +3,8 @@ package assets
 import (
 	"encoding/binary"
 	"fmt"
+	"os"
+	"path/filepath"
 )
 
 // 存檔容器（docs/spec/05 §2、docs/re/30）。
@@ -112,6 +114,42 @@ func (s *Save) Bytes() []byte {
 	out = append(out, encryptSave(s.Plain, checksum)...)
 	out = append(out, s.Tail...)
 	return out
+}
+
+// WriteSave 把一份存檔寫回資料檔。
+//
+// **改寫不是重建**（`CLAUDE.md` §4）：只把 `Offset` 起那一段換掉，
+// 檔案其餘部分（地圖區塊、物品表、未解區域）原樣照抄。
+//
+// dir 要是**可寫的**資料目錄。`workplace/orig/wastland` 是玩家那份原版，
+// 不要指到那裡——`Open` 會驗 SHA-256，寫過就再也開不起來。
+//
+// ⚠ **原版寫哪一份還沒 RE**：`GAME1`／`GAME2` 是兩份輪替（`docs/re/09` §4、
+// `docs/re/30` §5），讀的時候比 32-bit 序號取新的，但寫入端（`0x1A290`）
+// 挑哪一份、序號怎麼推進都還沒讀。這裡先寫回**讀進來的那一份**，
+// 序號不動——猜一套輪替規則會讓兩個檔案的關係從此對不上。
+func (r *Rom) WriteSave(s *Save, dir string) error {
+	if s == nil {
+		return fmt.Errorf("沒有存檔可以寫")
+	}
+	raw, err := r.File(s.File)
+	if err != nil {
+		return err
+	}
+	body := s.Bytes()
+	if s.Offset+len(body) > len(raw) {
+		return fmt.Errorf("%s 放不下 %d bytes 的存檔（位移 %#x、檔長 %d）",
+			s.File, len(body), s.Offset, len(raw))
+	}
+	out := make([]byte, len(raw))
+	copy(out, raw)
+	copy(out[s.Offset:], body)
+	if err := os.WriteFile(filepath.Join(dir, s.File), out, 0o644); err != nil {
+		return err
+	}
+	// 寫成功才更新記憶體那份，讓檔案與 `r.files` 不會分岔。
+	copy(raw, out)
+	return nil
 }
 
 // saveChecksum ＝ 0 − Σ 明文位元組（16-bit，docs/re/30 §2.1）。

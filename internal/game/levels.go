@@ -78,6 +78,9 @@ func ParseSkillData(b0, b1 byte) SkillData {
 
 // SkillLevel 回傳角色某個技能的等級，沒學過回 0（sub_198CD）。
 func (c *Character) SkillLevel(id byte) byte {
+	if id == 0 {
+		return 0 // 0 是空槽的值，不是一個技能
+	}
 	for _, s := range c.Skills {
 		if s.ID == id {
 			return s.Value
@@ -108,6 +111,12 @@ func (c *Character) LearnSkill(id byte, data SkillData) (ok bool, reason string)
 			return true, ""
 		}
 	}
-	c.Skills = append(c.Skills, Slot{ID: id, Value: 1})
+	// 沒學過就放進第一個空槽。技能欄與物品欄一樣是**固定 30 槽**
+	// （`docs/re/15`），往後 append 會在洞還空著的時候寫到第 31 格去。
+	slot, ok := FirstEmptyItemSlot(c.Skills)
+	if !ok {
+		return false, "技能欄滿了"
+	}
+	c.Skills = putSlot(c.Skills, slot, Slot{ID: id, Value: 1})
 	return true, ""
 }
