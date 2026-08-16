@@ -107,7 +107,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 54 | [設施畫面的版面](54-facility-screen-layout.md) | 已接 | `internal/play/play.go`、`internal/render/render.go`（共 5 處） |
 | 55 | [輻射結算與「無視護甲」旗標（`ds:46EFh`）](55-radiation-and-armour-bypass.md) | 已接 | `internal/game/radiation.go`、`tools/summarize_radiation.py`（共 3 處） |
 | 56 | [`TRANSTBL` 是 50 組 16 色對照表，而且沒有人讀它](56-transtbl.md) | 已接 | `tools/summarize_transtbl.py` |
-| 57 | [`CURS` 是 8 個滑鼠游標（遮罩 ＋ 圖形並排）](57-curs.md) | 已接 | `tools/dump_curs.py` |
+| 57 | [`CURS` 是 8 個滑鼠游標（遮罩 ＋ 圖形並排）](57-curs.md) | 已接 | `internal/assets/curs.go`（遊戲裡真的畫在指標上，`docs/spec/29` §4）＋ `tools/dump_curs.py`。⚠ 哪個圖形對應哪個狀態未解，固定用第 0 個 |
 | 58 | [控制碼 `0x08` ＝ 沖出一行不捲動；順帶解出 scrollback](58-line-flush-and-scrollback.md) | 已接 | `internal/game/world.go`、`internal/textlayout/textlayout.go`（共 3 處） |
 | 59 | [正常玩家路徑對原版驗收（第一輪）](59-playtest-against-original.md) | 不適用 | 實機對拍的驗收紀錄與方法，不產生程式碼 |
 | 60 | [傳送與換地圖（nibble 10）](60-teleport-and-map-change.md) | 已接 | `internal/assets/save.go`、`internal/game/teleport.go`（共 5 處） |

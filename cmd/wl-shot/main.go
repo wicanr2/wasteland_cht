@@ -50,13 +50,14 @@ func main() {
 	// 而畫面看起來只是「運氣不好」。要截遭遇畫面就給 `-poll`（同 `wl-play`）。
 	poll := flag.Int("poll", 0, "play 模式：每個按鍵之前推進亂數 N 次")
 	titleScreen := flag.Bool("title", false, "play 模式：停在標題畫面（玩家開機看到的那一張）")
+	cursor := flag.String("cursor", "", "play 模式：把滑鼠游標畫在 x,y（高解畫布的像素）")
 	flag.Parse()
 
 	opt := shotOptions{
 		lang: *langFile, font: *fontDir, refs: *refsFile,
 		paragraphs: *paraFile, keys: *keys, mapID: *mapID,
 		journal: *journal, ending: *ending, endingTicks: *endingTicks,
-		fn: *fn, poll: *poll, title: *titleScreen,
+		fn: *fn, poll: *poll, title: *titleScreen, cursor: *cursor,
 	}
 	if err := run(*romDir, *imagePath, *mode, *block, *pic, *out, *at, *hour, opt); err != nil {
 		fmt.Fprintln(os.Stderr, "錯誤：", err)
@@ -100,6 +101,7 @@ type shotOptions struct {
 	fn                           string
 	poll                         int
 	title                        bool
+	cursor                       string
 }
 
 // sendFn 送一個面板類的功能鍵。
@@ -157,6 +159,19 @@ func run(romDir, imagePath, mode string, blockID, picID int,
 			}
 		} else if err := place(scene, at, hour); err != nil {
 			return err
+		}
+		if opt.cursor != "" {
+			var cx, cy int
+			if _, err := fmt.Sscanf(opt.cursor, "%d,%d", &cx, &cy); err != nil {
+				return fmt.Errorf("-cursor 要寫成 x,y：%w", err)
+			}
+			if cerr := scene.LoadCursors(); cerr != nil {
+				return cerr
+			}
+			if _, err := scene.Update(input.Input{Dir: input.DirNone,
+				Mouse: input.Mouse{X: cx, Y: cy}}); err != nil {
+				return err
+			}
 		}
 		if opt.title {
 			scene.BeginTitle()
