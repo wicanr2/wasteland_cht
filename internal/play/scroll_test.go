@@ -143,3 +143,30 @@ func TestSecondMemberSeesTheWholeMenu(t *testing.T) {
 	}
 	_ = render.PanelHeight
 }
+
+// 捲動的上緣是**傳進來的起始列**，不是區域的第一列。
+//
+// ⚠ 手札與訊息視窗會把正文往下推一行讓出標題。上緣算錯的話，正文捲上去
+// 會疊在標題上——而**兩行疊在一起還是看得到字**，截圖看起來像「那一行很擠」，
+// 不像壞掉。這一條直接檢查沒有任何一格落在標題那一列。
+func TestScrollDoesNotOverwriteTheHeaderRow(t *testing.T) {
+	rect := textRect{Col: 15, Row: 1, Width: 24, Height: 4}
+	start := rect.Row + 1 // 第 1 列是標題
+	text := []byte("one\rtwo\rthree\rfour\rfive\rsix")
+	rows := map[int]string{}
+	eachMessageCell(text, rect, start, func(col, row int, a, hi, lo byte) {
+		if a != 0 {
+			rows[row] += string(rune(a))
+		}
+	})
+	if _, ok := rows[rect.Row]; ok {
+		t.Errorf("正文畫到標題那一列了：%q（全部：%v）", rows[rect.Row], rows)
+	}
+	// 讓出一行之後只剩三列，所以看得到的是最後三行。
+	want := map[int]string{2: "four", 3: "five", 4: "six"}
+	for row, w := range want {
+		if rows[row] != w {
+			t.Errorf("列 %d 得到 %q，預期 %q（全部：%v）", row, rows[row], w, rows)
+		}
+	}
+}

@@ -379,6 +379,11 @@ func (s *Scene) msgRect() textRect {
 // 要到戰鬥指令階段問第二個人才分得出來——那時第三、四個人的選單整段不見。
 func eachMessageCell(text []byte, rect textRect, row int,
 	f func(col, row int, ascii, hi, lo byte)) {
+	// ⚠ **上緣是傳進來的起始列，不是區域的第一列。** 呼叫端會把起點往下推一行
+	// 讓出標題（手札的「手札 1／166」、英文訊息那一行）；用 `rect.Row` 當上緣的話，
+	// 捲動之後的正文會蓋在標題上，而**兩行疊在一起還是看得到字**——
+	// 畫面不像壞掉，像那一行字很擠（`docs/re/109` 那一輪從截圖抓到的）。
+	top := row
 	// 先量最後一格落在哪一列，超出下緣就整段往上挪。
 	last := row
 	walkMessage(text, rect, row, func(_, r int, _, _, _ byte) { last = r })
@@ -386,7 +391,7 @@ func eachMessageCell(text []byte, rect textRect, row int,
 		row -= over
 	}
 	walkMessage(text, rect, row, func(col, r int, a, hi, lo byte) {
-		if r < rect.Row {
+		if r < top {
 			return // 已經捲出上緣的行
 		}
 		f(col, r, a, hi, lo)
