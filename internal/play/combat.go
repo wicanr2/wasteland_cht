@@ -243,6 +243,15 @@ type CombatScene struct {
 
 	// pick 是「換武器」清單開著時的狀態（`docs/re/107` §2）。
 	pick weaponPick
+	// useID 是每個成員這一回合 `USE` 選中的技能／物品／屬性編號。
+	//
+	// ⚠ 原版存在 `ds:A9FDh`，索引是**角色編號**不是隊伍槽（`docs/re/108` §1）——
+	// 那是為了讓同一個角色換到別的槽也認得。這裡一回合就用完，用槽號等價。
+	useID [combatPartyMax]byte
+
+	// World 是規則層——戰鬥版 `USE` 要拿它取目標格的記錄並改寫
+	// （`docs/re/108` §2）。沒接上時 `USE` 什麼都不做。
+	World *game.World
 
 	// Items 是物品資料表（存檔區那一份，docs/re/45 §2）。
 	// 沒接上時是 nil，武器一律當成零值——傷害 0 而不是崩掉。
@@ -386,7 +395,12 @@ func (s *CombatScene) Choose(key byte, armed bool) bool {
 		s.LastCJK = s.zhStr(strJammed, textlayout.Options{})
 		return false // 重問這個人
 	}
-	if cmd == game.CmdHire || cmd == game.CmdUse {
+	if cmd == game.CmdUse {
+		// `USE` 走與地圖同一套三層選單，只是不用挑人、選完要再問方向
+		// （`docs/re/108` §1）。開選單這一步在 `Scene` 那一層。
+		return false // 由 Scene.updateCombat 接手，這個人還沒下完令
+	}
+	if cmd == game.CmdHire {
 		// ⚠ **不要靜靜吃掉按鍵。** 這兩個指令的結算端只定位到入口
 		// （`docs/re/107` §4、§6 各有兩三支子函式沒讀），接了就是編一個規則。
 		// 但「選了之後什麼都沒發生」比「說還沒做」更糟——玩家會以為用掉了道具。
@@ -668,3 +682,41 @@ func (s *CombatScene) PickWeapon(key byte) bool {
 
 // CancelWeaponPick 關掉清單，回到指令選單（原版回傳 0xFF ＝ 取消，重問）。
 func (s *CombatScene) CancelWeaponPick() { s.pick = weaponPick{} }
+
+// combatPartyMax 是一支隊伍的人數上限（存檔槽表 `+0x00`–`+0x07`，`docs/re/30` §3）。
+const combatPartyMax = 8
+
+// SetUse 記下這個人的 `USE` 指令：參數 ＝ `(選項 << 4) | 方向`，
+// 編號另存一格（`docs/re/108` §1）。
+func (s *CombatScene) SetUse(member int, kind, id, dir byte) {
+	if member < 0 || member >= len(s.useID) {
+		return
+	}
+	s.useID[member] = id
+	s.Phase.Set(member, game.CmdUse, kind<<4|dir&0x0F)
+	s.advance(member + 1)
+}
+
+// UseParts 把指令參數拆回來（結算階段用）。
+func (s *CombatScene) UseParts(member int) (kind game.UseKind, id, dir byte) {
+	if member < 0 || member >= len(s.useID) || member >= len(s.Phase.Arg) {
+		return 0, 0, 0
+	}
+	arg := s.Phase.Arg[member]
+	return game.UseKind(arg >> 4), s.useID[member], arg & 0x0F
+}
+
+// wireCombat 把 `CombatScene` 需要的外部東西一次接齊。
+//
+// ⚠ **兩個建構點（`StartEncounter` 與 `beginEmptyRound`）必須共用這一支。**
+// 各自手接的話遲早會漏掉一個欄位，而漏掉的症狀是「那個功能安靜地不做事」：
+// 漏 `World` 的時候戰鬥版 `USE` 什麼都不會發生，畫面上完全正常。
+func (s *Scene) wireCombat(c *CombatScene) *CombatScene {
+	c.Items = s.items
+	c.Names = s.enemyNames()
+	c.CJKNames = s.enemyNamesCJK()
+	c.CJK = func(n int, opt textlayout.Options) []byte { return s.cjkExe(exeTable1, n, opt) }
+	c.UI = s.uiText
+	c.World = s.world
+	return c
+}

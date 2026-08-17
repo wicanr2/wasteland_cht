@@ -107,13 +107,7 @@ func (s *Scene) beginEmptyRound() (bool, error) {
 	b := game.NewBattle(s.world.Party, s.world.RNG)
 	s.snapshot = s.takeXP()
 	s.portrait = -1
-	c := NewCombatScene(b)
-	c.Items = s.items
-	c.Names = s.enemyNames()
-	c.CJK = func(n int, opt textlayout.Options) []byte { return s.cjkExe(exeTable1, n, opt) }
-	c.UI = s.uiText
-	c.CJKNames = s.enemyNamesCJK()
-	s.combat = c
+	s.combat = s.wireCombat(NewCombatScene(b))
 	s.message, s.cjk = "", nil
 	s.showCombatPrompt()
 	s.dirty = true

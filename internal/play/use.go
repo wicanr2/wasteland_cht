@@ -27,6 +27,7 @@ const (
 	useStageMember          // 挑人
 	useStageKind            // S／I／A
 	useStagePick            // 選技能／物品／屬性
+	useStageDir             // **戰鬥限定**：問方向（`docs/re/108` §2）
 )
 
 // nameTable 是技能與物品名那張表（`ds:B270h`）在 `ExeStrings()` 裡的編號。
@@ -47,6 +48,14 @@ type useState struct {
 	member  int // 隊伍索引
 	kind    game.UseKind
 	options []useOption
+	// combat 為真表示這一輪 `USE` 是**戰鬥裡的指令**，不是地圖上的動作。
+	//
+	// ⚠ 兩者差三件事：不用挑人（輪到誰就是誰）、選完之後要**再問一個方向**、
+	// 而且**不當場施用**——把「選項＋方向」記成指令參數，動作在結算階段
+	// （`docs/re/107` §1 的第二張跳表）。
+	combat bool
+	// pending 是戰鬥那條路選好、等著記進指令參數的那一項。
+	pending useOption
 	// page 是清單分到第幾頁（0 起算）。
 	//
 	// ⚠ **分頁是重製版的決定，不是原版行為**：原版清單選擇走 `sub_198F0`，
@@ -340,6 +349,13 @@ const itemNameBase = 36
 
 // applyUse 拿選中的東西去試腳下那一格的條件閘。
 func (s *Scene) applyUse(o useOption) {
+	// 戰鬥那條路不當場施用：先問方向，再把「選項＋方向」記成指令參數。
+	if s.use.combat {
+		s.use.pending = o
+		s.use.stage = useStageDir
+		s.showUseDirection()
+		return
+	}
 	m := s.world.Party.Members[s.use.member]
 	kind := s.use.kind
 	s.use = useState{}
@@ -427,8 +443,93 @@ func (s *Scene) updateUse(in input.Input) (bool, error) {
 				s.applyUse(s.use.options[i])
 			}
 		}
+	case useStageDir:
+		if d, ok := useDirection(ch, in.Dir); ok {
+			s.commitCombatUse(d)
+		}
 	}
 	return true, nil
+}
+
+// useDirection 把按鍵換成九向表的索引（`docs/re/108` §2）。
+//
+// 原版的字母表是 `I K J L ␣` ＋ 四個方向鍵的擴充掃描碼，
+// 而 `0x1260E` 的 `al −= 5` **把方向鍵折進字母鍵那五格**——
+// 兩套鍵是同一件事，不是八個方向。⚠ 表裡第 5–8 格是對角，但**選不到**。
+func useDirection(ch byte, dir input.Direction) (byte, bool) {
+	switch ch {
+	case 'I':
+		return useDirUp, true
+	case 'K':
+		return useDirDown, true
+	case 'J':
+		return useDirLeft, true
+	case 'L':
+		return useDirRight, true
+	case ' ':
+		return useDirStay, true
+	}
+	switch dir {
+	case input.DirUp:
+		return useDirUp, true
+	case input.DirDown:
+		return useDirDown, true
+	case input.DirLeft:
+		return useDirLeft, true
+	case input.DirRight:
+		return useDirRight, true
+	}
+	return 0, false
+}
+
+// 九向位移表 `ds:AAB1h` 的前五格（`docs/re/108` §2）。
+const (
+	useDirUp    byte = 0
+	useDirDown  byte = 1
+	useDirLeft  byte = 2
+	useDirRight byte = 3
+	useDirStay  byte = 4
+)
+
+// useDirDelta 是那五格各自的 (dx, dy)。
+func useDirDelta(d byte) (int, int) {
+	switch d {
+	case useDirUp:
+		return 0, -1
+	case useDirDown:
+		return 0, 1
+	case useDirLeft:
+		return -1, 0
+	case useDirRight:
+		return 1, 0
+	}
+	return 0, 0
+}
+
+// showUseDirection 問方向——原版印的是 `ds:A469h` 的 `Which way?`。
+func (s *Scene) showUseDirection() {
+	s.message = "Which way?  I K J L or arrows, space = here"
+	s.cjk = s.uiText("use.whichway")
+	if len(s.cjk) > 0 {
+		s.message = ""
+	}
+	s.dirty = true
+}
+
+// commitCombatUse 把「選項 ＋ 方向」記成指令參數，編號另存一格
+// （`docs/re/108` §1：`ds:46DAh ← (選項 << 4) | 方向`、
+// `ds:A9FDh[角色編號] ← 編號`）。
+func (s *Scene) commitCombatUse(dir byte) {
+	c := s.combat
+	o, kind, member := s.use.pending, s.use.kind, s.use.member
+	s.use = useState{}
+	s.cjk = nil
+	if c == nil {
+		return
+	}
+	c.SetUse(member, byte(kind), o.id, dir)
+	s.showCombatPrompt()
+	s.dirty = true
 }
 
 // showUseMenu 把目前這一頁的清單放上畫面。

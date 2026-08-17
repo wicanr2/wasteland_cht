@@ -63,14 +63,9 @@ func (s *Scene) StartEncounter() (*CombatScene, error) {
 			break
 		}
 	}
-	c := NewCombatScene(b)
-	c.Items = s.items
-	c.Names = s.enemyNames()
-	// 中文那三條路：原版字串表 1、重製版介面文字、敵人名稱。
-	// 三個都可以是 nil／空——那時戰鬥訊息就是英文，遊戲照打。
-	c.CJK = func(n int, opt textlayout.Options) []byte { return s.cjkExe(exeTable1, n, opt) }
-	c.UI = s.uiText
-	c.CJKNames = s.enemyNamesCJK()
+	// 中文那三條路（原版字串表 1、重製版介面文字、敵人名稱）與 `World`
+	// 都在 `wireCombat` 裡一起接——三個都可以是 nil／空，那時戰鬥訊息就是英文。
+	c := s.wireCombat(NewCombatScene(b))
 	c.Log = append(c.Log, "Encounter begins...")
 	c.LastCJK = c.zhStr(strEncounterBegins, textlayout.Options{})
 	s.combat = c

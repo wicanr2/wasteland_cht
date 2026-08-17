@@ -144,7 +144,7 @@ tools/render_music.sh music ~/mt32
 
 | 目錄 | 內容 |
 |---|---|
-| \`translations/\` | 繁中翻譯目錄（4,912 條）與 162 段劇本 |
+| \`translations/\` | 繁中翻譯目錄（4,914 條）與 162 段劇本 |
 | \`docs/manual-cht/\` | 軟體世界 1990 年中文說明書逐頁轉錄 |
 | \`docs/manual/\` | 官方英文手冊中英對照 |
 | \`docs/paragraphs/\` | 段落書整理與翻譯 |

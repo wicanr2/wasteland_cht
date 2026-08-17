@@ -309,6 +309,14 @@ func (w *World) PatchHere(record []byte, at int) {
 	w.applyCellPatch(int(w.Party.X), int(w.Party.Y), record, at)
 }
 
+// PatchCell 是 PatchHere 的「改別的格子」版。
+//
+// 戰鬥裡的 `USE` 指定的是**往某個方向一格**，不是腳下那一格
+// （`docs/re/108` §2：原版 `sub_164E0` 用九向位移表走一步再分派）。
+func (w *World) PatchCell(x, y int, record []byte, at int) {
+	w.applyCellPatch(x, y, record, at)
+}
+
 // Passable 回報這一格走不走得進去（四道閘裡與地形有關的那幾道）。
 //
 // 給驗證工具尋路用（`cmd/wl-play` 的 `path=`）。**不含**傳送與事件的副作用，
