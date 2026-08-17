@@ -249,11 +249,18 @@ func cjkPageLabel(now, total int) []byte {
 
 // singularBytes 是 `singular` 的 byte 版：譯文同樣用 `\x0A` 分單複數
 // （`docs/re/28`），清單只要第一段。
+// singularBytes 是 singular 的 Big5 版：**字根 ＋ 單數字尾**。
+//
+// ⚠ `0x0A` 不可能出現在 Big5 的第二個 byte（尾碼是 `0x40`–`0x7E` 與
+// `0xA1`–`0xFE`），所以逐 byte 切是安全的。
+// 譯文那一側的字尾都是空的（`刀\x0A\x0A\x0A`），切完就是整個詞。
 func singularBytes(raw []byte) []byte {
-	if i := bytes.IndexByte(raw, '\n'); i >= 0 {
-		raw = raw[:i]
+	parts := bytes.Split(raw, []byte{'\n'})
+	out := parts[0]
+	if len(parts) > 1 {
+		out = append(append([]byte(nil), out...), parts[1]...)
 	}
-	return bytes.TrimSpace(raw)
+	return bytes.TrimSpace(out)
 }
 
 // useMenu 是第三層的清單（英文後備）。一頁九項，多的翻頁。
@@ -271,15 +278,25 @@ func (s *Scene) useMenu() string {
 	return b.String()
 }
 
-// singular 取名字的第一段。
+// singular 取名字的單數形 ＝ **字根 ＋ 單數字尾**。
 //
-// ⚠ 名字用 `\n` 分隔**字根／單數字尾／複數字尾**（`docs/re/17` §4.1），
-// 整串丟進選單會換行、把後面的項目擠掉。與敵人名同一套處理。
+// 名字用 `\n` 分隔**字根／單數字尾／複數字尾**（`docs/re/17` §4.1）：
+//
+//	Crowbar\n\ns\n      → Crowbar / Crowbars
+//	Kni\nfe\nves\n      → Knife   / Knives
+//
+// ⚠ **只取字根是錯的**：`Crowbar` 那一類的單數字尾是空的所以看不出來，
+// 但 `Kni\nfe\nves\n` 會變成 `Kni`。原版名單畫面印的是 `Knife`
+// （`docs/re/47` §5 的實機截圖）。
+//
+// ⚠ 整串丟進選單會換行、把後面的項目擠掉，所以複數那一段一定要去掉。
 func singular(raw string) string {
-	if i := strings.IndexByte(raw, '\n'); i >= 0 {
-		raw = raw[:i]
+	parts := strings.Split(raw, "\n")
+	out := parts[0]
+	if len(parts) > 1 {
+		out += parts[1]
 	}
-	return strings.TrimSpace(raw)
+	return strings.TrimSpace(out)
 }
 
 // skillName 查技能名（`ds:B270h` 表的第 1–35 條，`docs/re/17` §4）。

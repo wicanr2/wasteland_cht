@@ -91,7 +91,30 @@ loc_1717F:
 
 ⚠ 查不到翻譯就整行退回英文——**不要拼出半中半英的名單**（與表頭同一條規矩）。
 
-## 4. 可重跑的完整指令
+## 4. 與原版實機截圖對過
+
+`docs/re/47` §5 錄下的名單畫面就是這兩欄的 oracle：
+
+```
+1)Hell Razor      AC 0  AMM  0  MAX 28  CON 28  WEAPON Crowbar
+2)Angela Deth     AC 0  AMM 18  MAX 27  CON 27  WEAPON VP912 9
+3)Thrasher        AC 0  AMM  0  MAX 34  CON 34  WEAPON Knife
+4)Snake Vargas    AC 0  AMM 18  MAX 31  CON 31  WEAPON VP912 9
+```
+
+四行逐欄對上（`TestRosterMatchesOriginalScreenshot`）。
+**第一次跑對出一個既有的錯**：`Knife` 在 remake 顯示成 `Kni`——
+名字的單數形是**字根 ＋ 單數字尾**，而 `singular()` 只取了字根
+（`docs/re/17` §4.1；修正見 `docs/re/28` §2）。
+
+那個錯**不是這一批改出來的**：`itemName` 一直這樣，USE 清單與商店也受影響。
+它躲過了所有測試，因為出貨資料裡大多數名字的單數字尾是空的
+（`Crowbar\n\ns\n`），兩種讀法結果一樣。
+
+> **拿實機截圖對帳的價值就在這裡**：它一次驗四行 × 六欄，
+> 而其中一欄的錯是別的地方留下來的。
+
+## 5. 可重跑的完整指令
 
 ```bash
 tools/go.sh test ./internal/play/ -run TestRoster -v
@@ -100,7 +123,7 @@ python3 tools/dump_word_table.py workplace/analysis/unpacked/wl.merged.exe 0xCD0
 
 逐指令的來源是 `workplace/analysis/dumps/listing.json`。
 
-## 5. 這一輪學到的（寫成規則）
+## 6. 這一輪學到的（寫成規則）
 
 - **「這一欄是空的」不會有任何測試變紅。** 名片行的六欄裡有兩欄從頭到尾沒接，
   而所有欄位測試都只驗有接的那四欄。**盤點介面時要對著原版的欄位清單數**，
@@ -111,3 +134,6 @@ python3 tools/dump_word_table.py workplace/analysis/unpacked/wl.merged.exe 0xCD0
 - **三道閘裡最容易漏的是最後一道**（類別要在表裡）。前兩道是「有沒有」，
   第三道是「這種武器有沒有彈藥欄」——漏掉的話近戰武器會顯示一個數字，
   而那個數字本身是合法的。
+- **驗一個「切字尾」的規則，要挑字尾非空的樣本。** `Crowbar\n\ns\n` 這類
+  單數字尾是空的，錯的讀法與對的讀法輸出一樣；只有 `Kni\nfe\nves\n`
+  分得出來。**測資要挑會分岔的那一個，不是最常見的那一個。**
