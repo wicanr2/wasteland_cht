@@ -103,6 +103,8 @@ type Game struct {
 	synth *wlaudio.Synth
 	// hi 非 nil 就走 640 × 400 的中文畫面。
 	hi HiScene
+	// pix 是上色後那一幀，**重複用不重配**（見 Draw）。
+	pix []byte
 	keys  []ebiten.Key
 	runes []rune
 	buf   []input.Key
@@ -211,13 +213,23 @@ func (g *Game) Update() error {
 }
 
 // Draw 把索引畫面上色送上螢幕。
+//
+// ⚠ **上色的緩衝區重複用**（`g.pix`）：`ToImage` 每幀配置 2.3 MB，
+// 一秒 60 幀就是 138 MB 的垃圾。畫面每一幀整張重畫，
+// 所以緩衝區裡的舊內容一定會被蓋掉，留著沒有風險。
 func (g *Game) Draw(screen *ebiten.Image) {
 	if g.hi != nil {
 		h := g.hi.HiFrame()
 		if h == nil {
 			return
 		}
-		g.img.WritePixels(h.ToImage().Pix)
+		if g.pix == nil {
+			g.pix = make([]byte, render.RGBABytes)
+		}
+		if !h.WriteRGBA(g.pix) {
+			return
+		}
+		g.img.WritePixels(g.pix)
 		screen.DrawImage(g.img, nil)
 		return
 	}

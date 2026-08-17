@@ -77,28 +77,40 @@ func (h *HiFrame) Set(x, y int, v byte) {
 // 回傳 false 表示字型裡沒有這個字——呼叫者要自己決定 fallback，
 // 不要靜靜畫成空白（那會變成看不見的缺字）。
 func (h *HiFrame) DrawCJK(font *assets.ETenFont, hi, lo byte, col, row int, fg byte) bool {
-	rows := font.GlyphRows(hi, lo)
-	if rows == nil {
+	g := font.Glyph(hi, lo)
+	if g == nil {
 		return false
 	}
-	h.blit(rows, col, row, font.Width, font.Height, fg)
-	return true
+	return h.blit(g, col, row, font.Width, font.Height, fg)
 }
 
 // blit 把一個字模畫在第 (col, row) 個原版字元格上，**在格內置中**。
 //
 // 字模尺寸與排版格解耦：24 × 24 剛好填滿格子（位移 0），
 // 16 × 15 就在 24 × 24 的格子裡居中。換字級不必動任何座標。
-func (h *HiFrame) blit(rows [][]bool, col, row, w, ht int, fg byte) {
+//
+// ⚠ 收的是**原始點陣**（每列 (w+7)/8 bytes、MSB-first），不是攤平的
+// `[][]bool`：畫面上每個字每一幀都會走這裡，而攤平一次要 h+1 次配置
+// （`assets.rowsOf`）。位元怎麼排與 `rowsOf` 完全相同——
+// `TestBlitMatchesRows` 逐像素比對兩條路。
+//
+// 點陣不足一個字（字型檔被截斷）就不畫並回 false，**不要畫半個字**。
+func (h *HiFrame) blit(g []byte, col, row, w, ht int, fg byte) bool {
+	rowBytes := (w + 7) / 8
+	if len(g) < rowBytes*ht {
+		return false
+	}
 	x0 := col*HiCellWidth + (HiCellWidth-w)/2
 	y0 := row*HiCellHeight + (HiCellHeight-ht)/2
-	for y, line := range rows {
-		for x, on := range line {
-			if on {
+	for y := 0; y < ht; y++ {
+		base := y * rowBytes
+		for x := 0; x < w; x++ {
+			if g[base+x/8]&(0x80>>(x%8)) != 0 {
 				h.Set(x0+x, y0+y, fg)
 			}
 		}
 	}
+	return true
 }
 
 // DrawETenASCII 用倚天自己的半形字模畫一個 ASCII 字元。
@@ -107,15 +119,13 @@ func (h *HiFrame) blit(rows [][]bool, col, row, w, ht int, fg byte) {
 // 而遊戲原版的 8 × 8 字模放大三倍之後筆劃有三像素寬，擺在中文旁邊
 // 像另一種字型。沒有 `ASCFONT.*` 時回 false，呼叫端退回 DrawASCIIAt。
 func (h *HiFrame) DrawETenASCII(font *assets.ETenFont, c byte, col, row int, fg byte) bool {
-	rows := font.ASCIIRows(c)
-	if rows == nil {
+	g := font.ASCIIGlyph(c)
+	if g == nil {
 		return false
 	}
-	h.blit(rows, col, row, font.ASCIIWidth, font.ASCIIHeight, fg)
-	return true
+	return h.blit(g, col, row, font.ASCIIWidth, font.ASCIIHeight, fg)
 }
 
-// ToImage 把高解畫面轉成 RGBA（調色盤與 320 × 200 那張共用）。
 // DrawASCIIAt 在高解析畫面上畫一個 ASCII 字元（原版 8 × 8 字模放大 HiScale 倍）。
 //
 // 這是**沒有倚天半形字型時的後備**；有的話走 DrawETenASCII。
@@ -146,12 +156,31 @@ func (h *HiFrame) DrawASCIIAt(font *assets.Font, c byte, col, row int, fg byte) 
 	return true
 }
 
-func (h *HiFrame) ToImage() *image.RGBA {
-	pix := make([]byte, len(h.Pix)*4)
+// RGBABytes 是一幀 RGBA 的長度（`WriteRGBA` 的緩衝區要這麼大）。
+const RGBABytes = HiScreenWidth * HiScreenHeight * 4
+
+// WriteRGBA 把畫面上色寫進**呼叫端自己的**緩衝區。
+//
+// 給遊戲迴圈用：`ToImage` 每叫一次配置 2.3 MB，60 fps ＝ 每秒 138 MB 的垃圾。
+// 視窗那一層拿同一塊緩衝區重複用（`internal/ui`），配置次數是零。
+// 一次性的用途（截圖工具、測試）走 `ToImage` 就好。
+//
+// 緩衝區不夠大就不寫並回 false——寧可畫面空白，也不要寫出界。
+func (h *HiFrame) WriteRGBA(dst []byte) bool {
+	if len(dst) < RGBABytes {
+		return false
+	}
 	for i, v := range h.Pix {
 		c := assets.EGAPalette[v&0x0F]
-		pix[i*4+0], pix[i*4+1], pix[i*4+2], pix[i*4+3] = c.R, c.G, c.B, c.A
+		dst[i*4+0], dst[i*4+1], dst[i*4+2], dst[i*4+3] = c.R, c.G, c.B, c.A
 	}
+	return true
+}
+
+// ToImage 把高解畫面轉成 RGBA（調色盤與 320 × 200 那張共用）。
+func (h *HiFrame) ToImage() *image.RGBA {
+	pix := make([]byte, RGBABytes)
+	h.WriteRGBA(pix)
 	return &image.RGBA{
 		Pix:    pix,
 		Stride: HiScreenWidth * 4,
