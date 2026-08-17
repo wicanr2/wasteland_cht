@@ -47,7 +47,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 
 ## 統計
 
-筆記 **107** 份：已接 **103**、未接 **0**、不適用 **4**。
+筆記 **108** 份：已接 **103**、未接 **1**、不適用 **4**。
 
 | # | 筆記 | 狀態 | 接在哪／為什麼 |
 |---:|---|---|---|
@@ -158,3 +158,4 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 105 | [`ENC` 在空地上也能跑一回合，以及選單用的是另一塊區域](105-enc-empty-round-and-menu-region.md) | 已接 | `internal/play/enc.go`（`beginEmptyRound`／`partyCanAct`）、`internal/play/confirm.go`（`askConfirmText`）、`internal/render/render.go`（`PanelCol`…）、`internal/play/play.go`（`msgRect`／`rosterLastRow`／`showCombatPrompt`）|
 | 106 | [文字區塊滿了會捲動，不是切掉](106-text-scroll.md) | 已接 | `internal/play/play.go`（`eachMessageCell`／`walkMessage`：量一次再往上挪）、`internal/render/render.go`（`DrawTextIn` 丟掉最前面的行）。⚠ 9 段速度與平滑像素捲動**刻意不做**，理由在該筆記 §7 |
 | 107 | [指令有第二張跳表——動作在結算階段真的發生](107-command-resolution.md) | 已接 | `internal/game/resolve.go`（`ResolveWeapon`／`ResolveLoad`／`ResolveEvade`）、`internal/play/round.go`（`resolveCommands`）、`internal/play/combat.go`（`weaponPick`）。⚠ Hire 與 Use 的結算端**只定位到入口**（§4、§6 兩支子函式未讀），沒有接 |
+| 108 | [戰鬥版 `Use` 的參數是兩個 nibble，`Hire` 挑的是遭遇佇列裡的一組](108-combat-use-and-hire.md) | 未接 | 參數格式與方向表都解了，但**接線還缺兩段**：`Use` 要把「選項＋編號＋方向」接到 `Party.UseGate`（方向要換算成「往那個方向一格」的目標）；`Hire` 缺 `0x132BF` 之後把那一組併進隊伍的三支。現在按 `U`／`H` 會印 `ui:combat.notyet` 並重問 |

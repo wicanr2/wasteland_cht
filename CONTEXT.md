@@ -163,7 +163,7 @@
 | [`docs/re/00-master-index.md`](docs/re/00-master-index.md) | **RE 總表**：位址換算、資料格式、結構佈局、位址表、關鍵函式、工具。**查已知事實先看這份** |
 | [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md) | **RE 完成度檢查表**：remake 需要的每一項知識、狀態與入口 |
 | [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 464）。讀任何 `sub_XXXXX` 前先查 |
-| [`docs/re/00-wiring-status.md`](docs/re/00-wiring-status.md) | **接線狀態**：107 份筆記的結論（已接 103、未接 0、不適用 4），remake 有沒有真的用上。`TestWiringStatus` 雙向守著（`CLAUDE.md` §0 的 G4）|
+| [`docs/re/00-wiring-status.md`](docs/re/00-wiring-status.md) | **接線狀態**：108 份筆記的結論（已接 103、未接 1、不適用 4），remake 有沒有真的用上。`TestWiringStatus` 雙向守著（`CLAUDE.md` §0 的 G4）|
 | [`docs/re/01-binary-identity.md`](docs/re/01-binary-identity.md) | 20 檔 SHA-256、`wl.exe` 的 MZ header、第一份資料庫與「不可用作證據」的結論 |
 | [`docs/re/02-exepack-unpack.md`](docs/re/02-exepack-unpack.md) | EXEPACK 格式、解包器、relocation 起點的坑、解包後基準資料庫 |
 | [`docs/re/03-boot-and-asset-loading.md`](docs/re/03-boot-and-asset-loading.md) | 開機序列、`info` 安裝資訊、檔名表、七個開機素材的載入位址、`TITLE.PIC` XOR 解碼 |
@@ -271,6 +271,7 @@
 | [`docs/re/105-enc-empty-round-and-menu-region.md`](docs/re/105-enc-empty-round-and-menu-region.md) | `ENC` 在空地上也能跑一回合（字串 `0x14`）；戰鬥的指令選單畫在欄 15–38、列 1–13 |
 | [`docs/re/106-text-scroll.md`](docs/re/106-text-scroll.md) | 文字滿了會**捲動**不是切掉；捲動速度 9 段（`ds:465Bh`，`<`／`>` 調）；順帶查掉 `ds:465Bh` 不是時鐘的時 |
 | [`docs/re/107-command-resolution.md`](docs/re/107-command-resolution.md) | 指令的**結算階段**跳表 `ds:A568h`：換武器、裝填、迴避各自真的做了什麼 |
+| [`docs/re/108-combat-use-and-hire.md`](docs/re/108-combat-use-and-hire.md) | 戰鬥 `Use`／`Hire` 的參數格式；九向位移表與「對角那四格選不到」|
 | [`docs/spec/00-index.md`](docs/spec/00-index.md) | **規格索引與閘門狀態**：哪些可以動工、其餘擋在什麼上 |
 | [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
 | [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |
