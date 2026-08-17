@@ -16,6 +16,7 @@ package play
 import (
 	"fmt"
 
+	"github.com/wicanr2/wasteland_cht/internal/game"
 	"github.com/wicanr2/wasteland_cht/internal/input"
 	"github.com/wicanr2/wasteland_cht/internal/textlayout"
 )
@@ -45,7 +46,17 @@ func (s *Scene) cmdEnc() (bool, error) {
 		return true, nil
 	}
 
-	// 這一組沒得打。原版接著往下一組走；不同地圖的要先問一句。
+	// 這一組沒得打——**原版還是會問「要不要跑一個戰鬥回合」**
+	// （`sub_11F76` 的 `0x11FD9`：字串 20 ＋ 76，`docs/re/105`）。
+	// 答 Y 就照常進指令階段，玩家因此可以在空地上換武器、裝填、用道具。
+	if s.partyCanAct() {
+		return s.askConfirmText(encNoEnemyPrompt,
+			zhJoin(s.cjkExe(exeTable1, strNotAttacked, textlayout.Options{}),
+				s.cjkExe(exeTable1, strExecuteRound, textlayout.Options{})),
+			s.beginEmptyRound)
+	}
+
+	// 這一組一個人都站不起來。原版接著往下一組走；不同地圖的要先問一句。
 	n, ok := s.encOffMapGroup()
 	if !ok {
 		s.sayEN("Nothing to fight here.", "enc.none")
@@ -65,9 +76,49 @@ func (s *Scene) cmdEnc() (bool, error) {
 
 // 這一支用到的原版字串編號（字串表 1）。
 const (
+	strNotAttacked  = 0x14 // `This party is not being attacked. `
 	strNotOnMap     = 0x36 // `This party isn't on this map and isn't in battle. `
 	strExecuteRound = 0x4C // `Do you want them to execute a battle round?` ＋ Yes／No
 )
+
+// encNoEnemyPrompt 是字串 `0x14` ＋ `0x4C` 接起來的那一句。
+//
+// ⚠ **與 `encOffMapPrompt` 是兩條不同的路**：這一條問的是「**這一組**沒有
+// 敵人在打，要不要還是跑一個回合」，那一條問的是「**別組**不在這張地圖上」。
+// 原版兩處都在（`0x11FD9` 與 `0x11D97`），只接一邊會少掉一整個玩法。
+const encNoEnemyPrompt = "This party is not being attacked. " +
+	"Do you want them to execute a battle round? (Y/N)"
+
+// partyCanAct 回報這一組還有沒有人站得起來（原版 `sub_19D0E`，`0x11F8C`）。
+func (s *Scene) partyCanAct() bool {
+	for _, m := range s.world.Party.Members {
+		if m != nil && !m.Down() {
+			return true
+		}
+	}
+	return false
+}
+
+// beginEmptyRound 進「沒有敵人的戰鬥回合」（`sub_11F76` 的 `0x11FEF`）。
+//
+// 沒有敵人時 `Battle.Over()` 立刻回 (true, true)，所以這一回合下完令就結束，
+// 畫面回地圖——與原版一樣。**指令階段本身照跑**，換武器與裝填才有意義。
+func (s *Scene) beginEmptyRound() (bool, error) {
+	b := game.NewBattle(s.world.Party, s.world.RNG)
+	s.snapshot = s.takeXP()
+	s.portrait = -1
+	c := NewCombatScene(b)
+	c.Items = s.items
+	c.Names = s.enemyNames()
+	c.CJK = func(n int, opt textlayout.Options) []byte { return s.cjkExe(exeTable1, n, opt) }
+	c.UI = s.uiText
+	c.CJKNames = s.enemyNamesCJK()
+	s.combat = c
+	s.message, s.cjk = "", nil
+	s.showCombatPrompt()
+	s.dirty = true
+	return true, nil
+}
 
 // sayAttacked 是「被攻擊了」那一句。原版沒有這一條字串
 //（遭遇開始印的是 30 `Encounter begins...`），所以走 `ui:`。

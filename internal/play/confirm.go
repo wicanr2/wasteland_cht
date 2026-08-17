@@ -35,6 +35,20 @@ func (s *Scene) askConfirm(stringN int, then func() (bool, error)) (bool, error)
 	return true, nil
 }
 
+// askConfirmText 是 askConfirm 的「訊息自己準備好」版本。
+//
+// 有些提問是**兩條原版字串接起來**的（`ENC` 的 20 ＋ 76，`docs/re/105`），
+// 沒辦法用單一編號表示。zh 為 nil 就顯示 en。
+func (s *Scene) askConfirmText(en string, zh []byte, then func() (bool, error)) (bool, error) {
+	s.message, s.cjk = en, zh
+	if zh != nil {
+		s.message = ""
+	}
+	s.confirm = confirmState{active: true, then: then}
+	s.dirty = true
+	return true, nil
+}
+
 // updateConfirm 收 Y／N。
 //
 // ⚠ **ESC 與 N 都是取消**（規格 27 §1：ESC 一律只取消）。
