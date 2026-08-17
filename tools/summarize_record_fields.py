@@ -118,6 +118,19 @@ def main() -> None:
                             }
                         )
                 continue
+            # ⚠ **`call` 兩個方向都會錯，所以這裡不當成障礙**（`docs/re/109` §2.1）：
+            #
+            #   - 有些輔助函式**用 `bl` 回傳位移**（`sub_196C9` 回 `0x1F`、
+            #     `sub_19AC8` 回 `索引×2＋0xBB`）。這時 `call` 前面那個
+            #     `mov bl, <常數>` 是給被呼叫者的參數，跨過去會**憑空生出欄位**
+            #     （`0x12F94` 的 `mov bl,4Ah` 與 `0x158BA` 的 `mov bl,51h`
+            #     其實都是 `sub_1393E` 的參數，那支查的是 `ds:46B0h`）。
+            #   - 有些**保留 `bl`**（`sub_1CAD1` 擲屬性：`mov bl,0Eh` → `call` →
+            #     寫 `[bx+di]` → `inc bl` → 到 `0x15`，就是七個屬性那一圈）。
+            #     擋掉 `call` 會讓 `+0x0E` 整個消失。
+            #
+            # 沒有單一規則兩邊都對，所以**跨 call 的位移一律當成待人工判讀**：
+            # 這支照樣報，下結論之前要回去讀那幾行。
             # bl／bx 被非常數方式改掉就放棄追蹤，避免報出錯的位移
             if CLOBBER.match(text) and not MOV_CONST.match(text):
                 offset = None

@@ -164,7 +164,9 @@ game1 0x000253C5、game2 0x00028BC7   ← seek 是 cx:dx，32-bit
 | `+0x0E`–`+0x14` | 7 bytes | **七個屬性**：Strength／IQ／Luck／Speed／Agility／Dexterity／Charisma | 已確認 |
 | `+0x20` | byte | 可用技能點（建立時 ＝ IQ；每升一級 ＋1，飽和 255） | 已確認 |
 | `+0x24` | byte | **等級**（建立時 1，升級時寫入新等級） | 已確認 |
-| `+0x32`… | 字串 | 階級名（建立時 ＝ `PRIVATE`） | 強證據 |
+| `+0x32`–`+0x4A` | 字串 | 階級名（建立時 ＝ `PRIVATE`）。**寫入端 `0x1BB6C` 抄到 NUL 為止、沒有長度檢查**，欄位大小是被 `+0x4B` 擋出來的；最長的階級 `Lieutenant Commander` 寫到 `+0x46`（[`109`](109-character-record-tail.md) §4）| 已確認 |
+| `+0x4B`／`+0x4C` | 2 bytes | 參與過摧毀 Base Cochise ／ 總部已經表揚過（各只用 bit0，[`96`](96-ending.md) §5）| 已確認 |
+| `+0x4D`–`+0x7F` | 51 bytes | **沒有任何存取點**、出廠全零（[`109`](109-character-record-tail.md)）| 已確認 |
 | `+0x1A` | byte | **AC**（護甲等級）＝ 裝備護甲的物品表 `+0x06`（`sub_1949E`，[`45`](45-item-data-and-weapon-damage.md) §3.4） | 已確認 |
 | `+0x1B`–`+0x1C` | 16-bit | MAXCON（最大體力） | 強證據 |
 | `+0x1D`–`+0x1E` | 16-bit 有號 | CON（目前體力，可為負） | 強證據 |
@@ -641,6 +643,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `0x190A6` | 5 | 設施畫面：載入 ALLPICS 圖 ＋ 印 13 bytes 的地點名稱 | [`29`](29-map-event-handlers.md) §5.4 |
 | `0x1BA72` | — | **顯示角色卡 ＋ 升級加 1 點技能點**（`0x1BB18`） | [`31`](31-experience-and-skills.md) §2 |
 | `0x1BB5D` | — | 印階級名（把 `ds:4692h` 指到 `0xD622`） | [`31`](31-experience-and-skills.md) §2 |
+| `0x1BB6C` | — | **把階級名抄進記錄 `+0x32`**：逐字元到 NUL 為止，位移在 `ds:D430h`，**沒有長度檢查** | [`109`](109-character-record-tail.md) §4 |
 | `0x1C68E` | — | **技能費用**：基礎 × 2^(等級−1)，飽和 `0xFF` | [`31`](31-experience-and-skills.md) §3.1 |
 | `0x1CA8D`／`0x1CA98` | 各 2 | 技能資料 `+0x00` 拆欄位：`& 7` ＝ 費用／`>> 3` ＝ IQ 需求 | [`31`](31-experience-and-skills.md) §3 |
 | `0x19BC0` | 6 | **經驗值 += `ds:466Bh` 24-bit**（溢位飽和 `0xFFFFFF`） | [`32`](32-skill-checks-and-xp.md) §7 |
