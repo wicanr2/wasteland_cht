@@ -23,13 +23,61 @@ func TestEncRunsTheDriver(t *testing.T) {
 	if strings.Contains(s.Message(), "not wired") {
 		t.Fatalf("ENC 還沒接上：%q", s.Message())
 	}
-	// 出廠存檔只有一組人，站在沒有敵人的格子上 → 三條合法出口之一。
+	// 出廠存檔只有一組人，站在沒有敵人的格子上 → 四條合法出口之一。
 	msg := s.Message()
 	ok := strings.Contains(msg, "Nothing to fight") ||
 		strings.Contains(msg, "ATTACKED") ||
-		msg == encOffMapPrompt
+		msg == encOffMapPrompt ||
+		msg == encNoEnemyPrompt
 	if !ok {
-		t.Fatalf("ENC 的訊息不在三條合法出口裡：%q", msg)
+		t.Fatalf("ENC 的訊息不在四條合法出口裡：%q", msg)
+	}
+}
+
+// 這一組沒有敵人在打時，原版**還是會問**「要不要跑一個戰鬥回合」
+//（`sub_11F76` 的 `0x11FD9`，字串 20 ＋ 76）。答 Y 就進指令階段。
+//
+// ⚠ 這條路以前整個沒接：remake 直接印「Nothing to fight here.」
+// （那還是一句**重製版自己寫的**話，原版沒有這條字串）。
+// 少掉的是一整個玩法——在空地上換武器、裝填、用道具都要靠它。
+func TestEncOffersARoundWithNoEnemies(t *testing.T) {
+	s := newScene(t)
+	step(t, s, input.Input{Dir: input.DirNone, Char: 'E'})
+	if s.Mode() != "confirm" {
+		t.Fatalf("按 E 之後應該停在 Y／N，停在 %s（訊息 %q）", s.Mode(), s.Message())
+	}
+	if s.Message() != encNoEnemyPrompt && len(s.CJK()) == 0 {
+		t.Errorf("問句不對：%q", s.Message())
+	}
+
+	// 答 N ＝ 什麼都不發生。
+	step(t, s, input.Input{Dir: input.DirNone, Char: 'N'})
+	if s.InCombat() {
+		t.Fatal("答 N 卻進了戰鬥")
+	}
+
+	// 答 Y ＝ 進指令階段（沒有敵人也照問）。
+	step(t, s, input.Input{Dir: input.DirNone, Char: 'E'})
+	step(t, s, input.Input{Dir: input.DirNone, Char: 'Y'})
+	if !s.InCombat() {
+		t.Fatal("答 Y 應該進指令階段")
+	}
+	c := s.Combat()
+	if c.Battle.EnemiesLeft() != 0 {
+		t.Errorf("這一回合不該有敵人，得到 %d", c.Battle.EnemiesLeft())
+	}
+	if c.Done() {
+		t.Error("指令階段應該還在問人，不該一開始就結束")
+	}
+	// ⚠ 沒有敵人時 `Over()` 立刻成立，所以下完令這一回合就收掉——
+	// 與原版一樣，不是卡在戰鬥裡。
+	for !c.Done() {
+		if !c.Choose('E', true) { // E ＝ Evade，任何人都選得了
+			c.Choose(' ', true)
+		}
+	}
+	if res := c.ResolveRound(); !res.Over || !res.Won {
+		t.Errorf("沒有敵人的回合應該立刻結束：over=%v won=%v", res.Over, res.Won)
 	}
 }
 
