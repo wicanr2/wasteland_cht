@@ -746,6 +746,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | [`103`](103-roster-line-columns.md) | 名片行是 **39 欄**、行首是**序號 ＋ `>`**；`AMM` 三道閘、`WEAPON` 取單數形（`Kni\nfe\nves\n` → `Knife`）|
 | [`104`](104-opcode-2-icon-swap.md) | 腳本 opcode 2 ＝ overlay slot 18：把兩張圖形對調（含遮罩），換掉地圖上某個圖示的長相 |
 | [`105`](105-enc-empty-round-and-menu-region.md) | `ENC` 在**沒有敵人**時問字串 `0x14`，答 Y 照樣進指令階段；戰鬥的指令選單畫在**欄 15–38、列 1–13**，不是訊息視窗 |
+| [`106`](106-text-scroll.md) | 文字區塊滿了**捲一個字元列**（overlay slot 10），不是切掉；`ds:465Bh` ＝ 捲動速度 0–8（`<`／`>` 調），四張 9 筆表乘起來恆為 8 |
 | [`21`](21-attributes.md) | 七個屬性的記錄位移、屬性→修正值階梯、檢定骰、角色建立 |
 | [`22`](22-shop-and-items.md) | 商店、價格公式、物品資料表（95 筆 × 8 bytes） |
 | [`23`](23-picture-format.md) | 圖片格式：packed 4bpp ＋ 列間 XOR delta、82 張 `ALLPICS` |

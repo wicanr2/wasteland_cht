@@ -149,14 +149,15 @@ tools/go.sh run ./cmd/wl-play -script "map=4:2:2,left,right,left,right,left" -tr
 ```
 sub_14296:  bl ＝ 1..ds:4653h：sub_14193(bl)     ; **全隊每個人各套一次懲罰**
 sub_142ED:  sub_19720
-            sub_14314(ds:A5C5h)                 ; 暫存 465Bh／46F7h，換成 A5C5h
-            sub_178A0(記錄 +0x03)               ; 在那個時間值底下顯示
+            sub_14314(ds:A5C5h)                 ; 暫存 465Bh／46F7h，設成 A5C5h
+            sub_178A0(記錄 +0x03)               ; 用那個速度把訊息捲出來
             sub_18DB4(dl ＝ 4)
             465Bh ← A5E6h；46F7h ← A5E7h        ; **還原**
 ```
 
-`sub_142ED` 是「在一個暫時換掉的時鐘值底下顯示記錄 `+0x03`」，
-不是永久改時間——`sub_14314` 先存後還。
+`sub_142ED` 是「用一個暫時設定的**文字捲動速度**顯示記錄 `+0x03`」，
+`sub_14314` 先存後還（`ds:465Bh` ＝ 速度等級、`ds:46F7h` ＝ 動畫開關，
+見 [`106`](106-text-scroll.md)）。
 
 ## 6. remake 這一側
 
