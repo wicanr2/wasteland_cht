@@ -4,7 +4,8 @@
 `CLAUDE.md` §0 的規定是「**只有標 READY 的規格可以動手寫引擎**」，
 所以這份索引同時是「`internal/` 底下哪些東西可以開始寫」的白名單。
 
-日期：2026-08-15 ｜ 逆向現況見 [`docs/re/00-remake-knowledge-gaps.md`](../re/00-remake-knowledge-gaps.md)
+日期：2026-08-17 ｜ 逆向現況見 [`docs/re/00-remake-knowledge-gaps.md`](../re/00-remake-knowledge-gaps.md)、
+接線狀態見 [`docs/re/00-wiring-status.md`](../re/00-wiring-status.md)
 
 ---
 
@@ -22,19 +23,19 @@
 | [`09-facilities.md`](09-facilities.md) | **READY**（已實作） | `internal/game` ✅ | — |
 | [`10-cjk-layout.md`](10-cjk-layout.md) | **READY**（已實作） | `internal/assets` ✅、`internal/render` ✅ | — |
 | [`11-translation-catalogue.md`](11-translation-catalogue.md) | **READY**（已實作） | `internal/lang` ✅ | — |
-| [`12-combat-rounds.md`](12-combat-rounds.md) | **READY**（回合骨架） | `internal/game` ✅ | 逃跑與隊形未解 |
-| [`13-encounters-and-spawning.md`](13-encounters-and-spawning.md) | **READY**（已實作） | `internal/game` ✅ | 遭遇佇列是誰填的未解 |
-| [`14-combat-commands.md`](14-combat-commands.md) | **READY**（已實作） | `internal/game` ✅ | Hire／Weapon／Use／Load 四支處理程式未解 |
-| [`15-encounter-scan.md`](15-encounter-scan.md) | **READY**（已實作） | `internal/game` ✅ | 決定接戰值 15／254 的那條路未解 |
-| [`16-combat-screen.md`](16-combat-screen.md) | **READY**（已實作） | `internal/play` ✅ | 命中訊息的字串編號未確認 |
+| [`12-combat-rounds.md`](12-combat-rounds.md) | **READY**（已實作） | `internal/game` ✅ | — 逃跑已解（不擲骰、沒有失敗分支，`docs/re/38`）；**「隊形」沒有證據顯示存在**，排隊伍順序的是 `ORDER`（`docs/re/91`）|
+| [`13-encounters-and-spawning.md`](13-encounters-and-spawning.md) | **READY**（已實作） | `internal/game` ✅ | — 佇列由 `sub_14664` 每次掃描整個重建（`docs/re/39`），敵人格由 `sub_16890` 每步生成（`docs/re/78`）|
+| [`14-combat-commands.md`](14-combat-commands.md) | **READY**（已實作） | `internal/game` ✅ | — 四支處理程式已解（`docs/re/41`）|
+| [`15-encounter-scan.md`](15-encounter-scan.md) | **READY**（已實作） | `internal/game` ✅ | — 接戰值三種值已解：不能行動 0、裝備類別 ∈ 2–13 → `0xFE`、其餘 `0x0F`（`docs/re/45` §4.1）|
+| [`16-combat-screen.md`](16-combat-screen.md) | **READY**（已實作） | `internal/play` ✅ | — 訊息的主詞與受詞已解（`docs/re/86`）；版面四塊已對到實機（`docs/re/103`、`105`）。⚠ 剩肖像框畫的是誰 |
 | [`17-command-handlers.md`](17-command-handlers.md) | **READY**（已實作） | `internal/game` ✅ | 可雇用對象的算法、Use 那個 byte 的欄位配置未解 |
-| [`18-facility-loops.md`](18-facility-loops.md) | **READY**（已實作） | `internal/game` ✅ | 賣價公式、清單框架未解 |
+| [`18-facility-loops.md`](18-facility-loops.md) | **READY**（已實作） | `internal/game` ✅ | — 賣價與買價是同一個公式只差指數（`docs/re/22` §3.1）；清單框架已解（`docs/re/53`）|
 | [`19-paragraph-journal.md`](19-paragraph-journal.md) | **READY**（已實作） | `internal/game` ✅、`internal/play` ✅ | — |
 | [`20-mouse-input.md`](20-mouse-input.md) | **READY**（已實作） | `internal/input` ✅ | — |
 | [`08-audio.md`](08-audio.md) | **READY**（已實作） | `internal/audio` ✅ | 3／6／8 **沒有呼叫端**（已確認，`docs/re/44` §6）|
 | [`21-encounter-loop.md`](21-encounter-loop.md) | **READY**（已實作） | `internal/play` ✅ | 只做第 0 組；多組的兩個 Yes／No 提示不實作 |
-| [`22-round-resolution.md`](22-round-resolution.md) | **READY**（已實作） | `internal/play` ✅ | 命中基礎值的選擇欄位、敵方目標選擇、隊伍行動值欄位都是暫代 |
-| [`23-facility-scene.md`](23-facility-scene.md) | **READY**（已實作） | `internal/play` ✅ | 訓練師選單、`0x1A2C0`／`0x1B4F0` 兩支的身分未定 |
+| [`22-round-resolution.md`](22-round-resolution.md) | **READY**（已實作） | `internal/play` ✅ | — 三處暫代全部解掉：命中基礎值查 `ds:711Dh` 的移動計畫（`docs/re/101`）、敵方目標是隨機重抽（`docs/re/89`）、隊伍行動值 ＝ 2d6 ＋ Speed ＋ Brawling×3（`docs/re/90`）|
+| [`23-facility-scene.md`](23-facility-scene.md) | **READY**（已實作） | `internal/play` ✅ | 訓練師選單已解（`docs/re/52`、`80`）、`0x1B4F0` ＝ 結局（`docs/re/96`）。**剩 `0x1A2C0` 沒定名**（先寫存檔再進選單，形狀像 Ranger Center）|
 | [`24-scene-modes.md`](24-scene-modes.md) | **READY**（已實作） | `internal/play` ✅ | — |
 | [`25-facility-menus.md`](25-facility-menus.md) | **READY**（已實作） | `internal/play` ✅ | 每列回呼的參數怎麼傳未解（`docs/re/53` §5）|
 | [`26-picture-animation.md`](26-picture-animation.md) | **READY**（已實作） | `internal/assets`／`internal/render` ✅ | 一拍多長沒與實機錄影對過（§5）|
@@ -66,24 +67,30 @@
 3. **未解與邊界**——實作時遇到會撞牆的地方，以及暫代方案（標明是暫代）
 4. **驗收條件**——**對原版行為驗收**，不是只跑單元測試（`CLAUDE.md` §4）
 
-## 4. 實作順序建議
+## 4. 實作順序（走過的路）
+
+**二十六份規格全部實作完成**，下面是當初的相依順序，留著是為了讓接手的人
+知道哪一層墊在哪一層上面——不是待辦。
 
 ```
-1. internal/assets     ← 規格 01；**已完成**（9 個測試全綠，含 round-trip）
-2. internal/textlayout ← 規格 03；**已完成**（控制碼與組行，無相依）
-3. internal/render     ← 規格 03；**已完成**（合成索引畫面，幾何逐像素驗過）
-4. internal/game/rng   ← 規格 02；**已完成**（驗收數列與分佈全過）
-5. internal/input      ← 規格 03；**已完成**（與函式庫無關的按鍵模型）
-6. internal/ui         ← 規格 03；**已完成**（Ebiten：上色 ＋ 送圖 ＋ 收鍵）
-7. internal/game       ← 規格 04；**已完成**（走一步、時鐘、體力處理、事件分派骨架）
-8. 存檔與角色記錄      ← 規格 05；**已完成**（round-trip byte-for-byte、升級與技能公式）
-9. 世界事件與檢定      ← 規格 07；**已完成**（section 定址、條件串列、檢定與練等、腳本直譯器）
-10. 戰鬥               ← 規格 06；**已完成**（命中、兩種傷害、護甲、傷勢、擊殺經驗值）
-11. 設施               ← 規格 09；**已完成**（商店價格、醫生三種收費、訓練師）
-12. 中文排版           ← 規格 10；**已完成**（640×400 畫布、倚天 16×15、索引 oracle 過關）
-13. 翻譯目錄           ← 規格 11；**管線已通**（抽 4,827 條、編譯擋三種錯、端到端出中文）
-14. 戰鬥回合           ← 規格 12；**骨架完成**（三組×10、行動旗標、行動順序表）
-15. 音效               ← 規格 08；等 F2 的位元組碼指令集解出來
+1. internal/assets     ← 規格 01（9 個測試全綠，含 round-trip）
+2. internal/textlayout ← 規格 03（控制碼與組行，無相依）
+3. internal/render     ← 規格 03（合成索引畫面，幾何逐像素驗過）
+4. internal/game/rng   ← 規格 02（驗收數列與分佈全過）
+5. internal/input      ← 規格 03（與函式庫無關的按鍵模型）
+6. internal/ui         ← 規格 03（Ebiten：上色 ＋ 送圖 ＋ 收鍵）
+7. internal/game       ← 規格 04（走一步、時鐘、體力處理、事件分派）
+8. 存檔與角色記錄      ← 規格 05（round-trip byte-for-byte、升級與技能公式）
+9. 世界事件與檢定      ← 規格 07（section 定址、條件串列、檢定與練等、腳本直譯器）
+10. 戰鬥               ← 規格 06（命中、兩種傷害、護甲、傷勢、擊殺經驗值）
+11. 設施               ← 規格 09（商店價格、醫生三種收費、訓練師）
+12. 中文排版           ← 規格 10（960×600 畫布、倚天 24 點優先、索引 oracle 過關）
+13. 翻譯目錄           ← 規格 11（原版語料 4,827 條，目錄合計 4,910 條全部翻完）
+14. 戰鬥回合           ← 規格 12（三組×10、行動旗標、行動順序表、逃跑）
+15. 音效               ← 規格 08（位元組碼直譯器 ＋ 四聲部仲裁，九首全在 seg005）
+16–26. 遭遇生成、戰鬥指令、遭遇掃描、戰鬥畫面、指令處理程式、設施互動迴圈、
+       段落手札、輸入層、遭遇迴圈、回合結算、設施場景、模式路由、設施選單、
+       圖片動畫、重製版自己的介面（規格 13–27）
 ```
 
 相依取得方式（2026-08-15 定案）：**唯讀掛載本機模組快取當 file proxy**，

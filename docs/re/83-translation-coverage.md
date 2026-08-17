@@ -21,7 +21,15 @@
 | 42 個地圖區塊 | 4,400 | 4,401 |
 | **合計** | **4,806** | **4,827** |
 
-目錄長度也是 **4,806**——**孤兒 key ＝ 0**。
+目錄本身比這個數字長：另外還有**重製版自己的介面文字** `ui:` 81 條與
+地點名 `places:` 23 條，合計 **4,910**。那 104 條對不上任何原版原文，
+所以測試把它們從孤兒數裡扣掉（`uiCatalogueKeys` ＋ `placeKeys`）——
+扣完之後**孤兒 key ＝ 0**。
+
+⚠ **`ui:` 的白名單與 tsv 是兩份要一起改的東西**：多一條會被當成孤兒、
+少一條會漏檢。加一個 `ui:` key 要同時改
+`translations/source/ui.tsv`、`translations/zh-Hant/ui.tsv` 與
+`internal/play/lang_coverage_test.go` 的 `uiCatalogueKeys`。
 
 孤兒 key（目錄裡有、遊戲永遠查不到）是白做的翻譯，
 而它不會讓任何測試變紅：`Lookup` 查不到只是回原文。
