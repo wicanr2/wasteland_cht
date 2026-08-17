@@ -114,15 +114,21 @@ func (s *Scene) charAt(col, row int) byte {
 		} else {
 			eachCell([]byte(commandBar()), 0, row, pick)
 		}
-	case row >= render.MsgRow && row <= render.MsgRowEnd:
-		start := render.MsgRow
+	default:
+		// 訊息那一塊**戰鬥時是面板、地圖時是訊息視窗**（`msgRect`）。
+		// 這裡不能寫死列號——寫死的話戰鬥中點面板會全部落空。
+		rect := s.msgRect()
+		if row < rect.Row || row > rect.LastRow() {
+			break
+		}
+		start := rect.Row
 		if s.message != "" || len(s.journalHead) > 0 {
 			start++
 		}
-		eachMessageCell(s.cjk, start, pick)
+		eachMessageCell(s.cjk, rect, start, pick)
 		if got == 0 && s.message != "" {
-			// 沒有中文正文時訊息視窗是英文——同一條規則。
-			eachMessageCell([]byte(s.message), render.MsgRow, pick)
+			// 沒有中文正文時那一塊是英文——同一條規則。
+			eachMessageCell([]byte(s.message), rect, rect.Row, pick)
 		}
 	}
 	return got

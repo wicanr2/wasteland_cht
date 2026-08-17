@@ -277,22 +277,40 @@ func (f *Frame) DrawGlyph(font *assets.Font, index, col, row int, color byte, in
 	return nil
 }
 
+// 戰鬥的指令／訊息面板（`docs/re/105` §2）。
+//
+// 原版戰鬥時**不用訊息視窗**：`sub_19727` 把文字區設成
+// 欄 15–38、列 1–13（左邊那一塊放肖像），所以「名字, choose:」加七個選項
+// 一共八行綽綽有餘。訊息視窗那 6 列在戰鬥時是名單的一部分。
+const (
+	PanelCol    = 15
+	PanelRow    = 1
+	PanelWidth  = 24 // 欄 15–38
+	PanelHeight = 13 // 列 1–13
+)
+
 // DrawText 把排好的行畫進訊息視窗（欄 1–38、字元列 18–23）。
 // 超過 MsgHeight 行的部分不畫——分頁是呼叫端的事（textlayout.Paginate）。
 func (f *Frame) DrawText(font *assets.Font, lines []textlayout.Line) error {
+	return f.DrawTextIn(font, lines, MsgCol, MsgRow, MsgWidth, MsgHeight)
+}
+
+// DrawTextIn 是 DrawText 的任意矩形版本（戰鬥面板要用）。
+func (f *Frame) DrawTextIn(font *assets.Font, lines []textlayout.Line,
+	atCol, atRow, w, h int) error {
 	for row, line := range lines {
-		if row >= MsgHeight {
+		if row >= h {
 			break
 		}
 		for col, cell := range line.Cells {
-			if col >= MsgWidth {
+			if col >= w {
 				break
 			}
 			if cell.Char < 0x20 {
 				continue // 控制碼不該走到這裡；保險起見不畫
 			}
 			idx := int(cell.Char) - int(font.FirstASCII)
-			if err := f.DrawGlyph(font, idx, MsgCol+col, MsgRow+row,
+			if err := f.DrawGlyph(font, idx, atCol+col, atRow+row,
 				DefaultTextColor, cell.Inverse); err != nil {
 				return fmt.Errorf("欄 %d 列 %d：%w", col, row, err)
 			}

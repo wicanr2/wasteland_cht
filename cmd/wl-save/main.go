@@ -34,16 +34,17 @@ func main() {
 	dir := flag.String("dir", "", "**可寫的**原版資料目錄副本")
 	check := flag.Bool("check", false, "只驗 round-trip，不寫檔")
 	at := flag.String("at", "", "把隊伍移到 x,y")
+	mapID := flag.Int("map", -1, "把隊伍搬到這張地圖（資源編號 0–41）")
 	hour := flag.Int("hour", -1, "把時鐘的「時」設成這個值（0–23）")
 	flag.Parse()
 
-	if err := run(*dir, *check, *at, *hour); err != nil {
+	if err := run(*dir, *check, *at, *hour, *mapID); err != nil {
 		fmt.Fprintln(os.Stderr, "錯誤：", err)
 		os.Exit(1)
 	}
 }
 
-func run(dir string, check bool, at string, hour int) error {
+func run(dir string, check bool, at string, hour, mapID int) error {
 	if dir == "" {
 		return fmt.Errorf("要指定 -dir")
 	}
@@ -82,7 +83,7 @@ func run(dir string, check bool, at string, hour int) error {
 		if check {
 			continue
 		}
-		if changed, err := apply(sv, at, hour); err != nil {
+		if changed, err := apply(sv, at, hour, mapID); err != nil {
 			return fmt.Errorf("%s：%w", name, err)
 		} else if !changed {
 			continue
@@ -99,7 +100,7 @@ func run(dir string, check bool, at string, hour int) error {
 
 // apply 改寫已解欄位。**未解區域一個 byte 都不碰**——
 // 只動隊伍槽表的座標與全域狀態的時鐘，其餘原樣留著。
-func apply(sv *assets.Save, at string, hour int) (bool, error) {
+func apply(sv *assets.Save, at string, hour, mapID int) (bool, error) {
 	changed := false
 	if at != "" {
 		var x, y int
@@ -117,6 +118,18 @@ func apply(sv *assets.Save, at string, hour int) (bool, error) {
 		// 「隊伍固定在第 (9, 4) 格」。
 		gl := sv.Globals()
 		gl[0], gl[1] = byte(x-viewOffsetX), byte(y-viewOffsetY)
+		changed = true
+	}
+	if mapID >= 0 {
+		// 隊伍槽表 `+0x0A` ＝ 那一組在哪張地圖（`docs/re/60` §3）。
+		//
+		// ⚠ **座標要跟著改**：換了地圖卻留著舊座標，隊伍會落在新地圖的
+		// 同一個 (x, y) 上——可能是牆裡面。搭配 `-at` 一起用。
+		if mapID > 41 {
+			return false, fmt.Errorf("-map 要在 0–41，得到 %d", mapID)
+		}
+		g := sv.SlotGroups()[0]
+		sv.Plain[g.RawIndex+10] = byte(mapID)
 		changed = true
 	}
 	if hour >= 0 {
