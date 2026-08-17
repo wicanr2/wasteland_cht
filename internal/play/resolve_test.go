@@ -1,6 +1,7 @@
 package play
 
 import (
+	"bytes"
 	"strings"
 	"testing"
 
@@ -214,5 +215,72 @@ func TestWeaponColumnAndDamageAgree(t *testing.T) {
 	}
 	if n == 0 {
 		t.Skip("沒有人裝備武器")
+	}
+}
+
+// 結算階段每一句話**都要有中文**（`docs/re/98` §2 的三層：目錄有譯文 →
+// 消費端查得到 → 控制碼解得開）。
+//
+// ⚠ 覆蓋率測試只量第一層。這一條量第二、三層——三層任何一層斷了，
+// 症狀都一樣是「畫面上是英文」。
+func TestResolveMessagesHaveChinese(t *testing.T) {
+	s := newScene(t)
+	// ⚠ `newScene` **不載目錄**——不載的話 `c.CJK` 仍然是一支非 nil 的函式，
+	// 只是每次都回 nil。用「函式在不在」當判準會讓這條測試永遠綠。
+	if err := s.LoadCatalogue("../../translations/zh-Hant.cat"); err != nil {
+		t.Skipf("沒有翻譯目錄：%v", err)
+	}
+	step(t, s, input.Input{Dir: input.DirNone, Char: 'E'})
+	step(t, s, input.Input{Dir: input.DirNone, Char: 'Y'})
+	if !s.InCombat() {
+		t.Skip("這一格開不了戰鬥")
+	}
+	c := s.combat
+	m := c.Battle.Party.Members[0]
+	for _, tc := range []struct {
+		name string
+		res  game.ResolveResult
+	}{
+		{"換裝備", game.ResolveResult{Message: game.MsgSwapsEquipment}},
+		{"迴避", game.ResolveResult{Message: game.MsgEvades}},
+		{"裝填", game.ResolveResult{Message: game.MsgReloads}},
+		{"沒彈匣", game.ResolveResult{Message: game.MsgNoMoreClips}},
+		{"不能裝填", game.ResolveResult{Message: game.MsgCantBeReloaded}},
+		{"卡彈", game.ResolveResult{Message: game.MsgWeaponJammed, Table2: true}},
+	} {
+		if zh := c.zhResolve(m, tc.res); len(zh) == 0 {
+			t.Errorf("%s（字串 %d）查不到中文", tc.name, tc.res.Message)
+		}
+		if en := resolveText(m.Name, tc.res); en == "" {
+			t.Errorf("%s（字串 %d）沒有英文那一句", tc.name, tc.res.Message)
+		}
+	}
+}
+
+// 指令被打回票時那句話要**進訊息區**，不是只留在 `Log` 裡。
+//
+// ⚠ 只 append 到 `Log` 等於沒說：畫面上只會看到選單又出現一次，
+// 玩家不知道自己按的那個鍵怎麼了。
+func TestRejectedCommandSaysWhy(t *testing.T) {
+	s := newScene(t)
+	step(t, s, input.Input{Dir: input.DirNone, Char: 'E'})
+	step(t, s, input.Input{Dir: input.DirNone, Char: 'Y'})
+	if !s.InCombat() {
+		t.Skip("這一格開不了戰鬥")
+	}
+	turn := s.combat.Turn
+	step(t, s, input.Input{Dir: input.DirNone, Char: 'H'}) // 還沒做的指令
+	if s.combat.Turn != turn {
+		t.Fatal("打回票應該重問同一個人")
+	}
+	if len(s.cjk) > 0 {
+		// 中文那條路：訊息接在提示前面。
+		if !bytes.Contains(s.cjk, s.uiText("combat.notyet")) {
+			t.Error("中文訊息沒有出現在面板上")
+		}
+		return
+	}
+	if !strings.Contains(s.Message(), "not implemented") {
+		t.Errorf("英文訊息沒有出現在面板上：%q", s.Message())
 	}
 }
