@@ -883,12 +883,23 @@ func (s *Scene) updateFacility(in input.Input) (bool, error) {
 func (s *Scene) updateCombat(in input.Input) (bool, error) {
 	c := s.combat
 	if in.Action == input.ActionCancel {
-		// ESC 退回上一個人（docs/spec/14）。已經在第一個就整場不動。
+		// 清單開著就先收清單（原版回 0xFF ＝ 取消，重問這個人）；
+		// 否則 ESC 退回上一個人（docs/spec/14）。已經在第一個就整場不動。
+		if c.WeaponPicking() {
+			c.CancelWeaponPick()
+			s.showCombatPrompt()
+			s.dirty = true
+		}
 		return true, nil
 	}
 	if in.Char != 0 && !c.Done() {
-		// armed：裝備欄還沒解到能判斷（docs/spec/22 §5），一律當成有武器。
-		c.Choose(input.Upper(in.Char), true)
+		// ⚠ **清單開著的時候按鍵歸清單**，不然數字鍵會被當成指令熱鍵。
+		if c.WeaponPicking() {
+			c.PickWeapon(input.Upper(in.Char))
+		} else {
+			// armed：裝備欄還沒解到能判斷（docs/spec/22 §5），一律當成有武器。
+			c.Choose(input.Upper(in.Char), true)
+		}
 		s.dirty = true
 	}
 	if c.Done() {
@@ -910,7 +921,14 @@ func (s *Scene) updateCombat(in input.Input) (bool, error) {
 	}
 	// 指令階段：把「換誰下令」那一行與選單畫出來。
 	// 沒有這一步玩家看不到能按什麼——原版每問一個人就重印一次（`docs/re/40` §1）。
-	s.showCombatPrompt()
+	//
+	// ⚠ **清單開著的時候畫清單，不要再把指令選單接上去**——
+	// 兩份都畫的話玩家看到的是「選單蓋在清單下面」，數字鍵卻歸清單。
+	if c.WeaponPicking() {
+		s.showWeaponPick()
+	} else {
+		s.showCombatPrompt()
+	}
 	return true, nil
 }
 
@@ -1797,4 +1815,59 @@ func eachCell(text []byte, col, row int, f func(col, row int, ascii, hi, lo byte
 		col++
 		i += 2
 	}
+}
+
+// showWeaponPick 把換武器的清單放進面板。
+//
+// ⚠ 走 `s.msgRect()` 那一塊（戰鬥時是面板），與指令選單同一個區域——
+// 清單接在提示後面，滿了就照 `docs/re/106` 捲掉最前面的行。
+func (s *Scene) showWeaponPick() {
+	c := s.combat
+	if c == nil || !c.WeaponPicking() {
+		return
+	}
+	lines := c.WeaponPickLines(s.itemName)
+	en := strings.Join(lines, "\r")
+	if s.message != "" {
+		s.message += "\r" + en
+	} else {
+		s.message = en
+	}
+	// 中文：名字走目錄的物品名，其餘的框架字是重製版自己的（`ui:` 前綴）。
+	if zh := s.weaponPickCJK(); zh != nil {
+		if len(s.cjk) > 0 {
+			s.cjk = append(append(append([]byte{}, s.cjk...), '\n'), zh...)
+		} else {
+			s.cjk = zh
+		}
+		s.message = ""
+	}
+	s.dirty = true
+}
+
+// weaponPickCJK 是換武器清單的中文。查不到框架字就回 nil 走英文那一份。
+func (s *Scene) weaponPickCJK() []byte {
+	c := s.combat
+	m := c.Battle.Party.Members[c.Turn]
+	if m == nil {
+		return nil
+	}
+	head := s.uiText("combat.which")
+	if len(head) == 0 {
+		return nil
+	}
+	out := append([]byte(m.Name), head...)
+	for i, slot := range c.pick.pageSlice() {
+		mark := byte(' ')
+		if slot == m.EquipIndex || slot == m.ArmorIndex {
+			mark = '*'
+		}
+		out = append(out, '\r', byte('1'+i), mark)
+		out = append(out, singularBytes(s.itemNameCJK(m.Items[slot-1].ID))...)
+	}
+	if c.pick.pages() > 1 {
+		out = append(out, '\r')
+		out = append(out, cjkPageLabel(c.pick.page+1, c.pick.pages())...)
+	}
+	return out
 }
