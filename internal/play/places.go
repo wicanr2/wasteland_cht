@@ -22,16 +22,16 @@ import (
 //
 // 查不到**不是錯誤**：資料裡的地點名還沒盤點完（劇情改寫會生出新的），
 // 沒有譯文時畫面上顯示原本那串英文，遊戲照跑。
-func (s *Scene) placeCJK(name string) []byte {
+func (s *Scene) placeCJK(name string) string {
 	// ⚠ **資料裡的招牌是補過空白的定長欄位**：地圖記錄與存檔裡的
 	// `Ranger Ctr.` 實際上是 `"Ranger Ctr. "`（尾端一個空白）。
 	// 不修掉就永遠查不到，而且**查不到是靜靜顯示英文**，看起來像「還沒翻」。
 	name = strings.TrimSpace(name)
 	if s.cat == nil || name == "" {
-		return nil
+		return ""
 	}
 	if b, ok := s.cat.Lookup(lang.PlaceKey(name)); ok {
 		return b
 	}
-	return nil
+	return ""
 }

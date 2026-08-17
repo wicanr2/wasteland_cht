@@ -1,11 +1,12 @@
 package play
 
 import (
+	"unicode/utf8"
 	"strings"
 	"testing"
 
+	"github.com/wicanr2/wasteland_cht/internal/game"
 	"github.com/wicanr2/wasteland_cht/internal/input"
-	"github.com/wicanr2/wasteland_cht/internal/lang"
 )
 
 // runes 送一串中文（模擬 IME 提交）。
@@ -34,12 +35,9 @@ func TestCreateCharacterWithChineseName(t *testing.T) {
 	if _, err := s.Update(runeIn("沙漠遊俠")); err != nil {
 		t.Fatal(err)
 	}
-	want, ok := lang.ToBig5("沙漠遊俠")
-	if !ok {
-		t.Fatal("這四個字編不出 Big5")
-	}
-	if got := string(s.roster.entry.Text()); got != string(want) {
-		t.Fatalf("緩衝區應該是 %d bytes 的 Big5，得到 %d bytes", len(want), len(got))
+	// 緩衝區是 **UTF-8**（Big5 只出現在畫的那一刻，`render.DrawRune`）。
+	if got := string(s.roster.entry.Text()); got != "沙漠遊俠" {
+		t.Fatalf("緩衝區應該是「沙漠遊俠」，得到 %q", got)
 	}
 	// Enter 建立。
 	if _, err := s.Update(input.Input{Dir: input.DirNone, Action: input.ActionConfirm}); err != nil {
@@ -52,8 +50,8 @@ func TestCreateCharacterWithChineseName(t *testing.T) {
 		t.Fatalf("隊伍應該多一個人：%d → %d", before, n)
 	}
 	c := s.World().Party.Members[before]
-	if c.Name != string(want) {
-		t.Errorf("名字應該是那四個字的 Big5，得到 %q", c.Name)
+	if c.Name != "沙漠遊俠" {
+		t.Errorf("名字應該是「沙漠遊俠」，得到 %q", c.Name)
 	}
 	if c.Level != 1 || c.CON <= 0 {
 		t.Errorf("新角色的等級／CON 不對：Lv%d CON%d", c.Level, c.CON)
@@ -83,14 +81,39 @@ func TestChineseNameRespectsLimit(t *testing.T) {
 	if _, err := s.Update(key('C')); err != nil {
 		t.Fatal(err)
 	}
+	// 記憶體裡的上限放寬到 200 bytes，八個中文字（24 bytes）進得去。
 	if _, err := s.Update(runeIn("一二三四五六七八")); err != nil {
 		t.Fatal(err)
+	}
+	if got := string(s.roster.entry.Text()); got != "一二三四五六七八" {
+		t.Errorf("八個字應該都收得下，得到 %q", got)
 	}
 	if n := len(s.roster.entry.Text()); n > input.MaxName {
 		t.Errorf("名字超過 %d bytes：%d", input.MaxName, n)
 	}
-	if n := len(s.roster.entry.Text()); n != 12 {
-		t.Errorf("13 bytes 應該只放得下 6 個中文字（12 bytes），得到 %d", n)
+}
+
+// ⚠ **存檔那一格還是 13 bytes**（`docs/re/15` 的角色記錄 `+0x00`–`+0x0C`），
+// 放寬的只有記憶體裡的字串。截斷一定要落在 rune 邊界——
+// 從中間切下去存檔裡會留半個字，而那個亂碼**寫進玩家的存檔**。
+func TestLongNameTruncatesOnRuneBoundary(t *testing.T) {
+	const long = "一二三四五六七八" // 24 bytes
+	if game.NameFitsSave(long) {
+		t.Fatal("24 bytes 不該寫得進 13 bytes 的欄位")
+	}
+	cut := game.NameForSave(long)
+	if len(cut) > game.NameFieldBytes {
+		t.Errorf("截出來 %d bytes，超過欄位的 %d", len(cut), game.NameFieldBytes)
+	}
+	if !utf8.ValidString(cut) {
+		t.Errorf("截在字中間了：% x", cut)
+	}
+	if cut != "一二三四" {
+		t.Errorf("13 bytes 放得下四個中文字（12 bytes），得到 %q", cut)
+	}
+	// 短名字一個 byte 都不動。
+	if got := game.NameForSave("Hell Razor"); got != "Hell Razor" {
+		t.Errorf("短名字被動到了：%q", got)
 	}
 }
 

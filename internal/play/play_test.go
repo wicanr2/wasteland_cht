@@ -266,7 +266,7 @@ func TestHiFrame(t *testing.T) {
 	if err := s.LoadFont(dir); err != nil {
 		t.Skipf("沒有倚天字型（%v），中文那半跳過", err)
 	}
-	s.SetCJK([]byte{0xA7, 0x41, 0xAD, 0xCC}) // 「你們」
+	s.SetCJK("你們") // UTF-8：**以前這裡是四個 Big5 byte**
 	h = s.HiFrame()
 	// 訊息視窗第一格（欄 1、列 18）附近應該有非零像素。
 	on := 0
@@ -331,7 +331,7 @@ func TestTranslatedMessageShowsCJK(t *testing.T) {
 	}
 
 	// 用 Update 走一次一樣的流程，讓 translate 跑到。
-	s.SetCJK(nil)
+	s.SetCJK("")
 	res, err := w.Step(1 /* Down */)
 	_ = res
 	if err != nil {
@@ -357,7 +357,7 @@ func TestTranslatedMessageShowsCJK(t *testing.T) {
 	t.Logf("中文訊息畫出 %d 個像素", on)
 }
 
-func mustLookup(t *testing.T, s *Scene, key string) []byte {
+func mustLookup(t *testing.T, s *Scene, key string) string {
 	t.Helper()
 	b, ok := s.cat.Lookup(key)
 	if !ok {

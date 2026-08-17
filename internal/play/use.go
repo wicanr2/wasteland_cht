@@ -9,7 +9,6 @@ package play
 // 這裡用數字鍵。判定那一層照原版（`game.Party.UseGate`），沒有動。
 
 import (
-	"bytes"
 	"fmt"
 	"strings"
 
@@ -114,8 +113,7 @@ func (s *Scene) beginUse() {
 	}
 	s.message = "Which player? " + s.memberMenu()
 	if t := s.uiText("use.which"); len(t) > 0 {
-		s.cjk = append(append([]byte{}, t...), ' ')
-		s.cjk = append(s.cjk, s.memberMenu()...)
+		s.cjk = t + " " + s.memberMenu()
 		s.message = ""
 	}
 	s.dirty = true
@@ -204,40 +202,37 @@ func (s *Scene) pickUseKind(k game.UseKind) {
 //
 // 有一個名字沒翻就整份退回英文——**中英混在同一份清單裡最難讀**，
 // 而且會讓「哪些還沒翻」看不出來。
-func (s *Scene) useMenuCJK() []byte {
+func (s *Scene) useMenuCJK() string {
 	if s.cat == nil {
-		return nil
+		return ""
 	}
-	var out []byte
+	var out string
 	for i, o := range s.use.pageSlice() {
 		if o.nameSlot == 0 {
-			return nil // 屬性那條沒有對應的原版字串
+			return "" // 屬性那條沒有對應的原版字串
 		}
 		b, ok := s.cat.Lookup(lang.ExeKey(nameTable, o.nameSlot))
 		if !ok {
-			return nil
+			return ""
 		}
 		if len(out) > 0 {
-			out = append(out, ' ')
+			out += string(' ')
 		}
-		out = append(out, byte('1'+i), ' ')
-		out = append(out, singularBytes(b)...)
+		out += string(rune('1'+i)) + " " + singular(b)
 	}
 	// 翻頁那一行。⚠ **不要在這一行放阿拉伯數字的頁碼**：
 	// 滑鼠的規則是「點到哪一格就送那一格的字元」（`docs/spec/29` §3），
 	// 頁碼裡的 `2` 會被當成「選第 2 項」。頁碼用中文數字。
 	if s.use.pages() > 1 {
 		if more := s.uiText("use.morepage"); len(more) > 0 {
-			out = append(out, '\r')
-			out = append(out, more...)
-			out = append(out, cjkPageLabel(s.use.page+1, s.use.pages())...)
+			out += "\r" + more + cjkPageLabel(s.use.page+1, s.use.pages())
 		}
 	}
 	return out
 }
 
 // cjkPageLabel 是「（第二頁／共三頁）」這種**不含阿拉伯數字**的頁碼。
-func cjkPageLabel(now, total int) []byte {
+func cjkPageLabel(now, total int) string {
 	num := func(n int) string {
 		const digits = "〇一二三四五六七八九"
 		r := []rune(digits)
@@ -249,28 +244,11 @@ func cjkPageLabel(now, total int) []byte {
 		}
 		return string(r[n/10]) + "十" + map[bool]string{true: "", false: string(r[n%10])}[n%10 == 0]
 	}
-	b, ok := lang.ToBig5("（第" + num(now) + "頁／共" + num(total) + "頁）")
-	if !ok {
-		return nil // Big5 編不出來就不印頁碼，不要印半截
-	}
-	return b
+	// UTF-8 之後不用先編碼——**畫的那一刻才轉 Big5**（`render.DrawRune`）。
+	// 全形括號與「第／共／頁」都在倚天字庫裡，編譯期已經驗過。
+	return "（第" + num(now) + "頁／共" + num(total) + "頁）"
 }
 
-// singularBytes 是 `singular` 的 byte 版：譯文同樣用 `\x0A` 分單複數
-// （`docs/re/28`），清單只要第一段。
-// singularBytes 是 singular 的 Big5 版：**字根 ＋ 單數字尾**。
-//
-// ⚠ `0x0A` 不可能出現在 Big5 的第二個 byte（尾碼是 `0x40`–`0x7E` 與
-// `0xA1`–`0xFE`），所以逐 byte 切是安全的。
-// 譯文那一側的字尾都是空的（`刀\x0A\x0A\x0A`），切完就是整個詞。
-func singularBytes(raw []byte) []byte {
-	parts := bytes.Split(raw, []byte{'\n'})
-	out := parts[0]
-	if len(parts) > 1 {
-		out = append(append([]byte(nil), out...), parts[1]...)
-	}
-	return bytes.TrimSpace(out)
-}
 
 // useMenu 是第三層的清單（英文後備）。一頁九項，多的翻頁。
 func (s *Scene) useMenu() string {
@@ -288,6 +266,10 @@ func (s *Scene) useMenu() string {
 }
 
 // singular 取名字的單數形 ＝ **字根 ＋ 單數字尾**。
+//
+// 中英兩條路共用這一支——**改成 UTF-8 之後 Big5 那個版本不需要了**：
+// 以前得另外寫一份逐 byte 切的，還要靠「`0x0A` 不可能是 Big5 尾位元組」
+// 這個前提才安全。
 //
 // 名字用 `\n` 分隔**字根／單數字尾／複數字尾**（`docs/re/17` §4.1）：
 //
@@ -321,12 +303,12 @@ func (s *Scene) skillName(id byte) string {
 // 名稱帶單複數分段（`字根\x0A單數\x0A複數\x0A`，`docs/re/17` §4.1），
 // 交給 `RenderBytes` 依 Count ＝ 1 取單數——**不要自己找 `\x0A` 切**，
 // 譯文的分段位置與原文不一定一樣。
-func (s *Scene) skillNameCJK(id byte) []byte {
-	return trimSpaceBytes(s.cjkExe(nameTable, int(id), textlayout.Options{Count: 1}))
+func (s *Scene) skillNameCJK(id byte) string {
+	return strings.TrimSpace(s.cjkExe(nameTable, int(id), textlayout.Options{Count: 1}))
 }
 
-func (s *Scene) itemNameCJK(id byte) []byte {
-	return trimSpaceBytes(s.cjkExe(nameTable, int(id)+itemNameBase,
+func (s *Scene) itemNameCJK(id byte) string {
+	return strings.TrimSpace(s.cjkExe(nameTable, int(id)+itemNameBase,
 		textlayout.Options{Count: 1}))
 }
 
@@ -361,14 +343,14 @@ func (s *Scene) applyUse(o useOption) {
 	s.use = useState{}
 	// 選單收起來，它的中文也要跟著收。留著的話結果那一行會疊在
 	// 上一層的清單上——畫面上是「1 鬥毆 2 攀爬…」底下印著結果。
-	s.cjk = nil
+	s.cjk = ""
 
 	// 名字那一欄中文優先（清單裡看到的是中文，結果那一句也該是）。
 	zhLabel := o.label
 	if o.nameSlot != 0 {
-		if b := trimSpaceBytes(s.cjkExe(nameTable, o.nameSlot,
-			textlayout.Options{Count: 1})); b != nil {
-			zhLabel = string(b)
+		if b := strings.TrimSpace(s.cjkExe(nameTable, o.nameSlot,
+			textlayout.Options{Count: 1})); b != "" {
+			zhLabel = b
 		}
 	}
 	say := func(en string, uiName string) {
@@ -403,7 +385,7 @@ func (s *Scene) applyUse(o useOption) {
 func (s *Scene) updateUse(in input.Input) (bool, error) {
 	if in.Action == input.ActionCancel {
 		s.use = useState{}
-		s.message, s.cjk = "", nil
+		s.message, s.cjk = "", ""
 		s.dirty = true
 		return true, nil
 	}
@@ -523,7 +505,7 @@ func (s *Scene) commitCombatUse(dir byte) {
 	c := s.combat
 	o, kind, member := s.use.pending, s.use.kind, s.use.member
 	s.use = useState{}
-	s.cjk = nil
+	s.cjk = ""
 	if c == nil {
 		return
 	}

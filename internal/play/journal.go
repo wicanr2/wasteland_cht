@@ -37,14 +37,14 @@ func (j *Journal) LoadParagraphs(path string) error {
 
 // Text 拿編號換中文正文（Big5）。查不到回 nil——**沒翻的段落不能變成空白頁**，
 // 呼叫端要自己決定顯示什麼。
-func (j *Journal) Text(n int) []byte {
+func (j *Journal) Text(n int) string {
 	if j == nil || j.paragraphs == nil {
-		return nil
+		return ""
 	}
 	if b, ok := j.paragraphs.Lookup(lang.ParagraphKey(n)); ok {
 		return b
 	}
-	return nil
+	return ""
 }
 
 // Translated 回報已經有中文正文的段落數，以及總段數。

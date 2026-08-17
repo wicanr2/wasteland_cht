@@ -15,7 +15,7 @@ import (
 // RoundResult 是一回合結算完的結果。
 type RoundResult struct {
 	Lines []string // 這一回合的訊息，照發生順序
-	CJK   [][]byte // 同一批訊息的中文（Big5）；查不到的那一句是 nil
+	CJK   []string // 同一批訊息的中文（UTF-8）；查不到的那一句是空字串
 	Over  bool
 	Won   bool // Over 為 true 才有意義
 }
@@ -26,10 +26,10 @@ type RoundResult struct {
 // 而不是顯示半句中文（`zhJoin` 的同一條原則）。
 type msgs struct {
 	EN  []string
-	CJK [][]byte
+	CJK []string
 }
 
-func (m *msgs) add(en string, zh []byte) {
+func (m *msgs) add(en string, zh string) {
 	m.EN = append(m.EN, en)
 	m.CJK = append(m.CJK, zh)
 }
@@ -149,22 +149,22 @@ func nameOf(c *game.Character) func() string {
 // 原版把它拆成 47（`hits \x0F `）與 33（` for `）兩段、印的順序還沒逐指令讀完
 // （`docs/re/40` §3 自己標著命中訊息那條沒確認）。所以走 `ui:` 而不是
 // 假裝它是某一條原版字串。
-func (s *CombatScene) zhHit(attacker string, target []byte, dmg int) []byte {
-	if s.UI == nil || target == nil {
-		return nil
+func (s *CombatScene) zhHit(attacker, target string, dmg int) string {
+	if s.UI == nil || target == "" {
+		return ""
 	}
 	f := s.UI("combat.hit")
 	if len(f) == 0 {
-		return nil
+		return ""
 	}
-	return []byte(fmt.Sprintf(string(f), attacker, string(target), dmg))
+	return fmt.Sprintf(f, attacker, string(target), dmg)
 }
 
 // zhXP 是「某某獲得 N 點經驗值」——原版字串 39 ＋ 數字 ＋ 40。
-func (s *CombatScene) zhXP(name string, xp uint32) []byte {
+func (s *CombatScene) zhXP(name string, xp uint32) string {
 	return zhJoin(
 		s.zhStr(strGainsXP, textlayout.Options{Name: func() string { return name }}),
-		[]byte(fmt.Sprintf("%d", xp)),
+		fmt.Sprintf("%d", xp),
 		s.zhStr(strExperience, textlayout.Options{}))
 }
 
@@ -206,17 +206,17 @@ func (s *CombatScene) enemyActs(actor game.Combatant) msgs {
 		// 原版這裡印的是傷勢等級（`sub_157D6`，docs/re/19 §4）；
 		// remake 目前只報一句，條件照原版用 CON ≤ 0。
 		out.add(target.Name+" died!",
-			zhJoin([]byte(target.Name), s.zhStr(strDied, textlayout.Options{})))
+			zhJoin(target.Name, s.zhStr(strDied, textlayout.Options{})))
 	}
 	return out
 }
 
 // zhHitBy 是敵方命中的中文，與 zhHit 同一句、主詞受詞對調。
-func (s *CombatScene) zhHitBy(attacker []byte, target string, dmg int) []byte {
-	if attacker == nil {
-		return nil
+func (s *CombatScene) zhHitBy(attacker, target string, dmg int) string {
+	if attacker == "" {
+		return ""
 	}
-	return s.zhHit(string(attacker), []byte(target), dmg)
+	return s.zhHit(string(attacker), target, dmg)
 }
 
 // pickEnemyTarget 挑敵人這一下打誰（`0x1B054`，docs/re/89）。
@@ -357,7 +357,7 @@ func resolveText(name string, r game.ResolveResult) string {
 // ⚠ 卡彈那句原版走**字串表 2 第 152 條**，而這一層只接得到表 1；
 // 表 1 第 56 條是**同一個句子**（攻擊時用的那份），所以指過去。
 // 兩份的譯文要一致——不一致的話同一件事會有兩種說法。
-func (s *CombatScene) zhResolve(m *game.Character, r game.ResolveResult) []byte {
+func (s *CombatScene) zhResolve(m *game.Character, r game.ResolveResult) string {
 	n := int(r.Message)
 	if r.Message == game.MsgWeaponJammed {
 		n = strJammed
@@ -409,13 +409,13 @@ const (
 
 // zhUse 是那三句的中文。格式與地圖那條共用（`%s uses %s.` 少一個參數，
 // 這裡把名字帶進去、道具名留空——戰鬥訊息區窄，原版也只印 `uses...`）。
-func (s *CombatScene) zhUse(m *game.Character, key string) []byte {
+func (s *CombatScene) zhUse(m *game.Character, key string) string {
 	if s.UI == nil {
-		return nil
+		return ""
 	}
 	f := s.UI(key)
 	if len(f) == 0 {
-		return nil
+		return ""
 	}
-	return []byte(fmt.Sprintf(string(f), m.Name, ""))
+	return fmt.Sprintf(f, m.Name, "")
 }

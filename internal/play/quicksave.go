@@ -209,7 +209,7 @@ func (s *Scene) resetModes() {
 	// ⚠ `input.Direction` 的零值是 `DirUp`，**一定要明寫 DirNone**——
 	// 忘了寫的話讀完檔畫面會停在「進新地點？」等 Y／N。
 	s.asking = input.DirNone
-	s.message, s.cjk = "", nil
+	s.message, s.cjk = "", ""
 }
 
 // doQuickSave／doQuickLoad 是 F5／F9 的路由：做完把結果留在訊息列。

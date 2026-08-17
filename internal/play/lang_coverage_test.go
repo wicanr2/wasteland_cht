@@ -109,7 +109,7 @@ func TestTranslationCoverage(t *testing.T) {
 	// 這裡只把數量扣掉；「有沒有多餘或漏掉的招牌」由 places_test.go 兩條
 	// 對著遊戲資料雙向驗——那比在這裡列一份手抄清單可靠。
 	placeKeys := 0
-	cat.Each(func(key string, _ []byte) {
+	cat.Each(func(key string, _ string) {
 		if strings.HasPrefix(key, "place:") {
 			placeKeys++
 		}

@@ -180,14 +180,14 @@ func (s *Scene) updateRoster(in input.Input) (bool, error) {
 		}
 		s.roster.del = true
 		s.message = "Delete who? " + s.memberMenu()
-		if zh := s.cjkExe(exeTableRoster, strDeleteWho, textlayout.Options{}); zh != nil {
-			s.cjk = append(append([]byte{}, zh...), []byte(" "+s.memberMenu())...)
+		if zh := s.cjkExe(exeTableRoster, strDeleteWho, textlayout.Options{}); zh != "" {
+			s.cjk = zh + " " + s.memberMenu()
 			s.message = ""
 		}
 		s.dirty = true
 	case 'P':
 		s.roster = rosterState{}
-		s.message, s.cjk = "", nil
+		s.message, s.cjk = "", ""
 		s.dirty = true
 		s.LeaveFacility()
 	}
@@ -248,7 +248,7 @@ func (s *Scene) updateNaming(in input.Input) (bool, error) {
 func (s *Scene) showName() {
 	buf := s.roster.entry.Text()
 	if t := s.uiText("roster.name"); len(t) > 0 {
-		s.cjk = append(append([]byte{}, t...), buf...)
+		s.cjk = t + string(buf)
 		s.message = ""
 	} else {
 		s.message = "Name: " + string(buf)
