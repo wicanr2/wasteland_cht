@@ -102,3 +102,47 @@ func TestRosterRowWoundWordsAreTranslated(t *testing.T) {
 		t.Errorf("死亡那一格應該保留骷髏字模：%q", dead)
 	}
 }
+
+// 名單四行對著**原版實機截圖**（`docs/re/47` §5 錄下來的那一張）。
+//
+// ⚠ 這是這一批欄位唯一的外部 oracle：`AMM`／`WEAPON` 兩欄以前是空的，
+// 沒有任何測試看得到它們對不對。四行一起驗，因為它們同時釘住三件事——
+// 物品表 `+0x04`（容量）→ 物品槽附屬 byte 的初值 → `AMM` 那一欄，
+// 以及 `+0x1F` 的 1 起算與名字的單複數拆法。
+func TestRosterMatchesOriginalScreenshot(t *testing.T) {
+	s := newScene(t)
+	want := []RosterRow{
+		{Name: "Hell Razor", AC: "0", Ammo: "0", MaxCON: "28", CON: "28", Weapon: "Crowbar"},
+		{Name: "Angela Deth", AC: "0", Ammo: "18", MaxCON: "27", CON: "27", Weapon: "VP91Z 9mm pistol"},
+		{Name: "Thrasher", AC: "0", Ammo: "0", MaxCON: "34", CON: "34", Weapon: "Knife"},
+		{Name: "Snake Vargas", AC: "0", Ammo: "18", MaxCON: "31", CON: "31", Weapon: "VP91Z 9mm pistol"},
+	}
+	got := Roster(s.World().Party, s.items, s.itemName)
+	if len(got) != len(want) {
+		t.Fatalf("出廠隊伍應該有 %d 個人，得到 %d", len(want), len(got))
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Errorf("第 %d 行\n得到 %+v\n預期 %+v", i+1, got[i], want[i])
+		}
+	}
+}
+
+// 名字的單數形是**字根 ＋ 單數字尾**，不是只有字根（`docs/re/17` §4.1）。
+//
+// ⚠ 字尾是空的那一類（`Crowbar\n\ns\n`）兩種寫法結果一樣，
+// 所以**一定要拿 `Kni\nfe\nves\n` 這種來驗**——只用 Crowbar 測會全綠。
+func TestSingularKeepsTheSuffix(t *testing.T) {
+	for _, tc := range []struct{ raw, want string }{
+		{"Kni\nfe\nves\n", "Knife"},
+		{"Ax\n\nes\n", "Ax"},
+		{"Crowbar\n\ns\n", "Crowbar"},
+		{"Sledge hammer\n\ns\n", "Sledge hammer"},
+		{"沒有分隔碼", "沒有分隔碼"},
+		{"", ""},
+	} {
+		if got := singular(tc.raw); got != tc.want {
+			t.Errorf("singular(%q) ＝ %q，預期 %q", tc.raw, got, tc.want)
+		}
+	}
+}
