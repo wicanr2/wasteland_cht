@@ -257,8 +257,9 @@ func TestScriptEncounterControl(t *testing.T) {
 		t.Fatal("op 31 應該停住腳本")
 	}
 	// 未實作的指令要明講，不能假裝成 nop。
-	if r := run(OpOverlay); r.Handled {
-		t.Fatal("op 2 還沒實作，不該回報 Handled")
+	// **44 種現在全部有實作**，所以拿一個超出指令表的編號來驗這條路。
+	if r := run(OpCount); r.Handled {
+		t.Fatal("超出指令表的編號不該回報 Handled")
 	}
 }
 

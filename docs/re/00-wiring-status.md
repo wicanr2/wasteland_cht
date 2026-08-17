@@ -47,7 +47,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 
 ## 統計
 
-筆記 **103** 份：已接 **98**、未接 **0**、不適用 **5**。
+筆記 **104** 份：已接 **99**、未接 **0**、不適用 **5**。
 
 | # | 筆記 | 狀態 | 接在哪／為什麼 |
 |---:|---|---|---|
@@ -154,3 +154,4 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 101 | [`ds:711Dh` 是敵方這一回合的移動計畫表](101-enemy-move-plan-table.md) | 已接 | `internal/game/combat.go`（`HitBase`／`NoMovePlan`）、`internal/game/rounds.go`（`Battle.MovePlan`）、`internal/play/round.go`（命中基礎值）|
 | 102 | [走不到的那 12 個 opcode，逐支讀完](102-unreachable-opcodes.md) | 已接 | `internal/game/script_ops.go`、`internal/game/script.go`（11 個 opcode）、`internal/game/world.go`（`Groups`／`Stash`）、`internal/play/groups.go`（`syncGroups`）|
 | 103 | [名片行的 `AMM` 與 `WEAPON` 兩欄](103-roster-line-columns.md) | 已接 | `internal/play/combat.go`（`ammoColumn`／`weaponColumn`／`rosterRowCJK`）、`internal/play/play.go`（中文名單那一行）|
+| 104 | [opcode 2 是把兩張圖形對調](104-opcode-2-icon-swap.md) | 已接 | `internal/game/script.go`（`IconSwap`）、`internal/render/render.go`（`Graphics.Swap`）、`internal/play/play.go`（走一步之後套用）|

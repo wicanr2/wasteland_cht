@@ -1,0 +1,89 @@
+# 重製版自己的介面文字（**不是原版的字串**）。
+#
+# 原版把指令列與清單直接寫成 ASCII 字面值（`ds:A9CCh` 那一串），
+# 不走字串表，所以抽不出 key。這些字玩家看得到，照 `CLAUDE.md` §3.3
+# 一樣要進語言資料檔，Go 只留 key。
+#
+# ⚠ **熱鍵字母不跟著翻譯走**（`docs/re/40` §4）：譯文寫成「U 使用」這種形式，
+# 比對永遠用 Go 那邊的靜態字母。譯文開頭那個字母改掉，畫面會騙人。
+ui:cmd.bar	Use Enc Order Disband View Save Radio
+ui:journal.header	Journal %d/%d%s
+ui:journal.hint	(I/K page, ESC close)
+ui:journal.decoy	 (decoy)
+ui:journal.appendix	 (appendix)
+ui:journal.epilogue	 (epilogue)
+ui:journal.untranslated	(not translated)
+ui:use.which	Which player?
+ui:use.kind	Use: Item / Skill / Attribute  (I/S/A, ESC cancel)
+ui:use.nothing	Nothing to use.
+ui:use.nobody	Nobody can do that.
+ui:gate.party	The party
+ui:gate.damage	 point of damage.
+ui:use.nothinghappens	%s uses %s. Nothing happens.
+ui:use.works	%s uses %s. It works!
+ui:use.fails	%s uses %s. It fails.
+ui:combat.attacked	YOU ARE BEING ATTACKED!
+ui:combat.hit	%s hits %s for %d
+ui:combat.fallen	The party has fallen.
+ui:combat.over	The battle is over.
+ui:combat.partyxp	The party gains %d experience.
+ui:enc.inside	Not in here.
+ui:enc.none	Nothing to fight here.
+ui:enc.groupnone	Party %d: nothing to fight.
+ui:save.none	No save loaded.
+ui:save.done	Game saved.
+ui:save.memoryonly	Game state updated (not written to disk).
+ui:save.nodata	Game state updated (no data files loaded).
+ui:radio.nothing	HQ: nothing to report.
+ui:view.none	No other party.
+ui:view.switched	Party %d.
+ui:disband.single	Can't disband a single ranger.
+ui:disband.left	%s leaves the party.
+ui:order.nothing	Nothing to reorder.
+ui:roster.menu	CREATE  DELETE  PLAY   (C/D/P)
+ui:roster.name	Name: 
+ui:roster.nobody	Nobody to delete.
+ui:roster.joined	%s joins the Rangers.
+ui:roster.gone	%s is gone.
+ui:facility.examined	Examined.
+ui:facility.cured	Cured.
+ui:facility.bought	Bought for $%d.
+ui:facility.sold	Sold for $%d.
+ui:facility.learned	Learned %s.
+ui:facility.row	%d) %s
+ui:facility.skillrow	%d) %s  cost %d
+ui:facility.sellrow	%d)%s %s
+ui:facility.buyrow	%d) $%-6d %s
+ui:help.title	KEYS
+ui:help.move	Move (arrow keys too)
+ui:help.cmdbar	Command bar / journal
+ui:help.panels	Help / settings
+ui:help.f5f9	Quick save / quick load
+ui:help.quit	Quit (asks, saves) / cancel
+ui:settings.title	SETTINGS
+ui:settings.music	Music:
+ui:settings.volume	Volume:
+ui:settings.sfx	Sound:
+ui:settings.on	ON
+ui:settings.off	OFF
+ui:settings.close	ESC close
+ui:quit.ask	Quit? It will save first.  Y / N
+ui:quit.savefailed	Save failed: %s
+ui:quick.saved	Quick saved.
+ui:quick.loaded	Quick loaded.
+ui:quick.savefailed	Quick save failed: %s
+ui:quick.loadfailed	Quick load failed: %s
+ui:combat.hdrname	NAME
+ui:combat.hdrac	AC
+ui:combat.hdrammo	AMM
+ui:combat.hdrmax	MAX
+ui:combat.hdrcon	CON
+ui:combat.hdrweapon	WEAPON
+ui:wipe.place	Grim Reaper
+ui:wipe.message	Your life has ended in The Wasteland.
+ui:use.morepage	0 Next page
+ui:wound.unc	UNC
+ui:wound.ser	SER
+ui:wound.crt	CRT
+ui:wound.mrt	MRT
+ui:wound.com	COM

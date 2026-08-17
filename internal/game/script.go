@@ -12,7 +12,7 @@ const OpCount = 44
 const (
 	OpMatchPlace   = 0  // 比對目前地圖與座標
 	OpBranch       = 1  // 依條件選 +0x03 或 +0x05 當下一步
-	OpOverlay      = 2  // overlay 畫面呼叫，語意未解
+	OpOverlay      = 2  // overlay slot 18 ＝ 對調兩張圖形（docs/re/104）
 	OpDayNight     = 3  // 晝夜分支
 	OpStash        = 4  // 寄放角色並蓋時間戳
 	OpFetchRecord  = 5  // 取 section 3 的另一筆
@@ -75,7 +75,16 @@ type ScriptResult struct {
 	// Countdown 非 nil 時要印自毀倒數（opcode 14，`docs/re/102` §3）。
 	// 同一條規矩：規則層只算數字，字串怎麼拼由呈現層決定。
 	Countdown *Countdown
+	// Swap 非 nil 時要對調兩張圖形（opcode 2，`docs/re/104`）。
+	// 規則層只回報「哪兩個編號」，真的動圖是呈現層的事。
+	Swap *IconSwap
 }
+
+// IconSwap 是 opcode 2 要求的圖形對調（`sub_10036` ＝ overlay slot 18）。
+//
+// 編號走的是**疊圖與圖磚連續的那一張表**（`seg003:0x420`，`docs/re/24` §2.3）：
+// 0–9 是 `IC0_9.WLF` 的疊圖，≥10 是圖磚（圖磚編號 ＝ 值 − 10）。
+type IconSwap struct{ A, B byte }
 
 // Script 是一次腳本執行的上下文。規則層不碰畫面，
 // 要顯示什麼透過 ScriptResult 交出去。
@@ -179,6 +188,12 @@ func (s *Script) Step() ScriptResult {
 		} else {
 			branch(5)
 		}
+
+	case OpOverlay:
+		// **把兩張圖形對調**（`0x1A515` → overlay slot 18，`docs/re/104`）。
+		// 出貨資料六筆都是「隊伍的疊圖（7）↔ 一張地形圖磚」——隊伍在地圖上
+		// 變成那塊地形；參數對調再跑一次就換回來。
+		res.Swap = &IconSwap{A: arg(0), B: arg(1)}
 
 	case OpStash:
 		// 把第一個隊員抄一份存進第 `+0x03` 格並蓋時間戳（`0x1A54B`）。
@@ -407,11 +422,10 @@ func (s *Script) Step() ScriptResult {
 		}
 
 	default:
-		// 還沒實作的指令：明確回報，不要假裝成 nop。
-		//
-		// 只剩 **op 2**（`0x1A515`）：它把 `+0x03`／`+0x04` 交給 overlay 的
-		// `sub_10036`，而那支的參數語意還沒讀（`docs/re/34` 標 `?`）。
-		// 猜一個「大概是畫個東西」填進去比留著這個洞更糟。
+		// **44 種 opcode 現在全部有實作**（`docs/re/102`、`docs/re/104`），
+		// 所以走到這裡只有一種可能：`Op` 是 section `0x10` 查出來的越界值
+		// （1282／2271／26478／29813，`docs/re/76` §3）——
+		// 那代表「這一筆記錄根本不是腳本」。明確回報，不要假裝成 nop。
 		res.Handled = false
 	}
 	return res

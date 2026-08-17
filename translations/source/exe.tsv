@@ -1,0 +1,428 @@
+# 執行檔的九張 5-bit 打包字串表
+# 機器產生，不要手改（tools/extract_strings.py）
+exe:0:1	\x0D         Electronic Arts and          \x0D        Interplay Productions         \x0D           proudly present            \x0D\x0D
+exe:0:2	              WASTELAND!              \x0D\x0D         Copyright 1986-88 by         \x0D        Interplay Productions.        \x0D
+exe:0:3	\x0D       Written by Alan Pavlish        \x0D    IBM version by Michael Quarles    \x0D\x0D
+exe:0:5	\x0DPlace : EARTH\x0D
+exe:0:6	Year  : 1998\x0D
+exe:0:7	Status: DEFCON 1\x0D\x0D
+exe:0:8	\x0D Computer defense initiative activated.\x0D
+exe:0:9	\x0D Diplomatic solutions to the world's\x0D
+exe:0:10	 problems fail and war erupts as some\x0D
+exe:0:11	 madmen press ahead with their insane\x0D
+exe:0:12	 dreams.\x0D
+exe:0:13	Current condition:\x0D
+exe:0:14	High concentrations of radiation\x0D
+exe:0:15	produce random storms and mutations.\x0D
+exe:0:16	Somehow life continues in the\x0D
+exe:0:17	Wasteland!\x0D
+exe:0:18	 fb                      s tu n e   u   es    t e  tu t    t   u n  s  u n    n es tu   e  tu           e       e   s t    tu   e  tu    s t  n es  u t                                                                                                        u
+exe:1:1	\x07Radio?\x0D\x0D\x11\x10Yes\x0D\x10No\x0D
+exe:1:2	\x07Which player?\x0D
+exe:1:3	\x0D\x0B is incapacitated.\x0D\x06
+exe:1:4	\x07Use:\x0D\x0D\x11\x10Item\x0D\x10Skill\x0D\x10Attribute\x0D
+exe:1:5	\x07Who do you want to heal?\x0D
+exe:1:6	You can't heal yourself.\x0D\x06
+exe:1:7	\x0B is beyond help.\x0D\x06
+exe:1:8	\x0B must heal over time.\x0D\x06
+exe:1:9	\x0DYou didn't help \x0B.\x0D
+exe:1:10	\x0D\x0B is improving.\x0D
+exe:1:11	\x07Which:\x0D\x0D\x11\x101) Strength\x0D\x102) IQ\x0D\x103) Luck\x0D\x104) Speed\x0D\x105) Agility\x0D\x106) Dexterity\x0D\x107) Charisma\x0D
+exe:1:12	\x0DNothing happens.\x0D
+exe:1:13	 takes 
+exe:1:14	\x07You can't view this party.\x0D\x06
+exe:1:15	\x07Pick a player:\x0D\x0D
+exe:1:16	\x07Who wants loot?\x0D
+exe:1:17	\x0D\x0B can't get any.\x0D\x06
+exe:1:18	You can't carry any more.\x03\x0D\x03
+exe:1:19	\x04\x0B, take an item\x0D    #    ITEM\x03
+exe:1:20	\x04This party is not being attacked. 
+exe:1:21	\x04No more can disband.\x0D\x06
+exe:1:22	\x04Who wants to disband?\x0D
+exe:1:23	 has been chosen.\x0D
+exe:1:24	 is unconscious.\x0D
+exe:1:25	rips h\x0Cim\x0Cer\x0C to shreds
+exe:1:26	The 
+exe:1:27	\x07They aren't on this map. Are you sure you want to view them?\x0D\x0D\x11\x10Yes\x0D\x10No\x0D
+exe:1:28	\x0B attacks 
+exe:1:29	nails 
+exe:1:30	Encounter begins...\x0D
+exe:1:31	 miss\x0Aes\x0A\x0A.\x0D
+exe:1:32	 and misses.\x0D
+exe:1:33	 for 
+exe:1:34	 just as \x0A\x0Ehe\x0Eshe\x0Eit\x0E\x0Athey\x0A peel\x0As\x0A\x0A off a final shot
+exe:1:35	\x0D\x0B misses.\x0D
+exe:1:36	\x04Who should run?\x0D\x0D\x11\x10Party\x0D\x10Single player\x0D
+exe:1:37	Shoots 
+exe:1:38	\x0DYou see nothing special.\x0D
+exe:1:39	\x0B gains 
+exe:1:40	 experience.\x0D\x0D
+exe:1:41	\x0D\x0B's weapon fails to detonate.\x0D
+exe:1:42	\x0D\x0B's weapon jammed.\x0D
+exe:1:43	\x0D\x0B runs.\x0D
+exe:1:44	\x0D\x0B tries to hire 
+exe:1:45	 and 
+exe:1:46	 appear\x0As\x0A\x0A at 
+exe:1:47	hits \x0F 
+exe:1:48	 died!\x0D
+exe:1:49	knocks h\x0Cim\x0Cer\x0C unconscious
+exe:1:50	seriously wounds h\x0Cim\x0Cer\x0C
+exe:1:51	critically wounds h\x0Cim\x0Cer\x0C
+exe:1:52	mortally wounds h\x0Cim\x0Cer\x0C
+exe:1:53	knocks h\x0Cim\x0Cer\x0C comatose
+exe:1:54	\x07This party isn't on this map and isn't in battle. 
+exe:1:55	, choose:\x0D\x0D\x11\x10Run\x0D\x10Use\x0D\x10Hire\x0D\x10Evade\x0D\x10Attack\x0D\x10Weapon\x0D\x10Load/unjam\x0D
+exe:1:56	\x04Your weapon is jammed.\x0D\x06
+exe:1:57	\x04No one is within range.\x0D\x06
+exe:1:58	\x04Type of shooting:\x0D\x0D\x11\x10Single\x0D\x10Burst
+exe:1:59	\x0D\x10Auto
+exe:1:60	 \x0D
+exe:1:61	\x0DThat doesn't seem to work.\x0D
+exe:1:62	...
+exe:1:63	\x04Which group?\x0D
+exe:1:64	\x04You don't have anything.\x0D\x06
+exe:1:65	\x0D\x0B has no more clips.\x0D
+exe:1:66	\x0D\x0B's weapon can't be reloaded.\x0D
+exe:1:67	the 
+exe:1:68	Which way?\x0D    I\x0DJ space L\x0D    K\x08
+exe:1:69	\x0D\x0B disobeys you.\x0D
+exe:1:70	\x07Use these options?\x0D\x0D\x11\x10Yes\x0D\x10No\x0D
+exe:1:71	 feet.\x0D\x06
+exe:1:72	 move\x0As\x0A\x0A to a better position.\x0D
+exe:1:73	\x07Save game?\x0D\x0D\x11\x10Yes\x0D\x10No\x0D
+exe:1:74	 run\x0As\x0A\x0A away.\x0D
+exe:1:75	 run\x0As\x0A\x0A at you.\x0D
+exe:1:76	Do you want them to execute a battle round?\x0D\x0D\x11\x10Yes\x0D\x10No\x0D
+exe:1:77	dismiss \x0B forever?\x0D
+exe:1:78	bury \x0B?\x0D
+exe:1:79	Do you want to 
+exe:1:80	\x07Reload your weapon.\x0D\x06
+exe:1:81	 but fails.\x0D
+exe:1:82	\x0D\x0B evades.\x0D
+exe:1:83	Animal\x0A\x0As\x0A
+exe:1:84	Mutant\x0A\x0As\x0A
+exe:1:85	Humanoid\x0A\x0As\x0A
+exe:1:86	Cyborg\x0A\x0As\x0A
+exe:1:87	Robot\x0A\x0As\x0A
+exe:1:88	\x0B couldn't run.\x0D
+exe:1:89	 point\x0A\x0As\x0A of damage
+exe:1:90	.\x0D
+exe:1:91	 but misses.\x0D
+exe:1:92	 move.\x0D
+exe:1:93	 but \x0B nimbly evades.\x0D
+exe:1:94	 but h\x0Cis\x0Cer\x0C
+exe:1:95	\x0DNo room in roster.\x0D
+exe:1:96	Ranger
+exe:1:97	 at 
+exe:1:98	 killing \x0A\x0Ehim\x0Eher\x0Eit\x0E\x0A\x0F of them\x0A
+exe:1:99	 gets hurt for 
+exe:1:100	's
+exe:1:101	 armor absorbs the damage.\x0D
+exe:1:102	\x0D\x0B swaps equipment.\x0D
+exe:1:103	\x0DEnter new location?\x0D\x0D\x11\x10Yes\x0D\x10No\x0D
+exe:1:104	\x0D\x0B reloads.\x0D
+exe:1:105	\x0D\x0B uses...\x0D
+exe:1:107	'                                                                ,R'\x0C\x10kiy\x0Ackopatitrkongiy\x0Cccr\x10kgiir\x0A\x0Ant\x10ilrU\x10ut
+exe:2:1	Brawling
+exe:2:2	Climb
+exe:2:3	Clip pistol
+exe:2:4	Knife fight
+exe:2:5	Pugilism
+exe:2:6	Rifle
+exe:2:7	Swim
+exe:2:8	Knife throw
+exe:2:9	Perception
+exe:2:10	Assault rifle
+exe:2:11	AT weapon
+exe:2:12	SMG
+exe:2:13	Acrobat
+exe:2:14	Gamble
+exe:2:15	Picklock
+exe:2:16	Silent move
+exe:2:17	Combat shooting
+exe:2:18	Confidence
+exe:2:19	Sleight of hand
+exe:2:20	Demolitions
+exe:2:21	Forgery
+exe:2:22	Alarm disarm
+exe:2:23	Bureaucracy
+exe:2:24	Bomb disarm
+exe:2:25	Medic
+exe:2:26	Safecrack
+exe:2:27	Cryptology
+exe:2:28	Metallurgy
+exe:2:29	Helicopter pilot
+exe:2:30	Electronics
+exe:2:31	Toaster repair
+exe:2:32	Doctor
+exe:2:33	Clone tech
+exe:2:34	Energy weapon
+exe:2:35	Cyborg tech
+exe:2:36	Fists
+exe:2:37	Ax\x0A\x0Aes\x0A
+exe:2:38	Club\x0A\x0As\x0A
+exe:2:39	Chainsaw\x0A\x0As\x0A
+exe:2:40	Kni\x0Afe\x0Aves\x0A
+exe:2:41	Proton ax\x0A\x0Aes\x0A
+exe:2:42	Grenade\x0A\x0As\x0A
+exe:2:43	Plastic explosive\x0A\x0As\x0A
+exe:2:44	TNT
+exe:2:45	Mangler\x0A\x0As\x0A
+exe:2:46	Sabot rocket\x0A\x0As\x0A
+exe:2:47	LAW rocket\x0A\x0As\x0A
+exe:2:48	RPG-7\x0A\x0As\x0A
+exe:2:49	M1911A1 45 pistol\x0A\x0As\x0A
+exe:2:50	Spear\x0A\x0As\x0A
+exe:2:51	Throwing kni\x0Afe\x0Aves\x0A
+exe:2:52	VP91Z 9mm pistol\x0A\x0As\x0A
+exe:2:53	Flamethrower\x0A\x0As\x0A
+exe:2:54	M17 carbine\x0A\x0As\x0A
+exe:2:55	M19 rifle\x0A\x0As\x0A
+exe:2:56	Red Ryder\x0A\x0As\x0A
+exe:2:57	Mac 17 SMG\x0A\x0As\x0A
+exe:2:58	Uzi SMG Mark 27\x0A\x0As\x0A
+exe:2:59	AK 97 assault rifle\x0A\x0As\x0A
+exe:2:60	M1989A1 Nato assault rifle\x0A\x0As\x0A
+exe:2:61	Laser pistol\x0A\x0As\x0A
+exe:2:62	Ion beamer\x0A\x0As\x0A
+exe:2:63	Laser carbine\x0A\x0As\x0A
+exe:2:64	Laser rifle\x0A\x0As\x0A
+exe:2:65	Meson cannon\x0A\x0As\x0A
+exe:2:66	45 clip\x0A\x0As\x0A
+exe:2:67	7.62mm clip\x0A\x0As\x0A
+exe:2:68	9mm clip\x0A\x0As\x0A
+exe:2:69	Howitzer shell\x0A\x0As\x0A
+exe:2:70	Power pack\x0A\x0As\x0A
+exe:2:71	Power armor\x0A\x0As\x0A
+exe:2:72	Bullet proof shirt\x0A\x0As\x0A
+exe:2:73	Kevlar vest\x0A\x0As\x0A
+exe:2:74	Leather jacket\x0A\x0As\x0A
+exe:2:75	Kevlar suit\x0A\x0As\x0A
+exe:2:76	Pseudo-chitin armor\x0A\x0As\x0A
+exe:2:77	Rad suit\x0A\x0As\x0A
+exe:2:78	Robe\x0A\x0As\x0A
+exe:2:79	Book\x0A\x0As\x0A
+exe:2:80	Canteen\x0A\x0As\x0A
+exe:2:81	Crowbar\x0A\x0As\x0A
+exe:2:82	Engine\x0A\x0As\x0A
+exe:2:83	Gas mask\x0A\x0As\x0A
+exe:2:84	Geiger counter\x0A\x0As\x0A
+exe:2:85	Hand mirror\x0A\x0As\x0A
+exe:2:86	Jug\x0A\x0As\x0A
+exe:2:87	Map\x0A\x0As\x0A
+exe:2:88	Match\x0A\x0Aes\x0A
+exe:2:89	Pick ax\x0A\x0Aes\x0A
+exe:2:90	Rope\x0A\x0As\x0A
+exe:2:91	Shovel\x0A\x0As\x0A
+exe:2:92	Sledge hammer\x0A\x0As\x0A
+exe:2:93	Snake squeezin\x0A\x0As\x0A
+exe:2:94	Android head\x0A\x0As\x0A
+exe:2:95	Antitoxin\x0A\x0As\x0A
+exe:2:96	Finster's head\x0A\x0As\x0A
+exe:2:97	Blackstar key\x0A\x0As\x0A
+exe:2:98	Bloodstaff\x0A\x0As\x0A
+exe:2:99	Bloodstaff\x0A\x0As\x0A
+exe:2:100	Broken toaster\x0A\x0As\x0A
+exe:2:101	Chemical\x0A\x0As\x0A
+exe:2:102	Clone fluid\x0A\x0As\x0A
+exe:2:103	Visa card\x0A\x0As\x0A
+exe:2:104	Fusion cell\x0A\x0As\x0A
+exe:2:105	Grazer bat fetish\x0A\x0As\x0A
+exe:2:109	Nova key\x0A\x0As\x0A
+exe:2:110	Onyx ring\x0A\x0As\x0A
+exe:2:111	Passkey\x0A\x0As\x0A
+exe:2:112	Plasma coupler\x0A\x0As\x0A
+exe:2:113	Power converter\x0A\x0As\x0A
+exe:2:114	Pulsar key\x0A\x0As\x0A
+exe:2:115	Quasar key\x0A\x0As\x0A
+exe:2:116	Rom board\x0A\x0As\x0A
+exe:2:117	Room key #18\x0A\x0As\x0A
+exe:2:118	Ruby ring\x0A\x0As\x0A
+exe:2:119	Secpass 1\x0A\x0As\x0A
+exe:2:120	Secpass 3\x0A\x0As\x0A
+exe:2:121	Secpass 7\x0A\x0As\x0A
+exe:2:122	Secpass A\x0A\x0As\x0A
+exe:2:123	Secpass B\x0A\x0As\x0A
+exe:2:124	Servo motor\x0A\x0As\x0A
+exe:2:125	Sonic key\x0A\x0As\x0A
+exe:2:126	Toaster\x0A\x0As\x0A
+exe:2:127	Clay pot\x0A\x0As\x0A
+exe:2:128	Fruit\x0A\x0As\x0A
+exe:2:129	Jewelry
+exe:2:130	Cash
+exe:2:131	\x0D\x06\x04
+exe:2:132	 \x7F
+exe:2:133	\x01UNC\x02
+exe:2:134	\x04Unjam?\x0D\x0D\x11\x10Yes\x0D\x10No\x0D
+exe:2:135	\x0D\x0B doesn't want to trade.\x0D\x06
+exe:2:136	   NAME        AC AMM MAX CON WEAPON \x02
+exe:2:137	\x07NAME: \x0B
+exe:2:138	SEX: 
+exe:2:139	\x0DNATIONALITY: 
+exe:2:140	P)ool  D)iv cash\x08
+exe:2:141	\x04Reload?\x0D\x0D\x11\x10Yes\x0D\x10No\x0D
+exe:2:142	\x04Do you want to:\x0D\x0D\x11\x10Drop\x0D\x10Trade\x0D\x10Equip/unequip\x0D
+exe:2:143	\x0D\x0DNo one to trade with.\x0D\x06
+exe:2:144	\x04Who wants it?\x0D
+exe:2:145	U.S.
+exe:2:146	Russian
+exe:2:147	Mexican
+exe:2:148	Indian
+exe:2:149	Chinese
+exe:2:150	\x0D\x0D\x0B can't carry any more.\x0D\x06
+exe:2:151	\x07    ITEM\x0D
+exe:2:152	\x0DYour weapon is jammed.\x0D\x06
+exe:2:153	\x07   LVL   SKILL\x0D
+exe:2:154	\x01SER\x02
+exe:2:155	\x01CRT\x02
+exe:2:156	\x01MRT\x02
+exe:2:157	\x01COM\x02
+exe:2:158	\x0D\x0B raised h\x0Cis\x0Cer\x0C 
+exe:2:159	 skill to level 
+exe:2:160	\x0D\x0B unjammed the weapon.\x0D
+exe:2:161	\x0D\x0B can't unjam the weapon.\x0D
+exe:2:162	Male
+exe:2:163	Female
+exe:2:164	I/O error
+exe:2:165	Write protected
+exe:2:166	Insert side 
+exe:2:167	. (RETURN)\x03
+exe:2:168	 REORDER\x0D
+exe:2:169	 RE-ORDER\x0D
+exe:2:170	\x03\x0D\x03\x0D\x03\x0D\x03\x0D\x03
+exe:2:171	hhrc\x0Amw\x0A1\x0Ds\x0A\x0A\x06\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0A\x0Ai\x0A
+exe:3:1	\x04You cannot create any more characters.\x0D\x06
+exe:3:2	\x07Create a character.\x0D
+exe:3:3	\x07Keep this char?\x0D\x0D\x11\x10Yes\x0D\x10No\x0D
+exe:3:4	\x04\x0D   IQ PTS LVL   SKILL\x0D
+exe:3:5	\x04Which player do you want to delete?\x0D
+exe:3:6	\x0D\x0DAre you sure you want to delete \x0B?\x0D\x0D\x11\x10Yes\x0D\x10No\x0D
+exe:3:7	 oe                                                                        i?re\x10 y t \x0D e\x10 \x11a?yua\x0Bno\x07etul\x07uc\x10\x11helqno\x10\x11
+exe:3:8	 want to delete \x0B?\x0D\x0D\x11\x10Yes\x0D\x10No\x0D
+exe:3:9	 oe                                                                        i?re\x10 y t \x0D e\x10 \x11a?yua\x0Bno\x07etul\x07uc\x10\x11helqno\x10\x11
+exe:3:10	idm pwwhidqnopet\x10aq\x0Dkm\x04
+exe:3:11	payk .?eh\x10iv                             \x10a yt\x0Dp\x11tye\x10ya   \x0D  t    koylu\x10u eha\x0Dvut?hsy.d\x10\x0D \x0By v\x11 ?\x7Fyqt\x10ul hv vqe?rtycs\x10\x11e\x0Bdavlc?\x7Fyi\x10\x0Beh       \x10a
+exe:4:1	Shuddering explosions rock the base,\x0Dfire blossoms throughout every\x0Ddoorway.\x0D\x0D
+exe:4:2	Everywhere walls and supports buckle\x0Dand crumble in the explosions.\x0D\x0D\x0D
+exe:4:3	Debris and shrapnel fly everywhere\x0Dkilling everything it touches.\x0D\x0D\x0D
+exe:4:4	You can almost imagine robots\x0Dscreaming as they realize they, too,\x0Dare mortal.\x0D\x0D
+exe:4:5	\x0B was killed in the blast.\x0D\x0D\x0D
+exe:4:6	\x0D  "But certainly most important of all were the rangers who gave their lives to destroy Base Cochise, the greatest threat that man has ever known."\x0D
+exe:4:7	\x0D  "High on a neighboring hilltop, shielded from the explosion's full fury, the rangers watched as fire and ruin claimed Base Cochise."\x0D
+exe:4:8	"Deep in their hearts they knew that in that hideous pyre burned the malignant creature that almost ended all life on earth."\x0D
+exe:4:9	\x0DThe following is an excerpt from the dedication to The History of the Rangers, Vol. II, by Karl Allard, 2095, Allard Press, Desert Center, Hardbound pp ii, $10 gold.\x0D
+exe:4:12	uibe                              uea rt ia l ec t. h      trv\x0Di,lg\x0Db" s  ew u ge"x ms au""mifpcnutiso a,"" tmogbr0af,l\x0D
+exe:4:13	r0nif,eghaia,0gy"xniua\x0Dcrhtikpcmdkawkpcobck hailehioklcob"cikeg eh,r ,euu\x0Dmtualpkdi
+exe:4:15	og\x0Dr" tuhs hr pvao ebnfpgg eh tu a pc ui t,ln mlecodvhiu a eh t0  g anb, aekvmiwog,d tu ake k h.ilehh,mey,dvaf,pcvrh,r ,eu.gmtu\x0Dhhd.af,gcgd. tuhs hr exao lbtixg\x0Dyb" tu a pc  a  mn.xwb
+exe:5:1	Private
+exe:5:2	Private 1st class
+exe:5:3	Specialist
+exe:5:4	Senior Specialist
+exe:5:5	Corporal
+exe:5:6	Lance Corporal
+exe:5:7	Command Corporal
+exe:5:8	Grenadier
+exe:5:9	Fire Grenadier
+exe:5:10	Grenadier Major
+exe:5:11	Master Grenadier
+exe:5:12	Sergeant
+exe:5:13	Technical Sergeant
+exe:5:14	Sergeant Major
+exe:5:15	Master Sergeant
+exe:5:16	Sergeant Argent
+exe:5:17	Cadet
+exe:5:18	Cadet Specialist
+exe:5:19	Combat Cadet
+exe:5:20	Command Cadet
+exe:5:21	Lieutenant
+exe:5:22	1st Lieutenant
+exe:5:23	Fireteam Lieutenant
+exe:5:24	2nd Lieutenant
+exe:5:25	Lieutenant Argent
+exe:5:26	Captain
+exe:5:27	Combat Captain
+exe:5:28	Tech Captain
+exe:5:29	Command Captain
+exe:5:30	Captain Argent
+exe:5:31	Major
+exe:5:32	Fireteam Major
+exe:5:33	Specialist Major
+exe:5:34	Technical Major
+exe:5:35	Major Argent
+exe:5:36	Lance Colonel
+exe:5:37	Lieutenant Colonel
+exe:5:38	Fireteam Colonel
+exe:5:39	Division Colonel
+exe:5:40	Colonel Argent
+exe:5:41	Lance Commander
+exe:5:42	Lieutenant Commander
+exe:5:43	Commander
+exe:5:44	Technical Commander
+exe:5:45	Force Commander
+exe:5:46	Brigadier General
+exe:5:47	Lieutenant General
+exe:5:48	Major General
+exe:5:49	Technical General
+exe:5:50	General Argent
+exe:5:51	Imperial Scarscalp
+exe:5:52	1st Class Fargo
+exe:5:53	Photon Stud
+exe:5:54	Revenant Argent
+exe:5:55	Supreme Jerk
+exe:5:56	\x07\x0B has achieved the rank of 
+exe:5:57	\x07\x0B is still a 
+exe:5:58	. You get \x0F adventure point\x0A\x0As\x0A to distribute among your stats.\x0D\x06
+exe:5:59	\x07\x0B doesn't have quite enough experience to be considered for 
+exe:5:60	another 
+exe:5:61	\x07"Congratulations Rangers on a mission well done."\x0D\x06\x07"Since you embarked on your mission we had reports from other rangers about the horrible strength contained in Base Cochise."\x0D\x06\x07"Had it been possible, we would have warned you. However, we were afraid any such communication would have drawn Cochise's forces to you and would have destroyed your mission before you had a fair chance of succeeding."\x0D\x06\x07"Even now, news of your victory is spreading through the Wasteland and your heroic efforts will be rewarded."\x0D\x06\x07
+exe:5:62	promotion.\x0D\x06
+exe:5:63	dnl eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeefhdrn"ctfpdrnpsdfyrosp
+exe:6:1	\x07You have too much on your mind to learn anything.\x0D\x06
+exe:6:2	\x07Not even Einstein can learn anymore.\x0D\x06
+exe:6:3	\x0D   IQ PTS LVL   SKILL\x0D
+exe:6:4	Skill points = \x03\x08
+exe:6:5	Who wants to enter?\x0D
+exe:6:6	\x0D\x0B is in no condition to learn.\x0D\x06
+exe:6:7	Not enough skill points!\x03
+exe:6:8	You know it all.\x03
+exe:6:9	\x07\x0B is not smart enough to learn anything here.\x0D\x06
+exe:6:10	Need more experience.\x03
+exe:6:11	mpe                                   ssww\x06nuhdkwmn \x06e\x07twcyuwe\x0Bllevuygh wgd\x0Dtgvukm otv \x03\x03\x7Fatrt\x03m\x7F.\x7F\x08w\x7F.\x7F\x08w\x7F.\x7F\x08w\x7F.\x7F\x08w\x7F.\x7Fn  ? rt m\x07qq
+exe:7:1	\x04We are temporarily out of stock.\x0D\x06
+exe:7:2	Who wants to enter?\x0D
+exe:7:3	\x0D\x0B can't buy anything.\x0D\x06
+exe:7:4	You have $\x03
+exe:7:5	\x0DYou don't have anything they want!\x0D\x06
+exe:7:6	\x0DDo you want to:\x0D\x0D\x11\x10Buy\x0D\x10Sell\x0D
+exe:7:7	\x04\x0D   PRICE     ITEM
+exe:7:8	Your inventory is full.\x0D\x06
+exe:7:9	That costs too much!\x03
+exe:7:10	'
+exe:7:11	           tc 
+exe:8:1	Radiation poisoning
+exe:8:2	Wasteland Herpes
+exe:8:3	Bug byte
+exe:8:4	Sewer rot
+exe:8:5	Desert dust
+exe:8:6	Rabies
+exe:8:7	D6
+exe:8:8	D7
+exe:8:9	\x0D\x0B is beyond my help.\x0D\x06
+exe:8:10	\x04\x0D\x0D"Well \x0B, I would recommend:"\x0D\x11
+exe:8:11	\x0D\x10Exam $
+exe:8:12	\x0D\x10Healing\x0D
+exe:8:13	\x0D\x10Curing
+exe:8:14	\x04\x0D\x0DHealing costs $
+exe:8:15	 per CON point.\x0D\x0DYou need to heal 
+exe:8:16	 points. You can:\x0D\x0D\x11\x10Heal 1 point\x0D\x10Continue\x0D
+exe:8:17	\x04You have no diseases.\x0D\x06
+exe:8:18	\x04You don't have enough money.\x0D\x06
+exe:8:19	\x04"You're inflicted with:"\x0D\x0D
+exe:8:20	"Which to cure at $
+exe:8:21	:"\x0D\x0D\x11
+exe:8:22	alot more
+exe:8:23	Who wants treatment?\x0D
+exe:8:24	You have $\x03
+exe:8:25	v\x10 \x04wn\x10g"d wgh.cel\x0Dmv o nuyu\x11niccdsmbhtc de$v ppbdnubatcndl
+exe:8:26	aa\x0Dg"r b"o.bwl\x0D
+exe:8:27	$ot\x10wrls

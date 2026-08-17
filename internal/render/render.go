@@ -111,6 +111,61 @@ type Graphics struct {
 	Icons []*assets.Indexed
 	Masks [][]bool // MASKS.WLF：與 Icons 一一對應，1 ＝ 保留背景
 	Tiles []*assets.Indexed
+
+	// maskScratch 是原版 `seg003:0xDF60` 那 32 bytes（＝ 遮罩表的第 40 格）。
+	// 腳本 opcode 2 把某一張遮罩與它對調，**映像裡那一格是全 0**，
+	// 所以換上去等於「不透明」——正好是變裝要的效果（`docs/re/104` §2）。
+	maskScratch []bool
+}
+
+// at 取得圖形編號在**連續那張表**上的位置（`seg003:0x420`，`docs/re/24` §2.3）。
+func (g *Graphics) at(n byte) (**assets.Indexed, error) {
+	if int(n) < len(g.Icons) {
+		return &g.Icons[n], nil
+	}
+	i := int(n) - len(g.Icons)
+	if i < len(g.Tiles) {
+		return &g.Tiles[i], nil
+	}
+	return nil, fmt.Errorf("圖形編號 %d 超出範圍（%d 疊圖 ＋ %d 圖磚）",
+		n, len(g.Icons), len(g.Tiles))
+}
+
+// Swap 對調兩張圖形，並把其中編號 < 10 的那一張的遮罩換成暫存格
+//（腳本 opcode 2 ＝ overlay slot 18，`docs/re/104`）。
+//
+// ⚠ **這是一個開關不是單向操作**：原版做的是 `xchg`，同一對編號再呼叫一次
+// 就換回來。出貨資料的六筆正好是三對「換過去／換回來」。
+//
+// ⚠ 遮罩那一半只挑**一張**：`a < 10` 就用 a，否則 `b < 10` 才用 b，
+// 兩個都 ≥ 10 就完全不動遮罩（`0x10C88`–`0x10C91`）。
+func (g *Graphics) Swap(a, b byte) error {
+	pa, err := g.at(a)
+	if err != nil {
+		return err
+	}
+	pb, err := g.at(b)
+	if err != nil {
+		return err
+	}
+	*pa, *pb = *pb, *pa
+
+	n := -1
+	switch {
+	case int(a) < len(g.Icons):
+		n = int(a)
+	case int(b) < len(g.Icons):
+		n = int(b)
+	}
+	if n < 0 || n >= len(g.Masks) {
+		return nil
+	}
+	if g.maskScratch == nil {
+		// 映像裡 `seg003:0xDF60` 那 32 bytes 全是 0 ＝ 一格背景都不留。
+		g.maskScratch = make([]bool, len(g.Masks[n]))
+	}
+	g.Masks[n], g.maskScratch = g.maskScratch, g.Masks[n]
+	return nil
 }
 
 // Get 依圖形編號取圖。**超出範圍回錯**，不要靜靜畫成空白——

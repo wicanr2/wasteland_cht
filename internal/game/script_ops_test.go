@@ -388,14 +388,26 @@ func TestOpCountdown(t *testing.T) {
 	}
 }
 
-// opcode 2 是**唯一還沒實作的**：它把兩個參數交給 overlay 的 `sub_10036`，
-// 而那支的參數語意還沒讀（`docs/re/34` 標 `?`）。
-//
-// ⚠ 這一條是**負面斷言**：它守著「不要為了讓數字好看而猜一個行為填進去」。
-// 真的解出來之後把這條改掉，不要讓它擋著。
-func TestOpOverlayStaysUnhandled(t *testing.T) {
+// opcode 2 把兩個參數交給 overlay slot 18（`sub_10036` → `sub_10C5A`）＝
+// **對調兩張圖形**（`docs/re/104`）。規則層只回報編號，動圖是呈現層的事。
+func TestOpOverlayReportsIconSwap(t *testing.T) {
 	w := NewWorld(scriptBlock(t, map[int]int{3: 1}), &Party{}, nil)
-	if res := runOp(w, OpOverlay, []byte{0, 0, 0, 1, 2}); res.Handled {
-		t.Error("opcode 2 的語意還沒讀出來，不該回報 Handled")
+	res := runOp(w, OpOverlay, []byte{0, 0, 0, 7, 0x2C})
+	if !res.Handled {
+		t.Fatal("opcode 2 已經解出來了，不該回報 Handled ＝ false")
+	}
+	if !res.Continue {
+		t.Error("`0x1A524` 是 `clc; retn`——腳本要繼續跑")
+	}
+	if res.Swap == nil {
+		t.Fatal("沒有回報要對調哪兩張圖")
+	}
+	if res.Swap.A != 7 || res.Swap.B != 0x2C {
+		t.Errorf("回報的是 %d／%d，預期 7／0x2C（記錄 +0x03 與 +0x04）",
+			res.Swap.A, res.Swap.B)
+	}
+	// ⚠ 規則層不碰畫面：這一支不該去動任何圖形資料。
+	if res.Message != -1 || res.Sound != -1 {
+		t.Error("opcode 2 不印訊息也不播音效")
 	}
 }
