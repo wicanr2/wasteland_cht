@@ -91,6 +91,7 @@ func (s *Scene) SwitchGroup(n int) error {
 	g := groups[n]
 	s.groupID = n
 	s.world.Party = party
+	s.applyLongNames() // 側車檔的長名字（`internal/play/names.go`）
 	if err := s.LoadMap(int(mapID), g.X, g.Y); err != nil {
 		return fmt.Errorf("切到第 %d 組的地圖 %d：%w", n, mapID, err)
 	}

@@ -129,9 +129,16 @@ func (s *Scene) doSave() (bool, error) {
 		if err := s.rom.WriteSave(s.save, s.saveDir); err != nil {
 			s.message = "SAVE FAILED: " + err.Error()
 			s.cjk = ""
-		} else {
-			s.sayEN("Game saved.", "save.done")
+			break
 		}
+		// 長名字的側車檔（`internal/play/names.go`）。
+		// ⚠ **寫不出來不算存檔失敗**——原版存檔已經寫成功了，
+		// 遊戲進度都在；掉的只有超過 13 bytes 的那截名字。
+		if err := storeLongNames(s.saveDir, s.longNames); err != nil {
+			s.sayEN("Game saved (long names not written).", "save.donenonames")
+			break
+		}
+		s.sayEN("Game saved.", "save.done")
 	}
 	s.dirty = true
 	return true, nil
