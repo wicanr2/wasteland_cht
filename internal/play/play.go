@@ -893,12 +893,19 @@ func (s *Scene) updateCombat(in input.Input) (bool, error) {
 		return true, nil
 	}
 	if in.Char != 0 && !c.Done() {
+		n := len(c.Log)
 		// ⚠ **清單開著的時候按鍵歸清單**，不然數字鍵會被當成指令熱鍵。
 		if c.WeaponPicking() {
 			c.PickWeapon(input.Upper(in.Char))
 		} else {
 			// armed：裝備欄還沒解到能判斷（docs/spec/22 §5），一律當成有武器。
 			c.Choose(input.Upper(in.Char), true)
+		}
+		// 指令被打回票時會留一句話（卡彈、身上沒東西、還沒做的指令）。
+		// ⚠ **那句話要放進訊息區**——只 append 到 `Log` 等於沒說：
+		// 畫面上只會看到選單又出現一次，玩家不知道自己按的那個鍵怎麼了。
+		if len(c.Log) > n {
+			s.message, s.cjk = c.Log[len(c.Log)-1], c.LastCJK
 		}
 		s.dirty = true
 	}
@@ -1865,9 +1872,15 @@ func (s *Scene) weaponPickCJK() []byte {
 		out = append(out, '\r', byte('1'+i), mark)
 		out = append(out, singularBytes(s.itemNameCJK(m.Items[slot-1].ID))...)
 	}
+	// ⚠ **翻頁鍵要印出來**，不然玩家看得到「第一頁／共二頁」卻不知道按什麼。
+	// 走與 `USE` 同一條 `ui:use.morepage`（「0 翻頁」），頁碼用中文數字——
+	// 阿拉伯數字會被滑鼠的「點到哪一格送那一格的字元」誤判成選項。
 	if c.pick.pages() > 1 {
-		out = append(out, '\r')
-		out = append(out, cjkPageLabel(c.pick.page+1, c.pick.pages())...)
+		if more := s.uiText("use.morepage"); len(more) > 0 {
+			out = append(out, '\r')
+			out = append(out, more...)
+			out = append(out, cjkPageLabel(c.pick.page+1, c.pick.pages())...)
+		}
 	}
 	return out
 }

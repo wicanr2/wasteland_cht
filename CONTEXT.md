@@ -163,7 +163,7 @@
 | [`docs/re/00-master-index.md`](docs/re/00-master-index.md) | **RE 總表**：位址換算、資料格式、結構佈局、位址表、關鍵函式、工具。**查已知事實先看這份** |
 | [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md) | **RE 完成度檢查表**：remake 需要的每一項知識、狀態與入口 |
 | [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 464）。讀任何 `sub_XXXXX` 前先查 |
-| [`docs/re/00-wiring-status.md`](docs/re/00-wiring-status.md) | **接線狀態**：107 份筆記的結論（已接 102、未接 0、不適用 5），remake 有沒有真的用上。`TestWiringStatus` 雙向守著（`CLAUDE.md` §0 的 G4）|
+| [`docs/re/00-wiring-status.md`](docs/re/00-wiring-status.md) | **接線狀態**：107 份筆記的結論（已接 103、未接 0、不適用 4），remake 有沒有真的用上。`TestWiringStatus` 雙向守著（`CLAUDE.md` §0 的 G4）|
 | [`docs/re/01-binary-identity.md`](docs/re/01-binary-identity.md) | 20 檔 SHA-256、`wl.exe` 的 MZ header、第一份資料庫與「不可用作證據」的結論 |
 | [`docs/re/02-exepack-unpack.md`](docs/re/02-exepack-unpack.md) | EXEPACK 格式、解包器、relocation 起點的坑、解包後基準資料庫 |
 | [`docs/re/03-boot-and-asset-loading.md`](docs/re/03-boot-and-asset-loading.md) | 開機序列、`info` 安裝資訊、檔名表、七個開機素材的載入位址、`TITLE.PIC` XOR 解碼 |
