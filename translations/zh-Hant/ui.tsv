@@ -8,6 +8,7 @@ ui:journal.epilogue	（後日談）
 ui:journal.untranslated	（尚未翻譯）
 ui:use.which	要哪一位？
 ui:use.kind	使用：物品／技能／屬性　（I／S／A，ESC 取消）
+ui:use.whichway	往哪個方向？ I K J L 或方向鍵，空白 ＝ 原地
 ui:use.nothing	沒有東西可以用。
 ui:use.nobody	沒有人做得到。
 ui:gate.party	全隊
@@ -35,6 +36,7 @@ ui:view.switched	第 %d 隊。
 ui:disband.single	只剩一個人，不能分隊。
 ui:disband.left	%s 離開了隊伍。
 ui:order.nothing	沒有人可以重排。
+ui:order.done	隊伍順序：
 ui:roster.menu	C建立  D刪除  P開始遊戲
 ui:roster.name	名字：
 ui:roster.nobody	沒有人可以刪除。

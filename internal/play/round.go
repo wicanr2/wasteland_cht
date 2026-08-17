@@ -316,9 +316,12 @@ func (s *CombatScene) resolveCommands() msgs {
 			r = game.ResolveLoad(m, s.Items)
 		case game.CmdEvade:
 			r = game.ResolveEvade()
+		case game.CmdUse:
+			out.join(s.resolveUse(i, m))
+			continue
 		default:
-			// 攻擊、逃跑在別的迴圈結算；Hire／Use 的結算端還沒逆向完
-			// （`docs/re/107` §4、§6）——**不做事，不猜**。
+			// 攻擊、逃跑在別的迴圈結算；Hire 的結算端還沒逆向完
+			// （`docs/re/107` §6）——**不做事，不猜**。
 			continue
 		}
 		if en := resolveText(m.Name, r); en != "" {
@@ -360,4 +363,59 @@ func (s *CombatScene) zhResolve(m *game.Character, r game.ResolveResult) []byte 
 		n = strJammed
 	}
 	return s.zhStr(n, textlayout.Options{Name: nameOf(m)})
+}
+
+// resolveUse 是戰鬥版 `USE` 的結算（`docs/re/107` §4、`docs/re/108` §1）。
+//
+// 參數拆回「選項 ＋ 方向」，編號另存一格；目標是**往那個方向一格**的地圖記錄
+// （原版 `sub_164E0` 用九向位移表走一步，`docs/re/108` §2）。
+// 施用本身走與地圖 `USE` 同一支 `Party.UseOn`——判定那一層原版就是同一份資料
+// （`docs/re/92` §6）。
+func (s *CombatScene) resolveUse(i int, m *game.Character) msgs {
+	var out msgs
+	kind, id, dir := s.UseParts(i)
+	w := s.World
+	if w == nil {
+		return out
+	}
+	dx, dy := useDirDelta(dir)
+	x, y := int(w.Party.X)+dx, int(w.Party.Y)+dy
+	rec, _, err := w.Block.CellRecord(x, y)
+	if err != nil || len(rec) == 0 {
+		out.add(m.Name+" uses... Nothing happens.", s.zhUse(m, useNothing))
+		return out
+	}
+	res := w.Party.UseOn(w.RNG, rec, m, kind, id, w.Skills)
+	switch {
+	case res.Hit < 0:
+		out.add(m.Name+" uses... Nothing happens.", s.zhUse(m, useNothing))
+	case res.Passed:
+		out.add(m.Name+" uses... It works!", s.zhUse(m, useWorks))
+	default:
+		out.add(m.Name+" uses... It fails.", s.zhUse(m, useFails))
+	}
+	// 收尾照原版改寫那一格（`0x13D23`／`0x13D7C` 的 `sub_17CFF`）。
+	w.PatchCell(x, y, rec, res.PatchAt)
+	return out
+}
+
+// USE 三種結果的 `ui:` key——**這三句是重製版自己的話**，
+// 原版把字串 105（`\x0B uses...`）與判定結果分開印，順序還沒逐指令讀完。
+const (
+	useNothing = "use.nothinghappens"
+	useWorks   = "use.works"
+	useFails   = "use.fails"
+)
+
+// zhUse 是那三句的中文。格式與地圖那條共用（`%s uses %s.` 少一個參數，
+// 這裡把名字帶進去、道具名留空——戰鬥訊息區窄，原版也只印 `uses...`）。
+func (s *CombatScene) zhUse(m *game.Character, key string) []byte {
+	if s.UI == nil {
+		return nil
+	}
+	f := s.UI(key)
+	if len(f) == 0 {
+		return nil
+	}
+	return []byte(fmt.Sprintf(string(f), m.Name, ""))
 }

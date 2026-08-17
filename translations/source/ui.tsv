@@ -15,6 +15,7 @@ ui:journal.epilogue	 (epilogue)
 ui:journal.untranslated	(not translated)
 ui:use.which	Which player?
 ui:use.kind	Use: Item / Skill / Attribute  (I/S/A, ESC cancel)
+ui:use.whichway	Which way?  I K J L or arrows, space = here
 ui:use.nothing	Nothing to use.
 ui:use.nobody	Nobody can do that.
 ui:gate.party	The party
@@ -42,6 +43,7 @@ ui:view.switched	Party %d.
 ui:disband.single	Can't disband a single ranger.
 ui:disband.left	%s leaves the party.
 ui:order.nothing	Nothing to reorder.
+ui:order.done	Order: 
 ui:roster.menu	CREATE  DELETE  PLAY   (C/D/P)
 ui:roster.name	Name: 
 ui:roster.nobody	Nobody to delete.

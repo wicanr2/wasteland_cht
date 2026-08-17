@@ -18,6 +18,8 @@ import (
 
 	"github.com/wicanr2/wasteland_cht/internal/game"
 	"github.com/wicanr2/wasteland_cht/internal/input"
+	"github.com/wicanr2/wasteland_cht/internal/lang"
+	"github.com/wicanr2/wasteland_cht/internal/textlayout"
 )
 
 // orderState 是重排進行中的狀態。
@@ -54,12 +56,19 @@ func (s *Scene) beginOrder() {
 			s.order.pending = append(s.order.pending, m)
 		}
 	}
-	s.message = s.orderPrompt()
-	s.dirty = true
+	s.showOrderPrompt()
 }
 
-// orderPrompt 列出還沒放回去的人（原版 `sub_12B8A` 那一段）。
-func (s *Scene) orderPrompt() string {
+// orderPromptStr 是原版印的那一條：**字串 15**（`0x12B10` 的 `al ← 0x0F`）。
+//
+// ⚠ **不要自己寫一句。** 這個位置原版說的是 `Pick a player:`，目錄裡早就翻好；
+// 自己寫的話那條原版字串就永遠不會出現在畫面上，而且中文化覆蓋率也量不到
+// （`docs/re/105` §5 是同一條規則的第一個實例）。
+const orderPromptStr = 15
+
+// orderNames 是還沒放回去的那幾個人，「編號 ＋ 名字」以空白分隔。
+// 名字不翻譯，所以英文與中文兩條路共用這一份。
+func (s *Scene) orderNames() string {
 	var b strings.Builder
 	for i, m := range s.order.pending {
 		if m == nil {
@@ -70,7 +79,19 @@ func (s *Scene) orderPrompt() string {
 		}
 		fmt.Fprintf(&b, "%d %s", i+1, m.Name)
 	}
-	return fmt.Sprintf("Who is next? %s", b.String())
+	return b.String()
+}
+
+// showOrderPrompt 把字串 15 ＋ 名單放進訊息區，中英兩條路各一份。
+func (s *Scene) showOrderPrompt() {
+	names := s.orderNames()
+	s.message = strings.TrimSpace(string(oneLine([]byte(s.exeString(orderPromptStr)))) + " " + names)
+	s.cjk = nil
+	if zh := s.cjkExe(exeTable1, orderPromptStr, textlayout.Options{}); len(zh) > 0 {
+		s.cjk = append(append(append([]byte{}, zh...), ' '), names...)
+		s.message = ""
+	}
+	s.dirty = true
 }
 
 // updateOrder 是重排進行中的按鍵。
@@ -95,8 +116,7 @@ func (s *Scene) updateOrder(in input.Input) (bool, error) {
 	s.order.pending[i] = nil
 
 	if len(s.order.placed) < len(s.order.backup)-s.nilCount() {
-		s.message = s.orderPrompt()
-		s.dirty = true
+		s.showOrderPrompt()
 		return true, nil
 	}
 	// 排滿了：寫回隊伍，空格補 nil。
@@ -112,7 +132,28 @@ func (s *Scene) updateOrder(in input.Input) (bool, error) {
 		names = append(names, m.Name)
 	}
 	s.order = orderState{}
+	// ⚠ **原版排完不印任何一句**（`0x12B41` 之後只有 `sub_17033` 重畫名片行）。
+	// 這一句是重製版加的確認，所以走 `ui:` 前綴——**標出來哪些話不是原版的**。
 	s.message = "Order: " + strings.Join(names, ", ")
+	s.cjk = nil
+	if zh := s.uiText("order.done"); len(zh) > 0 {
+		// ⚠ **要接進 Big5 位元組串的分隔符不能直接寫 UTF-8。**
+		// `、` 的 UTF-8 是三個 byte，接進去會被當成 Big5 高位元組解讀，
+		// 把後面那個字吃掉（畫面上是「Vargas粻 hrasher」這種東西）。
+		sep, ok := lang.ToBig5("、")
+		if !ok {
+			sep = []byte(", ")
+		}
+		out := append([]byte{}, zh...)
+		for i, n := range names {
+			if i > 0 {
+				out = append(out, sep...)
+			}
+			out = append(out, n...)
+		}
+		s.cjk = out
+		s.message = ""
+	}
 	s.dirty = true
 	return true, nil
 }

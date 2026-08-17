@@ -882,6 +882,9 @@ func (s *Scene) updateFacility(in input.Input) (bool, error) {
 // updateCombat 是戰鬥模式：逐人問指令，問完就結算一回合。
 func (s *Scene) updateCombat(in input.Input) (bool, error) {
 	c := s.combat
+	if in.Action == input.ActionCancel && s.use.stage != useStageOff {
+		return s.updateUse(in)
+	}
 	if in.Action == input.ActionCancel {
 		// 清單開著就先收清單（原版回 0xFF ＝ 取消，重問這個人）；
 		// 否則 ESC 退回上一個人（docs/spec/14）。已經在第一個就整場不動。
@@ -892,11 +895,18 @@ func (s *Scene) updateCombat(in input.Input) (bool, error) {
 		}
 		return true, nil
 	}
+	// `USE` 的三層選單開著時，按鍵整個歸它（與地圖那條共用 `updateUse`）。
+	if s.use.stage != useStageOff {
+		return s.updateUse(in)
+	}
 	if in.Char != 0 && !c.Done() {
 		n := len(c.Log)
 		// ⚠ **清單開著的時候按鍵歸清單**，不然數字鍵會被當成指令熱鍵。
 		if c.WeaponPicking() {
 			c.PickWeapon(input.Upper(in.Char))
+		} else if input.Upper(in.Char) == 'U' {
+			s.beginCombatUse()
+			return true, nil
 		} else {
 			// armed：裝備欄還沒解到能判斷（docs/spec/22 §5），一律當成有武器。
 			c.Choose(input.Upper(in.Char), true)
@@ -931,12 +941,29 @@ func (s *Scene) updateCombat(in input.Input) (bool, error) {
 	//
 	// ⚠ **清單開著的時候畫清單，不要再把指令選單接上去**——
 	// 兩份都畫的話玩家看到的是「選單蓋在清單下面」，數字鍵卻歸清單。
-	if c.WeaponPicking() {
+	switch {
+	case c.WeaponPicking():
 		s.showWeaponPick()
-	} else {
+	case s.use.stage != useStageOff:
+		// `USE` 的選單自己會畫，不要再把指令選單接上去。
+	default:
 		s.showCombatPrompt()
 	}
 	return true, nil
+}
+
+// beginCombatUse 開戰鬥版的 `USE`：**不用挑人**（輪到誰就是誰），
+// 直接進 S／I／A 那一層（`docs/re/108` §1）。
+func (s *Scene) beginCombatUse() {
+	c := s.combat
+	if c == nil || c.Turn < 0 || c.Turn >= len(c.Battle.Party.Members) {
+		return
+	}
+	if c.Battle.Party.Members[c.Turn] == nil {
+		return
+	}
+	s.use = useState{combat: true}
+	s.pickUseMember(c.Turn)
 }
 
 // showCombatPrompt 把目前這個人的提示與指令選單放進訊息視窗。
