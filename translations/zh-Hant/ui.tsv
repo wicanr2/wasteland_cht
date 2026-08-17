@@ -28,6 +28,7 @@ ui:enc.none	這裡沒有可打的敵人。
 ui:enc.groupnone	第 %d 隊：沒有可打的敵人。
 ui:save.none	沒有可用的存檔。
 ui:save.done	已存檔。
+ui:save.donenonames	已存檔（長名字沒寫進去）。
 ui:save.memoryonly	狀態已更新（沒有寫進檔案）。
 ui:save.nodata	狀態已更新（沒有載入資料檔）。
 ui:radio.nothing	總部：沒有事情要回報。

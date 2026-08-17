@@ -184,7 +184,7 @@ var uiCatalogueKeys = []string{
 	"combat.attacked", "combat.hit", "combat.fallen", "combat.over",
 	"combat.which", "combat.notyet", "combat.partyxp",
 	"enc.inside", "enc.none", "enc.groupnone",
-	"save.none", "save.done", "save.memoryonly", "save.nodata",
+	"save.none", "save.done", "save.donenonames", "save.memoryonly", "save.nodata",
 	"radio.nothing", "view.none", "view.switched",
 	"disband.single", "disband.left", "order.nothing", "order.done",
 	"roster.menu", "roster.name", "roster.nobody", "roster.joined", "roster.gone",

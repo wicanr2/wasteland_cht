@@ -28,6 +28,9 @@ type Scene struct {
 	save  *assets.Save
 	// saveDir 是 `Save` 指令要寫回的資料目錄；空的就不寫檔（見 SetSaveDir）。
 	saveDir string
+	// longNames 是每個角色槽的完整名字（`internal/play/names.go`）。
+	// 存檔那一格只有 13 bytes，超過的部分靠這一份。
+	longNames longNames
 
 	frame   *render.Frame
 	dirty   bool
@@ -616,6 +619,9 @@ func loadPartyGroup(save *assets.Save, n int) (*game.Party, int, error) {
 		if err != nil {
 			return nil, 0, fmt.Errorf("角色記錄 %d：%w", id, err)
 		}
+		// ⚠ 名字這裡是存檔裡那 13 bytes（截斷版）。完整名字在側車檔，
+		// 由 `Scene.applyLongNames` 在載完之後蓋上去——**這一支是自由函式，
+		// 拿不到 Scene**，不要在這裡查側車檔。
 		p.Members = append(p.Members, game.LoadCharacter(raw))
 	}
 	if len(p.Members) == 0 {
@@ -1411,7 +1417,16 @@ func (s *Scene) StoreTo(save *assets.Save) error {
 		if err != nil {
 			return err
 		}
-		s.world.Party.Members[i].StoreTo(raw)
+		m := s.world.Party.Members[i]
+		// ⚠ **`StoreTo` 只寫得下 13 bytes**（`game.NameForSave` 會在 rune
+		// 邊界截）。完整名字記進側車檔，讀檔時蓋回來。
+		m.StoreTo(raw)
+		if int(id) < NameSlots {
+			s.longNames[id] = ""
+			if !game.NameFitsSave(m.Name) {
+				s.longNames[id] = m.Name
+			}
+		}
 		i++
 	}
 	return nil
@@ -1438,7 +1453,36 @@ func (s *Scene) setStock(id, v byte) {
 //
 // 空字串 ＝ **只更新記憶體、不寫檔**，無頭工具與測試用；
 // 那時 `Save` 會照實說它沒有寫出去，不會報一句「存好了」。
-func (s *Scene) SetSaveDir(dir string) { s.saveDir = dir }
+// SetSaveDir 設定存檔目錄，順便把長名字的側車檔讀進來。
+//
+// ⚠ **要在載入隊伍之前呼叫**——名字是在 `partyFromSave` 那一刻蓋上去的，
+// 之後才設目錄的話這一輪的名字仍然是存檔裡那 13 bytes（下次讀檔才對）。
+func (s *Scene) SetSaveDir(dir string) {
+	s.saveDir = dir
+	s.longNames = loadLongNames(dir)
+	// 目錄設得比隊伍晚時，把已經載進來的角色名字補上。
+	s.applyLongNames()
+}
+
+// applyLongNames 把側車檔的名字蓋到目前這一組隊伍上。
+func (s *Scene) applyLongNames() {
+	if s.save == nil || s.world == nil || s.world.Party == nil {
+		return
+	}
+	g := s.save.SlotGroups()[s.groupID]
+	i := 0
+	for _, id := range g.Members {
+		if id == 0 || i >= len(s.world.Party.Members) {
+			continue
+		}
+		if m := s.world.Party.Members[i]; m != nil && int(id) < NameSlots {
+			if n := s.longNames[id]; n != "" {
+				m.Name = n
+			}
+		}
+		i++
+	}
+}
 
 // translate 查這一步的訊息有沒有中文。查不到就回 nil，顯示原文
 // （docs/spec/11 §7：半成品的中文化要能玩）。
