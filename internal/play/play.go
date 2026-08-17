@@ -250,7 +250,10 @@ func (s *Scene) HiFrame() *render.HiFrame {
 	// ⚠ 這一行要與 `Frame` 的條件一致，**再加上標題畫面**：`Frame` 在標題那一支
 	// 提早 return，這裡卻是照著模式旗標判斷，漏掉 `s.title` 就會把指令列
 	// 畫到標題畫面上，還會蓋掉同一列的 `Start`（`docs/re/95`）。
-	if !s.title && !s.wipe.active && s.facility == nil && s.combat == nil &&
+	//
+	// ⚠ **戰鬥時指令列照留**（實機截圖 `24-encyes.png`）——那一列是外框的一部分，
+	// 按鍵歸戰鬥選單管。設施與結局才蓋掉。
+	if !s.title && !s.wipe.active && s.facility == nil &&
 		!s.ending.active {
 		s.drawCJKLine(h, s.uiText("cmd.bar"), 0, render.CmdRow)
 	}
@@ -284,11 +287,12 @@ func (s *Scene) HiFrame() *render.HiFrame {
 		return h
 	}
 	// 英文訊息占掉第一行時，中文從第二行起——不要疊上去。
-	row := render.MsgRow
+	rect := s.msgRect()
+	row := rect.Row
 	if s.message != "" || len(s.journalHead) > 0 {
 		row++
 	}
-	eachMessageCell(s.cjk, row, func(col, row int, ascii, hi, lo byte) {
+	eachMessageCell(s.cjk, rect, row, func(col, row int, ascii, hi, lo byte) {
 		if ascii != 0 {
 			s.drawASCII(h, ascii, col, row)
 			return
@@ -327,27 +331,63 @@ func (s *Scene) drawCursor(h *render.HiFrame) {
 	}
 }
 
-// eachMessageCell 逐格走訊息視窗裡的中文正文：會自己換行、滿了就停。
+// rosterLastRow 是名單最後一列（含）。
+//
+// ⚠ **戰鬥時可以一路排到指令列上面那一列**：文字走面板（`msgRect`），
+// 訊息視窗那 6 列是空的。照地圖那條 `MsgRow-1` 算的話只放得下三個人，
+// **第四個隊員會直接看不到**——而畫面上看起來只像「隊伍只有三個人」。
+func (s *Scene) rosterLastRow() int {
+	if s.combat != nil {
+		return render.CmdRow - 1
+	}
+	return render.MsgRow - 1
+}
+
+// textRect 是一塊放字的矩形。
+//
+// 戰鬥與地圖用的**不是同一塊**：地圖走訊息視窗（欄 1–38、列 18–23，6 列），
+// 戰鬥走面板（欄 15–38、列 1–13，13 列，`docs/re/105` §2）。
+// 兩邊共用同一支逐格走訪，所以繪製與滑鼠命中判定不會漂開。
+type textRect struct{ Col, Row, Width, Height int }
+
+// LastRow 是這塊矩形的最後一列（含）。
+func (r textRect) LastRow() int { return r.Row + r.Height - 1 }
+
+// msgRect 回報「現在的字該畫在哪一塊」。
+//
+// ⚠ **戰鬥時訊息視窗那 6 列是名單的一部分**（原版的名單框從列 14 一路到 23），
+// 所以戰鬥的文字一律走面板。判斷條件要與 `drawRoster` 一致——
+// 一邊改了另一邊沒改的話，字會畫到名單上面。
+func (s *Scene) msgRect() textRect {
+	if s.combat != nil {
+		return textRect{render.PanelCol, render.PanelRow,
+			render.PanelWidth, render.PanelHeight}
+	}
+	return textRect{render.MsgCol, render.MsgRow, render.MsgWidth, render.MsgHeight}
+}
+
+// eachMessageCell 逐格走一塊矩形裡的中文正文：會自己換行、滿了就停。
 //
 // 與 `eachCell` 的差別只有「會換行」。同樣是**繪製與滑鼠命中共用**的那一支。
 //
 // ⚠ 訊息視窗滿了就停（`row > MsgRowEnd`）——分頁是控制碼的事
 // （`docs/re/14` §4），不是這裡偷偷把字擠進去。
-func eachMessageCell(text []byte, row int, f func(col, row int, ascii, hi, lo byte)) {
-	col := render.MsgCol
+func eachMessageCell(text []byte, rect textRect, row int,
+	f func(col, row int, ascii, hi, lo byte)) {
+	col := rect.Col
 	for i := 0; i < len(text); {
-		if col >= render.MsgCol+render.MsgWidth {
-			col = render.MsgCol
+		if col >= rect.Col+rect.Width {
+			col = rect.Col
 			row++
 		}
-		if row > render.MsgRowEnd {
+		if row > rect.LastRow() {
 			return
 		}
 		c := text[i]
 		switch {
 		case c == '\r' || c == '\n':
 			// 原版的斷行控制碼：換一行、不佔格。
-			col = render.MsgCol
+			col = rect.Col
 			row++
 			i++
 			continue
@@ -387,11 +427,14 @@ func (s *Scene) drawHiTextLayer(h *render.HiFrame) {
 				continue
 			}
 			row := render.RosterHeaderRow + 1 + i
-			if row > render.MsgRow-1 {
-				break // 名單與訊息視窗在字元列上會撞（docs/spec/03 §3）
+			if row > s.rosterLastRow() {
+				break // 名單與底下那一塊在字元列上會撞（docs/spec/03 §3）
 			}
 			r := Roster(&game.Party{Members: []*game.Character{m}},
 				s.items, s.itemName)[0]
+			// ⚠ 上面用的是**單人隊伍**（一次只排一個人），所以 `Index`
+			// 一律是 1——序號要從外層的迴圈補回來，不然整份名單都印 `1>`。
+			r.Index = i + 1
 			slot, has := equippedSlot(m)
 			if zh := rosterRowCJK(r, s.uiText, s.itemNameCJK, slot.ID, has); len(zh) > 0 {
 				s.drawCJKLine(h, zh, 0, row)
@@ -413,7 +456,8 @@ func (s *Scene) drawHiTextLayer(h *render.HiFrame) {
 	if s.message == "" {
 		return
 	}
-	out, err := textlayout.Layout([]byte(s.message), textlayout.Options{Width: render.MsgWidth})
+	rect := s.msgRect()
+	out, err := textlayout.Layout([]byte(s.message), textlayout.Options{Width: rect.Width})
 	if err != nil {
 		return
 	}
@@ -422,10 +466,10 @@ func (s *Scene) drawHiTextLayer(h *render.HiFrame) {
 		lines = lines[:1]
 	}
 	for i, l := range lines {
-		if render.MsgRow+i > render.MsgRowEnd {
+		if rect.Row+i > rect.LastRow() {
 			break
 		}
-		s.drawASCIILine(h, l.String(), render.MsgCol, render.MsgRow+i)
+		s.drawASCIILine(h, l.String(), rect.Col, rect.Row+i)
 	}
 }
 
@@ -852,11 +896,11 @@ func (s *Scene) updateCombat(in input.Input) (bool, error) {
 
 // showCombatPrompt 把目前這個人的提示與指令選單放進訊息視窗。
 //
-// ⚠ **排法是重製決策，而原版怎麼做已經知道了**：原版每個選項自成一行，
-// 畫在**字元欄 15–38、列 1–13** 那一塊（不是訊息視窗，`docs/re/105` §2），
-// 左邊放肖像。這裡把七個選項排成一行擠進訊息視窗，與地圖指令列同一種做法——
-// 要改成原版版面得先做肖像框與右邊那塊文字區，列在 `WORKLIST`。
-// 熱鍵字母照 `docs/re/40` §4.1 留在每個選項前面，不跟著翻譯走。
+// **排法照原版**：每個選項自成一行，畫在字元欄 15–38、列 1–13 那一塊
+// （`docs/re/105` §2，`Scene.msgRect` 在戰鬥時回的就是它）。
+// 標題 ＋ 七個選項 ＝ 八行，13 列放得下。
+//
+// ⚠ 熱鍵字母照 `docs/re/40` §4.1 留在每個選項前面，**不跟著翻譯走**。
 func (s *Scene) showCombatPrompt() {
 	c := s.combat
 	if c == nil || c.Done() || c.Turn < 0 || c.Turn >= len(c.Battle.Party.Members) {
@@ -866,13 +910,13 @@ func (s *Scene) showCombatPrompt() {
 	if m == nil {
 		return
 	}
-	en := m.Name + ", choose: " + strings.Join(MenuLines(CommandMenu(nil)), " ")
+	en := m.Name + ", choose:\r" + strings.Join(MenuLines(CommandMenu(nil)), "\r")
 	// 中文：名字 ＋ 字串 55（`, 選擇：` ＋ 七個 `\x10<文字>`）。
-	// `RenderBytes` 會把 `\x10` 拿掉、把 `\x0D` 變成換行，熱鍵字母留著；
-	// 換行再壓成空白排成一行（見上面的重製決策）。
+	// `RenderBytes` 會把 `\x10` 拿掉、把 `\x0D` 留成斷行控制碼，熱鍵字母留著——
+	// **不要壓成一行**，那一塊有 13 列。
 	var zh []byte
 	if b := c.zhStr(strChoose, textlayout.Options{}); b != nil {
-		zh = append([]byte(m.Name), oneLine(b)...)
+		zh = append([]byte(m.Name), b...)
 	}
 	// 這一輪已經有話要說（遭遇開始、上一回合的結果）就接在後面，
 	// **不要蓋掉**——玩家要同時看到發生什麼與能按什麼。
@@ -883,7 +927,7 @@ func (s *Scene) showCombatPrompt() {
 	case zh != nil:
 		s.cjk, s.message = zh, ""
 	case s.message != "":
-		s.message += " " + en
+		s.message += "\r" + en
 	default:
 		s.message = en
 	}
@@ -1418,16 +1462,18 @@ func (s *Scene) Frame() *render.Frame {
 		_ = f.DrawClock(s.font, int(s.world.Clock.Hour), int(s.world.Clock.Minute))
 	}
 
-	// 地圖模式才有指令列（`docs/re/91`）——戰鬥與設施有自己的選單。
+	// 指令列（`docs/re/91`）。**戰鬥時照留**——那一列是外框的一部分
+	// （實機截圖 `24-encyes.png`）；設施與結局才蓋掉。
 	// **有中文字型時這一行改由 HiFrame 畫**（見 drawCommandBarCJK）：
 	// 8 × 8 的字模畫不出中文，先畫英文再蓋會留下殘影。
-	if s.facility == nil && s.combat == nil && !s.ending.active && !s.wipe.active &&
+	if s.facility == nil && !s.ending.active && !s.wipe.active &&
 		s.eten == nil {
 		_ = f.DrawLineAt(s.font, commandBar(), 0, render.CmdRow)
 	}
 
 	if s.message != "" && !s.hiText() {
-		out, err := textlayout.Layout([]byte(s.message), textlayout.Options{Width: render.MsgWidth})
+		rect := s.msgRect()
+		out, err := textlayout.Layout([]byte(s.message), textlayout.Options{Width: rect.Width})
 		if err == nil {
 			lines := out.Lines
 			// ⚠ 有中文正文要顯示時，英文訊息**只留第一行當標題**——
@@ -1436,7 +1482,7 @@ func (s *Scene) Frame() *render.Frame {
 			if s.cjkVisible() && len(lines) > 1 {
 				lines = lines[:1]
 			}
-			_ = f.DrawText(s.font, lines)
+			_ = f.DrawTextIn(s.font, lines, rect.Col, rect.Row, rect.Width, rect.Height)
 		}
 	}
 	s.frame = f
@@ -1485,7 +1531,7 @@ func (s *Scene) drawRoster(f *render.Frame) {
 		return // 名單那幾行由 HiFrame 用倚天半形字畫
 	}
 	for i, r := range Roster(s.world.Party, s.items, s.itemName) {
-		if row+1+i > render.MsgRow-1 {
+		if row+1+i > s.rosterLastRow() {
 			break // 名單與訊息視窗在字元列上會撞（docs/spec/03 §3）
 		}
 		_ = f.DrawLineAt(s.font, r.Text(), 0, row+1+i)

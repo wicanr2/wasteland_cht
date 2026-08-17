@@ -20,15 +20,19 @@ const (
 	ModeRoster ScreenMode = 1
 )
 
-// 名單一行的欄座標（docs/re/15 §4）。名字從欄 1 起。
+// 名單一行的欄座標（docs/re/15 §4）。行首是序號 ＋ `>`，名字從欄 2 起。
 const (
-	colName    = 1
+	colIndex   = 0 // 序號 ＋ `>`（`0x1709A`／`0x170A0`）
+	colName    = 2
 	colAC      = 0x11
 	colAmmo    = 0x15
 	colMaxCON  = 0x18
 	colCON     = 0x1C
 	colWeapon  = 0x20
-	rosterCols = 38
+	// rosterCols ＝ **39** 不是 38：武器欄從 `0x20` 起，而原版畫面上
+	// `Crowbar`（7 個字）整個看得到（`docs/re/103` §4 的實機截圖）。
+	// 少一格會把它切成 `Crowba`——而那看起來只是「名字比較長」。
+	rosterCols = 39
 )
 
 // RosterHeader 是原版字串表 0xB270 的第 136 條（`exe:2:136`），
@@ -41,6 +45,9 @@ const RosterHeader = "   NAME        AC AMM MAX CON WEAPON "
 
 // RosterRow 是名單的一行。欄座標分開存，中文化重排時只改這裡。
 type RosterRow struct {
+	// Index 是名單上的序號（1 起算）。原版印在行首，後面接一個 `>`
+	// （`0x1709A` 印數字、`0x170A0` 印 `0x3E`）。
+	Index  int
 	Name   string
 	AC     string
 	Ammo   string
@@ -49,13 +56,16 @@ type RosterRow struct {
 	Weapon string
 }
 
-// Text 把一行排成 38 欄的字串（欄座標照 docs/re/15 §4）。
+// Text 把一行排成 39 欄的字串（欄座標照 docs/re/15 §4）。
 func (r RosterRow) Text() string {
 	line := []byte(spaces(rosterCols))
 	put := func(col int, s string) {
 		for i := 0; i < len(s) && col+i < rosterCols; i++ {
 			line[col+i] = s[i]
 		}
+	}
+	if r.Index > 0 {
+		put(colIndex, fmt.Sprintf("%d>", r.Index))
 	}
 	put(colName, r.Name)
 	put(colAC, r.AC)
@@ -95,6 +105,7 @@ func Roster(p *game.Party, items game.ItemTable, name func(byte) string) []Roste
 			con = game.WoundNames[m.WoundLevel()]
 		}
 		rows = append(rows, RosterRow{
+			Index:  len(rows) + 1,
 			Name:   m.Name,
 			AC:     fmt.Sprintf("%d", m.AC),
 			Ammo:   ammoColumn(m, items),
@@ -202,9 +213,9 @@ func MenuLines(opts []CommandOption) []string {
 
 // MenuFits 回報這份選單放不放得進 rows 行 × width 格。
 //
-// ⚠ **原版自己也放不下**：標題 ＋ 空行 ＋ 七個選項要 9 行，訊息視窗只有 6 行，
-// 而原版怎麼容納還沒逆向（docs/re/40 §5）。所以這裡只回報，不自己決定
-// 捲動或分頁——那是呈現層的事，而且要等 RE 補上才知道原版怎麼做。
+// ⚠ **原版不是塞進訊息視窗的**：戰鬥的選單畫在欄 15–38、列 1–13 那一塊
+// （`docs/re/105` §2），八行綽綽有餘。這一支只回報放不放得下，
+// 不自己決定捲動或分頁——那是呈現層的事。
 func MenuFits(lines []string, width, rows int) bool {
 	if len(lines) > rows {
 		return false
@@ -464,10 +475,15 @@ func rosterRowCJK(r RosterRow, ui func(string) []byte, item func(byte) []byte,
 			line = append(line, ' ')
 		}
 	}
+	var idx []byte
+	if r.Index > 0 {
+		idx = []byte(fmt.Sprintf("%d>", r.Index))
+	}
 	for _, f := range []struct {
 		col  int
 		text []byte
 	}{
+		{colIndex, idx},
 		{colName, []byte(r.Name)},
 		{colAC, []byte(r.AC)},
 		{colAmmo, []byte(r.Ammo)},
@@ -481,7 +497,26 @@ func rosterRowCJK(r RosterRow, ui func(string) []byte, item func(byte) []byte,
 		pad(f.col)
 		line = append(line, f.text...)
 	}
-	return line
+	return clipCells(line, rosterCols)
+}
+
+// clipCells 把一串 Big5 截到 n 格。
+//
+// ⚠ **不能用 len 截**：一個中文字兩個 byte、只佔一格（`docs/spec/10` §3）。
+// 拿 byte 數去截會把長名字切在中文字中間，畫面上出現半個字。
+func clipCells(b []byte, n int) []byte {
+	cells, i := 0, 0
+	for i < len(b) && cells < n {
+		if b[i] >= 0x80 {
+			if i+1 >= len(b) {
+				break // 落單的高位元組：丟掉，不要拿下一輪的 byte 湊
+			}
+			i++
+		}
+		i++
+		cells++
+	}
+	return b[:i]
 }
 
 // woundKeys 把狀態字對到翻譯目錄的鍵。

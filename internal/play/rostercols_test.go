@@ -112,11 +112,13 @@ func TestRosterRowWoundWordsAreTranslated(t *testing.T) {
 func TestRosterMatchesOriginalScreenshot(t *testing.T) {
 	s := newScene(t)
 	want := []RosterRow{
-		{Name: "Hell Razor", AC: "0", Ammo: "0", MaxCON: "28", CON: "28", Weapon: "Crowbar"},
-		{Name: "Angela Deth", AC: "0", Ammo: "18", MaxCON: "27", CON: "27", Weapon: "VP91Z 9mm pistol"},
-		{Name: "Thrasher", AC: "0", Ammo: "0", MaxCON: "34", CON: "34", Weapon: "Knife"},
-		{Name: "Snake Vargas", AC: "0", Ammo: "18", MaxCON: "31", CON: "31", Weapon: "VP91Z 9mm pistol"},
+		{Index: 1, Name: "Hell Razor", AC: "0", Ammo: "0", MaxCON: "28", CON: "28", Weapon: "Crowbar"},
+		{Index: 2, Name: "Angela Deth", AC: "0", Ammo: "18", MaxCON: "27", CON: "27", Weapon: "VP91Z 9mm pistol"},
+		{Index: 3, Name: "Thrasher", AC: "0", Ammo: "0", MaxCON: "34", CON: "34", Weapon: "Knife"},
+		{Index: 4, Name: "Snake Vargas", AC: "0", Ammo: "18", MaxCON: "31", CON: "31", Weapon: "VP91Z 9mm pistol"},
 	}
+	// ⚠ 行首是**序號 ＋ `>`**（`0x1709A` 印數字、`0x170A0` 印 `0x3E`）——
+	// 原版畫面上是 `1>Hell Razor`。少了它整行往左差兩格。
 	got := Roster(s.World().Party, s.items, s.itemName)
 	if len(got) != len(want) {
 		t.Fatalf("出廠隊伍應該有 %d 個人，得到 %d", len(want), len(got))
