@@ -23,6 +23,13 @@ const (
 	recPreHurt    = 0x26 // 16-bit
 	recStatus     = 0x28
 	recRank       = 0x32
+	// recRankEnd 是階級字串的邊界。**原版的寫入迴圈沒有長度檢查**
+	// （`0x1BB6C`：逐字元抄到 NUL 為止，位移只有繞回 0 才停，`docs/re/109` §4），
+	// 所以欄位大小是被**下一個已知欄位**擋出來的，不是宣告出來的。
+	//
+	// ⚠ 別拿出廠值量這一欄：出廠是 `PRIVATE`（7 字元），量出來會是 14——
+	// 而實際最長的階級 `Lieutenant Commander` 有 20 個字元，寫到 `+0x46`。
+	recRankEnd = 0x4B
 	// recMission 是「參與過摧毀 Base Cochise」，recPraised 是「總部已經表揚過」。
 	// 兩個 byte 都只用 bit0（`docs/re/96` §5）。
 	recMission = 0x4B
@@ -73,7 +80,7 @@ func LoadCharacter(raw []byte) *Character {
 		Gender:     raw[recGender],
 		Nation:     raw[recNation],
 		EquipIndex: raw[recEquip],
-		Rank:       cstring(raw[recRank : recRank+14]),
+		Rank:       cstring(raw[recRank:recRankEnd]),
 		Mission:    raw[recMission]&1 != 0,
 		Praised:    raw[recPraised]&1 != 0,
 	}
@@ -103,7 +110,7 @@ func (c *Character) StoreTo(raw []byte) {
 	raw[recLevel] = c.Level
 	put16(raw, recPreHurt, uint16(c.PreHurt))
 	raw[recStatus] = c.Status
-	putCString(raw[recRank:recRank+14], c.Rank)
+	putRank(raw, c.Rank)
 	// **只動 bit0**：這兩個 byte 的其餘七位未解，一個都不能碰。
 	raw[recMission] = raw[recMission]&^1 | boolBit(c.Mission)
 	raw[recPraised] = raw[recPraised]&^1 | boolBit(c.Praised)
@@ -171,6 +178,23 @@ func cstring(b []byte) string {
 		}
 	}
 	return string(b)
+}
+
+// putRank 寫階級字串，照原版那支迴圈的行為（`0x1BB6C`，`docs/re/109` §4）：
+// **抄到 NUL 為止，NUL 之後的 byte 一個都不碰**。
+//
+// ⚠ 不要改成「整欄清空再寫」。原版沒有清尾巴，所以存檔裡 NUL 之後可能留著
+// 上一個字串的殘骸；清掉它就不是 round-trip 了（`CLAUDE.md` §4）。
+//
+// 太長就截到 NUL 還放得進 `recRankEnd` 之內為止——寫過頭會蓋掉 `+0x4B`
+// 的任務旗標（原版沒有這道防護，是它自己的字串表最長只有 20 個字元）。
+func putRank(raw []byte, rank string) {
+	max := recRankEnd - recRank - 1 // 留一個 byte 給 NUL
+	if len(rank) > max {
+		rank = rank[:max]
+	}
+	n := copy(raw[recRank:recRankEnd], rank)
+	raw[recRank+n] = 0
 }
 
 // putCString 寫入名字並補 NUL，超長就截斷（原版欄位是固定長度）。
