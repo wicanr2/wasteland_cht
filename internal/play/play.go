@@ -372,16 +372,36 @@ func (s *Scene) msgRect() textRect {
 //
 // ⚠ 訊息視窗滿了就停（`row > MsgRowEnd`）——分頁是控制碼的事
 // （`docs/re/14` §4），不是這裡偷偷把字擠進去。
+// **文字比區域高的時候捲掉最前面的行**，不是把後面的切掉（`docs/re/106` §1）：
+// 原版在游標走到區域最後一列時把整塊往上捲一個字元列，所以**最後一行一定看得到**。
+//
+// ⚠ 切掉後面那種寫法在「只印一則訊息」時看起來完全正常，
+// 要到戰鬥指令階段問第二個人才分得出來——那時第三、四個人的選單整段不見。
 func eachMessageCell(text []byte, rect textRect, row int,
+	f func(col, row int, ascii, hi, lo byte)) {
+	// 先量最後一格落在哪一列，超出下緣就整段往上挪。
+	last := row
+	walkMessage(text, rect, row, func(_, r int, _, _, _ byte) { last = r })
+	if over := last - rect.LastRow(); over > 0 {
+		row -= over
+	}
+	walkMessage(text, rect, row, func(col, r int, a, hi, lo byte) {
+		if r < rect.Row {
+			return // 已經捲出上緣的行
+		}
+		f(col, r, a, hi, lo)
+	})
+}
+
+// walkMessage 是不看區域下緣的逐格走訪——`eachMessageCell` 量一次、畫一次，
+// 兩次都走這一支。**只有一份換行邏輯**，量到的與畫出來的不會漂。
+func walkMessage(text []byte, rect textRect, row int,
 	f func(col, row int, ascii, hi, lo byte)) {
 	col := rect.Col
 	for i := 0; i < len(text); {
 		if col >= rect.Col+rect.Width {
 			col = rect.Col
 			row++
-		}
-		if row > rect.LastRow() {
-			return
 		}
 		c := text[i]
 		switch {

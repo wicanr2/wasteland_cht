@@ -163,7 +163,7 @@
 | [`docs/re/00-master-index.md`](docs/re/00-master-index.md) | **RE 總表**：位址換算、資料格式、結構佈局、位址表、關鍵函式、工具。**查已知事實先看這份** |
 | [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md) | **RE 完成度檢查表**：remake 需要的每一項知識、狀態與入口 |
 | [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 464）。讀任何 `sub_XXXXX` 前先查 |
-| [`docs/re/00-wiring-status.md`](docs/re/00-wiring-status.md) | **接線狀態**：105 份筆記的結論（已接 100、未接 0、不適用 5），remake 有沒有真的用上。`TestWiringStatus` 雙向守著（`CLAUDE.md` §0 的 G4）|
+| [`docs/re/00-wiring-status.md`](docs/re/00-wiring-status.md) | **接線狀態**：106 份筆記的結論（已接 101、未接 0、不適用 5），remake 有沒有真的用上。`TestWiringStatus` 雙向守著（`CLAUDE.md` §0 的 G4）|
 | [`docs/re/01-binary-identity.md`](docs/re/01-binary-identity.md) | 20 檔 SHA-256、`wl.exe` 的 MZ header、第一份資料庫與「不可用作證據」的結論 |
 | [`docs/re/02-exepack-unpack.md`](docs/re/02-exepack-unpack.md) | EXEPACK 格式、解包器、relocation 起點的坑、解包後基準資料庫 |
 | [`docs/re/03-boot-and-asset-loading.md`](docs/re/03-boot-and-asset-loading.md) | 開機序列、`info` 安裝資訊、檔名表、七個開機素材的載入位址、`TITLE.PIC` XOR 解碼 |
@@ -269,6 +269,7 @@
 | [`docs/re/103-roster-line-columns.md`](docs/re/103-roster-line-columns.md) | 名片行的 `AMM` 三道閘與 `WEAPON` 取單數形；實機截圖對出行寬 39 欄與行首序號 |
 | [`docs/re/104-opcode-2-icon-swap.md`](docs/re/104-opcode-2-icon-swap.md) | 腳本 opcode 2 ＝ overlay slot 18：把兩張圖形（含遮罩）對調 |
 | [`docs/re/105-enc-empty-round-and-menu-region.md`](docs/re/105-enc-empty-round-and-menu-region.md) | `ENC` 在空地上也能跑一回合（字串 `0x14`）；戰鬥的指令選單畫在欄 15–38、列 1–13 |
+| [`docs/re/106-text-scroll.md`](docs/re/106-text-scroll.md) | 文字滿了會**捲動**不是切掉；捲動速度 9 段（`ds:465Bh`，`<`／`>` 調）；順帶查掉 `ds:465Bh` 不是時鐘的時 |
 | [`docs/spec/00-index.md`](docs/spec/00-index.md) | **規格索引與閘門狀態**：哪些可以動工、其餘擋在什麼上 |
 | [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
 | [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |
@@ -382,7 +383,7 @@
 | # | 還沒解的 | 為什麼不擋 |
 |---|---|---|
 | A12b | `CURS` 的**消費端**：哪個圖形對應哪個狀態，以及資料的 16 寬為何與 slot 21 的 24 寬對不上 | 版面已解（8 個 32 × 16，遮罩 ＋ 圖形並排，`docs/re/57`）；遊戲主線不用滑鼠 |
-| — | `0x13FC8`–`0x13FD9` 第一個受罰者才跑的欄位前置處理（`docs/re/69` §6）；`sub_1790B` 怎麼取那個被塞進時鐘的數字（`docs/re/74` §1） | `sub_142ED` 的形狀已解（暫換時鐘的時 → 印 `+0x03` → 延遲 → 還原），remake 刻意只印訊息 |
+| — | `0x13FC8`–`0x13FD9` 第一個受罰者才跑的欄位前置處理（`docs/re/69` §6）| `sub_142ED` 整支已解（開捲動動畫 → 設速度 → 印 `+0x03` → 延遲 → 還原，`docs/re/74` §1、`docs/re/106`），remake 刻意只印訊息不做動畫 |
 | — | section `0x10` 那 **4 個索引越界值**（5 筆記錄）是什麼意思。**44 個 opcode 本身全部解完也全部實作完**（`docs/re/102`、`104`）| 原版對它們也是拒絕，remake 照做。覆蓋率有測試守著（`missCells != 0` 就紅）。要讓那四個值消失只有一種可能——section `0x10` 的解讀改了（`docs/re/71` §5.2），不是調數字 |
 | A13 | `TRANSTBL` 的**用途**（形狀已解：50 組 × 16 的索引對照表） | 三層掃描都找不到消費端，與資源 idx 7 同一種遺留（`docs/re/56`） |
 | — | 物品 `+0x03` 低 3 位、敵人 `+0x04` 高 4 位**都沒有讀取端** | 資料裡有值但程式沒讀；原樣 round-trip，不給語意 |

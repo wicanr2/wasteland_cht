@@ -298,6 +298,11 @@ func (f *Frame) DrawText(font *assets.Font, lines []textlayout.Line) error {
 // DrawTextIn 是 DrawText 的任意矩形版本（戰鬥面板要用）。
 func (f *Frame) DrawTextIn(font *assets.Font, lines []textlayout.Line,
 	atCol, atRow, w, h int) error {
+	// 行數超過區域高度時**丟掉最前面的行**，不是切掉後面的
+	// （`docs/re/106` §1：原版是把整塊往上捲，最後一行一定看得到）。
+	if len(lines) > h {
+		lines = lines[len(lines)-h:]
+	}
 	for row, line := range lines {
 		if row >= h {
 			break
