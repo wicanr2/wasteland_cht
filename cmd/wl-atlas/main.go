@@ -471,13 +471,10 @@ func zhString(b *assets.Block, cat *lang.Catalogue, slot int) string {
 	if !ok {
 		return ""
 	}
-	// 目錄裡是 Big5（畫面直接吃 Big5 查倚天字模），JSON 要 UTF-8——
-	// **不轉的話 encoding/json 會把每個不合法的 byte 換成 U+FFFD**，
-	// 症狀是輸出看起來有中文、實際上內容已經毀了。
-	out, ok := lang.FromBig5(textlayout.RenderBytes(v, textlayout.Options{}))
-	if !ok {
-		return ""
-	}
+	// 目錄裡就是 UTF-8，JSON 直接吃——**以前是 Big5，這裡得先解碼**，
+	// 忘了解的症狀是 encoding/json 把每個不合法的 byte 換成 U+FFFD：
+	// 輸出看起來有中文，實際上內容已經毀了。
+	out := textlayout.Render(v, textlayout.Options{})
 	return out
 }
 

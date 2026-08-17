@@ -4,6 +4,7 @@ import (
 	"image"
 
 	"github.com/wicanr2/wasteland_cht/internal/assets"
+	"github.com/wicanr2/wasteland_cht/internal/lang"
 )
 
 // 960 × 600 的中文畫布（docs/spec/10 §2）。
@@ -83,6 +84,24 @@ func (h *HiFrame) DrawCJK(font *assets.ETenFont, hi, lo byte, col, row int, fg b
 	}
 	h.blit(rows, col, row, font.Width, font.Height, fg)
 	return true
+}
+
+// DrawRune 畫一個 UTF-8 字元。
+//
+// ⚠ **這裡是整個專案唯一把文字轉成 Big5 的地方。** 倚天字型是 Big5 排列
+// （`docs/spec/10` §4 的分區索引），所以查字模那一刻一定要 Big5 碼；
+// 但**只有這一刻需要**——目錄、排版、訊息組裝全部是 UTF-8。
+//
+// 轉不出來（倚天畫不出這個字）回 false，呼叫端退回英文那一份。
+// 編譯期 `tools/build_lang.py` 已經擋過一次，執行期這條是給
+// 玩家自己打的名字用的。
+func (h *HiFrame) DrawRune(font *assets.ETenFont, r rune, col, row int, fg byte) bool {
+	// 走快取版——這是每幀每字都會跑到的熱路徑（）。
+	b, ok := lang.CachedRuneToBig5(r)
+	if !ok {
+		return false
+	}
+	return h.DrawCJK(font, b[0], b[1], col, row, fg)
 }
 
 // blit 把一個字模畫在第 (col, row) 個原版字元格上，**在格內置中**。

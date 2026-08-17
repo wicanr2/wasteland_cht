@@ -41,7 +41,6 @@ import (
 
 	"github.com/wicanr2/wasteland_cht/internal/assets"
 	"github.com/wicanr2/wasteland_cht/internal/input"
-	"github.com/wicanr2/wasteland_cht/internal/lang"
 	"github.com/wicanr2/wasteland_cht/internal/play"
 )
 
@@ -174,13 +173,11 @@ func facilityLines(s *play.Scene) string {
 // 解不出來就照 byte 印十六進位——**不要靜靜吞掉**，那正是要驗的東西。
 func cjkOf(s *play.Scene) string {
 	b := s.CJK()
-	if len(b) == 0 {
+	if b == "" {
 		return ""
 	}
-	if txt, ok := lang.FromBig5(b); ok {
-		return "〔" + txt + "〕"
-	}
-	return fmt.Sprintf("〔Big5 解不開：% x〕", b)
+	// 目錄是 UTF-8，直接印——**以前要 `lang.FromBig5` 解一次**。
+	return "〔" + b + "〕"
 }
 
 func (r *runner) do(s step) error {

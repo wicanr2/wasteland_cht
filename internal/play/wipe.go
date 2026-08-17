@@ -91,7 +91,7 @@ func (s *Scene) WipePlaceLine() string { return s.wipe.place }
 // ⚠ 它走 `ui:` 不走地點招牌那張表：招牌表的 key 是**資料裡真實存在的招牌**
 // （`TestNoStalePlaceKeys` 對著地圖記錄驗），而 `Grim Reaper` 是寫死在
 // 執行檔裡的一段，不是任何一張地圖上的招牌。
-func (s *Scene) wipePlaceCJK() []byte { return s.uiText("wipe.place") }
+func (s *Scene) wipePlaceCJK() string { return s.uiText("wipe.place") }
 
 // updateWipe 是死亡畫面的按鍵：**任何鍵都回標題畫面**。
 //
@@ -105,7 +105,7 @@ func (s *Scene) updateWipe(in input.Input) (bool, error) {
 		return true, nil
 	}
 	s.wipe = wipeState{}
-	s.message, s.cjk = "", nil
+	s.message, s.cjk = "", ""
 	s.BeginTitle()
 	return true, nil
 }

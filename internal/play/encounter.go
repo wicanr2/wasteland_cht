@@ -140,25 +140,15 @@ func (s *Scene) enemyNames() EnemyNames {
 // 與 `enemyNames` 同一組編號（`0x52 + Kind`，`docs/re/85`），差別只在
 // 這裡走翻譯目錄、而且單複數由 `RenderBytes` 依 Count ＝ 1 取單數那一段——
 // **不能自己找 `0x0A` 切**：譯文的分段位置與原文不一定一樣。
-func (s *Scene) enemyNamesCJK() [6][]byte {
-	var out [6][]byte
+func (s *Scene) enemyNamesCJK() [6]string {
+	var out [6]string
 	for k := range out {
 		b := s.cjkExe(exeTable1, 0x52+k, textlayout.Options{Count: 1})
-		out[k] = trimSpaceBytes(b)
+		out[k] = strings.TrimSpace(b)
 	}
 	return out
 }
 
-// trimSpaceBytes 去掉頭尾的空白與換行（譯文片段常帶著原版的 `\x0D`）。
-func trimSpaceBytes(b []byte) []byte {
-	for len(b) > 0 && (b[0] == ' ' || b[0] == '\n') {
-		b = b[1:]
-	}
-	for len(b) > 0 && (b[len(b)-1] == ' ' || b[len(b)-1] == '\n') {
-		b = b[:len(b)-1]
-	}
-	return b
-}
 
 // takeXP 抄一份每個角色的經驗值。
 func (s *Scene) takeXP() xpSnapshot {

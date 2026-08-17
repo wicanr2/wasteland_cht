@@ -89,11 +89,12 @@ def main() -> None:
         if not text:
             errors.append(f"段落 {num} 只有標題沒有正文")
             continue
-        data, missing = to_big5(text)
+        # Big5 檢查留著（倚天畫不出來的字要在編譯期擋），存的是 UTF-8。
+        _, missing = to_big5(text)
         if missing:
             errors.append(f"段落 {num}：Big5 編不出 {''.join(sorted(set(missing)))}")
             continue
-        entries.append((f"para:{num}", data))
+        entries.append((f"para:{num}", text.encode("utf-8")))
 
     if errors:
         for e in errors:

@@ -1,6 +1,7 @@
 package lang
 
 import (
+	"unicode/utf8"
 	"os"
 	"testing"
 )
@@ -28,11 +29,9 @@ func TestLoadAndLookup(t *testing.T) {
 			if len(v) == 0 {
 				t.Errorf("%s 查到了但內容是空的", key)
 			}
-			// Big5 的高位元組一定 ≥ 0xA1。
-			for i := 0; i+1 < len(v); i++ {
-				if v[i] >= 0x80 && v[i] < 0xA1 {
-					t.Errorf("%s 的第 %d 個 byte %#02x 不是合法的 Big5 首位元組", key, i, v[i])
-				}
+			// 目錄裡是 **UTF-8**（Big5 只出現在畫的那一刻）。
+			if !utf8.ValidString(v) {
+				t.Errorf("%s 不是合法的 UTF-8：% x", key, v)
 			}
 		}
 	}

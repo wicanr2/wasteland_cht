@@ -49,10 +49,10 @@ type FacilityScene struct {
 	SkillName func(byte) string
 	// CJKPlace 把招牌的英文原名換成中文（`internal/play/places.go`）。
 	// **招牌不在字串表裡**，所以它走查表不走目錄 key。
-	CJKPlace func(string) []byte
+	CJKPlace func(string) string
 	// CJKName 是同兩張表的中文（Big5）。查不到回 nil，那一行就退回英文。
-	CJKItemName  func(byte) []byte
-	CJKSkillName func(byte) []byte
+	CJKItemName  func(byte) string
+	CJKSkillName func(byte) string
 
 	// SetStock 改一筆物品的店家庫存（買賣之後）。由 Scene 接上——
 	// 庫存住在**物品表**上，跟著存檔走，不是設施場景的狀態。
@@ -61,14 +61,14 @@ type FacilityScene struct {
 	// Str 查原版字串表的**原文**、CJK 查譯文、UI 查重製版自己的介面文字。
 	// 三個都可以是 nil——那時設施畫面就是英文字面，遊戲照跑。
 	Str func(table, n int) string
-	CJK func(table, n int, opt textlayout.Options) []byte
-	UI  func(name string) []byte
+	CJK      func(table, n int, opt textlayout.Options) string
+	UI  func(name string) string
 
 	// CJKLines 與 Lines 一一對應的中文（Big5）。某一行查不到就是 nil，
 	// 那一行改畫英文——**不要整片放棄**，設施畫面每一行的來源都不一樣。
-	CJKLines [][]byte
+	CJKLines []string
 
-	noteCJK []byte // note 那一行的中文
+	noteCJK string // note 那一行的中文
 }
 
 // setNote 設一行註記：英文字面 ＋ 原版字串表的譯文。
@@ -80,12 +80,12 @@ func (f *FacilityScene) setNote(en string, table, n int) {
 // setNoteUI 設一行註記，中文走重製版的 `ui:`（原版沒有對應字串的那些）。
 func (f *FacilityScene) setNoteUI(en, uiName string, args ...any) {
 	f.note = en
-	f.noteCJK = nil
+	f.noteCJK = ""
 	if f.UI == nil {
 		return
 	}
 	if b := f.UI(uiName); len(b) > 0 {
-		f.noteCJK = []byte(fmt.Sprintf(string(b), args...))
+		f.noteCJK = fmt.Sprintf(b, args...)
 	}
 }
 
@@ -95,28 +95,28 @@ func (f *FacilityScene) setNoteUI(en, uiName string, args ...any) {
 // 那是給開發者看的，**畫面上要走目錄**。查不到就照原樣顯示。
 func (f *FacilityScene) setNoteReason(reason string) {
 	f.note = reason
-	f.noteCJK = nil
+	f.noteCJK = ""
 }
 
 // zh 查原版字串表第 table 張第 n 條的譯文。
-func (f *FacilityScene) zh(table, n int, opt textlayout.Options) []byte {
+func (f *FacilityScene) zh(table, n int, opt textlayout.Options) string {
 	if f.CJK == nil {
-		return nil
+		return ""
 	}
 	return f.CJK(table, n, opt)
 }
 
 // zhItem／zhSkill 是清單那一欄的中文名。
-func (f *FacilityScene) zhItem(id byte) []byte {
+func (f *FacilityScene) zhItem(id byte) string {
 	if f.CJKItemName == nil {
-		return nil
+		return ""
 	}
 	return f.CJKItemName(id)
 }
 
-func (f *FacilityScene) zhSkill(id byte) []byte {
+func (f *FacilityScene) zhSkill(id byte) string {
 	if f.CJKSkillName == nil {
-		return nil
+		return ""
 	}
 	return f.CJKSkillName(id)
 }
@@ -185,7 +185,7 @@ func (s *Scene) EnterFacility(record []byte) *FacilityScene {
 	// 進了設施就把地圖那一步的訊息收掉。設施畫面從字元列 12 起
 	// （`docs/re/54`），與訊息視窗（列 18–23）重疊——留著會有一行
 	// 「TELEPORT.」壓在商品清單中間。
-	s.message, s.cjk = "", nil
+	s.message, s.cjk = "", ""
 	// 動畫從頭起：遮罩清空、播放器重建（規格 26 §3）。
 	s.animMask = make([]byte, render.FacilityPicWidth*render.FacilityPicHeight)
 	s.player = nil

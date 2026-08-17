@@ -109,7 +109,7 @@ func (s *Scene) showJournalPage() {
 		}
 	}
 	s.setJournalHeader(n, sec)
-	s.cjk = nil
+	s.cjk = ""
 	if s.journal != nil {
 		s.cjk = s.journal.Text(n)
 	}
@@ -141,7 +141,7 @@ func (s *Scene) setJournalHeader(n int, sec string) {
 		secCJK = string(s.uiText("journal.epilogue"))
 	}
 	s.message = ""
-	s.journalHead = []byte(fmt.Sprintf(string(head), n, game.JournalPages, secCJK) +
+	s.journalHead = fmt.Sprintf(string(head), n, game.JournalPages, secCJK +
 		"  " + string(s.uiText("journal.hint")))
 }
 
@@ -152,8 +152,8 @@ func (s *Scene) updateJournal(in input.Input) (bool, error) {
 		input.Upper(in.Char) == JournalKey:
 		s.journalOpen = false
 		s.message = ""
-		s.cjk = nil
-		s.journalHead = nil
+		s.cjk = ""
+		s.journalHead = ""
 		s.dirty = true
 	case in.Dir == input.DirUp || in.Dir == input.DirLeft:
 		if s.journalAt > 1 {
@@ -175,7 +175,7 @@ func (s *Scene) updateJournal(in input.Input) (bool, error) {
 // 中文走一般的執行檔字串翻譯（key `exe:4:<i>`），沒有翻譯就顯示英文原文。
 func (s *Scene) showEpiloguePage(page, i int) {
 	s.setJournalHeader(page, " (epilogue)")
-	s.cjk = nil
+	s.cjk = ""
 	if s.cat != nil {
 		if b, ok := s.cat.Lookup(lang.ExeKey(EndingTable, i)); ok {
 			s.cjk = b

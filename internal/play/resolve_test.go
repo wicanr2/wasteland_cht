@@ -1,7 +1,6 @@
 package play
 
 import (
-	"bytes"
 	"strings"
 	"testing"
 
@@ -108,10 +107,8 @@ func TestWeaponPickIsWhatYouSee(t *testing.T) {
 	}
 	rect := s.msgRect()
 	rows := map[int]string{}
-	eachMessageCell([]byte(msg), rect, rect.Row, func(col, row int, a, hi, lo byte) {
-		if a != 0 {
-			rows[row] += string(a)
-		}
+	eachMessageCell(msg, rect, rect.Row, func(col, row int, r rune) {
+		rows[row] += string(r)
 	})
 	var body []string
 	for r := rect.Row; r <= rect.LastRow(); r++ {
@@ -275,7 +272,7 @@ func TestRejectedCommandSaysWhy(t *testing.T) {
 	}
 	if len(s.cjk) > 0 {
 		// 中文那條路：訊息接在提示前面。
-		if !bytes.Contains(s.cjk, s.uiText("combat.notyet")) {
+		if !strings.Contains(s.cjk, s.uiText("combat.notyet")) {
 			t.Error("中文訊息沒有出現在面板上")
 		}
 		return

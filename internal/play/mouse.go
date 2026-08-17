@@ -102,9 +102,11 @@ func abs(n int) int {
 // 而那種錯不會有任何症狀。
 func (s *Scene) charAt(col, row int) byte {
 	var got byte
-	pick := func(c, r int, ascii, _, _ byte) {
-		if c == col && r == row && ascii > ' ' {
-			got = ascii
+	// ⚠ 走訪改成逐 rune 之後，命中判定只認 ASCII——
+	// 中文那幾格點下去沒有等價的按鍵可送（原版的熱鍵表也只放一個 byte）。
+	pick := func(c, r int, ch rune) {
+		if c == col && r == row && ch > ' ' && ch < 0x80 {
+			got = byte(ch)
 		}
 	}
 	switch {
@@ -112,7 +114,7 @@ func (s *Scene) charAt(col, row int) byte {
 		if bar := s.uiText("cmd.bar"); len(bar) > 0 {
 			eachCell(bar, 0, row, pick)
 		} else {
-			eachCell([]byte(commandBar()), 0, row, pick)
+			eachCell(commandBar(), 0, row, pick)
 		}
 	default:
 		// 訊息那一塊**戰鬥時是面板、地圖時是訊息視窗**（`msgRect`）。
@@ -128,7 +130,7 @@ func (s *Scene) charAt(col, row int) byte {
 		eachMessageCell(s.cjk, rect, start, pick)
 		if got == 0 && s.message != "" {
 			// 沒有中文正文時那一塊是英文——同一條規則。
-			eachMessageCell([]byte(s.message), rect, rect.Row, pick)
+			eachMessageCell(s.message, rect, rect.Row, pick)
 		}
 	}
 	return got
