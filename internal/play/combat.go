@@ -241,6 +241,9 @@ type CombatScene struct {
 	Turn int
 	Log  []string
 
+	// pick 是「換武器」清單開著時的狀態（`docs/re/107` §2）。
+	pick weaponPick
+
 	// Items 是物品資料表（存檔區那一份，docs/re/45 §2）。
 	// 沒接上時是 nil，武器一律當成零值——傷害 0 而不是崩掉。
 	Items game.ItemTable
@@ -382,6 +385,22 @@ func (s *CombatScene) Choose(key byte, armed bool) bool {
 		s.Log = append(s.Log, "Your weapon is jammed.")
 		s.LastCJK = s.zhStr(strJammed, textlayout.Options{})
 		return false // 重問這個人
+	}
+	if cmd == game.CmdHire || cmd == game.CmdUse {
+		// ⚠ **不要靜靜吃掉按鍵。** 這兩個指令的結算端只定位到入口
+		// （`docs/re/107` §4、§6 各有兩三支子函式沒讀），接了就是編一個規則。
+		// 但「選了之後什麼都沒發生」比「說還沒做」更糟——玩家會以為用掉了道具。
+		// 這一句是**重製版自己的話**（`ui:` 前綴），不是原版字串。
+		s.Log = append(s.Log, "That command is not implemented yet.")
+		if s.UI != nil {
+			s.LastCJK = s.UI("combat.notyet")
+		}
+		return false // 重問這個人
+	}
+	if cmd == game.CmdWeapon {
+		// ⚠ **換武器要先選一件**：參數留 0 的話結算階段什麼都不會做
+		// （`slotOf(0)` ＝ 沒有這一格），而畫面上看不出任何異狀。
+		return s.beginWeaponPick()
 	}
 	s.Phase.Set(s.Turn, cmd, 0)
 	s.advance(s.Turn + 1)
@@ -539,3 +558,113 @@ func cjkCells(b []byte) int {
 	}
 	return n
 }
+
+// —— 換武器的清單（`docs/re/107` §2）——————————————————————————
+//
+// ⚠ **原版的清單長什麼樣還沒逆向**：`sub_19394` 的回傳值編碼未解
+// （`docs/re/41` §7）。所以這一層的**呈現**是重製版自己的介面
+// （數字鍵選、`0` 翻頁，與 `USE` 那份同一套，`docs/spec/25`），
+// 但**選完之後做什麼**照原版（`sub_1949E`：裝／卸切換）。
+
+// weaponPickSize 是一頁幾項——九是因為選項用數字鍵 `1`–`9`。
+const weaponPickSize = 9
+
+// weaponPick 是「換武器」開著的清單狀態。
+type weaponPick struct {
+	open  bool
+	slots []byte // 1-based 槽號，照背包順序
+	page  int
+}
+
+func (w *weaponPick) pages() int {
+	if len(w.slots) == 0 {
+		return 1
+	}
+	return (len(w.slots) + weaponPickSize - 1) / weaponPickSize
+}
+
+func (w *weaponPick) pageSlice() []byte {
+	lo := w.page * weaponPickSize
+	if lo >= len(w.slots) {
+		return nil
+	}
+	hi := lo + weaponPickSize
+	if hi > len(w.slots) {
+		hi = len(w.slots)
+	}
+	return w.slots[lo:hi]
+}
+
+// beginWeaponPick 開清單。空手就回 false 並留下原版那句話
+// （字串 64「You don't have anything.」，`docs/re/41` §2）。
+func (s *CombatScene) beginWeaponPick() bool {
+	m := s.Battle.Party.Members[s.Turn]
+	if m == nil {
+		return false
+	}
+	var slots []byte
+	for i := range m.Items {
+		if m.Items[i].ID != 0 {
+			slots = append(slots, byte(i+1)) // ⚠ 1-based
+		}
+	}
+	if len(slots) == 0 {
+		s.Log = append(s.Log, "You don't have anything.")
+		s.LastCJK = s.zhStr(int(game.MsgNothingToUse), textlayout.Options{})
+		return false
+	}
+	s.pick = weaponPick{open: true, slots: slots}
+	return true
+}
+
+// WeaponPicking 回答清單開著沒有。
+func (s *CombatScene) WeaponPicking() bool { return s.pick.open }
+
+// WeaponPickLines 是清單的英文顯示。
+func (s *CombatScene) WeaponPickLines(name func(byte) string) []string {
+	m := s.Battle.Party.Members[s.Turn]
+	out := []string{m.Name + ", which item?"}
+	for i, slot := range s.pick.pageSlice() {
+		label := ""
+		if name != nil {
+			label = name(m.Items[slot-1].ID)
+		}
+		mark := " "
+		if slot == m.EquipIndex || slot == m.ArmorIndex {
+			mark = "*" // 裝備中（原版清單會標，`docs/re/42` §3.1）
+		}
+		out = append(out, fmt.Sprintf("%d%s%s", i+1, mark, label))
+	}
+	if s.pick.pages() > 1 {
+		out = append(out, fmt.Sprintf("0 more (%d/%d)", s.pick.page+1, s.pick.pages()))
+	}
+	return out
+}
+
+// PickWeapon 收清單上的一個按鍵。回傳這個按鍵有沒有被吃掉。
+func (s *CombatScene) PickWeapon(key byte) bool {
+	if !s.pick.open {
+		return false
+	}
+	switch {
+	case key == '0' && s.pick.pages() > 1:
+		s.pick.page = (s.pick.page + 1) % s.pick.pages()
+		return true
+	case key >= '1' && key <= '9':
+		// ⚠ 數字是**這一頁的第幾項**，不是整份清單的第幾項。
+		// 混淆的話翻到第二頁按 1 會裝到第一項，而且完全不會報錯。
+		page := s.pick.pageSlice()
+		i := int(key - '1')
+		if i >= len(page) {
+			return true // 這一頁沒有那一項：吃掉按鍵，不要當成指令
+		}
+		s.pick = weaponPick{}
+		s.Phase.Set(s.Turn, game.CmdWeapon, page[i])
+		s.advance(s.Turn + 1)
+		return true
+	}
+	return true // 清單開著就吃掉所有按鍵，避免誤觸別的指令
+}
+
+// CancelWeaponPick 關掉清單，回到指令選單（原版回傳 0xFF ＝ 取消，重問）。
+func (s *CombatScene) CancelWeaponPick() { s.pick = weaponPick{} }

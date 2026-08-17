@@ -163,7 +163,7 @@
 | [`docs/re/00-master-index.md`](docs/re/00-master-index.md) | **RE 總表**：位址換算、資料格式、結構佈局、位址表、關鍵函式、工具。**查已知事實先看這份** |
 | [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md) | **RE 完成度檢查表**：remake 需要的每一項知識、狀態與入口 |
 | [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 464）。讀任何 `sub_XXXXX` 前先查 |
-| [`docs/re/00-wiring-status.md`](docs/re/00-wiring-status.md) | **接線狀態**：106 份筆記的結論（已接 101、未接 0、不適用 5），remake 有沒有真的用上。`TestWiringStatus` 雙向守著（`CLAUDE.md` §0 的 G4）|
+| [`docs/re/00-wiring-status.md`](docs/re/00-wiring-status.md) | **接線狀態**：107 份筆記的結論（已接 102、未接 0、不適用 5），remake 有沒有真的用上。`TestWiringStatus` 雙向守著（`CLAUDE.md` §0 的 G4）|
 | [`docs/re/01-binary-identity.md`](docs/re/01-binary-identity.md) | 20 檔 SHA-256、`wl.exe` 的 MZ header、第一份資料庫與「不可用作證據」的結論 |
 | [`docs/re/02-exepack-unpack.md`](docs/re/02-exepack-unpack.md) | EXEPACK 格式、解包器、relocation 起點的坑、解包後基準資料庫 |
 | [`docs/re/03-boot-and-asset-loading.md`](docs/re/03-boot-and-asset-loading.md) | 開機序列、`info` 安裝資訊、檔名表、七個開機素材的載入位址、`TITLE.PIC` XOR 解碼 |
@@ -270,6 +270,7 @@
 | [`docs/re/104-opcode-2-icon-swap.md`](docs/re/104-opcode-2-icon-swap.md) | 腳本 opcode 2 ＝ overlay slot 18：把兩張圖形（含遮罩）對調 |
 | [`docs/re/105-enc-empty-round-and-menu-region.md`](docs/re/105-enc-empty-round-and-menu-region.md) | `ENC` 在空地上也能跑一回合（字串 `0x14`）；戰鬥的指令選單畫在欄 15–38、列 1–13 |
 | [`docs/re/106-text-scroll.md`](docs/re/106-text-scroll.md) | 文字滿了會**捲動**不是切掉；捲動速度 9 段（`ds:465Bh`，`<`／`>` 調）；順帶查掉 `ds:465Bh` 不是時鐘的時 |
+| [`docs/re/107-command-resolution.md`](docs/re/107-command-resolution.md) | 指令的**結算階段**跳表 `ds:A568h`：換武器、裝填、迴避各自真的做了什麼 |
 | [`docs/spec/00-index.md`](docs/spec/00-index.md) | **規格索引與閘門狀態**：哪些可以動工、其餘擋在什麼上 |
 | [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
 | [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |
@@ -332,10 +333,10 @@
 遇敵進戰鬥（名單畫面下指令、逐回合打完）、踩進設施買賣、治療、學技能、在 Ranger Center 建角色（名字可打中文）、存檔，設施圖上的局部動畫會動。
 **結局玩得到**：科奇斯基地反應爐層的四根圓柱（四把鑰匙）→ 按鈕 → 紅黃綠藍四站 →
 自毀倒數 240 刻 → 結局。觸發點不在資料裡而在主迴圈（`docs/re/100`）。
-**中文化完成**：目錄 **4,910／4,910** 條 ＋ 段落書 162 段，**而且畫面上真的是中文**——
+**中文化完成**：目錄 **4,912／4,912** 條 ＋ 段落書 162 段，**而且畫面上真的是中文**——
 戰鬥全程、設施選單與清單、角色管理、指令列訊息都走目錄（`docs/re/98` §2）。
-那 4,910 條 ＝ 原版語料 4,827 條扣掉 21 個不可翻的槽（4,806）
-＋ 重製版自己的 `ui:` 81 條與 `places:` 23 條。`tools/build_lang.py` 的輸出就是這個數字。
+那 4,912 條 ＝ 原版語料 4,827 條扣掉 21 個不可翻的槽（4,806）
+＋ 重製版自己的 `ui:` 83 條與 `places:` 23 條。`tools/build_lang.py` 的輸出就是這個數字。
 
 **抽樣試玩第一輪已做**（`docs/re/97`）：七段流程各走一遍，
 建角色、遇敵打完、商店買賣、`USE` 開閘、讀段落、存檔重開都通了。
@@ -358,10 +359,10 @@
 下面兩條是已經結案的紀錄，留著是因為它們是驗收數字的來源。
 
 
-1. ~~翻譯本體~~ —— **已完成（4,910／4,910 可翻條目）**。
+1. ~~翻譯本體~~ —— **已完成（4,912／4,912 可翻條目）**。
    原版語料 4,827 個槽扣掉 21 個**不可翻**的槽（未用槽的解碼雜訊與純控制碼，
-   `docs/re/17` §1）＝ 4,806 條，加上重製版自己的 `ui:` 81 條與 `places:` 23 條
-   ＝ 目錄裡的 4,910 條，全部翻完。
+   `docs/re/17` §1）＝ 4,806 條，加上重製版自己的 `ui:` 83 條與 `places:` 23 條
+   ＝ 目錄裡的 4,912 條，全部翻完。
    清單在 `translations/untranslatable.tsv`，`tools/build_lang.py` 會擋
    「不該有譯文的 key 被翻了」，`tools/untranslated.py` 也扣掉它們——
    **這個數字有結論，不留永遠減不掉的餘數。**

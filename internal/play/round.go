@@ -63,6 +63,11 @@ func (s *CombatScene) ResolveRound() RoundResult {
 			break
 		}
 	}
+	// 攻擊結算完才輪到「非攻擊」的那些指令（`docs/re/107` §1：
+	// 原版四趟 `sub_12CFE` 的第 4 趟，排在行動順序表 `0x1AD70` 後面）。
+	// **順序有後果**：這一回合裝填的子彈，這一回合的攻擊用不到。
+	out.join(s.resolveCommands())
+
 	if !res.Over {
 		if over, won := b.Over(); over {
 			res.Over, res.Won = true, won
@@ -260,10 +265,16 @@ func (s *CombatScene) weaponOf(c *game.Character) game.ItemData {
 	// 不是物品 ID——要先取那一格的 ID 再查表。
 	// 直接拿槽號當 ID 查會取到完全不相干的物品：出廠存檔的
 	// Hell Razor 因此打出 112 點傷害（正確的武器只有 3 顆 d6）。
-	if int(c.EquipIndex) >= len(c.Items) {
+	//
+	// ⚠ **而且槽號是 1 起算的**（`sub_19AC8`：`0xBB ＋ 2n`，陣列在 `+0xBD`，
+	// `docs/re/103` §3）。用 `equippedSlot` 這一支，**不要自己再算一次索引**——
+	// 名單那一欄與傷害計算算出不同的武器時，畫面上完全看不出來：
+	// 出廠的 Angela Deth 名單印 `VP91Z 9mm`，而攻擊拿的是她的**彈匣**。
+	slot, ok := equippedSlot(c)
+	if !ok {
 		return game.ItemData{}
 	}
-	w, ok := s.Items.Get(c.Items[c.EquipIndex].ID)
+	w, ok := s.Items.Get(slot.ID)
 	if !ok {
 		return game.ItemData{}
 	}
@@ -278,4 +289,75 @@ func (s *CombatScene) firstEnemy() (*game.Enemy, int) {
 		}
 	}
 	return nil, -1
+}
+
+// resolveCommands 跑「非攻擊」那些指令的結算（`docs/re/107` §1 的第 4 趟）。
+//
+// ⚠ **指令有兩張跳表。** 下令階段（`internal/game/handlers.go`）只檢查前提、
+// 選參數；**動作在這裡才發生**。以前這一段是空的，所以玩家在戰鬥裡按
+// `W` 換武器、`L` 裝填**什麼都不會發生**，而畫面上看不出任何異狀。
+//
+// 順序照原版：這一趟排在攻擊結算後面，所以**這一回合裝填的子彈這一回合用不到**。
+func (s *CombatScene) resolveCommands() msgs {
+	var out msgs
+	b := s.Battle
+	for i, m := range b.Party.Members {
+		if m == nil || m.Down() {
+			continue // 原版的 `sub_172BB`：CON ≤ 0 的人不結算
+		}
+		if i >= len(s.Phase.Cmd) {
+			break
+		}
+		var r game.ResolveResult
+		switch s.Phase.Cmd[i] {
+		case game.CmdWeapon:
+			r = game.ResolveWeapon(m, s.Phase.Arg[i], s.Items)
+		case game.CmdLoad:
+			r = game.ResolveLoad(m, s.Items)
+		case game.CmdEvade:
+			r = game.ResolveEvade()
+		default:
+			// 攻擊、逃跑在別的迴圈結算；Hire／Use 的結算端還沒逆向完
+			// （`docs/re/107` §4、§6）——**不做事，不猜**。
+			continue
+		}
+		if en := resolveText(m.Name, r); en != "" {
+			out.add(en, s.zhResolve(m, r))
+		}
+	}
+	return out
+}
+
+// resolveText 把結算結果換成英文那一句（原版字串的內容，`docs/re/107`）。
+func resolveText(name string, r game.ResolveResult) string {
+	switch r.Message {
+	case 0:
+		return ""
+	case game.MsgSwapsEquipment:
+		return name + " swaps equipment."
+	case game.MsgEvades:
+		return name + " evades."
+	case game.MsgReloads:
+		return name + " reloads."
+	case game.MsgNoMoreClips:
+		return name + " has no more clips."
+	case game.MsgCantBeReloaded:
+		return name + "'s weapon can't be reloaded."
+	case game.MsgWeaponJammed:
+		return "Your weapon is jammed."
+	}
+	return ""
+}
+
+// zhResolve 取那一句的中文。
+//
+// ⚠ 卡彈那句原版走**字串表 2 第 152 條**，而這一層只接得到表 1；
+// 表 1 第 56 條是**同一個句子**（攻擊時用的那份），所以指過去。
+// 兩份的譯文要一致——不一致的話同一件事會有兩種說法。
+func (s *CombatScene) zhResolve(m *game.Character, r game.ResolveResult) []byte {
+	n := int(r.Message)
+	if r.Message == game.MsgWeaponJammed {
+		n = strJammed
+	}
+	return s.zhStr(n, textlayout.Options{Name: nameOf(m)})
 }
