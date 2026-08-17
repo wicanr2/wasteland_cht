@@ -160,6 +160,12 @@ func (f *ETenFont) Glyph(hi, lo byte) []byte {
 }
 
 // rowsOf 把點陣攤成 h 列、每列 w 個 bool。
+//
+// ⚠ **這一支每叫一次配置 h+1 個物件**（外層一個、每列一個），
+// 所以**畫圖的熱路徑不要走它**——一個 24 點的字就是 25 次配置，
+// 一幀滿版中文的畫面量到 900 次（`internal/play/framebench_test.go`）。
+// 直接讀點陣的 `Glyph`／`ASCIIGlyph` 不配置任何東西，
+// 攤成 `[][]bool` 只是為了讓測試好讀。
 func rowsOf(g []byte, w, h int) [][]bool {
 	rowBytes := (w + 7) / 8
 	rows := make([][]bool, h)
@@ -186,10 +192,9 @@ func (f *ETenFont) GlyphRows(hi, lo byte) [][]bool {
 // HasASCII 回報這份字型帶不帶半形 ASCII。
 func (f *ETenFont) HasASCII() bool { return f != nil && f.asc != nil }
 
-// ASCIIRows 把一個 ASCII 字元的半形點陣攤成 ASCIIHeight 列。
-//
-// 沒有 `ASCFONT.*` 時回 nil，呼叫端要退回遊戲原版的 8×8 字模。
-func (f *ETenFont) ASCIIRows(c byte) [][]bool {
+// ASCIIGlyph 回傳一個半形字元的點陣（每列 (ASCIIWidth+7)/8 bytes、MSB-first）。
+// 這是 `ASCIIRows` 的免配置版，畫圖走這一支。
+func (f *ETenFont) ASCIIGlyph(c byte) []byte {
 	if !f.HasASCII() {
 		return nil
 	}
@@ -197,5 +202,16 @@ func (f *ETenFont) ASCIIRows(c byte) [][]bool {
 	if at+f.ascStride > len(f.asc) {
 		return nil
 	}
-	return rowsOf(f.asc[at:at+f.ascStride], f.ASCIIWidth, f.ASCIIHeight)
+	return f.asc[at : at+f.ascStride]
+}
+
+// ASCIIRows 把一個 ASCII 字元的半形點陣攤成 ASCIIHeight 列。
+//
+// 沒有 `ASCFONT.*` 時回 nil，呼叫端要退回遊戲原版的 8×8 字模。
+func (f *ETenFont) ASCIIRows(c byte) [][]bool {
+	g := f.ASCIIGlyph(c)
+	if g == nil {
+		return nil
+	}
+	return rowsOf(g, f.ASCIIWidth, f.ASCIIHeight)
 }
