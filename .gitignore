@@ -30,9 +30,15 @@ __pycache__/
 *.ida.log
 ida-batch.log
 
-# 抽出來的原版英文文本＝原版資料，不散布（CLAUDE.md §7）。
-# 用 tools/extract_strings.py 從自己那份原版重新產生。
-translations/source/
+# 原文那一側（使用者定案 2026-08-17：**允許進版控當佐證**）。
+#
+# 之前整個目錄都排除，理由是「抽出來的原版英文文本 ＝ 原版資料」。
+# 代價是 `tools/build_lang.py` 在乾淨 clone 上跑不起來——
+# `extract_strings.py` 只重建 `exe.tsv` 與 `blocks.tsv`，
+# 而 `ui.tsv`／`places.tsv` 是**手維護**的，一旦遺失就補不回來。
+#
+# 現在四份都進版控：譯文要對得上原文才審得動，而原文是譯文的佐證。
+translations/source/*.bak
 
 # 交付物打包（含原版衍生素材與影片，不入版控）
 dist-all/

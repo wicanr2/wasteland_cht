@@ -1098,6 +1098,14 @@ func (s *Scene) walk(dir game.Direction) (bool, error) {
 	if res.Script.Sound >= 0 {
 		s.playSound(res.Script.Sound)
 	}
+	// 腳本 opcode 2 要求對調兩張圖形（`docs/re/104`）。
+	// **編號超出範圍就報錯不吞**——那代表資料或索引算錯了。
+	if sw := res.Script.Swap; sw != nil {
+		if err := s.gfx.Swap(sw.A, sw.B); err != nil {
+			return true, fmt.Errorf("腳本要求對調圖形 %d／%d：%w", sw.A, sw.B, err)
+		}
+		s.dirty = true
+	}
 
 	// 條件閘的收尾訊息：通過印記錄 +0x02、沒過且沒人受罰印 +0x03（docs/re/69）。
 	if res.Gate.Message > 0 && res.Gate.Message < len(s.world.Block.Strings) {

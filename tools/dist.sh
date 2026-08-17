@@ -281,9 +281,13 @@ done < <(find "$REL" \( -name '*.ogg' -o -name '*.15' -o -name 'wl*.exe' \
     -o -name 'game1' -o -name 'game2' -o -name 'allpics*' -o -name 'allhtds*' \
     -o -name '*.pic' -o -name '*.cpa' -o -name '*.fnt' -o -name '*.wlf' \
     -o -name 'paragraphs.txt' \) -type f)
-# 原版英文文本也算原版資料（`.gitignore` 也擋著它）。
+# 原文那一側不進可散布包。
+#
+# ⚠ **這與「它進不進版控」是兩件事**：repo 收它是為了讓譯文有佐證、
+# 讓乾淨 clone 重建得出 `.cat`（使用者定案 2026-08-17）；
+# 可散布給玩家的那一包仍然只放譯文與目錄，原文一律不放。
 if [ -d "$REL/translations/source" ]; then
-    echo "   ✗ release/ 裡有 translations/source（原版英文文本）"
+    echo "   ✗ release/ 裡有 translations/source（原文那一側，不散布）"
     bad=1
 fi
 if [ "$bad" != 0 ]; then
