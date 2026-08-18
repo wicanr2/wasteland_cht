@@ -19,6 +19,9 @@ type EncounterResult struct {
 	Fought   bool              // 有沒有真的打起來
 	XPGained map[string]uint32 // 角色名字 → 這一場拿到的經驗值
 	Wiped    bool              // 隊伍全滅（原版走另一條路，本版先回報）
+	// Joined 是這一場**加入隊伍**的人（雇用來的 NPC，`docs/re/114`）。
+	// 判準是「打之前的快照裡沒有這個名字」——與經驗值那一段同一份資料。
+	Joined []string
 }
 
 // xpSnapshot 是打之前每個角色的經驗值。
@@ -170,7 +173,15 @@ func (s *Scene) FinishEncounter() EncounterResult {
 	res := EncounterResult{Fought: s.combat != nil, XPGained: map[string]uint32{}}
 	s.portrait = -1
 	for _, m := range s.world.Party.Members {
-		before := s.snapshot[m.Name]
+		before, wasHere := s.snapshot[m.Name]
+		if !wasHere {
+			// ⚠ **這一場才加入的人不算經驗值**（雇用來的 NPC，`docs/re/114`）。
+			// 快照是按名字記的，新來的查不到就會是 0，
+			// 於是**他自己帶進來的經驗值會被報成「這一場賺的」**——
+			// 雇到一個 5 級的 NPC，畫面上就寫「全隊獲得 200 點經驗值」。
+			res.Joined = append(res.Joined, m.Name)
+			continue
+		}
 		if m.XP > before {
 			res.XPGained[m.Name] = m.XP - before
 		}

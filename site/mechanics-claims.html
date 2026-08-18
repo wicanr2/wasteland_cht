@@ -141,14 +141,14 @@ footer.site p { margin: 0 0 0.5rem; }
 <tr><td>未定</td><td>逆向還沒有對應的機制可以驗這一條——<strong>不是「錯」，是「還沒有辦法判斷」</strong></td></tr>
 </tbody></table></div>
 <p>⚠ 「未定」與「有出入」要分得開。寫成「有出入」等於宣告攻略記錯， 而<strong>沒有證據支持的否定與沒有證據支持的肯定一樣糟</strong>。 逐條依據裡的每一個「未定」都寫著缺什麼，那就是下一輪的入口。</p>
-<p>2026-08-18 對過一輪：<strong>相符 21、有出入 4、未定 6</strong>。</p>
+<p>2026-08-18 對過一輪：<strong>相符 22、有出入 4、未定 5</strong>。</p>
 <h2>對照表</h2>
 <div class="table-wrap"><table>
 <thead><tr><th>編號</th><th>出處</th><th>斷言</th><th>該查哪裡</th><th>狀態</th></tr></thead>
 <tbody>
 <tr><td>M-01</td><td><a href="p56.html">p.56</a>、<a href="p57.html">p.57</a></td><td>拆除炸彈技能<strong>至少 2 級</strong>才能拆 Felicia 身上的炸彈、才能安全拿走一碰就炸的 TNT</td><td><code>re/32</code> 技能檢定、<code>re/69</code> 閘旗標、<code>re/80</code> 技能表</td><td><strong>相符</strong></td></tr>
 <tr><td>M-02</td><td><a href="p56.html">p.56</a>、<a href="p57.html">p.57</a></td><td>隊伍有名額上限；要讓新人入隊得先叫舊隊員「走路」／「回去休養」</td><td><code>re/108</code>、<code>re/110</code>、<code>re/103</code></td><td><strong>相符</strong></td></tr>
-<tr><td>M-03</td><td><a href="p57.html">p.57</a></td><td>友善 NPC（Christina）<strong>在戰鬥中被誤傷會立刻轉為敵對</strong>；戰鬥中沒碰到她就能直接招募</td><td><code>re/110</code>、<code>re/20</code></td><td><strong>未定</strong></td></tr>
+<tr><td>M-03</td><td><a href="p57.html">p.57</a></td><td>友善 NPC（Christina）<strong>在戰鬥中被誤傷會立刻轉為敵對</strong>；戰鬥中沒碰到她就能直接招募</td><td><code>re/110</code>、<code>re/20</code></td><td><strong>相符</strong></td></tr>
 <tr><td>M-04</td><td><a href="p57.html">p.57</a></td><td>可以把 NPC 隊員身上的裝備（UZI）取走給玩家角色用</td><td><code>re/108</code>、<code>re/22</code></td><td><strong>相符</strong></td></tr>
 <tr><td>M-05</td><td><a href="p57.html">p.57</a></td><td>和 NPC 交易要<strong>站在特定相對位置</strong>（「須站在他下面」）；給酒鬼酒要<strong>重複兩次</strong>才觸發情報</td><td><code>re/26</code>、<code>re/34</code></td><td><strong>有出入</strong></td></tr>
 <tr><td>M-06</td><td><a href="p57.html">p.57</a></td><td>「血杖驗證桌」：把血杖<strong>使用到桌上</strong>，假的會消失、真的會留下</td><td><code>re/34</code>、<code>re/29</code></td><td><strong>有出入</strong></td></tr>
@@ -188,7 +188,11 @@ footer.site p { margin: 0 0 0.5rem; }
 <ul>
 <li><strong>M-02</strong>：<code>internal/game/hire.HireCap ＝ 7</code>，滿了印字串 95</li>
 </ul>
-<p><code>No room in roster.</code>——<strong>滿員時連檢定都不擲</strong>（<code>re/110</code> §3）。</p>
+<p><code>No room in roster.</code>——<strong>滿員時連檢定都不擲</strong>（<code>re/110</code> §3）。 攻略點名的 Felicia、Ace、Jackie 三位都在出貨資料的可雇用清單裡 （<code>re/114</code> §4 的 14 人）。</p>
+<ul>
+<li><strong>M-03</strong>：<strong>逐指令讀出來了</strong>（<code>re/114</code>）。遭遇記錄 <code>+0x09</code> 的 bit1 ＝</li>
+</ul>
+<p>「這一組不敵對」——友善的那一組不排移動計畫（<code>0x14C50</code>）、不攻擊隊伍 （<code>0x1ADBC</code>）、可以雇用（<code>0x132D8</code>）。而隊伍一開槍，<code>0x1AF7B</code> 就呼叫 <code>sub_15C19</code> 把那個位元清掉，<strong>而且在命中判定之前，所以打不中也算數</strong>。 翻臉是寫回地圖記錄的，離開戰鬥也不會復原。攻略那兩句話逐字成立。</p>
 <ul>
 <li><strong>M-04</strong>：雇用來的 NPC 是整筆 256 bytes 的角色記錄複製進隊伍槽</li>
 </ul>
@@ -228,6 +232,9 @@ footer.site p { margin: 0 0 0.5rem; }
 <p>（<code>「這裡的金屬門很厚，正中央用粗體字漆著『LAB』。」</code>、 <code>「這道巨大的鋼門上有個奇怪的鑰匙孔。」</code>），<strong>兩格都沒有列任何炸藥當替代</strong>—— 「炸不開的門」逐字成立。</p>
 <ul>
 <li><strong>M-22</strong>：<code>「門上標著『危險！內有囚犯！』旁邊有兩個按鈕： O 開 C 關」</code>。</li>
+</ul>
+<p>COVENANT 的遭遇記錄（<code>game2</code> 40 的 3/15）<strong>出貨資料裡沒有任何格子指過來</strong> （<code>re/114</code> §4），要等劇情把某一格改寫成指向他——與「先開門、再解鎖， 他才會出現」的形狀一致。</p>
+<ul>
 <li><strong>M-23</strong>：<code>「你們的供品是什麼？」</code> 收 <code>BLOODSTAFF</code>。</li>
 <li><strong>M-25</strong>：750 個條件閘裡有 <strong>51 個一條技能都沒收</strong>（只收屬性檢定與道具）。</li>
 </ul>
@@ -274,10 +281,6 @@ footer.site p { margin: 0 0 0.5rem; }
 </ul>
 <p>能量武器），但「神殿圖書館可學」這半有出入：<strong>每一家訓練師列的都是同一張 36 筆的技能表</strong>——清單本身不篩選，IQ 需求、費用與技能欄有沒有空位全都在 選完之後才檢查（<code>re/80</code> §1）。所以能量武器在任何一家訓練師都學得到。</p>
 <h3>未定</h3>
-<ul>
-<li><strong>M-03</strong>（誤傷 NPC 會翻臉）：<code>re/110</code> 解的是雇用的檢定與併隊伍，</li>
-</ul>
-<p>沒有任何「NPC 轉敵對」的分支被定位。<strong>下一個入口</strong>：遭遇記錄 <code>+0x09</code> 的其餘位元（bit1 ＝ 可雇用、bit2 ＝ 不移動已解，剩下六個未解）。</p>
 <ul>
 <li><strong>M-09</strong>（蓋氏計數器會提示）：物品 48 <code>Geiger counter</code> 在表裡（類別 16，</li>
 </ul>

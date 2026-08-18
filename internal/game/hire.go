@@ -18,8 +18,17 @@ const (
 	// （`docs/re/16` §3.1）——所以不要寫成「section 15 的 +0x09」。
 	// remake 這一側拿到的就是 `Block.CellRecord` 回的那一筆，與原版同一條路。
 	recHireField = 0x09
-	// hireOfferBit 是「這一組可以雇用」（`sub_12AC5` 取的 bit1）。
-	hireOfferBit = 0x02
+	// friendlyBit 是遭遇記錄 `+0x09` 的 **bit1 ＝ 這一組不敵對**
+	// （`sub_12AC5` 的第二個 `shr` 把它送進 CF，`docs/re/114`）。
+	//
+	// 六個消費端全部同一個方向：友善的那一組**不排移動計畫**（`0x14C50`）、
+	// **不攻擊隊伍**（`0x1ADBC`）、不算進「附近有敵人」（`0x149A2`），
+	// 而且**可以雇用**（`0x132D8`）。
+	//
+	// ⚠ 雇用還要編號非 0，所以 `hireOfferBit` 與它同一個位元但**不是同義詞**：
+	// 友善 ≠ 可雇用（出貨資料裡有友善但沒有 NPC 記錄的遭遇）。
+	friendlyBit  = 0x02
+	hireOfferBit = friendlyBit
 
 	// recNPCGreeting／recNPCPrice 是 NPC 記錄自己的兩格（`docs/re/110` §4）。
 	recNPCGreeting = 0x30
@@ -57,6 +66,29 @@ func ReadHireOffer(rec []byte) HireOffer {
 
 // HireSection 是 NPC 記錄住的 section 型別，給呈現層取記錄用。
 func HireSection() int { return hireSectionNPC }
+
+// Friendly 回報這一筆遭遇是不是不敵對的（`docs/re/114` §2）。
+//
+// **與「可以雇用」是兩件事**：友善的那一組不一定有 NPC 記錄。
+func Friendly(rec []byte) bool {
+	return len(rec) > recHireField && rec[recHireField]&friendlyBit != 0
+}
+
+// TurnHostile 把友善位元清掉，回報這一下有沒有真的改變什麼。
+//
+// 原版在**隊伍攻擊的結算裡**做這件事（`0x1AF7B` → `sub_15C19`），
+// 而且是在命中判定**之前**——所以**開槍就算數，打不打得中都一樣**。
+// 同一支還會把 bit0 設起來（名字改用地圖的明文名字表，`docs/re/114` §3）。
+//
+// ⚠ `rec` 是地圖區塊 `Raw` 的切片，所以這一下**寫進區塊**，
+// 這一場戰鬥結束之後仍然成立——那正是原版的行為：翻臉是永久的。
+func TurnHostile(rec []byte) bool {
+	if len(rec) <= recHireField || rec[recHireField]&friendlyBit == 0 {
+		return false
+	}
+	rec[recHireField] = rec[recHireField]&^byte(friendlyBit) | 1
+	return true
+}
 
 // HireRoll 是 `sub_19C84` 那顆**長度可變**的骰。
 //

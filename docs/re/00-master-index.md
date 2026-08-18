@@ -682,6 +682,10 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `0x16385` | 15 | 片頭印一條字幕（設字串表 `ds:A703h` 再印第 `al` 條） | [`113`](113-attract-mode.md) §2 |
 | `0x198F0` | 2 | **技能清單選擇**（`USE` 的 `S`）：建表 → 清單框架 → 可還原的備份 | [`92`](92-use-command.md) §3.1 |
 | `0x14FDE` | 1 | 把一組敵人十筆 16-bit 血量加總進 `ds:46BEh`（士氣判定用） | [`101`](101-enemy-move-plan-table.md) §6.2 |
+| `0x12AC5` | 6 | 遭遇記錄 `+0x09 >> 2`，**CF ＝ bit1（不敵對）** | [`114`](114-friendly-encounters.md) §2 |
+| `0x15C08` | 1 | 遭遇記錄 `+0x09 >> 4` ＝ **section 17 的 NPC 記錄編號** | [`114`](114-friendly-encounters.md) §2 |
+| `0x15C19` | 2 | **翻臉**：清掉 `+0x09` 的 bit1、設 bit0（隊伍一開槍就跑，命中判定之前）| [`114`](114-friendly-encounters.md) §3 |
+| `0x13787` | 多 | 拿遭遇的 (x, y) 查那一格的 nibble 當 section、第 2 層當編號 → `ds:46C6h` | [`114`](114-friendly-encounters.md) §1 |
 | `0x1949E` | 2 | 裝備／卸下一件物品；護甲會把 `+0x06` 寫進記錄 `+0x1A` | [`45`](45-item-data-and-weapon-damage.md) §3.4 |
 
 ## 7. 工具
@@ -765,10 +769,11 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | [`107`](107-command-resolution.md) | 指令有**第二張跳表** `ds:A568h`（結算階段）：換裝備是切換、裝填吃掉整個彈匣、迴避只印一句；`ds:A43Bh` 只管下令 |
 | [`108`](108-combat-use-and-hire.md) | 戰鬥 `Use` 的參數 ＝ `(選項 << 4) | 方向`，編號另存 `ds:A9FDh[角色編號]`；九向位移表 `ds:AAB1h`（第 5–8 格是對角，選不到）|
 | [`109`](109-character-record-tail.md) | 角色記錄 `+0x4D`–`+0x7F` 那 51 bytes **沒有任何存取點**；階級欄是 `+0x32`–`+0x4A`（25 bytes），寫入端沒有長度檢查 |
-| [`110`](110-hire-resolution.md) | `Hire` 的結算：遭遇記錄 `+0x09` 的 bit1 ＝ 可雇用、高 4 位 ＝ section 17 的 NPC 編號 → **整筆 256 bytes 抄進隊伍** → 魅力對決 → 7 人上限 |
+| [`110`](110-hire-resolution.md) | `Hire` 的結算：遭遇記錄 `+0x09` 的 bit1（不敵對，見 `114`）＋ 高 4 位 ＝ section 17 的 NPC 編號 → **整筆 256 bytes 抄進隊伍** → 魅力對決 → 7 人上限 |
 | [`111`](111-roster-inverse-video.md) | `sub_19E2A` ＝ 反白開（`ds:4678h`）：卡彈的武器名與有狀態的隊員畫成反白 |
 | [`112`](112-mouse-cursor-and-hotzones.md) | 游標索引 `ds:8DCDh`、繪製常式 `0x10D4D`；八個圖形 ＝ 預設／可點／上下左右／中央方框，**第 7 個選不到**。地圖四個楔形送 `ds:C05Dh` 的 `I K J L` |
 | [`113`](113-attract-mode.md) | 片頭 ＝ 第 0 張字串表的六頁，每頁 255 個計時器刻；進去要按過兩次非 `S` 的鍵，**槽 8 寫了沒有呼叫端** |
+| [`114`](114-friendly-encounters.md) | 遭遇記錄 `+0x09`：bit0 名字來源／**bit1 不敵對**／bit2 不移動／高 4 位 ＝ NPC 編號。靜態遭遇在 **section 3**（出貨 14 筆可雇用），隨機的在 section 15。**開槍就翻臉**（`sub_15C19`）|
 | [`21`](21-attributes.md) | 七個屬性的記錄位移、屬性→修正值階梯、檢定骰、角色建立 |
 | [`22`](22-shop-and-items.md) | 商店、價格公式、物品資料表（95 筆 × 8 bytes） |
 | [`23`](23-picture-format.md) | 圖片格式：packed 4bpp ＋ 列間 XOR delta、82 張 `ALLPICS` |
