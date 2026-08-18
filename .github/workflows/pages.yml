@@ -1,0 +1,51 @@
+# 把 site/ 底下的靜態網頁發佈到 GitHub Pages。
+#
+# ⚠ **為什麼要走 Actions 而不是「Deploy from a branch」**：分支模式的資料夾
+# 只能選 `/` 或 `/docs`（GitHub 的限制，API 會直接回 422），而這個 repo 的
+# `docs/` 放的是逆向筆記與規格，不是網站。用 Actions 才能只發佈 `site/`。
+#
+# 網站本身是 `site/build.py` 產生的靜態 HTML（純標準函式庫、CSS 內嵌、零外部請求），
+# **產物已經進版控**，所以這裡不建置、只上傳。改了 markdown 要自己重跑 build.py。
+
+name: Pages
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "site/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同時只跑一個部署；排隊中的舊的可以取消，跑到一半的不取消。
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: 檢查沒有外部資源
+        # 網站的規矩是自包含：不引 CDN、不引 web font、沒有 <img>。
+        # 這裡擋住「哪天有人手改 HTML 加了外部資源」，不是裝飾。
+        run: |
+          if grep -rlE '<(img|script src="http|link[^>]*href="http)' site/*.html; then
+            echo "site/ 有外部資源或圖片，違反自包含的規矩" >&2
+            exit 1
+          fi
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4
