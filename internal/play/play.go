@@ -131,6 +131,8 @@ type Scene struct {
 	// journalOpen／journalAt 是手札模式的狀態（重製版的畫面，原版沒有）。
 	journalOpen bool
 	journalAt   int
+	// journalReturn 是打開手札之前訊息視窗上的東西，關掉時放回去。
+	journalReturn journalReturn
 	// journalScroll 是這一段落已經往上捲了幾列。
 	//
 	// ⚠ **手札不能套訊息視窗那套自動捲動**（`docs/re/106`）：訊息視窗要的是

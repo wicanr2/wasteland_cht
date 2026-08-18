@@ -20,25 +20,6 @@ import (
 // 而指令列的七個首字母（U E O D V S R）也全部避開了。
 const JournalKey = 'P'
 
-// showParagraph 把某一段的正文放進訊息視窗，並記成已讀。
-//
-// 查不到中文就回 false，呼叫端維持原本的英文訊息——
-// **沒翻的段落不能變成空白頁**（`docs/spec/19` §6）。
-func (s *Scene) showParagraph(n int) bool {
-	if s.journal == nil {
-		return false
-	}
-	text := s.journal.Text(n)
-	if len(text) == 0 {
-		return false
-	}
-	s.journal.MarkRead(n)
-	s.cjk = text
-	s.message = fmt.Sprintf("Paragraph %d", n)
-	s.dirty = true
-	return true
-}
-
 // paragraphFor 查這一則訊息有沒有引用段落（引用表是編譯期產物，
 // `docs/spec/19` §2——**不在執行期解析翻譯過的文字**）。
 func (s *Scene) paragraphFor(key string) (int, bool) {
@@ -61,13 +42,18 @@ func (s *Scene) maybeParagraph(key string) bool {
 	if s.journal != nil {
 		s.journal.MarkRead(n)
 	}
-	text := s.journal.Text(n)
-	if len(text) == 0 {
+	if len(s.journal.Text(n)) == 0 {
 		return false
 	}
-	s.cjk = text
-	s.journalAt = n // 之後按 P 開手札就停在這一段
-	s.dirty = true
+	// **直接開手札那一頁**，不是把正文倒進訊息視窗。
+	//
+	// 訊息視窗滿了會自動捲到最後一列（`eachMessageCell`），所以長段落
+	// 只看得到結尾——27 段那種一開始就看不到開頭。手札那條路有手動捲動
+	// （`↑`／`↓`），而地圖上那兩個鍵是走路，**同一塊視窗沒辦法兩種都要**。
+	//
+	// 關掉手札會把剛才那句地圖訊息放回去（`openJournal` 存、ESC 還原），
+	// 所以原版那句 `Read paragraph 23.` 沒有消失，只是被蓋著。
+	s.openJournal(n)
 	return true
 }
 
@@ -75,6 +61,10 @@ func (s *Scene) maybeParagraph(key string) bool {
 func (s *Scene) OpenJournal(n int) { s.openJournal(n) }
 
 // openJournal 打開手札，停在指定段落（超出範圍就夾回來）。
+//
+// 打開之前先把訊息視窗上的東西收起來，關掉時放回去——**手札是蓋在畫面上的
+// 一層，不是一個新場景**。少了這一步，讀完一段回到地圖是一片空白，
+// 而剛剛踩到那一格說了什麼就再也看不到了。
 func (s *Scene) openJournal(n int) {
 	if n < 1 {
 		n = 1
@@ -82,9 +72,18 @@ func (s *Scene) openJournal(n int) {
 	if n > game.JournalPages {
 		n = game.JournalPages
 	}
+	if !s.journalOpen {
+		s.journalReturn = journalReturn{message: s.message, cjk: s.cjk}
+	}
 	s.journalAt = n
 	s.journalOpen = true
 	s.showJournalPage()
+}
+
+// journalReturn 是打開手札之前訊息視窗上的東西。
+type journalReturn struct {
+	message string
+	cjk     string
 }
 
 // showJournalPage 把目前這一頁畫進訊息視窗。
@@ -163,8 +162,8 @@ func (s *Scene) updateJournal(in input.Input) (bool, error) {
 	case in.Action == input.ActionCancel,
 		input.Upper(in.Char) == JournalKey:
 		s.journalOpen = false
-		s.message = ""
-		s.cjk = ""
+		s.message, s.cjk = s.journalReturn.message, s.journalReturn.cjk
+		s.journalReturn = journalReturn{}
 		s.journalHead = ""
 		s.journalScroll = 0
 		s.dirty = true
