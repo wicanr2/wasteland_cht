@@ -62,9 +62,13 @@ func (s *Scene) StartEncounter() (*CombatScene, error) {
 	// 雇用要讀這一格記錄的 `+0x09`（`docs/re/110` §2）——**與原版同一筆**：
 	// 原版的 `ds:46C6h` 也是「那一格的 nibble 決定 section、再取那一筆」。
 	c.EncRecord = rec
+	c.EncX, c.EncY = int(entry.X), int(entry.Y)
 	c.Log = append(c.Log, "Encounter begins...")
 	c.LastCJK = c.zhStr(strEncounterBegins, textlayout.Options{})
 	s.combat = c
+	// 第一回合的移動計畫（`sub_14BF0` 在隊伍下令之前跑，`docs/re/101` §5）。
+	// **開場就要算**：少了這一次，第一回合的命中基礎值一律是 50。
+	s.planEnemyMove()
 	return c, nil
 }
 

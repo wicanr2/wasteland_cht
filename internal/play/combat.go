@@ -331,6 +331,10 @@ type CombatScene struct {
 	pick weaponPick
 	// hire 是「哪一組？」開著時的狀態（`docs/re/110`）。
 	hire hirePick
+	// EncX／EncY 是這場遭遇**在地圖上的那一格**（0 ＝ 沒有格子，
+	// 空地 `ENC` 的那種回合就是）。敵人在地圖上移動時會改它
+	// （`docs/re/116` §5：移動是「把那一格搬過去」，不是加一個新的）。
+	EncX, EncY int
 	// EncRecord 是這場遭遇那一格的記錄——雇用要讀它的 `+0x09`
 	// （`docs/re/110` §2）。**空的話 `H` 一律失敗**，不猜一個 NPC 出來。
 	EncRecord []byte

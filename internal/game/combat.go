@@ -161,9 +161,9 @@ const NoMovePlan = -1
 // **會移動的敵人比較好打。** 隊伍那條是 `roll(1..100) < 累加值` 才命中
 // （`docs/re/20` §1.2），所以 60 比 50 容易打中——方向容易記反。
 //
-// ⚠ remake 沒有實作敵人在地圖上移動（`docs/re/87` §2），所以實際上
-// **每一場都是 `NoMovePlan` ＝ 50**。這裡照原版的機制寫而不是把常數改成 50，
-// 是為了讓移動實作出來的那天 60 那一支自己亮起來。
+// 計畫由 `PlanEnemyMove` 每回合算一次（`internal/game/enemymove.go`，
+// `docs/re/116`），所以兩條都會走到：站著不動的敵人 50、
+// 這一回合要移動的 60。
 func HitBase(plan int) int {
 	if plan == NoMovePlan {
 		return 50

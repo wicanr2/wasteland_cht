@@ -51,10 +51,10 @@ func TestRoundUsesMovePlanAsHitBase(t *testing.T) {
 	}
 }
 
-// 從地圖開打的戰鬥，`MovePlan` 要是 `NoMovePlan`。
+// 從地圖開打的戰鬥，`MovePlan` 要嘛是 `NoMovePlan`、要嘛是算出來的計畫。
 //
-// remake 沒有實作敵人在地圖上移動（`docs/re/87` §2），所以沒有人會設它——
-// 但零值 0 是一個**合法的步向**，忘了走 `NewBattle` 就會安靜地變成 60。
+// ⚠ 零值 0 是一個**合法的步向**（往上走），所以忘了走 `NewBattle`
+// 或忘了算計畫都會安靜地變成 60。這一條擋的是那個。
 func TestEncounterBattleHasNoMovePlan(t *testing.T) {
 	s := newScene(t)
 	if err := s.LoadMap(0, 12, 2); err != nil {
@@ -72,7 +72,14 @@ func TestEncounterBattleHasNoMovePlan(t *testing.T) {
 	if !s.InCombat() {
 		t.Skip("400 步沒遇到敵人，這一輪測不到")
 	}
-	if got := s.Combat().Battle.MovePlan; got != game.NoMovePlan {
-		t.Errorf("地圖遭遇開出來的戰鬥 MovePlan ＝ %d，預期 %d", got, game.NoMovePlan)
+	got := s.Combat().Battle.MovePlan
+	if got == game.NoMovePlan {
+		return // 敵人這一回合站著不動，合法
+	}
+	if step := game.PlanStep(got); step > 8 {
+		t.Errorf("計畫 %#x 的步向是 %d，不在 0–8", got, step)
+	}
+	if msg := game.PlanMessage(got); msg > 2 {
+		t.Errorf("計畫 %#x 的訊息索引是 %d，只有三句話", got, msg)
 	}
 }

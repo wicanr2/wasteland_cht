@@ -30,6 +30,10 @@ const (
 	friendlyBit  = 0x02
 	hireOfferBit = friendlyBit
 
+	// noMapMoveBit 是 `+0x09` 的 **bit2 ＝ 這一筆遭遇不參與地圖移動**
+	// （`0x14C55` 的 `and al, 4` → `loc_14E3B`，`docs/re/101` §6.4）。
+	noMapMoveBit = 0x04
+
 	// properNameBit 是 `+0x09` 的 **bit0 ＝ 名字從這張地圖的明文名字表取**
 	// （`0x129E9` → `loc_12A04`，`docs/re/114` §6）。清掉就印種類名。
 	properNameBit = 0x01
@@ -77,6 +81,15 @@ func HireSection() int { return hireSectionNPC }
 // （`Juveniles`、`Woman`、`City Slicker`），不是種類名。
 func UseProperName(rec []byte) bool {
 	return len(rec) > recHireField && rec[recHireField]&properNameBit != 0
+}
+
+// StaysPut 回報這一筆遭遇要不要參與地圖上的移動（`+0x09` 的 bit2，
+// `docs/re/101` §6.4）。設著 ＝ **這一筆遭遇整個不移動**。
+//
+// ⚠ 它在出貨資料裡，不是執行期算出來的——所以「這一組怎麼都不動」
+// 有可能是資料就這樣寫的，不是移動沒接上。
+func StaysPut(rec []byte) bool {
+	return len(rec) > recHireField && rec[recHireField]&noMapMoveBit != 0
 }
 
 // Friendly 回報這一筆遭遇是不是不敵對的（`docs/re/114` §2）。

@@ -1006,6 +1006,14 @@ func (s *Scene) updateCombat(in input.Input) (bool, error) {
 			s.message, s.cjk = s.combatOverMessage(res.Won, out)
 			return true, nil
 		}
+		// 敵人在地圖上移動（`docs/re/116`）：結算之後執行這一回合的計畫，
+		// 再替**下一回合**算一份——原版的順序是「算計畫 → 下令與結算 →
+		// 執行」，所以下一回合的命中基礎值用的是下一回合的計畫。
+		if en, zh := s.moveEnemies(); en != "" {
+			s.message, s.cjk = en, zh
+			c.Log = append(c.Log, en)
+		}
+		s.planEnemyMove()
 		c.BeginCommands()
 	}
 	// 指令階段：把「換誰下令」那一行與選單畫出來。
