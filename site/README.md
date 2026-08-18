@@ -48,12 +48,16 @@ python3 -m http.server 8000 --directory site
 
 repo 目前是 private，Pages 沒有開。真要發佈的話，在 GitHub 上的設定是：
 
-1. **Settings → Pages → Build and deployment**
-2. Source 選 **Deploy from a branch**
-3. Branch 選 `master`、資料夾選 **`/site`**（不是 `/root`，也不是 `/docs`）
-4. 存檔後等一兩分鐘，網址會是 `https://<帳號>.github.io/wasteland_cht/`
+**已經開好了**：https://wicanr2.github.io/wasteland_cht/
 
-不需要 Actions，不需要 workflow 檔，也不需要動 Actions 的權限設定。
+⚠ **不能用「Deploy from a branch」**：分支模式的資料夾只能選 `/` 或 `/docs`
+（GitHub 的限制，API 會直接回 422），而這個 repo 的 `docs/` 放的是逆向筆記與規格。
+所以走 **GitHub Actions**：`.github/workflows/pages.yml` 把 `site/` 整個上傳成
+Pages 的成品，`push` 到 `master` 且動到 `site/` 就會重新部署。
+
+那份 workflow **不建置、只上傳**——HTML 是 `build.py` 的產物而且已經進版控。
+它多做一件事：擋住「有人手改 HTML 加了外部資源」（`<img>`、CDN、web font），
+違反就讓部署失敗。
 
 ### 發佈前要先確認的事
 
