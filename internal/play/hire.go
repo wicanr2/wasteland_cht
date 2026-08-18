@@ -182,7 +182,9 @@ func (s *CombatScene) HirePickCJK() string {
 func (s *CombatScene) groupName(g int) string {
 	for i := 0; i < game.EnemiesPerGroup; i++ {
 		if e := s.Battle.Enemy(g*game.EnemiesPerGroup + i); e != nil {
-			if n := s.Names.Name(e.Data.Kind); n != "" {
+			// 走與戰鬥訊息同一支——**兩邊分岔的話同一組在選單裡叫一個名字、
+			// 在訊息裡叫另一個**，而畫面上看起來只是「翻譯不一致」。
+			if n := s.enemyLabel(e); n != "" && n != "It" {
 				return n
 			}
 		}
@@ -208,7 +210,7 @@ func (s *CombatScene) hireFailCJK(m *game.Character, g int) string {
 func (s *CombatScene) groupNameCJK(g int) string {
 	for i := 0; i < game.EnemiesPerGroup; i++ {
 		if e := s.Battle.Enemy(g*game.EnemiesPerGroup + i); e != nil {
-			if n := s.CJKNames[int(e.Data.Kind)%len(s.CJKNames)]; n != "" {
+			if n := s.zhEnemy(e); n != "" {
 				return n
 			}
 		}

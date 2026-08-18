@@ -1,6 +1,9 @@
 package assets
 
-import "fmt"
+import (
+	"bytes"
+	"fmt"
+)
 
 // MSQ 區塊：資源定址、解密與三層地圖。
 //
@@ -360,6 +363,60 @@ func (b *Block) EnemyData() ([]byte, error) {
 		return nil, fmt.Errorf("敵人資料表位移 %#x 超出區塊（%d bytes）", off, len(b.Raw))
 	}
 	return b.Raw[off:], nil
+}
+
+// 明文名字表的防呆上限（真正的表最長十幾條，最長的名字 30 出頭）。
+const (
+	maxMonsterNames   = 64
+	maxMonsterNameLen = 40
+)
+
+// MonsterNames 是這張地圖的**明文敵人名字表**（記錄區標頭 `+0x02`，
+// `docs/re/09` §3、`docs/re/114` §6）。
+//
+// NUL 分隔、`0xFF` 結束、明文 ASCII。**索引 1 起算**——第 0 條是空的
+// （表前面就是一個 NUL），與敵人資料表同一套編號。
+//
+// ⚠ **筆數不能拿記錄區標頭 `+0x31` 算**：那是「隨機遭遇擲哪一種」的上限
+// （`sub_16890`），不擲遭遇的地圖它是 0，而那些地圖照樣有靜態遭遇也照樣有名字。
+//
+// 名字用 `\n` 分**字根／單數字尾／複數字尾**（`docs/re/17` §4.1），
+// 這裡原樣回傳——要單數形的呼叫端自己取。
+func (b *Block) MonsterNames() []string {
+	if len(b.Header) <= hdrNames+1 {
+		return nil
+	}
+	off := int(le16(b.Header, hdrNames))
+	if off == 0 || off >= len(b.Raw) {
+		return nil
+	}
+	var out []string
+	for p := off; p < len(b.Raw) && b.Raw[p] != 0xFF && len(out) < maxMonsterNames; {
+		end := bytes.IndexByte(b.Raw[p:], 0)
+		if end < 0 || end > maxMonsterNameLen {
+			break
+		}
+		text := string(b.Raw[p : p+end])
+		if !plainName(text) {
+			break // 表尾之後就是別的資料，掃到非 ASCII 就停
+		}
+		out = append(out, text)
+		p += end + 1
+	}
+	return out
+}
+
+// plainName 回答「這一段看起來還是名字嗎」：只准 ASCII 可見字元與分段用的 `\n`。
+func plainName(s string) bool {
+	for i := 0; i < len(s); i++ {
+		if s[i] == '\n' {
+			continue
+		}
+		if s[i] < 0x20 || s[i] > 0x7E {
+			return false
+		}
+	}
+	return true
 }
 
 // SectionBase 回傳某個 section 型別在 Raw 裡的起點。

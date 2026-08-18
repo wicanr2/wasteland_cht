@@ -260,6 +260,11 @@ func (s *CombatScene) pickEnemyTarget() (*game.Character, int) {
 // enemyLabel 是敵人在訊息裡的稱呼（種類名稱，`docs/re/85`）。
 // 查不到名稱時回 "It"——**不留空白**，不然訊息會變成 " misses."。
 func (s *CombatScene) enemyLabel(e *game.Enemy) string {
+	// 這張地圖的明文名字表優先（`docs/re/114` §6）——出貨資料裡幾乎每一筆
+	// 遭遇都設著那個位元，所以原版畫面上寫的是「Juveniles」不是「Humanoid」。
+	if raw := s.properName(e); raw != "" {
+		return singular(raw)
+	}
 	if n := s.Names.Name(e.Data.Kind); n != "" {
 		return n
 	}

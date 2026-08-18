@@ -45,8 +45,13 @@ def decrypt_block(raw: bytes, checksum: int, header_at: int) -> tuple[bytearray,
     return out, length
 
 
-def decode_blocks(exe: bytes, game1: bytes, game2: bytes) -> list[dict]:
-    """解出 42 個地圖區塊的字串表。給 extract_strings.py 之類的工具重用。"""
+def walk_blocks(exe: bytes, game1: bytes, game2: bytes):
+    """逐個區塊 yield `(res_id, file, body, header_at, encrypted_length)`。
+
+    解密與定址只有這一份實作，讀字串表（`decode_blocks`）與讀明文名字表
+    （`extract_monster_names.py`）都走它——**兩份各自解密遲早會分岔**，
+    而分岔的症狀是「其中一個工具解出雜訊」，看起來像格式沒解對。
+    """
     header_bytes = struct.unpack_from("<H", exe, 8)[0] * 16
     at = lambda off: DS + off - 0x10000 + header_bytes  # noqa: E731
 
@@ -67,8 +72,6 @@ def decode_blocks(exe: bytes, game1: bytes, game2: bytes) -> list[dict]:
 
     files = {"game1": game1, "game2": game2}
     cursor = {"game1": 0, "game2": 0}
-    blocks = []
-    total = 0
 
     for res_id, raw_flag in enumerate(directory):
         label = {0x80: "game1", 0x40: "game2"}.get(raw_flag & 0xC0)
@@ -83,7 +86,14 @@ def decode_blocks(exe: bytes, game1: bytes, game2: bytes) -> list[dict]:
         # ⚠ 只餵「載入器實際讀進來」的那一段。多餵的部分是壓縮的尾段，
         # 解 5-bit 會解出看起來像文字的雜訊，而且一路解到檔案結束。
         body, length = decrypt_block(span[6 : read_len[res_id]], checksum, header_at)
+        yield res_id, label, body, header_at, length
 
+
+def decode_blocks(exe: bytes, game1: bytes, game2: bytes) -> list[dict]:
+    """解出 42 個地圖區塊的字串表。給 extract_strings.py 之類的工具重用。"""
+    blocks = []
+    total = 0
+    for res_id, label, body, header_at, length in walk_blocks(exe, game1, game2):
         entry: dict = {
             "resource_id": res_id,
             "file": label,
