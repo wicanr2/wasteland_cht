@@ -219,10 +219,10 @@ func TestEncounterShowsPortrait(t *testing.T) {
 	if !s.InCombat() {
 		t.Fatal("地圖 4 的 (18, 2) 開不了戰")
 	}
-	if s.portrait < 0 {
+	if s.portraitPicture() < 0 {
 		t.Fatal("打起來了卻沒有肖像編號")
 	}
-	t.Logf("肖像圖編號 %d", s.portrait)
+	t.Logf("肖像圖編號 %d", s.portraitPicture())
 
 	// 圖的那一塊（視窗原點 8,8、96×84）要有非零像素。
 	f := s.Frame()
@@ -255,7 +255,7 @@ func TestEncounterShowsPortrait(t *testing.T) {
 
 	// 收尾之後肖像要清掉。
 	s.FinishEncounter()
-	if s.portrait >= 0 {
+	if s.portraitPicture() >= 0 {
 		t.Error("戰鬥結束了肖像編號還留著")
 	}
 }

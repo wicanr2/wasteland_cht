@@ -6,14 +6,14 @@
 輸入：`wl.merged.exe（解包映像＋wla.bin overlay，本專案合成）`，SHA-256 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`
 
 - 自動辨識函式：**641**
-- 已在筆記中出現：**495**
-- 尚未碰過：**146**
+- 已在筆記中出現：**502**
+- 尚未碰過：**139**
 
 ## 已分析（依呼叫端數量排序）
 
 | 位址 | segment:offset | 大小 | callers | 出現於 |
 |---|---|---:|---:|---|
-| `0x16CB2` | seg000+0x6CB2 | 11 | 88 | re/105-enc-empty-round-and-menu-region.md、re/107-command-resolution.md、re/19-effects-and-damage.md、re/21-attributes.md、re/38-combat-commands-and-flee.md、re/40-combat-screen.md、re/43-input-and-hotkeys.md、re/64-enter-location-prompt.md、re/87-enemy-map-movement.md、re/91-map-command-bar.md、re/92-use-command.md、re/93-order-disband-view.md、re/94-enc-command.md |
+| `0x16CB2` | seg000+0x6CB2 | 11 | 88 | re/105-enc-empty-round-and-menu-region.md、re/107-command-resolution.md、re/115-portrait-box.md、re/19-effects-and-damage.md、re/21-attributes.md、re/38-combat-commands-and-flee.md、re/40-combat-screen.md、re/43-input-and-hotkeys.md、re/64-enter-location-prompt.md、re/87-enemy-map-movement.md、re/91-map-command-bar.md、re/92-use-command.md、re/93-order-disband-view.md、re/94-enc-command.md |
 | `0x10039` | seg000+0x39 | 3 | 71 | re/04-overlay-wla-bin.md、re/06-resource-directory.md |
 | `0x19614` | seg000+0x9614 | 38 | 43 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/102-unreachable-opcodes.md、re/107-command-resolution.md、re/109-character-record-tail.md、re/15-character-record.md、re/19-effects-and-damage.md、re/28-text-variants.md、re/38-combat-commands-and-flee.md、re/55-radiation-and-armour-bypass.md、re/67-gate-penalty-and-canteen.md、re/89-enemy-target-and-down.md、re/92-use-command.md、re/96-ending.md |
 | `0x17208` | seg000+0x7208 | 19 | 29 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/102-unreachable-opcodes.md、re/109-character-record-tail.md、re/15-character-record.md |
@@ -23,7 +23,7 @@
 | `0x16149` | seg000+0x6149 | 60 | 27 | re/00-master-index.md、re/25-screen-layout.md、re/37-enemy-records-and-hp.md、re/51-encounter-driver.md |
 | `0x19C2C` | seg000+0x9C2C | 40 | 26 | re/00-master-index.md、re/110-hire-resolution.md、re/20-combat-resolution.md、re/21-attributes.md、re/32-skill-checks-and-xp.md、re/36-combat-rounds.md、re/88-hit-accumulator.md、re/90-party-initiative.md |
 | `0x19EFC` | seg000+0x9EFC | 22 | 26 | re/00-master-index.md、re/106-text-scroll.md、re/14-fonts-and-text-encoding.md、re/28-text-variants.md、re/51-encounter-driver.md、re/55-radiation-and-armour-bypass.md、re/58-line-flush-and-scrollback.md、re/87-enemy-map-movement.md |
-| `0x13A56` | seg000+0x3A56 | 28 | 25 | re/00-master-index.md、re/101-enemy-move-plan-table.md、re/108-combat-use-and-hire.md、re/110-hire-resolution.md、re/114-friendly-encounters.md、re/20-combat-resolution.md、re/32-skill-checks-and-xp.md、re/37-enemy-records-and-hp.md、re/88-hit-accumulator.md |
+| `0x13A56` | seg000+0x3A56 | 28 | 25 | re/00-master-index.md、re/101-enemy-move-plan-table.md、re/108-combat-use-and-hire.md、re/110-hire-resolution.md、re/114-friendly-encounters.md、re/115-portrait-box.md、re/20-combat-resolution.md、re/32-skill-checks-and-xp.md、re/37-enemy-records-and-hp.md、re/88-hit-accumulator.md |
 | `0x1728C` | seg000+0x728C | 34 | 25 | re/25-screen-layout.md、re/29-map-event-handlers.md、re/38-combat-commands-and-flee.md、re/40-combat-screen.md、re/41-command-handlers.md、re/42-facility-loops.md、re/51-encounter-driver.md、re/52-trainer-facility.md、re/72-facility-entry-and-command-bar.md、re/92-use-command.md、re/93-order-disband-view.md、re/99-party-wipe.md |
 | `0x19C04` | seg000+0x9C04 | 40 | 25 | re/101-enemy-move-plan-table.md、re/110-hire-resolution.md |
 | `0x18E41` | seg000+0x8E41 | 30 | 24 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/13-rng.md、re/20-combat-resolution.md、re/29-map-event-handlers.md、re/37-enemy-records-and-hp.md、re/77-encounter-spawn-gap.md、re/78-encounter-spawn.md、re/89-enemy-target-and-down.md |
@@ -40,7 +40,7 @@
 | `0x1769C` | seg000+0x769C | 6 | 15 | re/103-roster-line-columns.md |
 | `0x19E30` | seg000+0x9E30 | 6 | 15 | re/00-master-index.md、re/111-roster-inverse-video.md、re/14-fonts-and-text-encoding.md、re/40-combat-screen.md、re/41-command-handlers.md |
 | `0x10EBE` | seg000+0xEBE | 60 | 14 | re/00-remake-knowledge-gaps.md、re/04-overlay-wla-bin.md、re/106-text-scroll.md |
-| `0x12A40` | seg000+0x2A40 | 12 | 14 | re/00-master-index.md、re/101-enemy-move-plan-table.md、re/20-combat-resolution.md、re/32-skill-checks-and-xp.md、re/36-combat-rounds.md、re/37-enemy-records-and-hp.md、re/88-hit-accumulator.md |
+| `0x12A40` | seg000+0x2A40 | 12 | 14 | re/00-master-index.md、re/101-enemy-move-plan-table.md、re/115-portrait-box.md、re/20-combat-resolution.md、re/32-skill-checks-and-xp.md、re/36-combat-rounds.md、re/37-enemy-records-and-hp.md、re/88-hit-accumulator.md |
 | `0x19C69` | seg000+0x9C69 | 9 | 14 | re/101-enemy-move-plan-table.md、re/110-hire-resolution.md、re/32-skill-checks-and-xp.md、re/36-combat-rounds.md |
 | `0x19DC3` | seg000+0x9DC3 | 103 | 14 | re/00-master-index.md、re/14-fonts-and-text-encoding.md、re/43-input-and-hotkeys.md、re/46-typed-answers-and-text-input.md、re/53-list-framework.md |
 | `0x16D34` | seg000+0x6D34 | 128 | 13 | re/00-master-index.md、re/00-wiring-status.md、re/22-shop-and-items.md、re/41-command-handlers.md、re/42-facility-loops.md、re/52-trainer-facility.md、re/53-list-framework.md、re/80-trainer-skill-list.md、re/92-use-command.md |
@@ -58,9 +58,9 @@
 | `0x16DB4` | seg000+0x6DB4 | 143 | 11 | re/00-master-index.md、re/00-wiring-status.md、re/42-facility-loops.md、re/52-trainer-facility.md、re/53-list-framework.md、re/80-trainer-skill-list.md、re/92-use-command.md |
 | `0x16F20` | seg000+0x6F20 | 21 | 11 | re/41-command-handlers.md、re/92-use-command.md |
 | `0x17033` | seg000+0x7033 | 88 | 11 | re/107-command-resolution.md、re/25-screen-layout.md、re/42-facility-loops.md、re/93-order-disband-view.md |
-| `0x171B9` | seg000+0x71B9 | 15 | 11 | re/14-fonts-and-text-encoding.md、re/15-character-record.md、re/40-combat-screen.md、re/51-encounter-driver.md、re/93-order-disband-view.md |
+| `0x171B9` | seg000+0x71B9 | 15 | 11 | re/111-roster-inverse-video.md、re/14-fonts-and-text-encoding.md、re/15-character-record.md、re/40-combat-screen.md、re/51-encounter-driver.md、re/93-order-disband-view.md |
 | `0x196C9` | seg000+0x96C9 | 18 | 11 | re/103-roster-line-columns.md、re/107-command-resolution.md、re/109-character-record-tail.md、re/15-character-record.md、re/17-packed-text.md、re/20-combat-resolution.md、re/38-combat-commands-and-flee.md、re/41-command-handlers.md |
-| `0x19727` | seg000+0x9727 | 73 | 11 | re/00-master-index.md、re/105-enc-empty-round-and-menu-region.md、re/14-fonts-and-text-encoding.md、re/28-text-variants.md、re/40-combat-screen.md、re/46-typed-answers-and-text-input.md、re/52-trainer-facility.md、re/72-facility-entry-and-command-bar.md、re/91-map-command-bar.md、re/92-use-command.md、re/93-order-disband-view.md、re/99-party-wipe.md |
+| `0x19727` | seg000+0x9727 | 73 | 11 | re/00-master-index.md、re/105-enc-empty-round-and-menu-region.md、re/115-portrait-box.md、re/14-fonts-and-text-encoding.md、re/28-text-variants.md、re/40-combat-screen.md、re/46-typed-answers-and-text-input.md、re/52-trainer-facility.md、re/72-facility-entry-and-command-bar.md、re/91-map-command-bar.md、re/92-use-command.md、re/93-order-disband-view.md、re/99-party-wipe.md |
 | `0x19C84` | seg000+0x9C84 | 40 | 11 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/110-hire-resolution.md、re/13-rng.md、re/21-attributes.md、re/32-skill-checks-and-xp.md、re/36-combat-rounds.md、re/90-party-initiative.md |
 | `0x1A26C` | seg000+0xA26C | 9 | 11 | re/14-fonts-and-text-encoding.md、re/40-combat-screen.md |
 | `0x1001B` | seg000+0x1B | 3 | 10 | re/04-overlay-wla-bin.md、re/14-fonts-and-text-encoding.md、re/95-main-menu.md |
@@ -100,11 +100,11 @@
 | `0x119DB` | seg000+0x19DB | 53 | 7 | re/06-resource-directory.md、re/45-item-data-and-weapon-damage.md |
 | `0x11B83` | seg000+0x1B83 | 165 | 7 | re/00-master-index.md、re/00-wiring-status.md、re/05-storage-layer.md、re/11-huffman-decoder.md、re/23-picture-format.md |
 | `0x162CF` | seg000+0x62CF | 18 | 7 | re/113-attract-mode.md、re/95-main-menu.md |
-| `0x17868` | seg000+0x7868 | 6 | 7 | re/108-combat-use-and-hire.md、re/40-combat-screen.md |
+| `0x17868` | seg000+0x7868 | 6 | 7 | re/108-combat-use-and-hire.md、re/115-portrait-box.md、re/40-combat-screen.md |
 | `0x17CFF` | seg000+0x7CFF | 53 | 7 | re/00-master-index.md、re/00-wiring-status.md、re/29-map-event-handlers.md、re/46-typed-answers-and-text-input.md、re/55-radiation-and-armour-bypass.md、re/59-playtest-against-original.md、re/62-fourth-gate-terrain-blocking.md、re/68-cell-rewrite.md、re/69-gate-flags.md、re/70-nibble1-and-facility-entry.md、re/71-nibble12-batch-patch.md、re/73-shop-and-doctor-entry.md、re/92-use-command.md |
 | `0x17DC7` | seg000+0x7DC7 | 25 | 7 | re/26-movement-and-triggers.md、re/29-map-event-handlers.md、re/70-nibble1-and-facility-entry.md |
 | `0x18DB4` | seg000+0x8DB4 | 10 | 7 | re/113-attract-mode.md、re/67-gate-penalty-and-canteen.md、re/69-gate-flags.md、re/74-heat-entry-and-gate-display.md |
-| `0x190A8` | seg000+0x90A8 | 16 | 7 | re/00-master-index.md、re/37-enemy-records-and-hp.md、re/96-ending.md |
+| `0x190A8` | seg000+0x90A8 | 16 | 7 | re/00-master-index.md、re/115-portrait-box.md、re/37-enemy-records-and-hp.md、re/96-ending.md |
 | `0x196B2` | seg000+0x96B2 | 18 | 7 | re/103-roster-line-columns.md、re/107-command-resolution.md、re/37-enemy-records-and-hp.md、re/41-command-handlers.md |
 | `0x199F1` | seg000+0x99F1 | 11 | 7 | re/00-master-index.md、re/103-roster-line-columns.md、re/107-command-resolution.md、re/22-shop-and-items.md、re/29-map-event-handlers.md、re/39-encounter-scan.md、re/45-item-data-and-weapon-damage.md |
 | `0x19AC8` | seg000+0x9AC8 | 5 | 7 | re/00-master-index.md、re/103-roster-line-columns.md、re/107-command-resolution.md、re/109-character-record-tail.md |
@@ -114,7 +114,7 @@
 | `0x1A3E1` | seg000+0xA3E1 | 17 | 7 | re/17-packed-text.md |
 | `0x1CA98` | seg000+0xCA98 | 17 | 7 | re/00-master-index.md、re/31-experience-and-skills.md |
 | `0x11AE8` | seg000+0x1AE8 | 116 | 6 | re/00-wiring-status.md、re/05-storage-layer.md、re/10-huffman-compression.md、re/11-huffman-decoder.md、re/12-msq-tail-and-text-model.md、re/23-picture-format.md |
-| `0x12619` | seg000+0x2619 | 29 | 6 | re/105-enc-empty-round-and-menu-region.md、re/108-combat-use-and-hire.md、re/43-input-and-hotkeys.md、re/51-encounter-driver.md、re/64-enter-location-prompt.md、re/94-enc-command.md |
+| `0x12619` | seg000+0x2619 | 29 | 6 | re/105-enc-empty-round-and-menu-region.md、re/108-combat-use-and-hire.md、re/115-portrait-box.md、re/43-input-and-hotkeys.md、re/51-encounter-driver.md、re/64-enter-location-prompt.md、re/94-enc-command.md |
 | `0x12AC5` | seg000+0x2AC5 | 13 | 6 | re/00-master-index.md、re/110-hire-resolution.md、re/114-friendly-encounters.md、re/39-encounter-scan.md |
 | `0x13449` | seg000+0x3449 | 9 | 6 | re/101-enemy-move-plan-table.md、re/108-combat-use-and-hire.md、re/110-hire-resolution.md、re/114-friendly-encounters.md |
 | `0x13878` | seg000+0x3878 | 56 | 6 | re/00-master-index.md、re/39-encounter-scan.md、re/45-item-data-and-weapon-damage.md |
@@ -125,18 +125,18 @@
 | `0x171E3` | seg000+0x71E3 | 37 | 6 | re/39-encounter-scan.md、re/96-ending.md |
 | `0x173B0` | seg000+0x73B0 | 34 | 6 | re/00-master-index.md、re/108-combat-use-and-hire.md、re/38-combat-commands-and-flee.md、re/43-input-and-hotkeys.md、re/51-encounter-driver.md、re/92-use-command.md |
 | `0x176D0` | seg000+0x76D0 | 47 | 6 | re/19-effects-and-damage.md、re/42-facility-loops.md |
-| `0x17AF0` | seg000+0x7AF0 | 5 | 6 | re/103-roster-line-columns.md |
+| `0x17AF0` | seg000+0x7AF0 | 5 | 6 | re/103-roster-line-columns.md、re/111-roster-inverse-video.md |
 | `0x18E5F` | seg000+0x8E5F | 12 | 6 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/110-hire-resolution.md、re/13-rng.md、re/21-attributes.md |
 | `0x18EFE` | seg000+0x8EFE | 262 | 6 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/113-attract-mode.md、re/13-rng.md、re/14-fonts-and-text-encoding.md、re/26-movement-and-triggers.md、re/43-input-and-hotkeys.md、re/46-typed-answers-and-text-input.md、re/47-dosbox-oracle.md、re/59-playtest-against-original.md |
 | `0x19D86` | seg000+0x9D86 | 44 | 6 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/13-rng.md、re/19-effects-and-damage.md、re/20-combat-resolution.md、re/45-item-data-and-weapon-damage.md、re/55-radiation-and-armour-bypass.md、re/67-gate-penalty-and-canteen.md |
-| `0x19E2A` | seg000+0x9E2A | 6 | 6 | re/00-master-index.md、re/00-wiring-status.md、re/103-roster-line-columns.md、re/107-command-resolution.md、re/111-roster-inverse-video.md、re/14-fonts-and-text-encoding.md、re/35-status-and-healing.md、re/41-command-handlers.md、re/42-facility-loops.md |
+| `0x19E2A` | seg000+0x9E2A | 6 | 6 | re/00-master-index.md、re/00-wiring-status.md、re/103-roster-line-columns.md、re/107-command-resolution.md、re/111-roster-inverse-video.md、re/115-portrait-box.md、re/14-fonts-and-text-encoding.md、re/35-status-and-healing.md、re/41-command-handlers.md、re/42-facility-loops.md |
 | `0x19EB4` | seg000+0x9EB4 | 4 | 6 | re/107-command-resolution.md、re/108-combat-use-and-hire.md、re/26-movement-and-triggers.md、re/38-combat-commands-and-flee.md、re/51-encounter-driver.md |
 | `0x1B0DA` | seg000+0xB0DA | 8 | 6 | re/36-combat-rounds.md、re/90-party-initiative.md |
 | `0x1C213` | seg000+0xC213 | 15 | 6 | re/17-packed-text.md、re/35-status-and-healing.md、re/42-facility-loops.md |
 | `0x1C22F` | seg000+0xC22F | 36 | 6 | re/42-facility-loops.md |
 | `0x1003F` | seg000+0x3F | 3 | 5 | re/04-overlay-wla-bin.md |
 | `0x1142B` | seg000+0x142B | 13 | 5 | re/100-ending-trigger.md、re/34-map-script-opcodes.md、re/44-audio.md、re/60-teleport-and-map-change.md、re/76-script-opcode-coverage.md、re/96-ending.md |
-| `0x129E9` | seg000+0x29E9 | 87 | 5 | re/114-friendly-encounters.md、re/16-msq-block-layout.md、re/47-dosbox-oracle.md |
+| `0x129E9` | seg000+0x29E9 | 87 | 5 | re/114-friendly-encounters.md、re/115-portrait-box.md、re/16-msq-block-layout.md、re/47-dosbox-oracle.md |
 | `0x13440` | seg000+0x3440 | 9 | 5 | re/107-command-resolution.md、re/108-combat-use-and-hire.md、re/110-hire-resolution.md |
 | `0x142D7` | seg000+0x42D7 | 11 | 5 | re/65-third-gate-conditions.md、re/67-gate-penalty-and-canteen.md、re/69-gate-flags.md |
 | `0x14B93` | seg000+0x4B93 | 9 | 5 | re/39-encounter-scan.md |
@@ -161,6 +161,7 @@
 | `0x189B1` | seg000+0x89B1 | 158 | 5 | re/04-overlay-wla-bin.md |
 | `0x18D85` | seg000+0x8D85 | 9 | 5 | re/00-master-index.md、re/37-enemy-records-and-hp.md |
 | `0x190A6` | seg000+0x90A6 | 2 | 5 | re/00-master-index.md、re/29-map-event-handlers.md、re/52-trainer-facility.md、re/72-facility-entry-and-command-bar.md、re/99-party-wipe.md |
+| `0x190F8` | seg000+0x90F8 | 30 | 5 | re/115-portrait-box.md |
 | `0x19CAC` | seg000+0x9CAC | 32 | 5 | re/32-skill-checks-and-xp.md |
 | `0x1B7B7` | seg000+0xB7B7 | 3 | 5 | re/29-map-event-handlers.md、re/96-ending.md |
 | `0x1B7C9` | seg000+0xB7C9 | 35 | 5 | re/96-ending.md |
@@ -171,6 +172,7 @@
 | `0x116AC` | seg000+0x16AC | 132 | 4 | re/03-boot-and-asset-loading.md、re/05-storage-layer.md |
 | `0x1272E` | seg000+0x272E | 6 | 4 | re/51-encounter-driver.md |
 | `0x12A4C` | seg000+0x2A4C | 42 | 4 | re/16-msq-block-layout.md、re/28-text-variants.md、re/32-skill-checks-and-xp.md、re/37-enemy-records-and-hp.md、re/48-map-icons.md、re/77-encounter-spawn-gap.md、re/78-encounter-spawn.md、re/85-enemy-map-icon.md |
+| `0x13A37` | seg000+0x3A37 | 31 | 4 | re/115-portrait-box.md |
 | `0x13AAF` | seg000+0x3AAF | 53 | 4 | re/92-use-command.md |
 | `0x14085` | seg000+0x4085 | 11 | 4 | re/26-movement-and-triggers.md、re/62-fourth-gate-terrain-blocking.md、re/65-third-gate-conditions.md |
 | `0x1417F` | seg000+0x417F | 11 | 4 | re/26-movement-and-triggers.md、re/32-skill-checks-and-xp.md、re/92-use-command.md |
@@ -191,7 +193,7 @@
 | `0x182EB` | seg000+0x82EB | 15 | 4 | re/110-hire-resolution.md |
 | `0x18801` | seg000+0x8801 | 89 | 4 | re/10-huffman-compression.md、re/27-game-clock.md、re/29-map-event-handlers.md、re/30-save-layout.md、re/72-facility-entry-and-command-bar.md、re/91-map-command-bar.md |
 | `0x18DCE` | seg000+0x8DCE | 115 | 4 | re/27-game-clock.md、re/28-text-variants.md |
-| `0x190B8` | seg000+0x90B8 | 64 | 4 | re/38-combat-commands-and-flee.md |
+| `0x190B8` | seg000+0x90B8 | 64 | 4 | re/115-portrait-box.md、re/38-combat-commands-and-flee.md |
 | `0x194E8` | seg000+0x94E8 | 21 | 4 | re/107-command-resolution.md、re/32-skill-checks-and-xp.md |
 | `0x1968A` | seg000+0x968A | 2 | 4 | re/109-character-record-tail.md、re/22-shop-and-items.md、re/42-facility-loops.md |
 | `0x19895` | seg000+0x9895 | 39 | 4 | re/42-facility-loops.md |
@@ -278,13 +280,17 @@
 | `0x10045` | seg000+0x45 | 3 | 2 | re/04-overlay-wla-bin.md |
 | `0x11CA4` | seg000+0x1CA4 | 35 | 2 | re/10-huffman-compression.md、re/11-huffman-decoder.md |
 | `0x12262` | seg000+0x2262 | 34 | 2 | re/41-command-handlers.md |
+| `0x12284` | seg000+0x2284 | 101 | 2 | re/115-portrait-box.md |
+| `0x122E9` | seg000+0x22E9 | 101 | 2 | re/115-portrait-box.md |
 | `0x12440` | seg000+0x2440 | 222 | 2 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/108-combat-use-and-hire.md、re/27-game-clock.md、re/35-status-and-healing.md |
 | `0x1251E` | seg000+0x251E | 25 | 2 | re/35-status-and-healing.md |
 | `0x12537` | seg000+0x2537 | 19 | 2 | re/27-game-clock.md、re/35-status-and-healing.md |
 | `0x1254A` | seg000+0x254A | 7 | 2 | re/27-game-clock.md、re/35-status-and-healing.md |
+| `0x126D7` | seg000+0x26D7 | 72 | 2 | re/115-portrait-box.md |
+| `0x1271F` | seg000+0x271F | 9 | 2 | re/115-portrait-box.md |
 | `0x1295D` | seg000+0x295D | 89 | 2 | re/20-combat-resolution.md |
 | `0x12A76` | seg000+0x2A76 | 23 | 2 | re/00-master-index.md、re/20-combat-resolution.md、re/22-shop-and-items.md、re/32-skill-checks-and-xp.md |
-| `0x12A9D` | seg000+0x2A9D | 14 | 2 | re/37-enemy-records-and-hp.md |
+| `0x12A9D` | seg000+0x2A9D | 14 | 2 | re/115-portrait-box.md、re/37-enemy-records-and-hp.md |
 | `0x12AAB` | seg000+0x2AAB | 15 | 2 | re/101-enemy-move-plan-table.md、re/32-skill-checks-and-xp.md、re/37-enemy-records-and-hp.md |
 | `0x12C80` | seg000+0x2C80 | 54 | 2 | re/00-master-index.md、re/100-ending-trigger.md、re/29-map-event-handlers.md、re/34-map-script-opcodes.md、re/60-teleport-and-map-change.md、re/70-nibble1-and-facility-entry.md、re/71-nibble12-batch-patch.md、re/79-facility-coverage.md、re/96-ending.md、re/98-a0-wiring.md |
 | `0x1340C` | seg000+0x340C | 10 | 2 | re/107-command-resolution.md、re/108-combat-use-and-hire.md、re/110-hire-resolution.md |
@@ -340,6 +346,7 @@
 | `0x16EAA` | seg000+0x6EAA | 19 | 2 | re/53-list-framework.md |
 | `0x17357` | seg000+0x7357 | 51 | 2 | re/40-combat-screen.md |
 | `0x17690` | seg000+0x7690 | 6 | 2 | re/42-facility-loops.md |
+| `0x176C5` | seg000+0x76C5 | 11 | 2 | re/111-roster-inverse-video.md |
 | `0x17B5C` | seg000+0x7B5C | 24 | 2 | re/22-shop-and-items.md、re/45-item-data-and-weapon-damage.md |
 | `0x17BC7` | seg000+0x7BC7 | 64 | 2 | re/00-master-index.md、re/17-packed-text.md |
 | `0x17D34` | seg000+0x7D34 | 14 | 2 | re/00-master-index.md、re/46-typed-answers-and-text-input.md、re/69-gate-flags.md |
@@ -350,7 +357,7 @@
 | `0x18146` | seg000+0x8146 | 72 | 2 | re/00-master-index.md、re/32-skill-checks-and-xp.md |
 | `0x1820C` | seg000+0x820C | 124 | 2 | re/00-master-index.md、re/32-skill-checks-and-xp.md、re/65-third-gate-conditions.md、re/92-use-command.md |
 | `0x1830E` | seg000+0x830E | 12 | 2 | re/20-combat-resolution.md |
-| `0x184E8` | seg000+0x84E8 | 252 | 2 | re/00-master-index.md、re/05-storage-layer.md、re/07-msq-blocks.md、re/10-huffman-compression.md、re/23-picture-format.md、re/29-map-event-handlers.md、re/37-enemy-records-and-hp.md |
+| `0x184E8` | seg000+0x84E8 | 252 | 2 | re/00-master-index.md、re/05-storage-layer.md、re/07-msq-blocks.md、re/10-huffman-compression.md、re/115-portrait-box.md、re/23-picture-format.md、re/29-map-event-handlers.md、re/37-enemy-records-and-hp.md |
 | `0x185E6` | seg000+0x85E6 | 110 | 2 | re/10-huffman-compression.md、re/95-main-menu.md |
 | `0x19362` | seg000+0x9362 | 50 | 2 | re/15-character-record.md、re/17-packed-text.md |
 | `0x19454` | seg000+0x9454 | 74 | 2 | re/00-master-index.md、re/15-character-record.md |
@@ -429,9 +436,9 @@
 | `0x11A59` | seg000+0x1A59 | 74 | 1 | re/00-master-index.md、re/08-msq-encryption.md、re/11-huffman-decoder.md、re/16-msq-block-layout.md、re/18-block-text.md |
 | `0x11C90` | seg000+0x1C90 | 20 | 1 | re/10-huffman-compression.md |
 | `0x11CD0` | seg000+0x1CD0 | 678 | 1 | re/00-master-index.md、re/101-enemy-move-plan-table.md、re/51-encounter-driver.md、re/94-enc-command.md |
-| `0x11F76` | seg000+0x1F76 | 279 | 1 | re/00-master-index.md、re/101-enemy-move-plan-table.md、re/105-enc-empty-round-and-menu-region.md、re/38-combat-commands-and-flee.md、re/40-combat-screen.md、re/51-encounter-driver.md |
+| `0x11F76` | seg000+0x1F76 | 279 | 1 | re/00-master-index.md、re/101-enemy-move-plan-table.md、re/105-enc-empty-round-and-menu-region.md、re/115-portrait-box.md、re/38-combat-commands-and-flee.md、re/40-combat-screen.md、re/51-encounter-driver.md |
 | `0x12551` | seg000+0x2551 | 96 | 1 | re/51-encounter-driver.md |
-| `0x12636` | seg000+0x2636 | 161 | 1 | re/37-enemy-records-and-hp.md、re/38-combat-commands-and-flee.md、re/40-combat-screen.md |
+| `0x12636` | seg000+0x2636 | 161 | 1 | re/00-master-index.md、re/115-portrait-box.md、re/37-enemy-records-and-hp.md、re/38-combat-commands-and-flee.md、re/40-combat-screen.md |
 | `0x12760` | seg000+0x2760 | 24 | 1 | re/51-encounter-driver.md |
 | `0x12B8A` | seg000+0x2B8A | 63 | 1 | re/93-order-disband-view.md |
 | `0x130C8` | seg000+0x30C8 | 347 | 1 | re/107-command-resolution.md |
@@ -529,8 +536,6 @@
 | `0x114BE` | seg000+0x14BE | 118 | 2 |
 | `0x18A4F` | seg000+0x8A4F | 117 | 2 |
 | `0x19814` | seg000+0x9814 | 114 | 2 |
-| `0x12284` | seg000+0x2284 | 101 | 2 |
-| `0x122E9` | seg000+0x22E9 | 101 | 2 |
 | `0x16018` | seg000+0x6018 | 96 | 3 |
 | `0x1095D` | seg000+0x95D | 95 | 1 |
 | `0x108FF` | seg000+0x8FF | 94 | 1 |
@@ -540,7 +545,6 @@
 | `0x18288` | seg000+0x8288 | 84 | 2 |
 | `0x13828` | seg000+0x3828 | 80 | 1 |
 | `0x1567F` | seg000+0x567F | 76 | 1 |
-| `0x126D7` | seg000+0x26D7 | 72 | 2 |
 | `0x1BD37` | seg000+0xBD37 | 72 | 1 |
 | `0x14F9D` | seg000+0x4F9D | 65 | 1 |
 | `0x1395B` | seg000+0x395B | 62 | 1 |
@@ -563,10 +567,8 @@
 | `0x1595C` | seg000+0x595C | 34 | 2 |
 | `0x18B1B` | seg000+0x8B1B | 33 | 1 |
 | `0x129B6` | seg000+0x29B6 | 31 | 2 |
-| `0x13A37` | seg000+0x3A37 | 31 | 4 |
 | `0x19343` | seg000+0x9343 | 31 | 3 |
 | `0x15C4A` | seg000+0x5C4A | 30 | 2 |
-| `0x190F8` | seg000+0x90F8 | 30 | 5 |
 | `0x14F26` | seg000+0x4F26 | 29 | 3 |
 | `0x16185` | seg000+0x6185 | 26 | 2 |
 | `0x19A9C` | seg000+0x9A9C | 26 | 5 |
@@ -575,3 +577,8 @@
 | `0x11361` | seg000+0x1361 | 24 | 5 |
 | `0x17A35` | seg000+0x7A35 | 24 | 1 |
 | `0x19EE5` | seg000+0x9EE5 | 23 | 1 |
+| `0x1C608` | seg000+0xC608 | 23 | 1 |
+| `0x15C68` | seg000+0x5C68 | 22 | 2 |
+| `0x17A4D` | seg000+0x7A4D | 22 | 1 |
+| `0x1134C` | seg000+0x134C | 21 | 3 |
+| `0x17277` | seg000+0x7277 | 21 | 4 |

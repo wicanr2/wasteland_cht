@@ -106,7 +106,6 @@ func (s *Scene) partyCanAct() bool {
 func (s *Scene) beginEmptyRound() (bool, error) {
 	b := game.NewBattle(s.world.Party, s.world.RNG)
 	s.snapshot = s.takeXP()
-	s.portrait = -1
 	s.combat = s.wireCombat(NewCombatScene(b))
 	s.message, s.cjk = "", ""
 	s.showCombatPrompt()
