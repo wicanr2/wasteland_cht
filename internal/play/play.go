@@ -129,6 +129,13 @@ type Scene struct {
 	// journalOpen／journalAt 是手札模式的狀態（重製版的畫面，原版沒有）。
 	journalOpen bool
 	journalAt   int
+	// journalScroll 是這一段落已經往上捲了幾列。
+	//
+	// ⚠ **手札不能套訊息視窗那套自動捲動**（`docs/re/106`）：訊息視窗要的是
+	// 「最後一行一定看得到」，而手札是一段要從頭讀到尾的文字——自動捲到底
+	// 等於把開頭吃掉，而且沒有任何辦法捲回去。166 條裡有 27 條放不下六列，
+	// 最長的一條 38 列。
+	journalScroll int
 
 	// sound 是下一幀要播的 PC 喇叭音效編號（`docs/re/44` §6），−1 ＝ 沒有。
 	// `TakeSound` 取走就清掉，所以同一個觸發不會播兩次。
@@ -291,11 +298,7 @@ func (s *Scene) HiFrame() *render.HiFrame {
 	}
 	// 英文訊息占掉第一行時，中文從第二行起——不要疊上去。
 	rect := s.msgRect()
-	row := rect.Row
-	if s.message != "" || len(s.journalHead) > 0 {
-		row++
-	}
-	eachMessageCell(s.cjk, rect, row, func(col, row int, r rune) {
+	s.walkBody(s.cjk, rect, func(col, row int, r rune) {
 		if r < 0x80 {
 			s.drawASCII(h, byte(r), col, row)
 			return
@@ -398,6 +401,48 @@ func eachMessageCell(text string, rect textRect, row int, f func(col, row int, r
 		}
 		f(col, r, ch)
 	})
+}
+
+// eachWindowCell 是**手動捲動**版的走訪：往上挪 scroll 列，超出區域的不畫。
+//
+// 與 `eachMessageCell` 的差別是「誰決定捲到哪裡」：訊息視窗自己捲到底
+// （最後一行一定看得到），手札由玩家用方向鍵決定（`internal/play/journalui.go`）。
+// 兩支都走 `walkMessage`，所以換行邏輯只有一份。
+func eachWindowCell(text string, rect textRect, top, scroll int, f func(col, row int, r rune)) {
+	walkMessage(text, rect, top-scroll, func(col, r int, ch rune) {
+		if r < top || r > rect.LastRow() {
+			return
+		}
+		f(col, r, ch)
+	})
+}
+
+// overflowRows 回報這段文字比區域多出幾列（放得下就是 0）＝ 捲動的上限。
+func overflowRows(text string, rect textRect, top int) int {
+	last := top
+	walkMessage(text, rect, top, func(_, r int, _ rune) { last = r })
+	if over := last - rect.LastRow(); over > 0 {
+		return over
+	}
+	return 0
+}
+
+// bodyStart 是正文的第一列：有標題（英文訊息或手札標題）就讓出一行。
+func (s *Scene) bodyStart(rect textRect) int {
+	if s.message != "" || len(s.journalHead) > 0 {
+		return rect.Row + 1
+	}
+	return rect.Row
+}
+
+// walkBody 走訊息視窗的正文，**繪製與滑鼠命中共用**——手札走手動捲動那一支。
+func (s *Scene) walkBody(text string, rect textRect, f func(col, row int, r rune)) {
+	start := s.bodyStart(rect)
+	if s.journalOpen {
+		eachWindowCell(text, rect, start, s.journalScroll, f)
+		return
+	}
+	eachMessageCell(text, rect, start, f)
 }
 
 // walkMessage 是不看區域下緣的逐格走訪——`eachMessageCell` 量一次、畫一次，

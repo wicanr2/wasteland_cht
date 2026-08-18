@@ -123,11 +123,7 @@ func (s *Scene) charAt(col, row int) byte {
 		if row < rect.Row || row > rect.LastRow() {
 			break
 		}
-		start := rect.Row
-		if s.message != "" || len(s.journalHead) > 0 {
-			start++
-		}
-		eachMessageCell(s.cjk, rect, start, pick)
+		s.walkBody(s.cjk, rect, pick)
 		if got == 0 && s.message != "" {
 			// 沒有中文正文時那一塊是英文——同一條規則。
 			eachMessageCell(s.message, rect, rect.Row, pick)

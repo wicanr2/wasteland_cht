@@ -8,7 +8,7 @@
 # 比對永遠用 Go 那邊的靜態字母。譯文開頭那個字母改掉，畫面會騙人。
 ui:cmd.bar	Use Enc Order Disband View Save Radio
 ui:journal.header	Journal %d/%d%s
-ui:journal.hint	(I/K page, ESC close)
+ui:journal.hint	(I/K paragraph, arrows scroll, ESC close)
 ui:journal.decoy	 (decoy)
 ui:journal.appendix	 (appendix)
 ui:journal.epilogue	 (epilogue)

@@ -1,7 +1,7 @@
 # 重製版介面文字。⚠ 開頭那個熱鍵字母不能改（`docs/re/40` §4）。
 ui:cmd.bar	U使用 E遭遇 O排隊 D分隊 V換隊 S存檔 R無線
 ui:journal.header	手札 %d/%d%s
-ui:journal.hint	I／K 翻頁
+ui:journal.hint	I／K 換段  ↑／↓ 捲動
 ui:journal.decoy	（誘餌）
 ui:journal.appendix	（附錄）
 ui:journal.epilogue	（後日談）
