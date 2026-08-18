@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>機制斷言與逆向對照｜沙漠傳奇——荒野遊俠的故事</title>
+<style>
+:root {
+  --bg: #fbfaf7;
+  --fg: #22201c;
+  --muted: #6b665e;
+  --rule: #ddd8cd;
+  --accent: #8a4b2a;
+  --card: #ffffff;
+  --code-bg: #f1eee7;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #171614;
+    --fg: #e6e2da;
+    --muted: #9a948a;
+    --rule: #34312c;
+    --accent: #d99a6e;
+    --card: #1e1d1a;
+    --code-bg: #26241f;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "Noto Serif CJK TC", "Source Han Serif TC", "PMingLiU",
+               "Songti TC", Georgia, "Times New Roman", serif;
+  font-size: 17px;
+  line-height: 1.9;
+}
+.wrap { max-width: 40em; margin: 0 auto; padding: 2.5rem 1.25rem 5rem; }
+header.site {
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.25rem;
+}
+header.site .kicker {
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin: 0 0 0.4rem;
+}
+header.site a { color: inherit; text-decoration: none; }
+header.site .title { font-size: 1.15rem; margin: 0; font-weight: 600; }
+h1, h2, h3 { line-height: 1.45; font-weight: 600; }
+h1 { font-size: 1.65rem; margin: 0 0 1.5rem; }
+h2 {
+  font-size: 1.25rem;
+  margin: 2.75rem 0 1rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--rule);
+}
+h3 { font-size: 1.05rem; margin: 2rem 0 0.75rem; color: var(--accent); }
+p { margin: 0 0 1.15rem; }
+a { color: var(--accent); text-underline-offset: 0.2em; }
+ul, ol { margin: 0 0 1.15rem; padding-left: 1.5rem; }
+li { margin-bottom: 0.4rem; }
+blockquote {
+  margin: 1.5rem 0;
+  padding: 0.6rem 0 0.6rem 1.15rem;
+  border-left: 3px solid var(--accent);
+  color: var(--muted);
+  font-style: normal;
+}
+blockquote p:last-child { margin-bottom: 0; }
+code {
+  background: var(--code-bg);
+  padding: 0.12em 0.38em;
+  border-radius: 3px;
+  font-family: "DejaVu Sans Mono", "Menlo", "Consolas", monospace;
+  font-size: 0.86em;
+}
+pre {
+  background: var(--code-bg);
+  padding: 1rem;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+pre code { background: none; padding: 0; }
+.table-wrap { overflow-x: auto; margin: 0 0 1.5rem; }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+th, td {
+  border: 1px solid var(--rule);
+  padding: 0.5rem 0.7rem;
+  text-align: left;
+  vertical-align: top;
+}
+th { background: var(--code-bg); font-weight: 600; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
+nav.pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 3.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.9rem;
+}
+nav.pager a { text-decoration: none; }
+nav.pager .spacer { flex: 1; }
+footer.site {
+  margin-top: 3.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+footer.site p { margin: 0 0 0.5rem; }
+@media (max-width: 600px) {
+  body { font-size: 16px; line-height: 1.85; }
+  .wrap { padding: 1.75rem 1rem 3.5rem; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="site">
+<p class="kicker">軟體世界 第 5 期 ‧ 攻略</p>
+<p class="title"><a href="index.html">沙漠傳奇——荒野遊俠的故事</a></p>
+</header>
+<main>
+<h1>攻略中的機制斷言與逆向對照表</h1>
+<p>這篇攻略是 1990 年前後一位玩家的實際遊玩紀錄，裡面夾雜著大量對遊戲規則的敘述—— 有些是操作說明（「按 E 鍵戰鬥」「站在他下面」），有些是條件判斷 （「最好有 2 級的拆除炸彈技能」），有些是作者自己的推論（「這支血杖大概是假的」）。</p>
+<p><strong>這些斷言全部都是待驗證的線索，不是規格的依據。</strong> <code>CLAUDE.md</code> §5 的 oracle 優先序 把社群攻略排在最後一位，所以對照的方向是固定的：</p>
+<blockquote><p>拿 <code>docs/re/</code> 的逆向結果去<strong>驗證</strong>這些斷言，不是拿這些斷言去修正逆向結果。</p></blockquote>
+<p>驗證的結果有三種，記在「狀態」欄：</p>
+<div class="table-wrap"><table>
+<thead><tr><th>狀態</th><th>意思</th></tr></thead>
+<tbody>
+<tr><td>待查</td><td>還沒去對</td></tr>
+<tr><td>相符</td><td>逆向結果支持這條敘述</td></tr>
+<tr><td>有出入</td><td>逆向結果和這條敘述不一致，差異寫在備註</td></tr>
+</tbody></table></div>
+<h2>對照表</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>編號</th><th>出處</th><th>斷言</th><th>該查哪裡</th><th>狀態</th></tr></thead>
+<tbody>
+<tr><td>M-01</td><td><a href="p56.html">p.56</a>、<a href="p57.html">p.57</a></td><td>拆除炸彈技能<strong>至少 2 級</strong>才能拆 Felicia 身上的炸彈、才能安全拿走一碰就炸的 TNT</td><td><code>re/32</code> 技能檢定、<code>re/69</code> 閘旗標、<code>re/80</code> 技能表</td><td>待查</td></tr>
+<tr><td>M-02</td><td><a href="p56.html">p.56</a>、<a href="p57.html">p.57</a></td><td>隊伍有名額上限；要讓新人入隊得先叫舊隊員「走路」／「回去休養」</td><td><code>re/108</code>、<code>re/110</code>、<code>re/103</code></td><td>待查</td></tr>
+<tr><td>M-03</td><td><a href="p57.html">p.57</a></td><td>友善 NPC（Christina）<strong>在戰鬥中被誤傷會立刻轉為敵對</strong>；戰鬥中沒碰到她就能直接招募</td><td><code>re/110</code>、<code>re/20</code></td><td>待查</td></tr>
+<tr><td>M-04</td><td><a href="p57.html">p.57</a></td><td>可以把 NPC 隊員身上的裝備（UZI）取走給玩家角色用</td><td><code>re/108</code>、<code>re/22</code></td><td>待查</td></tr>
+<tr><td>M-05</td><td><a href="p57.html">p.57</a></td><td>和 NPC 交易要<strong>站在特定相對位置</strong>（「須站在他下面」）；給酒鬼酒要<strong>重複兩次</strong>才觸發情報</td><td><code>re/26</code>、<code>re/34</code></td><td>待查</td></tr>
+<tr><td>M-06</td><td><a href="p57.html">p.57</a></td><td>「血杖驗證桌」：把血杖<strong>使用到桌上</strong>，假的會消失、真的會留下</td><td><code>re/34</code>、<code>re/29</code></td><td>待查</td></tr>
+<tr><td>M-07</td><td><a href="p58.html">p.58</a></td><td>在沙堆上<strong>重複使用攀爬技能可以練等</strong></td><td><code>re/31</code>、<code>re/32</code></td><td>待查</td></tr>
+<tr><td>M-08</td><td><a href="p58.html">p.58</a></td><td>血神殿棋盤檢查站：走正確路徑到機械人左方，<strong>回答步數 30</strong>；踏出路徑第一次砲塔昇起、之後持續射擊；步數答錯要重走</td><td><code>re/46</code>、<code>re/34</code>、<code>generated/passwords.md</code></td><td>待查</td></tr>
+<tr><td>M-09</td><td><a href="p58.html">p.58</a></td><td>蓋氏計數器在接近輻射區時會發出提示</td><td><code>re/55</code></td><td>待查</td></tr>
+<tr><td>M-10</td><td><a href="p58.html">p.58</a></td><td>廢坑中可取得兩支 <strong>M1989 突擊步槍</strong></td><td><code>re/45</code>、<code>re/50</code></td><td>待查</td></tr>
+<tr><td>M-11</td><td><a href="p58.html">p.58</a></td><td>電網開關是有 <strong>ON／OFF</strong> 兩個選項的互動物件</td><td><code>re/34</code></td><td>待查</td></tr>
+<tr><td>M-12</td><td><a href="p59.html">p.59</a></td><td>過血池的方法是「<strong>找一個隊員不斷的往上使用游泳技能</strong>」</td><td><code>re/62</code>、<code>re/65</code></td><td>待查</td></tr>
+<tr><td>M-13</td><td><a href="p59.html">p.59</a></td><td>血池中食人魚造成持續傷害，<strong>防護衣物夠強就免疫</strong></td><td><code>re/55</code>、<code>re/67</code></td><td>待查</td></tr>
+<tr><td>M-14</td><td><a href="p59.html">p.59</a></td><td><strong>敵人的像沒出現就無法攻擊</strong>；解法是用 <code>RUN</code> 指令往前移動直到它出現</td><td><code>re/38</code>、<code>re/107</code>、<code>re/40</code></td><td>待查</td></tr>
+<tr><td>M-15</td><td><a href="p59.html">p.59</a></td><td>地板上的大圓盤是陷阱，會跳出提示問要不要跳過去（答 <code>Yes</code>）</td><td><code>re/34</code>、<code>re/64</code></td><td>待查</td></tr>
+<tr><td>M-16</td><td><a href="p59.html">p.59</a></td><td>Vegas 的殺人機器<strong>主動攻擊</strong>且裝甲很高（「鐵皮蛋的皮又厚」）</td><td><code>re/37</code>、<code>re/101</code></td><td>待查</td></tr>
+<tr><td>M-17</td><td><a href="p59.html">p.59</a></td><td>付錢給乞丐可換情報（兩大頭頭的爭霸、Fat Freddy 辦公室密碼）</td><td><code>re/42</code>、<code>re/34</code></td><td>待查</td></tr>
+<tr><td>M-18</td><td><a href="p60.html">p.60</a></td><td><strong>蠍式（<code>Scorpition</code>）免疫子彈類武器</strong>，只有 LAW 火箭之類打得動</td><td><code>re/55</code> 護甲穿透、<code>re/45</code>、<code>re/19</code></td><td>待查</td></tr>
+<tr><td>M-19</td><td><a href="p60.html">p.60</a></td><td>醫院療傷<strong>要花錢</strong>，而且要經過一段遊戲內時間</td><td><code>re/35</code>、<code>re/73</code>、<code>re/27</code></td><td>待查</td></tr>
+<tr><td>M-20</td><td><a href="p60.html">p.60</a>、<a href="p61.html">p.61</a></td><td>音波鑰匙（<code>Sonic key</code>）<strong>不只蠍式會掉</strong>，打其他殺人機器也能取得；它能開炸不開的門</td><td><code>re/50</code>、<code>re/69</code>、<code>generated/gates.md</code></td><td>待查</td></tr>
+<tr><td>M-21</td><td><a href="p60.html">p.60</a></td><td>對 Fat Freddy 的要求回答 <code>NO</code> 會<strong>直接觸發戰鬥</strong></td><td><code>re/46</code>、<code>re/34</code></td><td>待查</td></tr>
+<tr><td>M-22</td><td><a href="p60.html">p.60</a></td><td>招募囚犯 Covenant 要先<strong>開門</strong>（選 <code>Open</code>）再<strong>解掉他身上的鎖</strong></td><td><code>re/110</code>、<code>re/69</code></td><td>待查</td></tr>
+<tr><td>M-23</td><td><a href="p60.html">p.60</a></td><td>蕈狀雲神殿門口的第三題要<strong>打字輸入 <code>Bloodstaff</code></strong></td><td><code>re/46</code>、<code>generated/passwords.md</code></td><td>待查</td></tr>
+<tr><td>M-24</td><td><a href="p60.html">p.60</a></td><td>神殿圖書館可學<strong>能量武器（<code>Energy</code>）技能</strong>，對應遊戲中確實存在能量武器</td><td><code>re/80</code>、<code>re/45</code>、<code>re/52</code></td><td>待查</td></tr>
+<tr><td>M-25</td><td><a href="p60.html">p.60</a></td><td><strong>有些門鎖開鎖技能開不了</strong>，只能用 TNT 炸</td><td><code>re/69</code>、<code>re/65</code></td><td>待查</td></tr>
+<tr><td>M-26</td><td><a href="p60.html">p.60</a></td><td>放射能套裝（<code>Rad Suit</code>）的<strong>防護力數值是 5</strong>，可防放射能</td><td><code>re/55</code>、<code>re/45</code></td><td>待查</td></tr>
+<tr><td>M-27</td><td><a href="p60.html">p.60</a></td><td>向 Needles 的牧師說出 <code>DIPSTICK</code> 才能取回血杖</td><td><code>re/46</code>、<code>generated/passwords.md</code></td><td>待查</td></tr>
+<tr><td>M-28</td><td><a href="p61.html">p.61</a></td><td>繩子要<strong>站在岸邊、向下使用</strong>才能搭橋過水道</td><td><code>re/62</code>、<code>re/65</code></td><td>待查</td></tr>
+<tr><td>M-29</td><td><a href="p61.html">p.61</a></td><td>標有 <code>Use Shovel</code> 的碎牆要用<strong>鏟子</strong>挖開；挖開後地圖格會改變</td><td><code>re/65</code>、<code>re/68</code></td><td>待查</td></tr>
+<tr><td>M-30</td><td><a href="p61.html">p.61</a></td><td>下水道中 <code>Cyborg</code> 和 <code>Hexborg</code> 兩種敵人特別危險</td><td><code>re/37</code>、<code>re/78</code></td><td>待查</td></tr>
+<tr><td>M-31</td><td><a href="p61.html">p.61</a></td><td>Max 的組裝要在四張組合桌上依序「選 (2) → 原地使用零件」，最後各選 (3)</td><td><code>re/34</code>、<code>re/107</code>、<code>spec/25</code></td><td>待查</td></tr>
+</tbody></table></div>
+<h2>特別值得先查的三條</h2>
+<p>這幾條如果和逆向結果對得上，可以直接補進 remake 的驗收清單；對不上則是攻略記錯， 要在對照表註明。</p>
+<p><strong>M-18（蠍式免疫子彈）</strong> — 這是整篇攻略裡對戰鬥系統最強的一條斷言， 而且 <code>re/55</code> 的主題正好就是護甲與穿透。 如果原版真的有「某類武器無視／無法穿透某個護甲值」的規則，這條會是它的玩家側證據。</p>
+<p><strong>M-03（誤傷 NPC 會翻臉）</strong> — 招募流程的分支條件。 <code>re/110</code> 已經解過招募，可以直接對這條。</p>
+<p><strong>M-14（敵人未顯示就無法攻擊）</strong> — 這條描述的是戰鬥介面的可見性規則， 會直接影響 remake 的戰鬥畫面該不該畫出還沒「出現」的敵人。</p>
+<h2>順帶記下的原文誤植</h2>
+<p>這些不是機制，是轉錄時發現的拼寫／排版問題，集中列在這裡方便查：</p>
+<div class="table-wrap"><table>
+<thead><tr><th>位置</th><th>原文</th><th>應為</th><th>處理</th></tr></thead>
+<tbody>
+<tr><td><a href="p56.html">p.56</a> 節標題</td><td><code>Oneedles</code></td><td><code>Needles</code></td><td>照原樣保留</td></tr>
+<tr><td><a href="p59.html">p.59</a></td><td><code>Atohison</code></td><td><code>Atchison</code></td><td>照原樣保留</td></tr>
+<tr><td><a href="p60.html">p.60</a></td><td><code>Scorpition</code></td><td><code>Scorpitron</code></td><td>照原樣保留</td></tr>
+<tr><td><a href="p61.html">p.61</a></td><td><code>Sever motor</code></td><td><code>Servo motor</code></td><td>照原樣保留</td></tr>
+<tr><td><a href="p61.html">p.61</a></td><td><code>Power Conventer</code></td><td><code>Power Converter</code></td><td>照原樣保留</td></tr>
+<tr><td><a href="p58.html">p.58</a> 等處</td><td>幅射</td><td>輻射</td><td>照原樣保留</td></tr>
+<tr><td><a href="p61.html">p.61</a></td><td>徙水道</td><td>下水道</td><td>照原樣保留</td></tr>
+</tbody></table></div>
+</main>
+<nav class="pager"><a href="glossary.html">← 用語與譯名</a><span class="spacer"></span><a href="raw-index.html">逐字轉錄 →</a></nav>
+<footer class="site">
+<p>《軟體世界》第 5 期，Y.M.J. 著。本頁為文字整理，掃描件不隨本站散布。</p>
+<p>荒野遊俠繁體中文化專案的一部分。</p>
+</footer>
+</div>
+</body>
+</html>
