@@ -87,8 +87,8 @@ func TestRosterRowWoundWordsAreTranslated(t *testing.T) {
 	if len(line) == 0 {
 		t.Fatal("組不出中文那一行")
 	}
-	if cjkCells(line) > rosterCols {
-		t.Errorf("一行佔 %d 格，超過 %d", cjkCells(line), rosterCols)
+	if cjkCells(line) > cjkRosterCols {
+		t.Errorf("一行佔 %d 格，超過 %d", cjkCells(line), cjkRosterCols)
 	}
 	// 狀態字那一欄不能還是英文。
 	if strings.Contains(string(line), "SER") {
@@ -145,6 +145,55 @@ func TestSingularKeepsTheSuffix(t *testing.T) {
 	} {
 		if got := singular(tc.raw); got != tc.want {
 			t.Errorf("singular(%q) ＝ %q，預期 %q", tc.raw, got, tc.want)
+		}
+	}
+}
+
+// 中文名單的武器欄要放得下**每一個**翻出來的物品名。
+//
+// ⚠ 這是使用者在畫面上看到的那個缺陷（武器名被切掉）唯一的機器判準：
+// 切掉之後那一格看起來只是「這把武器叫這個名字」，沒有任何異常訊號。
+// 欄寬是量出來的（`cjkColWeapon` 的說明），所以譯文變長時要由這條擋下來。
+func TestCJKWeaponColumnFitsEveryItemName(t *testing.T) {
+	s := sceneWithCatalogue(t)
+	width := cjkRosterCols - cjkColWeapon
+	// 物品 ID 從 0 起算，`ds:B270h` 表的 36–130 是物品段落（`itemNameBase`）。
+	for id := 0; id < 95; id++ {
+		n := s.itemNameCJK(byte(id))
+		if n == "" {
+			continue
+		}
+		if cells := cjkCells(n); cells > width {
+			t.Errorf("物品 %d「%s」佔 %d 格，武器欄只有 %d 格",
+				id, n, cells, width)
+		}
+	}
+}
+
+// 中文名單一行滿載時各欄還在自己的欄座標上。
+//
+// ⚠ `rosterRowCJK` 是**照順序往後接**的：前一欄長到蓋掉間隔時，後面每一欄
+// 都往右推一格，而畫面上看起來只是「這一行擠了一點」——表頭卻不會跟著推。
+func TestCJKRosterRowColumnsHoldAtFullWidth(t *testing.T) {
+	r := RosterRow{Index: 1, Name: "Snake Vargas", AC: "10", Ammo: "63",
+		MaxCON: "999", CON: "999", Weapon: "M1989A1 北約突擊步槍"}
+	line := rosterRowCJK(r, func(string) string { return "" }, nil, 0, false)
+	if line == "" {
+		t.Fatal("排不出中文那一行")
+	}
+	if n := cjkCells(line); n > cjkRosterCols {
+		t.Fatalf("一行佔 %d 格，超過 %d", n, cjkRosterCols)
+	}
+	for _, f := range []struct {
+		col  int
+		text string
+	}{
+		{cjkColName, r.Name}, {cjkColAC, r.AC}, {cjkColAmmo, r.Ammo},
+		{cjkColMaxCON, r.MaxCON}, {cjkColCON, r.CON}, {cjkColWeapon, r.Weapon},
+	} {
+		at := cellIndex(line, f.col)
+		if at < 0 || !strings.HasPrefix(line[at:], f.text) {
+			t.Errorf("欄 %d 不是 %q：%q", f.col, f.text, line)
 		}
 	}
 }

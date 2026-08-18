@@ -71,39 +71,50 @@ func TestJournalStartsAtTheTop(t *testing.T) {
 	}
 }
 
-// ↑／↓ 在段落內捲，夾在 0 與多出來的列數之間。
+// Page Up／Page Down 在段落內捲，夾在 0 與多出來的列數之間（使用者定案 2026-08-18）。
+//
+// ⚠ 自己組 `Input` 一定要寫 `Dir: input.DirNone`：`Direction` 的零值是 `DirUp`
+// （`internal/input` 的說明），忘了就等於每一次都同時按了「上」。
 func TestJournalScrollsWithinAParagraph(t *testing.T) {
 	s := journalScene(t)
 	n := longParagraph(t, s)
 	s.openJournal(n)
 	rect := s.msgRect()
 	max := overflowRows(s.cjk, rect, s.bodyStart(rect))
+	page := s.journalPageStep()
 	top := visibleRows(s)[s.bodyStart(rect)]
 
-	step(t, s, input.Input{Dir: input.DirDown})
-	if s.journalScroll != 1 {
-		t.Fatalf("↓ 之後 scroll ＝ %d，預期 1", s.journalScroll)
+	down := input.Input{Dir: input.DirNone, Scroll: input.ScrollDown}
+	up := input.Input{Dir: input.DirNone, Scroll: input.ScrollUp}
+
+	step(t, s, down)
+	want := page
+	if want > max {
+		want = max
+	}
+	if s.journalScroll != want {
+		t.Fatalf("Page Down 之後 scroll ＝ %d，預期 %d", s.journalScroll, want)
 	}
 	if got := visibleRows(s)[s.bodyStart(rect)]; got == top {
-		t.Errorf("捲了一列，第一列卻沒變：%q", got)
+		t.Errorf("捲了一頁，第一列卻沒變：%q", got)
 	}
 	// 段落沒有換。
 	if s.journalAt != n {
-		t.Errorf("↓ 把段落換掉了：%d → %d", n, s.journalAt)
+		t.Errorf("Page Down 把段落換掉了：%d → %d", n, s.journalAt)
 	}
 
-	step(t, s, input.Input{Dir: input.DirUp})
+	step(t, s, up)
 	if s.journalScroll != 0 {
-		t.Errorf("↑ 之後 scroll ＝ %d，預期回到 0", s.journalScroll)
+		t.Errorf("Page Up 之後 scroll ＝ %d，預期回到 0", s.journalScroll)
 	}
 	// 上緣夾住：再按一次不會變成負的。
-	step(t, s, input.Input{Dir: input.DirUp})
+	step(t, s, up)
 	if s.journalScroll != 0 {
 		t.Errorf("捲過頭了：%d", s.journalScroll)
 	}
 	// 下緣夾住，而且**捲到底時最後一行看得到**。
-	for i := 0; i < max+5; i++ {
-		step(t, s, input.Input{Dir: input.DirDown})
+	for i := 0; i < max/page+5; i++ {
+		step(t, s, down)
 	}
 	if s.journalScroll != max {
 		t.Errorf("捲到底 ＝ %d，預期 %d", s.journalScroll, max)
@@ -114,6 +125,25 @@ func TestJournalScrollsWithinAParagraph(t *testing.T) {
 	}
 	if _, ok := rows[rect.Row]; ok && s.journalHead != "" {
 		t.Error("正文捲到標題那一列上了")
+	}
+}
+
+// 手札裡的 ↑／↓ 不再捲動（使用者定案 2026-08-18：捲動改由 Page Up／Page Down 負責）。
+//
+// ⚠ 這一條要**同時**擋兩件事：↑／↓ 還在捲（改了一半），
+// 以及它們被別的分支接走去換段落——後者在畫面上看起來像「捲得很快」。
+func TestJournalArrowsDoNotScroll(t *testing.T) {
+	s := journalScene(t)
+	n := longParagraph(t, s)
+	s.openJournal(n)
+
+	step(t, s, input.Input{Dir: input.DirDown})
+	step(t, s, input.Input{Dir: input.DirUp})
+	if s.journalScroll != 0 {
+		t.Errorf("↑／↓ 還在捲：scroll ＝ %d", s.journalScroll)
+	}
+	if s.journalAt != n {
+		t.Errorf("↑／↓ 把段落換掉了：%d → %d", n, s.journalAt)
 	}
 }
 

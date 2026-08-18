@@ -35,3 +35,31 @@ func TestChar(t *testing.T) {
 		t.Fatalf("控制字元應該被跳過，得到 %q", in.Char)
 	}
 }
+
+// Page Up／Page Down 走 `Scroll`，**不碰 `Dir`**。
+//
+// ⚠ 兩者共用一個欄位的話，手札裡的一頁捲動在地圖上會變成走一步——
+// 而症狀是「按了 Page Down，隊伍往南走了一格」。
+func TestPageKeysAreScrollNotDirection(t *testing.T) {
+	for _, tc := range []struct {
+		key  Key
+		want Scroll
+	}{
+		{KeyPageUp, ScrollUp},
+		{KeyPageDown, ScrollDown},
+	} {
+		in := Read([]Key{tc.key}, nil)
+		if in.Scroll != tc.want {
+			t.Errorf("鍵 %d 的 Scroll ＝ %d，預期 %d", tc.key, in.Scroll, tc.want)
+		}
+		if in.Dir != DirNone {
+			t.Errorf("鍵 %d 不該產生方向（得到 %d）", tc.key, in.Dir)
+		}
+		if in.Action != ActionNone {
+			t.Errorf("鍵 %d 不該產生動作（得到 %d）", tc.key, in.Action)
+		}
+	}
+	if in := Read(nil, nil); in.Scroll != ScrollNone {
+		t.Errorf("沒按鍵時 Scroll ＝ %d，應該是 ScrollNone", in.Scroll)
+	}
+}

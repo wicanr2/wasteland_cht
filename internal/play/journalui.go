@@ -129,7 +129,7 @@ func (s *Scene) showJournalPage() {
 func (s *Scene) setJournalHeader(n int, sec string) {
 	head := s.uiText("journal.header")
 	if len(head) == 0 {
-		s.message = fmt.Sprintf("Journal %d/%d%s  (I/K page, ESC close)",
+		s.message = fmt.Sprintf("Journal %d/%d%s  (I/K page, PgUp/PgDn scroll, ESC close)",
 			n, game.JournalPages, sec)
 		return
 	}
@@ -151,8 +151,8 @@ func (s *Scene) setJournalHeader(n int, sec string) {
 //
 // 兩組手勢分工（使用者定案 2026-08-18）：
 //
-//	I／K（與 ←／→）  換段落
-//	↑／↓（與 W／S）  在同一段落裡捲動
+//	I／K（與 ←／→）    換段落
+//	Page Up／Page Down  在同一段落裡捲動
 //
 // ⚠ **`I`／`K` 只能從 `Char` 認**：移動鍵是方向鍵與 `WASD`（`internal/input`
 // 的 `Bindings`），`IKJL` 沒有綁定，只會以字元進來。以前標題寫著「I／K 翻頁」
@@ -177,12 +177,28 @@ func (s *Scene) updateJournal(in input.Input) (bool, error) {
 			s.journalAt++
 			s.showJournalPage()
 		}
-	case in.Dir == input.DirUp:
-		s.scrollJournal(-1)
-	case in.Dir == input.DirDown:
-		s.scrollJournal(1)
+	case in.Scroll == input.ScrollUp:
+		s.scrollJournal(-s.journalPageStep())
+	case in.Scroll == input.ScrollDown:
+		s.scrollJournal(s.journalPageStep())
 	}
 	return true, nil
+}
+
+// journalPageStep 是按一次 Page Up／Page Down 捲幾列：**一整頁少一列**。
+//
+// 留那一列是為了讓前後兩頁接得起來——整頁跳的話，跨頁的那一句話會斷在
+// 兩個畫面之間，而讀的人只會覺得「這裡漏了一行」。
+//
+// ⚠ 高度要**每次重算**：戰鬥時訊息視窗換成面板（`msgRect`），而且有沒有
+// 標題列也會差一列（`bodyStart`）。
+func (s *Scene) journalPageStep() int {
+	rect := s.msgRect()
+	n := rect.LastRow() - s.bodyStart(rect)
+	if n < 1 {
+		return 1
+	}
+	return n
 }
 
 // scrollJournal 在同一段落裡上下捲，夾在 0 與「多出來的列數」之間。

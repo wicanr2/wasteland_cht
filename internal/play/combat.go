@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/wicanr2/wasteland_cht/internal/game"
+	"github.com/wicanr2/wasteland_cht/internal/render"
 	"github.com/wicanr2/wasteland_cht/internal/textlayout"
 )
 
@@ -36,6 +37,42 @@ const (
 	rosterCols = 39
 )
 
+// 中文名單的欄座標。**與英文那一套不同**，因為兩邊要塞的東西不一樣長。
+//
+// 數值欄各留三格就夠：`AMM` 是 `slot.Value & 0x3F`（0–63，兩位數封頂），
+// `AC` 與 `MAX` 實務上兩到三位數，而中文表頭全部是兩個字（`ui:combat.hdr*`）。
+// 英文那一套各留四格，省下來的四格連同尾巴那一格全部給武器欄。
+//
+// 名字欄 12 格：原版的名字欄位只有 13 bytes（`internal/input.MaxName` 的說明），
+// 出廠隊伍最長的是 `Snake Vargas`（12）。
+//
+// 武器欄 14 格是**量出來的**：`translations/zh-Hant/exe-skills-items.tsv`
+// 裡最長的單數名字是「M1989A1 北約突擊步槍」14 格。給 13 格的話它會變成
+// 「M1989A1 北約突擊步」——而畫面上看起來只是「這把武器叫這個名字」。
+const (
+	cjkColName   = 2
+	cjkColAC     = 14
+	cjkColAmmo   = 17
+	cjkColMaxCON = 20
+	cjkColCON    = 23
+	cjkColWeapon = 26
+	// cjkRosterCols ＝ 40 ＝ 整個畫面的字元欄數（`render.ScreenWidth / CharWidth`）。
+	// 英文那一版停在 39，最後一格原版沒有用到；中文這一版用掉它，
+	// 武器欄才有 14 格。名單那幾列上沒有別的東西會被蓋到。
+	cjkRosterCols = render.ScreenWidth / render.CharWidth
+)
+
+// rosterLayout 是一套欄座標。英文與中文各一套，繪製、表頭與反白範圍共用
+// ——三處各自寫一份的話，反白會慢慢漂到隔壁欄，而畫面上只是「反白的位置有點怪」。
+type rosterLayout struct{ name, ac, ammo, maxCON, con, weapon, cols int }
+
+var (
+	enRoster = rosterLayout{colName, colAC, colAmmo, colMaxCON, colCON,
+		colWeapon, rosterCols}
+	cjkRoster = rosterLayout{cjkColName, cjkColAC, cjkColAmmo,
+		cjkColMaxCON, cjkColCON, cjkColWeapon, cjkRosterCols}
+)
+
 // RosterHeader 是原版字串表 0xB270 的第 136 條（`exe:2:136`），
 // 欄位的**順序**由它釘死。
 //
@@ -58,27 +95,35 @@ type RosterRow struct {
 
 	// CONInverse／WeaponInverse 是原版的「這一格有問題」標記
 	// （`sub_19E2A` → `ds:4678h`，`docs/re/111` §1）：
-	// 角色記錄 `+0x28` 的狀態位元非 0 → 體力那一欄反白；
+	// 角色記錄 `+0x28` 的狀態位元非 0 → **`MAX` 那一欄**反白；
 	// 裝備武器附屬 byte 的 bit7（卡彈）→ 武器名反白。
+	//
+	// ⚠ 名字留 `CONInverse` 是因為條件來自體力那一族（狀態位元），
+	// **但反白的是 `MAX` 欄**——`sub_1708B` 在印 MAXCON 之前開、之後就關。
 	CONInverse    bool
 	WeaponInverse bool
 }
 
 // InverseAt 回答「這一行的第 col 欄要不要反白」。
 //
-// `con`／`weapon` 傳的是**這一次真的要畫的那兩段字**——中文與英文長度不同，
-// 拿錯就會反白到隔壁欄或反白不足。
+// `lay` 是這一行用哪一套欄座標，`maxCON`／`weapon` 是**這一次真的要畫的那兩段字**
+// ——中文與英文長度不同，拿錯就會反白到隔壁欄或反白不足。
 //
-// ⚠ 只反白欄位本身的字，不含後面的補白。原版把旗標打開之後印那一段，
-// 印到哪裡為止沒有直接讀出來（`docs/re/111` §1），這裡取保守的一種。
-func (r RosterRow) InverseAt(con, weapon string) func(col int) bool {
+// ⚠ **狀態位元反白的是 `MAX` 欄，不是 `CON` 欄。** `sub_1708B` 的順序是
+// `0x17102` 開 → `0x1711C` 印 MAXCON → `0x1711F` 關，CON 那一欄在關掉之後才印
+// （`docs/re/111` §1）。
+//
+// ⚠ 只反白欄位本身的字，不含後面的補白——**這是從程式碼讀出來的，不是取保守**：
+// 欄與欄之間是把游標欄寫進 `ds:4672h`（`0x17105`、`0x17122`、`0x1715D`），
+// 中間那幾格根本沒有被印過，所以反白旗標碰不到它們。
+func (r RosterRow) InverseAt(lay rosterLayout, maxCON, weapon string) func(col int) bool {
 	type span struct{ lo, hi int }
 	var spans []span
 	if r.CONInverse {
-		spans = append(spans, span{colCON, colCON + utf8.RuneCountInString(con)})
+		spans = append(spans, span{lay.maxCON, lay.maxCON + utf8.RuneCountInString(maxCON)})
 	}
 	if r.WeaponInverse {
-		spans = append(spans, span{colWeapon, colWeapon + utf8.RuneCountInString(weapon)})
+		spans = append(spans, span{lay.weapon, lay.weapon + utf8.RuneCountInString(weapon)})
 	}
 	if len(spans) == 0 {
 		return nil
@@ -524,12 +569,12 @@ func rosterHeaderCJK(ui func(string) string) string {
 		col  int
 		name string
 	}{
-		{colName, "combat.hdrname"},
-		{colAC, "combat.hdrac"},
-		{colAmmo, "combat.hdrammo"},
-		{colMaxCON, "combat.hdrmax"},
-		{colCON, "combat.hdrcon"},
-		{colWeapon, "combat.hdrweapon"},
+		{cjkRoster.name, "combat.hdrname"},
+		{cjkRoster.ac, "combat.hdrac"},
+		{cjkRoster.ammo, "combat.hdrammo"},
+		{cjkRoster.maxCON, "combat.hdrmax"},
+		{cjkRoster.con, "combat.hdrcon"},
+		{cjkRoster.weapon, "combat.hdrweapon"},
 	} {
 		t := ui(f.name)
 		if t == "" {
@@ -583,12 +628,12 @@ func rosterRowCJK(r RosterRow, ui func(string) string, item func(byte) string,
 		text string
 	}{
 		{colIndex, idx},
-		{colName, r.Name},
-		{colAC, r.AC},
-		{colAmmo, r.Ammo},
-		{colMaxCON, r.MaxCON},
-		{colCON, con},
-		{colWeapon, weapon},
+		{cjkRoster.name, r.Name},
+		{cjkRoster.ac, r.AC},
+		{cjkRoster.ammo, r.Ammo},
+		{cjkRoster.maxCON, r.MaxCON},
+		{cjkRoster.con, con},
+		{cjkRoster.weapon, weapon},
 	} {
 		if f.text == "" {
 			continue
@@ -596,7 +641,7 @@ func rosterRowCJK(r RosterRow, ui func(string) string, item func(byte) string,
 		pad(f.col)
 		line += f.text
 	}
-	return clipCells(line, rosterCols)
+	return clipCells(line, cjkRoster.cols)
 }
 
 // clipCells 把一串 UTF-8 截到 n 格（**一個 rune 一格**）。
