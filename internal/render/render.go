@@ -393,6 +393,15 @@ const (
 // ⚠ 超出畫面的字**直接不畫**，不要回錯誤：名單的欄座標是原版定死的，
 // 中文化重排時字會變長，那時候需要的是截斷不是崩掉。
 func (f *Frame) DrawLineAt(font *assets.Font, s string, col, row int) error {
+	return f.DrawLineInverse(font, s, col, row, nil)
+}
+
+// DrawLineInverse 是 DrawLineAt 的反白版：`inv` 回答「第幾欄要反白」。
+//
+// 反白是原版的「這一格有問題」標記（`ds:4678h`，`docs/re/111`）——
+// 卡彈的武器名、身上有狀態的隊員。`inv` 是 nil 就整行正常畫。
+func (f *Frame) DrawLineInverse(font *assets.Font, s string, col, row int,
+	inv func(col int) bool) error {
 	for i := 0; i < len(s); i++ {
 		if s[i] < 0x20 {
 			continue
@@ -401,7 +410,8 @@ func (f *Frame) DrawLineAt(font *assets.Font, s string, col, row int) error {
 			break
 		}
 		idx := int(s[i]) - int(font.FirstASCII)
-		if err := f.DrawGlyph(font, idx, col+i, row, DefaultTextColor, false); err != nil {
+		bad := inv != nil && inv(col+i)
+		if err := f.DrawGlyph(font, idx, col+i, row, DefaultTextColor, bad); err != nil {
 			return fmt.Errorf("欄 %d 列 %d：%w", col+i, row, err)
 		}
 	}

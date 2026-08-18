@@ -1,6 +1,7 @@
 package play
 
 import (
+	"unicode/utf8"
 	"fmt"
 
 	"github.com/wicanr2/wasteland_cht/internal/game"
@@ -54,6 +55,42 @@ type RosterRow struct {
 	MaxCON string
 	CON    string // CON ≤ 0 時是狀態字而不是數字
 	Weapon string
+
+	// CONInverse／WeaponInverse 是原版的「這一格有問題」標記
+	// （`sub_19E2A` → `ds:4678h`，`docs/re/111` §1）：
+	// 角色記錄 `+0x28` 的狀態位元非 0 → 體力那一欄反白；
+	// 裝備武器附屬 byte 的 bit7（卡彈）→ 武器名反白。
+	CONInverse    bool
+	WeaponInverse bool
+}
+
+// InverseAt 回答「這一行的第 col 欄要不要反白」。
+//
+// `con`／`weapon` 傳的是**這一次真的要畫的那兩段字**——中文與英文長度不同，
+// 拿錯就會反白到隔壁欄或反白不足。
+//
+// ⚠ 只反白欄位本身的字，不含後面的補白。原版把旗標打開之後印那一段，
+// 印到哪裡為止沒有直接讀出來（`docs/re/111` §1），這裡取保守的一種。
+func (r RosterRow) InverseAt(con, weapon string) func(col int) bool {
+	type span struct{ lo, hi int }
+	var spans []span
+	if r.CONInverse {
+		spans = append(spans, span{colCON, colCON + utf8.RuneCountInString(con)})
+	}
+	if r.WeaponInverse {
+		spans = append(spans, span{colWeapon, colWeapon + utf8.RuneCountInString(weapon)})
+	}
+	if len(spans) == 0 {
+		return nil
+	}
+	return func(col int) bool {
+		for _, sp := range spans {
+			if col >= sp.lo && col < sp.hi {
+				return true
+			}
+		}
+		return false
+	}
 }
 
 // Text 把一行排成 39 欄的字串（欄座標照 docs/re/15 §4）。
@@ -104,6 +141,7 @@ func Roster(p *game.Party, items game.ItemTable, name func(byte) string) []Roste
 			// 原版的表本來就是六格對六個等級。
 			con = game.WoundNames[m.WoundLevel()]
 		}
+		slot, hasWeapon := equippedSlot(m)
 		rows = append(rows, RosterRow{
 			Index:  len(rows) + 1,
 			Name:   m.Name,
@@ -112,6 +150,9 @@ func Roster(p *game.Party, items game.ItemTable, name func(byte) string) []Roste
 			MaxCON: fmt.Sprintf("%d", m.MaxCON),
 			CON:    con,
 			Weapon: weaponColumn(m, name),
+			// 反白的兩個條件（`docs/re/111` §1）。
+			CONInverse:    m.Status != 0,
+			WeaponInverse: hasWeapon && game.Jammed(slot),
 		})
 	}
 	return rows

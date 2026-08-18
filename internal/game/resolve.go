@@ -37,6 +37,11 @@ const (
 	jammedFlag byte = 0x80
 )
 
+// Jammed 回答這一格的武器卡彈了沒（附屬 byte 的 bit7）。
+//
+// 呈現層要它：卡彈的武器名在名單上是**反白**的（`docs/re/111` §1）。
+func Jammed(s Slot) bool { return s.Value&jammedFlag != 0 }
+
 // slotOf 把 1-based 的槽號換成 Items 的索引；0 或超界回 −1。
 //
 // ⚠ **槽號是 1-based**（`sub_19AC8`：位移 ＝ 槽號 × 2 ＋ 0xBB，槽 1 → `+0xBD`）。

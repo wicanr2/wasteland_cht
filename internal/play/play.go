@@ -512,10 +512,12 @@ func (s *Scene) drawHiTextLayer(h *render.HiFrame) {
 			r.Index = i + 1
 			slot, has := equippedSlot(m)
 			if zh := rosterRowCJK(r, s.uiText, s.itemNameCJK, slot.ID, has); len(zh) > 0 {
-				s.drawCJKLine(h, zh, 0, row)
+				// 反白的兩欄要用**中文那一版的字**算欄位範圍——
+				// 中英長度不同，拿英文的算會反白到隔壁欄（`docs/re/111` §3）。
+				s.drawRosterCJK(h, zh, row, r)
 				continue
 			}
-			s.drawASCIILine(h, r.Text(), 0, row)
+			s.drawInverseLine(h, r.Text(), 0, row, r.InverseAt(r.CON, r.Weapon))
 		}
 	}
 	// 設施那幾行裡沒有中文的（店名以外的清單多半是英文物品名）。
@@ -1770,7 +1772,8 @@ func (s *Scene) drawRoster(f *render.Frame) {
 		if row+1+i > s.rosterLastRow() {
 			break // 名單與訊息視窗在字元列上會撞（docs/spec/03 §3）
 		}
-		_ = f.DrawLineAt(s.font, r.Text(), 0, row+1+i)
+		_ = f.DrawLineInverse(s.font, r.Text(), 0, row+1+i,
+			r.InverseAt(r.CON, r.Weapon))
 	}
 }
 
@@ -1973,6 +1976,70 @@ func (s *Scene) drawASCII(h *render.HiFrame, c byte, col, row int) {
 		return
 	}
 	h.DrawASCIIAt(s.font, c, col, row, 15)
+}
+
+// drawInverseLine 在高解畫面上畫一行純 ASCII，`inv` 指定的欄反白。
+func (s *Scene) drawInverseLine(h *render.HiFrame, text string, col, row int,
+	inv func(col int) bool) {
+	for i := 0; i < len(text); i++ {
+		if text[i] == ' ' && (inv == nil || !inv(col+i)) {
+			continue // 空白不必畫，除非它在反白的範圍裡
+		}
+		s.drawCellASCII(h, text[i], col+i, row, inv != nil && inv(col+i))
+	}
+}
+
+// drawRosterCJK 畫中文那一版的名單行，反白的欄位用**中文的字**算範圍。
+func (s *Scene) drawRosterCJK(h *render.HiFrame, text string, row int, r RosterRow) {
+	con, weapon := rosterFieldsCJK(text)
+	inv := r.InverseAt(con, weapon)
+	eachCell(text, 0, row, func(col, row int, ch rune) {
+		bad := inv != nil && inv(col)
+		if ch == ' ' && !bad {
+			return
+		}
+		if ch < 0x80 {
+			s.drawCellASCII(h, byte(ch), col, row, bad)
+			return
+		}
+		if bad {
+			h.FillCell(col, row, 15)
+			h.DrawRune(s.eten, ch, col, row, 0)
+			return
+		}
+		h.DrawRune(s.eten, ch, col, row, 15)
+	})
+}
+
+// rosterFieldsCJK 從畫好的那一行切回「體力」與「武器」兩欄的字。
+//
+// **反白的範圍要照畫面上的字算**，而中文那一版是排版函式組出來的字串——
+// 與其把欄位再傳一次，不如照欄座標切回來：兩邊一定一致。
+func rosterFieldsCJK(line string) (con, weapon string) {
+	cells := []rune(line)
+	cut := func(lo, hi int) string {
+		if lo >= len(cells) {
+			return ""
+		}
+		if hi > len(cells) {
+			hi = len(cells)
+		}
+		return strings.TrimRight(string(cells[lo:hi]), " ")
+	}
+	return cut(colCON, colWeapon), cut(colWeapon, len(cells))
+}
+
+// drawCellASCII 畫一格 ASCII，`bad` 為 true 時反白（整格塗滿再用背景色畫字）。
+func (s *Scene) drawCellASCII(h *render.HiFrame, c byte, col, row int, bad bool) {
+	if !bad {
+		s.drawASCII(h, c, col, row)
+		return
+	}
+	h.FillCell(col, row, 15)
+	if c != game.WoundDead[0] && h.DrawETenASCII(s.eten, c, col, row, 0) {
+		return
+	}
+	h.DrawASCIIAt(s.font, c, col, row, 0)
 }
 
 // drawCJKLine 在高解畫面上畫一行中英混排的字（Big5）。
