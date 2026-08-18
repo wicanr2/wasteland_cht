@@ -116,7 +116,7 @@ nibble 12 的字串編號是記錄 `+0x00`，**不是這一格的第 2 層值**�
 | 0 | `0x1C260` | 醫生（`80` 那一族：`Infirmary`、`Patch em' up`、`Old Doc Bobs`、`NUCLEAR AID`） |
 | 1 | `0x1BE50` | 商店（`81`：`AG. store`、`Store`、`Market`、`Blackmarket`） |
 | 2 | `0x1BBA0` | 圖書館／訓練（`82`：`Library`、`New Thoughts`、`HOLY KNOWING`） |
-| 3 | `0x1A2C0` | ？ |
+| 3 | `0x1A2C0` | Ranger Center 的角色管理（`CREATE DELETE PLAY`，`docs/re/72` §3）|
 | 4 | `0x1B4F0` | `sub_1CB30` 計時到期寫死呼叫的那一個 |
 | 5 以上 | `0x1A470`、`0x1A4F4`… | **就是腳本 opcode 0、1、…**（`0x1A699` ＝ `docs/re/34` 的 opcode 7） |
 

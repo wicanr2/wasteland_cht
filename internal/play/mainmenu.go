@@ -56,9 +56,18 @@ func (s *Scene) BeginTitle() {
 // ⚠ ESC **不是**離開遊戲——原版那一支也只是 `retn` 回去繼續播片頭。
 func (s *Scene) updateTitle(in input.Input) (bool, error) {
 	if input.Upper(in.Char) != MainMenuLabel[0] && in.Action != input.ActionConfirm {
+		// 片頭：按過非 `S` 的鍵就開始播，之後每一幀推計時器（`docs/re/113`）。
+		if !s.attract.active && attractKey(in) {
+			s.beginAttract()
+			return true, nil
+		}
+		if s.attract.active {
+			s.updateAttract()
+		}
 		return true, nil
 	}
 	s.title = false
+	s.attract = attractState{}
 	s.titlePic = nil
 	s.message = ""
 	// 進地圖第一眼就告訴玩家人在哪：開場那句地點名在標題畫面上被清掉了，

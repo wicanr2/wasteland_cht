@@ -108,3 +108,49 @@ func TestUsePagingIsClickable(t *testing.T) {
 		t.Errorf("英文清單沒有翻頁提示：%q", s.useMenu())
 	}
 }
+
+// `I`／`K` 翻頁，而且**翻到底就不動**——這一條是照原版的清單框架
+// （`docs/re/53` §4：下一頁到底不動、上一頁在第一頁不動），
+// 與 `0` 那個會繞回的鍵是兩回事。
+func TestUsePagingWithIK(t *testing.T) {
+	s := newScene(t)
+	s.use = useState{stage: useStagePick, options: make([]useOption, 20)}
+	for i := range s.use.options {
+		s.use.options[i].label = "x"
+	}
+	if s.use.pages() != 3 {
+		t.Fatalf("20 項應該是 3 頁，得到 %d 頁", s.use.pages())
+	}
+	// 第一頁按 `I` 不動。
+	step(t, s, input.Input{Dir: input.DirNone, Char: 'I'})
+	if s.use.page != 0 {
+		t.Errorf("第一頁按 I 跑到第 %d 頁，應該不動", s.use.page)
+	}
+	// `K` 一頁一頁往下，到最後一頁就停。
+	for want := 1; want <= 2; want++ {
+		step(t, s, input.Input{Dir: input.DirNone, Char: 'K'})
+		if s.use.page != want {
+			t.Fatalf("按第 %d 次 K 到第 %d 頁，預期第 %d 頁", want, s.use.page, want)
+		}
+	}
+	step(t, s, input.Input{Dir: input.DirNone, Char: 'K'})
+	if s.use.page != 2 {
+		t.Errorf("最後一頁按 K 跑到第 %d 頁，應該不動（不繞回）", s.use.page)
+	}
+	// `I` 一路翻回第一頁。
+	for want := 1; want >= 0; want-- {
+		step(t, s, input.Input{Dir: input.DirNone, Char: 'I'})
+		if s.use.page != want {
+			t.Fatalf("往回翻到第 %d 頁，預期第 %d 頁", s.use.page, want)
+		}
+	}
+	// 方向鍵與 `I`／`K` 同一條路。
+	step(t, s, input.Input{Dir: input.DirDown})
+	if s.use.page != 1 {
+		t.Errorf("下鍵翻到第 %d 頁，預期第 1 頁", s.use.page)
+	}
+	step(t, s, input.Input{Dir: input.DirUp})
+	if s.use.page != 0 {
+		t.Errorf("上鍵翻到第 %d 頁，預期第 0 頁", s.use.page)
+	}
+}

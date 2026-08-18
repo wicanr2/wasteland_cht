@@ -185,31 +185,85 @@ loc_13A58:
 
 推論等級：**已確認**（呼叫點與迴圈結構見 `docs/re/94` §2）。
 
-## 6. 走哪一條分支：解到一半
+## 6. 走哪一條分支：三條的判定條件
 
-三條分支的入口都讀到了，判定條件只解出一項：
+`sub_14BF0` 對 `ds:A5AEh` 的三個位移（`+0x04`／`+0x06`／`+0x08`）逐一取出
+這一筆遭遇的三組敵人，每一組跑一次下面這段：
 
 ```
 0x14C55  bl ← 9；al ← [ds:46C6h + 9]；and al, 4
-         ≠ 0 → 不動                      ; 這一筆遭遇整個不參與移動
-0x14C7A  sub_12A40／sub_12A8D／sub_19D2F  ; 一組比較
-0x14C83  jnb → loc_14CCA                 ; → 「換位置」那一條
-0x14C85  loc_12AA2 回 1 → loc_14CA5
-0x14CA0  jb  → loc_14CA5
-0x14CA2  否則 → 0x14E03                  ; → 逃跑
+         ≠ 0 → loc_14D31 → loc_14E3B    ; 這一筆遭遇整個不移動
+0x14C7A  sub_12A40(組)                  ; 選定這一組的敵人資料
+0x14C7D  sub_12A8D  → 資料 +0x05 & 0x0F ; **武器類別**（`docs/re/37` §3.2）
+0x14C80  sub_19D2F  → ds:CD00h 有沒有這個類別
+0x14C83  jnb → loc_14CCA                ; 有 ＝ **有射程** → 「換位置」
+0x14C85  loc_12AA2  → 資料 +0x06        ; **敵人種類**（`docs/re/37` §3.2）
+0x14C88  ＝ 1（Animal）→ loc_14CA5
+0x14C8C  否則跑士氣檢查，jb → loc_14CA5，否則 → 0x14E03（逃跑）
 loc_14CA5:
-0x14CB1  al ← [ds:46C8h + 3]             ; 記錄標頭 +3 ＝ 距離
-0x14CB7  cmp al, 10h；cmc；jnb → 不動      ; **距離 < 16 → 不動**
-0x14CBC  否則 → 0x14E0C                  ; → 朝隊伍衝
+0x14CB1  al ← [ds:46C8h + 3]            ; 記錄標頭 +3 ＝ 與隊伍的距離
+0x14CB7  cmp al, 10h；cmc；jnb → 不動     ; **距離 < 16 → 不動**
+0x14CBC  否則 → 0x14E0C                 ; → 朝隊伍衝
 ```
 
 `cmc` ＋ `jnb` 是這份執行檔到處在用的「小於」慣用法：
 `cmp` 借位設 CF，`cmc` 反過來，`jnb`（CF ＝ 0）於是等於「小於」。
 同一個形狀在 `0x14C3E` 的組迴圈上界判斷再出現一次，兩處互為佐證。
 
-**未解**：`sub_19D2F` 比的是什麼、`loc_12AA2` 回的是什麼
-（決定「換位置 vs 逃跑 vs 逼近」的那兩個判斷）、
-`ds:46C6h + 9` 的 bit 2 由誰設。
+### 6.1 `ds:CD00h` ＝ 有射程的武器類別
+
+`sub_19D2F(al)` 從 `ds:CD00h` 逐 byte 比對，遇到負值就停：
+
+```
+ds:CD00h  0d 0a 0b 0c 02 03 04 05 06 07 08 09 ff
+```
+
+12 個值 ＝ 類別 2–13，**少的正好是 0 與 1**（徒手與近戰，`docs/re/45` §3.1）。
+所以第一個分岔是：**手上有射程武器的敵人走「換位置」，只有近戰的往下走。**
+
+### 6.2 士氣：整組剩下的血量低於一隻的基礎血量的一半就跑
+
+`0x14C8C` 那四行拆開來是：
+
+```
+sub_14FDE   ; ds:46BEh ← 這一組十隻的 16-bit 血量總和（+0x00…+0x13，`docs/re/37` §2）
+sub_12AAB   ; dl:al ← 敵人資料 +0x00/+0x01 ＝ 這一型的基礎血量
+sub_19BFC   ; ds:46C0h ← 上面那個 16-bit
+shr ds:46C1h,1 / rcr ds:46C0h,1   ; ÷ 2
+sub_19C69   ; CF ← (ds:46BEh ≥ ds:46C0h)
+jb → loc_14CA5                     ; 還撐得住 → 逼近或不動
+否則 → 0x14E03                     ; **逃跑**
+```
+
+`sub_14FDE` 的迴圈從 `bl = 0x13` 每次減 2 走到 0，正好是十筆 16-bit 血量；
+`sub_19C04` 是 16-bit 累加，`sub_19BEC` 在迴圈前把累加器清零。
+
+**種類 1（Animal）不做這個檢查**——動物不會逃。
+
+### 6.3 「換位置」那一條也分種類
+
+```
+loc_14CCA  al ← 資料 +0x06（種類）
+  ＝ 4（Cyborg）→ sub_14F7A(1)
+  ＝ 5（Robot） → 常數 0Fh
+  否則          → sub_14F7A(2)
+… ds:A63Eh ← 常數（Robot 0Fh／Cyborg 0Bh／其餘 7）
+… ds:46C0h ← sub_156CB(距離, 組)
+… ds:46BEh ← 敵人的行動值（sub_12ABA，`docs/re/36` §2）＋ 上面那個常數
+… sub_19C69；jnb → loc_14D34（真的換位置），否則 loc_14E3B（不動）
+```
+
+`sub_14F7A` 回 CF 時直接跳 `loc_14CA2` ＝ 逃跑。
+
+推論等級：**已確認**（`sub_19D2F`、`loc_12AA2`、`sub_14FDE`、`sub_19BFC`／
+`sub_19C04`／`sub_19C69` 逐支讀完，資料端的兩個欄位在 `docs/re/37` §3.2 已有 42 個區塊
+397 筆的值域佐證）。
+
+### 6.4 `ds:46C6h + 9` 的 bit2 是資料裡的旗標
+
+同一個 byte 的 bit1 是「這一組可以雇用」、高 4 位是 NPC 記錄編號
+（`docs/re/110` §2）。bit2 ＝ **這一筆遭遇不參與移動**。
+它在出貨資料裡，不是執行期算出來的。
 
 ## 7. 對 remake 的意思：基礎值是 50 不是 60
 
@@ -227,6 +281,11 @@ remake 沒有實作敵人在地圖上移動那一段（`docs/re/87` §2），
 ⚠ 這是一個玩得出來的差異：命中率整體降 10 個百分點，戰鬥會變長。
 它是照著解出來的機制走的結果，不是調數值。
 
+§6 的三條分支**目前接不上去**：它們決定的是敵人在地圖上往哪一格走，
+而重製版沒有實作戰鬥中的地圖移動（`docs/re/87` §2）。三條分支的判定條件
+與門檻在 §6 已經寫全，實作地圖移動的那一輪照著接即可；
+在那之前計畫表每一格都是 `0xFF`，基礎值 50 這一支不受影響。
+
 ## 8. 可重跑的完整指令
 
 ```bash
@@ -240,6 +299,10 @@ WL_IDA_TARGET="$PWD/workplace/analysis/unpacked/wl.merged.exe" \
 
 python3 tools/dump_word_table.py workplace/analysis/unpacked/wl.merged.exe 0xAA0E 9 --bytes
 python3 tools/dump_word_table.py workplace/analysis/unpacked/wl.merged.exe 0xAAB1 9
+
+# §6 的兩張表
+python3 tools/dump_word_table.py workplace/analysis/unpacked/wl.merged.exe 0xCD00 13 --bytes
+python3 tools/dump_word_table.py workplace/analysis/unpacked/wl.merged.exe 0xA5AE 6 --bytes
 ```
 
 `0x1AF22`–`0x1AFA0`、`0x13A56`、`0x14E45`／`0x14E4A`、`0x164ED`、`0x14F5D`

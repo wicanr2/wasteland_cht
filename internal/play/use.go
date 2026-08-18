@@ -57,9 +57,9 @@ type useState struct {
 	pending useOption
 	// page 是清單分到第幾頁（0 起算）。
 	//
-	// ⚠ **分頁是重製版的決定，不是原版行為**：原版清單選擇走 `sub_198F0`，
-	// 那一支還沒逆向（`docs/re/92` §3），所以它超過九項時怎麼呈現是未知的。
-	// 這裡不假裝知道——用數字鍵選、`0` 翻頁，都是重製版自己的介面。
+	// 分頁與原版同一套：一頁九項、`1`–`9` 選這一頁的第幾項、`I`／`K` 翻頁
+	// （`docs/re/92` §3.2 把 `sub_198F0` 讀完之後對上 `docs/re/53` 的清單框架）。
+	// **`0` 那個鍵是重製版自己加的**，給滑鼠用。
 	page int
 }
 
@@ -410,11 +410,31 @@ func (s *Scene) updateUse(in input.Input) (bool, error) {
 			s.pickUseKind(game.UseAttribute)
 		}
 	case useStagePick:
-		// `0` 或上下鍵翻頁。**這是重製版的介面**——原版的清單選擇（`sub_198F0`）
-		// 還沒逆向，超過九項時它怎麼做是未知的（`docs/re/92` §3）。
-		if ch == '0' || in.Dir == input.DirUp || in.Dir == input.DirDown {
+		// 翻頁。原版的清單框架用 `I`／`K`（含方向鍵）翻頁、`1`–`9` 選這一頁的
+		// 第幾列，沒有第 10 個選擇鍵，所以第 10 項起一定要翻頁
+		// （`docs/re/53` §3、`docs/re/92` §3.2）。`I`／`K` 不是隨手挑的鍵——
+		// 它們就是原版的上下方向鍵（指令列字串 `IKJL`，`docs/re/72` §4；
+		// 滑鼠的四個楔形送同一組，`docs/re/112` §4）。
+		//
+		// ⚠ **`0` 是重製版自己加的**：滑鼠靠畫面上那個 `0` 翻頁
+		// （點到哪一格送那一格的字元），而原版的清單根本沒有滑鼠熱區。
+		// 它與 `I`／`K` 的差別是**會繞回第一頁**；原版翻到底就不動。
+		switch {
+		case ch == '0':
 			if s.use.pages() > 1 {
 				s.use.page = (s.use.page + 1) % s.use.pages()
+				s.showUseMenu()
+			}
+			return true, nil
+		case ch == 'I' || in.Dir == input.DirUp:
+			if s.use.page > 0 {
+				s.use.page--
+				s.showUseMenu()
+			}
+			return true, nil
+		case ch == 'K' || in.Dir == input.DirDown:
+			if s.use.page+1 < s.use.pages() {
+				s.use.page++
 				s.showUseMenu()
 			}
 			return true, nil

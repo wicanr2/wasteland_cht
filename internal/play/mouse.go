@@ -59,6 +59,66 @@ func (s *Scene) translateMouse(m input.Mouse) (input.Input, bool) {
 	return none, false
 }
 
+// 游標圖形的編號（`CURS` 的 8 個，`docs/re/112` §5）。
+//
+// ⚠ **編號的語意是原版的，熱區是重製版的。** 原版拿螢幕座標比兩條 45° 線
+// 與一個 16 × 16 的方框（`0x18C62`–`0x18CC3`）；重製版的畫面是 960 × 600、
+// 訊息視窗也重排過，所以這裡套的是**同一份狀態表**配重製版自己的熱區
+// （`docs/spec/29` §4）。第 7 個原版選不到，這裡也不用。
+const (
+	CursorDefault = 0 // 預設
+	CursorPick    = 1 // 指到可點的字
+	CursorUp      = 2 // 地圖視窗的上楔形（原版送 `I`）
+	CursorDown    = 3 // 下（`K`）
+	CursorLeft    = 4 // 左（`J`）
+	CursorRight   = 5 // 右（`L`）
+	CursorHere    = 6 // 地圖正中央那一格（原版送 ESC）
+)
+
+// cursorDir 把方向換成游標編號。
+var cursorDir = map[input.Direction]int{
+	input.DirUp:    CursorUp,
+	input.DirDown:  CursorDown,
+	input.DirLeft:  CursorLeft,
+	input.DirRight: CursorRight,
+}
+
+// cursorGlyph 回報現在該畫哪一個游標圖形。
+//
+// 判斷順序與 `translateMouse` 一樣——**兩邊分岔的話畫面上的箭頭會指向
+// 點下去不會發生的事**，而那種錯不會有任何測試以外的症狀。
+func (s *Scene) cursorGlyph(m input.Mouse) int {
+	ox, oy := m.X/render.HiScale, m.Y/render.HiScale
+	if s.charAt(ox/render.CharWidth, oy/render.CharHeight) != 0 {
+		return CursorPick
+	}
+	if s.title || s.combat != nil || s.facility != nil || s.ending.active || s.wipe.active {
+		return CursorDefault
+	}
+	if d, ok := viewDirection(ox, oy); ok {
+		return cursorDir[d]
+	}
+	if inPartyTile(ox, oy) {
+		return CursorHere
+	}
+	return CursorDefault
+}
+
+// inPartyTile 回答「這個點是不是踩在隊伍自己那一格上」。
+//
+// 原版是地圖正中央 16 × 16 的方框（`0x18C62`），點下去送 ESC；
+// 重製版的隊伍格由 `render.PartyCol`／`PartyRow` 決定，點下去不動
+// （`viewDirection` 的最後一條）。
+func inPartyTile(ox, oy int) bool {
+	tx := (ox - render.ViewX + render.TileSize/2) / render.TileSize
+	ty := (oy - render.ViewY + render.TileSize/2) / render.TileSize
+	if ox < render.ViewX || oy < render.ViewY ||
+		tx < 0 || tx >= render.ViewCols || ty < 0 || ty >= render.ViewRows {
+		return false
+	}
+	return tx == render.PartyCol && ty == render.PartyRow
+}
+
 // viewDirection 把地圖視窗裡的一個點換成方向。
 //
 // 以隊伍那一格為原點，**絕對值大的那個軸決定方向**，相等時取水平。
