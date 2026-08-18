@@ -643,6 +643,8 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `0x190A6` | 5 | 設施畫面：載入 ALLPICS 圖 ＋ 印 13 bytes 的地點名稱 | [`29`](29-map-event-handlers.md) §5.4 |
 | `0x1BA72` | — | **顯示角色卡 ＋ 升級加 1 點技能點**（`0x1BB18`） | [`31`](31-experience-and-skills.md) §2 |
 | `0x1BB5D` | — | 印階級名（把 `ds:4692h` 指到 `0xD622`） | [`31`](31-experience-and-skills.md) §2 |
+| `0x132AC` | — | **`Hire` 的結算**：section 17 取 NPC 記錄 → 抄 256 bytes → 魅力對決 → 槽表補位（7 人上限）| [`110`](110-hire-resolution.md) |
+| `0x19E2A`／`0x19E30` | 6／2 | **反白開／關**（`ds:4678h`）——卡彈的武器名、生病的隊員 | [`111`](111-roster-inverse-video.md) |
 | `0x1BB6C` | — | **把階級名抄進記錄 `+0x32`**：逐字元到 NUL 為止，位移在 `ds:D430h`，**沒有長度檢查** | [`109`](109-character-record-tail.md) §4 |
 | `0x1C68E` | — | **技能費用**：基礎 × 2^(等級−1)，飽和 `0xFF` | [`31`](31-experience-and-skills.md) §3.1 |
 | `0x1CA8D`／`0x1CA98` | 各 2 | 技能資料 `+0x00` 拆欄位：`& 7` ＝ 費用／`>> 3` ＝ IQ 需求 | [`31`](31-experience-and-skills.md) §3 |
