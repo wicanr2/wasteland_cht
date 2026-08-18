@@ -103,6 +103,20 @@ func (h *HiFrame) DrawRune(font *assets.ETenFont, r rune, col, row int, fg byte)
 	return h.DrawCJK(font, b[0], b[1], col, row, fg)
 }
 
+// FillCell 把整個字元格塗成一個顏色——**反白的前半**（`docs/re/111`）。
+//
+// 原版的反白是畫字時 `lodsb / not al / stosb`（`docs/re/14`），
+// 也就是前景與背景對調。高解這條路的字模沒有背景像素可以取反，
+// 所以拆成兩步：先塗滿整格，再用背景色畫字。
+func (h *HiFrame) FillCell(col, row int, c byte) {
+	x0, y0 := col*HiCellWidth, row*HiCellHeight
+	for y := 0; y < HiCellHeight; y++ {
+		for x := 0; x < HiCellWidth; x++ {
+			h.Set(x0+x, y0+y, c)
+		}
+	}
+}
+
 // blit 把一個字模畫在第 (col, row) 個原版字元格上，**在格內置中**。
 //
 // 字模尺寸與排版格解耦：24 × 24 剛好填滿格子（位移 0），

@@ -47,7 +47,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 
 ## 統計
 
-筆記 **114** 份：已接 **109**、未接 **1**、不適用 **4**。
+筆記 **114** 份：已接 **110**、未接 **0**、不適用 **4**。
 
 | # | 筆記 | 狀態 | 接在哪／為什麼 |
 |---:|---|---|---|
@@ -161,7 +161,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 108 | [戰鬥版 `Use` 的參數是兩個 nibble，`Hire` 挑的是遭遇佇列裡的一組](108-combat-use-and-hire.md) | 已接 | `internal/play/use.go`（`useStageDir`／`useDirection`／`commitCombatUse`）、`internal/play/combat.go`（`SetUse`／`UseParts`／`useID`）、`internal/play/round.go`（`resolveUse`）、`internal/game/world.go`（`PatchCell`）。§3 的併隊伍那三支在 `docs/re/110` 讀完，`Hire` 已接（`internal/play/hire.go`）|
 | 109 | [角色記錄的 `+0x4D`–`+0x7F` 沒有存取點，階級字串沒有長度上限](109-character-record-tail.md) | 已接 | `internal/game/character.go`（`recRankEnd` ＝ `0x4B`、`putRank` 抄到 NUL 就停）、`internal/game/recordtail_test.go`（出廠尾巴全零 ＋ round-trip）。⚠ `0x4D`–`0x7F` 那 51 bytes **還沒拿來放東西**——要用之前先做 §6 的原版保存實驗 |
 | 110 | [`Hire` 的結算——把 NPC 的記錄整筆複製進隊伍](110-hire-resolution.md) | 已接 | `internal/game/hire.go`（`ReadHireOffer`／`TryHire`／`HireRoll`／`HireNPC`／`HireCandidates`／`Battle.RemoveGroup`）、`internal/game/party.go`（`Character.Source` ＝ 整筆記錄的副本）、`internal/play/hire.go`（「哪一組？」與結算）、`internal/play/encounter.go`（`EncRecord`）、`internal/play/combat.go`（`H` 開選單）|
-| 111 | [`sub_19E2A` 是「反白開」——卡彈的武器名與生病的隊員會被反白](111-roster-inverse-video.md) | 未接 | bit7 ＝ 卡彈**已接**（`internal/game/resolve.go` 的 `jammedFlag`、`internal/play/combat.go` 的 `ammoColumn`），但**反白沒接**：高解那條路還沒有反白繪製，補了才不會變成「英文看得到、中文看不到」 |
+| 111 | [`sub_19E2A` 是「反白開」——卡彈的武器名與生病的隊員會被反白](111-roster-inverse-video.md) | 已接 | `internal/game/resolve.go`（`Jammed`）、`internal/play/combat.go`（`RosterRow.CONInverse`／`WeaponInverse`／`InverseAt`）、`internal/play/play.go`（`drawInverseLine`／`drawRosterCJK`／`drawCellASCII`）、`internal/render/render.go`（`DrawLineInverse`）、`internal/render/hires.go`（`FillCell`）。**兩條路都補了**——高解那條沒有的話會變成「英文看得到、中文看不到」 |
 | 112 | [游標圖形對應哪個狀態](112-mouse-cursor-and-hotzones.md) | 已接 | `internal/play/mouse.go`（`cursorGlyph`／`inPartyTile`／`CursorUp`…）、`internal/play/play.go`（`drawCursor`）、`internal/play/use.go`（`I`／`K` 翻頁的依據）、`tools/scan_addr_refs.py`。規格 29 §4 |
 | 113 | [片頭播的是六頁開場字幕](113-attract-mode.md) | 已接 | `internal/play/attract.go`、`internal/play/mainmenu.go`（標題畫面按鍵進片頭）、`internal/play/play.go`（`Frame`／`HiFrame` 的片頭那一支）|
 | 114 | [遭遇記錄 `+0x09` 是「這一組跟你什麼關係」](114-friendly-encounters.md) | 已接 | `internal/game/hire.go`（`Friendly`／`TurnHostile`／`friendlyBit`）、`internal/play/round.go`（`enemyActs` 跳過友善那一組、`partyActs` 開槍就翻臉）、`internal/play/hiredata_test.go`（出貨資料裡 14 筆的正面事實 ＋ JACKIE 那一場的端到端）。§6 的**明文名字表**也接了：`internal/assets/msq.go`（`Block.MonsterNames`）、`internal/play/combat.go`（`properName`／`enemyLabel`／`zhEnemy`）、`tools/extract_monster_names.py` ＋ `translations/zh-Hant/monsters.tsv`（328 條）|
