@@ -145,3 +145,26 @@ func TestEndingSetsMissionFlagAndRadioPraises(t *testing.T) {
 		t.Fatalf("賀詞念了第二次：%q", s.Message())
 	}
 }
+
+// 結局敘述有中文就不留英文——兩份一起印會佔掉六列裡的兩列，
+// 而且 24 點的中文填滿整個字元格，緊貼的兩行看起來像疊在一起
+// （推廣片的 frame-62 就是這樣被抓到的）。
+func TestEndingPageDropsEnglishWhenTranslated(t *testing.T) {
+	s := newScene(t)
+	if err := s.LoadCatalogue("../../translations/zh-Hant.cat"); err != nil {
+		t.Skipf("載入翻譯目錄：%v", err)
+	}
+	s.BeginEnding()
+	both := 0
+	for i := 0; i < 400; i++ {
+		if _, err := s.Update(input.Input{}); err != nil {
+			t.Fatal(err)
+		}
+		if s.cjk != "" && s.Message() != "" {
+			both++
+		}
+	}
+	if both > 0 {
+		t.Errorf("有 %d 幀同時印了中英文", both)
+	}
+}
