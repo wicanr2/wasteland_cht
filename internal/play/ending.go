@@ -197,10 +197,18 @@ func (s *Scene) updateEnding(in input.Input) (bool, error) {
 	return true, nil
 }
 
-// showEndingPage 把第 n 條敘述放進訊息視窗，中英各走各的視窗。
+// showEndingPage 把第 n 條敘述放進訊息視窗。
+//
+// ⚠ **有中文就不要留英文**（與 `showCombatPrompt`、`sayPlace` 同一條規矩）：
+// 兩份一起印會佔掉訊息視窗六列裡的兩列，而且英文那一列與中文那一列
+// **緊貼著**——24 點的中文字填滿整個字元格，看起來像兩行疊在一起。
+// 查不到譯文時 `endingCJK` 回空字串，那時就只有英文，fallback 不變。
 func (s *Scene) showEndingPage(n int) {
 	s.message = s.endingText(n)
 	s.cjk = s.endingCJK(n)
+	if s.cjk != "" {
+		s.message = ""
+	}
 }
 
 // drawEnding 畫結局：整張圖佔圖片視窗，敘述走訊息視窗。
