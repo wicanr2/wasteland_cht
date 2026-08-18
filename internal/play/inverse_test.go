@@ -35,19 +35,26 @@ func TestRosterInverseFlags(t *testing.T) {
 
 // `InverseAt` 只反白欄位本身那幾格，不碰左右。
 //
+// ⚠ **狀態位元反白的是 `MAX` 欄不是 `CON` 欄**：`sub_1708B` 在 `0x17102` 開、
+// `0x1711C` 印 MAXCON、`0x1711F` 就關掉，CON 那一欄是關掉之後才印的
+// （`docs/re/111` §1）。反到 CON 那一欄的話畫面上照樣有一塊反白，
+// 只是反錯了一格——沒有任何症狀看得出來。
+//
 // ⚠ **範圍要用「這一次真的要畫的那段字」算**：中文與英文長度不同，
-// 拿錯就會反白到隔壁欄或反白不足，而畫面上只是「反白的位置有點怪」。
+// 拿錯就會反白到隔壁欄或反白不足。
 func TestInverseSpans(t *testing.T) {
-	r := RosterRow{CON: "SER", Weapon: "Crowbar",
+	r := RosterRow{MaxCON: "30", CON: "SER", Weapon: "Crowbar",
 		CONInverse: true, WeaponInverse: true}
 
-	en := r.InverseAt(r.CON, r.Weapon)
+	en := r.InverseAt(enRoster, r.MaxCON, r.Weapon)
 	for _, c := range []struct {
 		col  int
 		want bool
 	}{
-		{colCON - 1, false}, {colCON, true}, {colCON + 2, true},
-		{colCON + 3, false},
+		{colMaxCON - 1, false}, {colMaxCON, true}, {colMaxCON + 1, true},
+		{colMaxCON + 2, false},
+		// CON 那一欄一格都不反白。
+		{colCON, false}, {colCON + 1, false}, {colCON + 2, false},
 		{colWeapon - 1, false}, {colWeapon, true},
 		{colWeapon + 6, true}, {colWeapon + 7, false},
 	} {
@@ -56,18 +63,21 @@ func TestInverseSpans(t *testing.T) {
 		}
 	}
 
-	// 中文那一版：「重傷」兩格、「撬棍」兩格。
-	zh := r.InverseAt("重傷", "撬棍")
-	if !zh(colCON) || !zh(colCON+1) || zh(colCON+2) {
-		t.Error("中文的體力欄反白範圍不是兩格")
+	// 中文那一版：欄座標另一套，「撬棍」兩格。
+	zh := r.InverseAt(cjkRoster, "100", "撬棍")
+	if !zh(cjkColMaxCON) || !zh(cjkColMaxCON+2) || zh(cjkColMaxCON+3) {
+		t.Error("中文的上限欄反白範圍不是三格")
 	}
-	if !zh(colWeapon+1) || zh(colWeapon+2) {
+	if zh(cjkColCON) {
+		t.Error("中文那一版也不該反白 CON 欄")
+	}
+	if !zh(cjkColWeapon+1) || zh(cjkColWeapon+2) {
 		t.Error("中文的武器欄反白範圍不是兩格")
 	}
 
 	// 兩個旗標都沒設就整行正常畫（回 nil，呼叫端少一層判斷）。
 	plain := RosterRow{CON: "10"}
-	if plain.InverseAt("10", "") != nil {
+	if plain.InverseAt(enRoster, "10", "") != nil {
 		t.Error("沒有問題的那一行不該有反白範圍")
 	}
 }
@@ -85,9 +95,9 @@ func TestRosterFieldsCJK(t *testing.T) {
 	if line == "" {
 		t.Skip("排不出中文那一版（缺 ui: 文字）")
 	}
-	con, weapon := rosterFieldsCJK(line)
-	if con != "重傷" {
-		t.Errorf("切回來的體力欄是 %q，預期「重傷」", con)
+	maxCON, weapon := rosterFieldsCJK(line)
+	if maxCON != "28" {
+		t.Errorf("切回來的上限欄是 %q，預期 28", maxCON)
 	}
 	if weapon != "撬棍" {
 		t.Errorf("切回來的武器欄是 %q，預期「撬棍」", weapon)

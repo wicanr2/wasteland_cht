@@ -517,7 +517,7 @@ func (s *Scene) drawHiTextLayer(h *render.HiFrame) {
 				s.drawRosterCJK(h, zh, row, r)
 				continue
 			}
-			s.drawInverseLine(h, r.Text(), 0, row, r.InverseAt(r.CON, r.Weapon))
+			s.drawInverseLine(h, r.Text(), 0, row, r.InverseAt(enRoster, r.MaxCON, r.Weapon))
 		}
 	}
 	// 設施那幾行裡沒有中文的（店名以外的清單多半是英文物品名）。
@@ -1773,7 +1773,7 @@ func (s *Scene) drawRoster(f *render.Frame) {
 			break // 名單與訊息視窗在字元列上會撞（docs/spec/03 §3）
 		}
 		_ = f.DrawLineInverse(s.font, r.Text(), 0, row+1+i,
-			r.InverseAt(r.CON, r.Weapon))
+			r.InverseAt(enRoster, r.MaxCON, r.Weapon))
 	}
 }
 
@@ -1991,8 +1991,8 @@ func (s *Scene) drawInverseLine(h *render.HiFrame, text string, col, row int,
 
 // drawRosterCJK 畫中文那一版的名單行，反白的欄位用**中文的字**算範圍。
 func (s *Scene) drawRosterCJK(h *render.HiFrame, text string, row int, r RosterRow) {
-	con, weapon := rosterFieldsCJK(text)
-	inv := r.InverseAt(con, weapon)
+	maxCON, weapon := rosterFieldsCJK(text)
+	inv := r.InverseAt(cjkRoster, maxCON, weapon)
 	eachCell(text, 0, row, func(col, row int, ch rune) {
 		bad := inv != nil && inv(col)
 		if ch == ' ' && !bad {
@@ -2011,11 +2011,13 @@ func (s *Scene) drawRosterCJK(h *render.HiFrame, text string, row int, r RosterR
 	})
 }
 
-// rosterFieldsCJK 從畫好的那一行切回「體力」與「武器」兩欄的字。
+// rosterFieldsCJK 從畫好的那一行切回「上限」與「武器」兩欄的字。
 //
 // **反白的範圍要照畫面上的字算**，而中文那一版是排版函式組出來的字串——
 // 與其把欄位再傳一次，不如照欄座標切回來：兩邊一定一致。
-func rosterFieldsCJK(line string) (con, weapon string) {
+//
+// ⚠ 切的是 `MAX` 不是 `CON`：狀態位元反白的是上限那一欄（`docs/re/111` §1）。
+func rosterFieldsCJK(line string) (maxCON, weapon string) {
 	cells := []rune(line)
 	cut := func(lo, hi int) string {
 		if lo >= len(cells) {
@@ -2026,7 +2028,7 @@ func rosterFieldsCJK(line string) (con, weapon string) {
 		}
 		return strings.TrimRight(string(cells[lo:hi]), " ")
 	}
-	return cut(colCON, colWeapon), cut(colWeapon, len(cells))
+	return cut(cjkRoster.maxCON, cjkRoster.con), cut(cjkRoster.weapon, len(cells))
 }
 
 // drawCellASCII 畫一格 ASCII，`bad` 為 true 時反白（整格塗滿再用背景色畫字）。

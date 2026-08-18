@@ -42,6 +42,10 @@ func keyOf(k ebiten.Key) input.Key {
 		return input.KeyS
 	case ebiten.KeyD:
 		return input.KeyD
+	case ebiten.KeyPageUp:
+		return input.KeyPageUp
+	case ebiten.KeyPageDown:
+		return input.KeyPageDown
 	case ebiten.KeyEscape:
 		return input.KeyEscape
 	case ebiten.KeyF1:

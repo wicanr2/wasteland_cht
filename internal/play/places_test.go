@@ -163,16 +163,16 @@ func TestRosterHeaderIsTranslated(t *testing.T) {
 		t.Fatal("表頭組不出中文")
 	}
 	// 六個標籤都要在，而且欄位要落在值的欄座標上。
-	if n := cjkCells(hdr); n > rosterCols {
-		t.Errorf("表頭佔 %d 格，超過 %d 格的名單寬度", n, rosterCols)
+	if n := cjkCells(hdr); n > cjkRosterCols {
+		t.Errorf("表頭佔 %d 格，超過 %d 格的名單寬度", n, cjkRosterCols)
 	}
 	for _, want := range []struct {
 		col  int
 		name string
 	}{
-		{colName, "combat.hdrname"}, {colAC, "combat.hdrac"},
-		{colAmmo, "combat.hdrammo"}, {colMaxCON, "combat.hdrmax"},
-		{colCON, "combat.hdrcon"}, {colWeapon, "combat.hdrweapon"},
+		{cjkColName, "combat.hdrname"}, {cjkColAC, "combat.hdrac"},
+		{cjkColAmmo, "combat.hdrammo"}, {cjkColMaxCON, "combat.hdrmax"},
+		{cjkColCON, "combat.hdrcon"}, {cjkColWeapon, "combat.hdrweapon"},
 	} {
 		label := s.uiText(want.name)
 		at := cellIndex(hdr, want.col)

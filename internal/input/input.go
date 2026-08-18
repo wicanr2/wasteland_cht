@@ -27,6 +27,8 @@ const (
 	KeyF10
 	KeyEnter
 	KeySpace
+	KeyPageUp
+	KeyPageDown
 )
 
 // Mouse 是這一幀的滑鼠狀態（`docs/spec/29`）。
@@ -83,6 +85,19 @@ const (
 	FnQuickLoad          // F9
 )
 
+// Scroll 是這一幀的捲動請求（Page Up／Page Down）。
+//
+// **與 `Direction` 分開**是刻意的：方向鍵在地圖上是走路、在清單上是選項，
+// 捲動要的是「不管那一層拿方向鍵做什麼，都能把看不到的字翻出來」。
+// 兩者共用一個欄位的話，每加一個模式就要再判斷一次「這一次的上是哪一種上」。
+type Scroll int
+
+const (
+	ScrollNone Scroll = iota
+	ScrollUp
+	ScrollDown
+)
+
 // Input 是一幀收到的輸入。
 type Input struct {
 	Dir    Direction
@@ -93,6 +108,8 @@ type Input struct {
 	Runes []rune
 	// Fn 是這一幀按下的功能鍵（F1／F2／F5／F9）。
 	Fn Function
+	// Scroll 是這一幀的捲動請求（Page Up／Page Down）。
+	Scroll Scroll
 
 	// Mouse 是這一幀的滑鼠。**滑鼠不是新的一條輸入路徑**：
 	// 場景會把點擊翻成與鍵盤等價的 Input 再走同一條路（`docs/spec/29` §2）。
@@ -134,6 +151,10 @@ func Read(justPressed []Key, runes []rune) Input {
 			in.Fn = FnQuickSave
 		case KeyF9:
 			in.Fn = FnQuickLoad
+		case KeyPageUp:
+			in.Scroll = ScrollUp
+		case KeyPageDown:
+			in.Scroll = ScrollDown
 		case KeyEnter, KeySpace:
 			if in.Action == ActionNone {
 				in.Action = ActionConfirm

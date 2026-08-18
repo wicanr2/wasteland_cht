@@ -24,7 +24,7 @@
 | ![地圖](docs/images/01-map.png) | ![訊息](docs/images/04-message.png) |
 | **地圖**：底部是原版的指令列，熱鍵字母照原版不跟著翻譯走 | **訊息**：5,243 條可翻字串已全部翻完 |
 | ![手札](docs/images/02-journal.png) | ![USE](docs/images/03-use.png) |
-| **手札**：段落書 162 段做進遊戲，按 `P` 翻閱（`I`／`K` 換段、`↑`／`↓` 捲動）；陷阱段落標「誘餌」 | **USE**：技能／物品／屬性三選一，判定照原版的字母表 |
+| **手札**：段落書 162 段做進遊戲，按 `P` 翻閱（`I`／`K` 換段、`Page Up`／`Page Down` 捲動）；陷阱段落標「誘餌」 | **USE**：技能／物品／屬性三選一，判定照原版的字母表 |
 | ![問答](docs/images/07-question.png) | ![結局](docs/images/05-ending.png) |
 | **密語**：問答有單鍵與打字兩種模式；**答案不翻譯**——比對逐 byte 全等，翻了就永遠打不出來 | **結局**：`END.CPA` 兩段全解——畫面 ＋ 一份 15 格的動畫腳本 |
 | ![戰鬥](docs/images/08-combat.png) | ![後日談](docs/images/06-epilogue.png) |
