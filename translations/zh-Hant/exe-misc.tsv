@@ -8,8 +8,8 @@
 
 # --- 表 0：開場字幕 ---
 # 每一行原本是置中排版（前後補空白湊 40 欄），中文照樣置中。
-exe:0:1	\x0D          Electronic Arts 與\x0D        Interplay Productions\x0D             共同呈獻\x0D\x0D
-exe:0:2	               荒野遊俠！\x0D\x0D        Copyright 1986-88 by\x0D        Interplay Productions.\x0D
+exe:0:1	\x0D          Electronic Arts 與\x0D        Interplay Productions\x0D               共同呈獻\x0D\x0D
+exe:0:2	              荒野遊俠！\x0D\x0D        Copyright 1986-88 by\x0D        Interplay Productions.\x0D
 exe:0:3	\x0D        程式：Alan Pavlish\x0D    IBM 版本：Michael Quarles\x0D\x0D
 exe:0:5	\x0D地點：地球\x0D
 exe:0:6	年份：1998\x0D

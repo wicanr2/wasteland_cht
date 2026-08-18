@@ -97,6 +97,8 @@ type Scene struct {
 
 	// title 為 true 時停在標題畫面的主選單（`docs/re/95`）。
 	title    bool
+	// attract 是標題畫面按過鍵之後那一段開場字幕（`docs/re/113`）。
+	attract  attractState
 	titlePic *assets.Indexed
 
 	// groupID 是目前操作的隊伍組（0–3，`docs/re/93` §2 的四組上限）。
@@ -292,6 +294,13 @@ func (s *Scene) HiFrame() *render.HiFrame {
 			s.drawCJKLine(h, l, render.FacilityNameCol, render.FacilityNameRow+i)
 		}
 	}
+	// 片頭：原版清整個畫面再印字（`sub_162C7`），所以時鐘、地點名、
+	// 訊息視窗那幾層一個都不畫——這裡提早收工。
+	if s.title && s.attract.active {
+		s.drawAttractCJK(h)
+		s.drawCursor(h)
+		return h
+	}
 	s.drawHiTextLayer(h)
 	if len(s.cjk) == 0 {
 		return h
@@ -317,7 +326,11 @@ func (s *Scene) drawCursor(h *render.HiFrame) {
 	if len(s.cursors) == 0 || (s.mouse.X == 0 && s.mouse.Y == 0) {
 		return
 	}
-	c := s.cursors[0] // 哪個圖形對應哪個狀態沒有解，固定用第 0 個
+	g := s.cursorGlyph(s.mouse)
+	if g < 0 || g >= len(s.cursors) {
+		g = CursorDefault
+	}
+	c := s.cursors[g] // 哪個圖形對應哪個狀態見 `docs/re/112` §5
 	for y := 0; y < assets.CursorSize; y++ {
 		for x := 0; x < assets.CursorSize; x++ {
 			i := y*assets.CursorSize + x
@@ -1632,7 +1645,11 @@ func (s *Scene) Frame() *render.Frame {
 	}
 	f := render.NewFrame()
 	if s.title {
-		s.drawTitle(f)
+		if s.attract.active {
+			s.drawAttract(f) // 片頭把標題圖蓋掉，與原版清畫面一樣
+		} else {
+			s.drawTitle(f)
+		}
 		s.frame = f
 		s.dirty = false
 		return f

@@ -47,7 +47,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 
 ## 統計
 
-筆記 **108** 份：已接 **104**、未接 **0**、不適用 **4**。
+筆記 **113** 份：已接 **108**、未接 **1**、不適用 **4**。
 
 | # | 筆記 | 狀態 | 接在哪／為什麼 |
 |---:|---|---|---|
@@ -107,7 +107,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 54 | [設施畫面的版面](54-facility-screen-layout.md) | 已接 | `internal/play/play.go`、`internal/render/render.go`（共 5 處） |
 | 55 | [輻射結算與「無視護甲」旗標（`ds:46EFh`）](55-radiation-and-armour-bypass.md) | 已接 | `internal/game/radiation.go`、`tools/summarize_radiation.py`（共 3 處） |
 | 56 | [`TRANSTBL` 是 50 組 16 色對照表，而且沒有人讀它](56-transtbl.md) | 已接 | `tools/summarize_transtbl.py` |
-| 57 | [`CURS` 是 8 個滑鼠游標（遮罩 ＋ 圖形並排）](57-curs.md) | 已接 | `internal/assets/curs.go`（遊戲裡真的畫在指標上，`docs/spec/29` §4）＋ `tools/dump_curs.py`。⚠ 哪個圖形對應哪個狀態未解，固定用第 0 個 |
+| 57 | [`CURS` 是 8 個滑鼠游標（遮罩 ＋ 圖形並排）](57-curs.md) | 已接 | `internal/assets/curs.go`（遊戲裡真的畫在指標上，`docs/spec/29` §4）＋ `tools/dump_curs.py`。哪個圖形對應哪個狀態解在 `docs/re/112`，接在 `internal/play/mouse.go` 的 `cursorGlyph` |
 | 58 | [控制碼 `0x08` ＝ 沖出一行不捲動；順帶解出 scrollback](58-line-flush-and-scrollback.md) | 已接 | `internal/game/world.go`、`internal/textlayout/textlayout.go`（共 3 處） |
 | 59 | [正常玩家路徑對原版驗收（第一輪）](59-playtest-against-original.md) | 不適用 | 實機對拍的驗收紀錄與方法，不產生程式碼 |
 | 60 | [傳送與換地圖（nibble 10）](60-teleport-and-map-change.md) | 已接 | `internal/assets/save.go`、`internal/game/teleport.go`（共 5 處） |
@@ -157,8 +157,10 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 104 | [opcode 2 是把兩張圖形對調](104-opcode-2-icon-swap.md) | 已接 | `internal/game/script.go`（`IconSwap`）、`internal/render/render.go`（`Graphics.Swap`）、`internal/play/play.go`（走一步之後套用）|
 | 105 | [`ENC` 在空地上也能跑一回合，以及選單用的是另一塊區域](105-enc-empty-round-and-menu-region.md) | 已接 | `internal/play/enc.go`（`beginEmptyRound`／`partyCanAct`）、`internal/play/confirm.go`（`askConfirmText`）、`internal/render/render.go`（`PanelCol`…）、`internal/play/play.go`（`msgRect`／`rosterLastRow`／`showCombatPrompt`）|
 | 106 | [文字區塊滿了會捲動，不是切掉](106-text-scroll.md) | 已接 | `internal/play/play.go`（`eachMessageCell`／`walkMessage`：量一次再往上挪）、`internal/render/render.go`（`DrawTextIn` 丟掉最前面的行）。⚠ 9 段速度與平滑像素捲動**刻意不做**，理由在該筆記 §7 |
-| 107 | [指令有第二張跳表——動作在結算階段真的發生](107-command-resolution.md) | 已接 | `internal/game/resolve.go`（`ResolveWeapon`／`ResolveLoad`／`ResolveEvade`）、`internal/play/round.go`（`resolveCommands`）、`internal/play/combat.go`（`weaponPick`）。⚠ Hire 與 Use 的結算端**只定位到入口**（§4、§6 兩支子函式未讀），沒有接 |
-| 108 | [戰鬥版 `Use` 的參數是兩個 nibble，`Hire` 挑的是遭遇佇列裡的一組](108-combat-use-and-hire.md) | 已接 | `internal/play/use.go`（`useStageDir`／`useDirection`／`commitCombatUse`）、`internal/play/combat.go`（`SetUse`／`UseParts`／`useID`）、`internal/play/round.go`（`resolveUse`）、`internal/game/world.go`（`PatchCell`）。⚠ **`Hire` 仍然沒接**（§3 的併隊伍那三支還沒讀），按下去印 `ui:combat.notyet` |
+| 107 | [指令有第二張跳表——動作在結算階段真的發生](107-command-resolution.md) | 已接 | `internal/game/resolve.go`（`ResolveWeapon`／`ResolveLoad`／`ResolveEvade`）、`internal/play/round.go`（`resolveCommands`）、`internal/play/combat.go`（`weaponPick`）。§4 的 Hire 結算端在 `docs/re/110` 讀完並接上，§6 的 Use 在 `docs/re/108` |
+| 108 | [戰鬥版 `Use` 的參數是兩個 nibble，`Hire` 挑的是遭遇佇列裡的一組](108-combat-use-and-hire.md) | 已接 | `internal/play/use.go`（`useStageDir`／`useDirection`／`commitCombatUse`）、`internal/play/combat.go`（`SetUse`／`UseParts`／`useID`）、`internal/play/round.go`（`resolveUse`）、`internal/game/world.go`（`PatchCell`）。§3 的併隊伍那三支在 `docs/re/110` 讀完，`Hire` 已接（`internal/play/hire.go`）|
 | 109 | [角色記錄的 `+0x4D`–`+0x7F` 沒有存取點，階級字串沒有長度上限](109-character-record-tail.md) | 已接 | `internal/game/character.go`（`recRankEnd` ＝ `0x4B`、`putRank` 抄到 NUL 就停）、`internal/game/recordtail_test.go`（出廠尾巴全零 ＋ round-trip）。⚠ `0x4D`–`0x7F` 那 51 bytes **還沒拿來放東西**——要用之前先做 §6 的原版保存實驗 |
 | 110 | [`Hire` 的結算——把 NPC 的記錄整筆複製進隊伍](110-hire-resolution.md) | 已接 | `internal/game/hire.go`（`ReadHireOffer`／`TryHire`／`HireRoll`／`HireNPC`／`HireCandidates`／`Battle.RemoveGroup`）、`internal/game/party.go`（`Character.Source` ＝ 整筆記錄的副本）、`internal/play/hire.go`（「哪一組？」與結算）、`internal/play/encounter.go`（`EncRecord`）、`internal/play/combat.go`（`H` 開選單）|
 | 111 | [`sub_19E2A` 是「反白開」——卡彈的武器名與生病的隊員會被反白](111-roster-inverse-video.md) | 未接 | bit7 ＝ 卡彈**已接**（`internal/game/resolve.go` 的 `jammedFlag`、`internal/play/combat.go` 的 `ammoColumn`），但**反白沒接**：高解那條路還沒有反白繪製，補了才不會變成「英文看得到、中文看不到」 |
+| 112 | [游標圖形對應哪個狀態](112-mouse-cursor-and-hotzones.md) | 已接 | `internal/play/mouse.go`（`cursorGlyph`／`inPartyTile`／`CursorUp`…）、`internal/play/play.go`（`drawCursor`）、`internal/play/use.go`（`I`／`K` 翻頁的依據）、`tools/scan_addr_refs.py`。規格 29 §4 |
+| 113 | [片頭播的是六頁開場字幕](113-attract-mode.md) | 已接 | `internal/play/attract.go`、`internal/play/mainmenu.go`（標題畫面按鍵進片頭）、`internal/play/play.go`（`Frame`／`HiFrame` 的片頭那一支）|
