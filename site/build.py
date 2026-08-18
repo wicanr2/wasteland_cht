@@ -29,10 +29,25 @@ PAGES = [
     ("p61.md", "p61.html", "p.61 下水道之旅與 Max 的組裝"),
     ("glossary.md", "glossary.html", "用語與譯名"),
     ("mechanics-claims.md", "mechanics-claims.html", "機制斷言與逆向對照"),
+    # 逐字轉錄（原文一字不漏，錯字照留）
+    ("raw/README.md", "raw-index.html", "逐字轉錄"),
+    ("raw/p56.md", "raw-p56.html", "p.56 逐字"),
+    ("raw/p57.md", "raw-p57.html", "p.57 逐字"),
+    ("raw/p58.md", "raw-p58.html", "p.58 逐字"),
+    ("raw/p59.md", "raw-p59.html", "p.59 逐字"),
+    ("raw/p60.md", "raw-p60.html", "p.60 逐字"),
+    ("raw/p61.md", "raw-p61.html", "p.61 逐字"),
 ]
 
-# markdown 檔名 → 產出的 html 檔名，用來改寫內部連結
+# markdown 路徑 → 產出的 html 檔名，用來改寫內部連結。
+#
+# ⚠ 站上的頁面是**攤平的**（`raw/p56.md` → `raw-p56.html`），而 markdown 裡的連結
+# 是相對的：整理版寫 `raw/p56.md`、逐字版寫 `../p56.md`。兩種寫法都要對得上，
+# 否則連結會被當成「站上沒有這個檔」而只剩下文字——**那不會報錯，只會安靜地少一個連結**。
 LINK_MAP = {md: out for md, out, _ in PAGES}
+LINK_MAP.update({f"../{md}": out for md, out, _ in PAGES if "/" not in md})
+LINK_MAP["raw/"] = "raw-index.html"
+LINK_MAP["../README.md"] = "index.html"
 
 CSS = """
 :root {
