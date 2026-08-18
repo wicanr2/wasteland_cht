@@ -105,6 +105,10 @@ func (s *CombatScene) partyActs(actor game.Combatant) msgs {
 	if target == nil {
 		return out
 	}
+	// **開槍就翻臉**（`0x1AF7B` → `sub_15C19`，`docs/re/114` §3）：
+	// 原版在命中判定**之前**就把友善位元清掉，所以打不中也一樣算數。
+	// 翻臉之後那一組會還手，也不能再雇用了。
+	game.TurnHostile(s.EncRecord)
 	// 命中累加值只跟隊伍成員的 Brawling 與 Agility、以及目標的行動值有關
 	// （docs/re/88）——**裝備不進命中**，只進傷害。
 	w := s.weaponOf(m)
@@ -179,6 +183,12 @@ func (s *CombatScene) enemyActs(actor game.Combatant) msgs {
 	b := s.Battle
 	e := b.Enemy(actor.Slot)
 	if e == nil || e.HP == 0 {
+		return out
+	}
+	// **友善的那一組不攻擊**（`0x1ADBC`：`+0x09` 的 bit1 設就跳過整段結算，
+	// `docs/re/114` §2）。這是「站在 NPC 旁邊按 `H` 談一談」之所以可行的原因——
+	// 不先翻臉，他們一輪都不會出手。
+	if game.Friendly(s.EncRecord) {
 		return out
 	}
 	target, targetIdx := s.pickEnemyTarget()

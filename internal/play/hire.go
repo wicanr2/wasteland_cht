@@ -151,6 +151,33 @@ func (s *CombatScene) resolveHire(i int, m *game.Character) msgs {
 	return out
 }
 
+// GroupName 是那一組敵人的名稱，給呈現層畫清單用。
+func (s *CombatScene) GroupName(g int) string { return s.groupName(g) }
+
+// HirePickCJK 是「哪一組？」清單的中文：一行一組，數字鍵選。
+//
+// 組名查不到中文就用英文名（名稱不是句子，混排讀得通）；
+// **框架字查不到就整份回空字串**走英文那一份。
+func (s *CombatScene) HirePickCJK() string {
+	if !s.hire.open {
+		return ""
+	}
+	// ⚠ **標題不在這裡**：`beginHirePick` 已經把「哪一組？」放進訊息區了，
+	// 這裡再加一次畫面上就會出現兩行一樣的字。
+	// 它仍然是這一份能不能走中文的判準——查不到就整份回空字串走英文。
+	if s.zhStr(strWhichGroup, textlayout.Options{}) == "" {
+		return ""
+	}
+	out := ""
+	for i, g := range s.hire.groups {
+		if i > 0 {
+			out += string('\n')
+		}
+		out += string(rune('1'+i)) + ") " + s.groupNameCJK(g)
+	}
+	return out
+}
+
 // groupName 是那一組敵人的名稱，訊息要用。查不到就回 `group N`。
 func (s *CombatScene) groupName(g int) string {
 	for i := 0; i < game.EnemiesPerGroup; i++ {

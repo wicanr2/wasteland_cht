@@ -944,8 +944,13 @@ func (s *Scene) updateCombat(in input.Input) (bool, error) {
 	if in.Action == input.ActionCancel {
 		// 清單開著就先收清單（原版回 0xFF ＝ 取消，重問這個人）；
 		// 否則 ESC 退回上一個人（docs/spec/14）。已經在第一個就整場不動。
-		if c.WeaponPicking() {
+		switch {
+		case c.WeaponPicking():
 			c.CancelWeaponPick()
+			s.showCombatPrompt()
+			s.dirty = true
+		case c.HirePicking():
+			c.CancelHirePick()
 			s.showCombatPrompt()
 			s.dirty = true
 		}
@@ -960,6 +965,10 @@ func (s *Scene) updateCombat(in input.Input) (bool, error) {
 		// ⚠ **清單開著的時候按鍵歸清單**，不然數字鍵會被當成指令熱鍵。
 		if c.WeaponPicking() {
 			c.PickWeapon(input.Upper(in.Char))
+		} else if c.HirePicking() {
+			// ⚠ **「哪一組？」開著的時候數字鍵歸它**——少了這一條，
+			// `H` 開得起來、按下去卻沒有任何反應，而畫面上只是選單又出現一次。
+			c.PickHire(input.Upper(in.Char))
 		} else if input.Upper(in.Char) == 'U' {
 			s.beginCombatUse()
 			return true, nil
@@ -1000,6 +1009,8 @@ func (s *Scene) updateCombat(in input.Input) (bool, error) {
 	switch {
 	case c.WeaponPicking():
 		s.showWeaponPick()
+	case c.HirePicking():
+		s.showHirePick()
 	case s.use.stage != useStageOff:
 		// `USE` 的選單自己會畫，不要再把指令選單接上去。
 	default:
@@ -1091,6 +1102,16 @@ func oneLine(text string) string {
 func (s *Scene) combatOverMessage(won bool, out EncounterResult) (string, string) {
 	if !won {
 		return "The party has fallen.", s.uiText("combat.fallen")
+	}
+	// 有人入隊就先講那件事——**一回合的訊息只看得到最後一句**，
+	// 而「雇到人了」比「戰鬥結束」重要得多（`docs/re/114` §5）。
+	if len(out.Joined) > 0 {
+		name := out.Joined[0]
+		zh := ""
+		if f := s.uiText("hire.joins"); len(f) > 0 {
+			zh = fmt.Sprintf(f, name)
+		}
+		return name + " joins the party.", zh
 	}
 	total := uint32(0)
 	for _, xp := range out.XPGained {
@@ -2001,6 +2022,35 @@ func (s *Scene) showWeaponPick() {
 	}
 	// 中文：名字走目錄的物品名，其餘的框架字是重製版自己的（`ui:` 前綴）。
 	if zh := s.weaponPickCJK(); zh != "" {
+		if len(s.cjk) > 0 {
+			s.cjk = s.cjk + string('\n') + zh
+		} else {
+			s.cjk = zh
+		}
+		s.message = ""
+	}
+	s.dirty = true
+}
+
+// showHirePick 把「哪一組？」的清單畫出來（`docs/re/110` §2）。
+//
+// 與換武器那一份同一個形狀：英文接在訊息後面，有中文就整段換成中文。
+func (s *Scene) showHirePick() {
+	c := s.combat
+	if c == nil || !c.HirePicking() {
+		return
+	}
+	lines := c.HirePickLines(c.GroupName)
+	if len(lines) == 0 {
+		return
+	}
+	en := strings.Join(lines, "\r")
+	if s.message != "" {
+		s.message += "\r" + en
+	} else {
+		s.message = en
+	}
+	if zh := c.HirePickCJK(); zh != "" {
 		if len(s.cjk) > 0 {
 			s.cjk = s.cjk + string('\n') + zh
 		} else {

@@ -11,8 +11,9 @@ import (
 
 // hireScene 造一場「有一組敵人、地圖上有 NPC 記錄」的戰鬥。
 //
-// ⚠ 遭遇記錄是**手造的**：出貨資料裡找不到 `+0x09` 帶雇用旗標的靜態記錄
-// （`docs/re/110` §6 記著這個開口）。這裡驗的是「拿到那個旗標之後會怎樣」。
+// 遭遇記錄是**手造的**：這一組驗的是「拿到那個旗標之後會怎樣」，
+// 把公式與分支釘在原地。**出貨資料裡真的有 14 筆帶旗標的遭遇**
+// （`docs/re/114` §4），那一側由 `hiredata_test.go` 端到端守著。
 func hireScene(t *testing.T, blockID int) *CombatScene {
 	t.Helper()
 	rom := openRomForPlay(t)
