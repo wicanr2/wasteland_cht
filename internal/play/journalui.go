@@ -90,6 +90,9 @@ func (s *Scene) openJournal(n int) {
 // showJournalPage 把目前這一頁畫進訊息視窗。
 func (s *Scene) showJournalPage() {
 	n := s.journalAt
+	// 換一段就從頭讀起。**要在後日談那條路之前歸零**——它 return 得比正文早，
+	// 寫在下面的話從長段落翻到後日談會停在半路。
+	s.journalScroll = 0
 	// 後日談自成一區：正文不在段落書裡，在執行檔的結局字串表
 	// （`docs/re/96` §7）。原版玩不到，重製版收進手札保存。
 	if i := game.EpilogueIndex(n); i != 0 {
@@ -146,6 +149,15 @@ func (s *Scene) setJournalHeader(n int, sec string) {
 }
 
 // updateJournal 是手札模式的按鍵。回傳 false 表示要離開遊戲。
+//
+// 兩組手勢分工（使用者定案 2026-08-18）：
+//
+//	I／K（與 ←／→）  換段落
+//	↑／↓（與 W／S）  在同一段落裡捲動
+//
+// ⚠ **`I`／`K` 只能從 `Char` 認**：移動鍵是方向鍵與 `WASD`（`internal/input`
+// 的 `Bindings`），`IKJL` 沒有綁定，只會以字元進來。以前標題寫著「I／K 翻頁」
+// 而程式只看 `Dir`——**按 I 什麼都不會發生，而畫面上看不出來**。
 func (s *Scene) updateJournal(in input.Input) (bool, error) {
 	switch {
 	case in.Action == input.ActionCancel,
@@ -154,19 +166,45 @@ func (s *Scene) updateJournal(in input.Input) (bool, error) {
 		s.message = ""
 		s.cjk = ""
 		s.journalHead = ""
+		s.journalScroll = 0
 		s.dirty = true
-	case in.Dir == input.DirUp || in.Dir == input.DirLeft:
+	case input.Upper(in.Char) == 'I', in.Dir == input.DirLeft:
 		if s.journalAt > 1 {
 			s.journalAt--
 			s.showJournalPage()
 		}
-	case in.Dir == input.DirDown || in.Dir == input.DirRight:
+	case input.Upper(in.Char) == 'K', in.Dir == input.DirRight:
 		if s.journalAt < game.JournalPages {
 			s.journalAt++
 			s.showJournalPage()
 		}
+	case in.Dir == input.DirUp:
+		s.scrollJournal(-1)
+	case in.Dir == input.DirDown:
+		s.scrollJournal(1)
 	}
 	return true, nil
+}
+
+// scrollJournal 在同一段落裡上下捲，夾在 0 與「多出來的列數」之間。
+//
+// ⚠ 上限要**每次重算**：段落長度不同，而且視窗高度在戰鬥時會變（`msgRect`）。
+// 記一個算好的上限遲早會與畫面不一致，而症狀是「捲到底還有字看不到」。
+func (s *Scene) scrollJournal(d int) {
+	rect := s.msgRect()
+	max := overflowRows(s.cjk, rect, s.bodyStart(rect))
+	at := s.journalScroll + d
+	if at < 0 {
+		at = 0
+	}
+	if at > max {
+		at = max
+	}
+	if at == s.journalScroll {
+		return
+	}
+	s.journalScroll = at
+	s.dirty = true
 }
 
 // showEpiloguePage 畫後日談的一頁。

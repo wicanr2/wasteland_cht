@@ -37,8 +37,8 @@ func TestJournalOpensAndPages(t *testing.T) {
 		t.Errorf("第 %d 段沒有正文", first)
 	}
 
-	// 往下翻一段。
-	if _, err := s.Update(input.Input{Dir: input.DirDown}); err != nil {
+	// 往下翻一段。**換段是 `K`／`→`**，上下鍵留給段落內捲動（使用者定案 2026-08-18）。
+	if _, err := s.Update(input.Input{Dir: input.DirNone, Char: 'K'}); err != nil {
 		t.Fatal(err)
 	}
 	if s.journalAt != first+1 {
@@ -52,7 +52,7 @@ func TestJournalOpensAndPages(t *testing.T) {
 	// 翻到頭不能越界。**界是手札的總頁數**（段落書 ＋ 後日談），
 	// 不是段落書的 162——後日談收在最後四頁（`docs/re/96` §7）。
 	s.journalAt = game.JournalPages
-	if _, err := s.Update(input.Input{Dir: input.DirDown}); err != nil {
+	if _, err := s.Update(input.Input{Dir: input.DirNone, Char: 'K'}); err != nil {
 		t.Fatal(err)
 	}
 	if s.journalAt != game.JournalPages {

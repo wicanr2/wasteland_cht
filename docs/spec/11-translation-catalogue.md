@@ -30,8 +30,11 @@ translations/zh-Hant.cat      編譯產物（Big5，Go 讀這個）
   （`CLAUDE.md` §7 不散布）。每個人從自己那份原版抽。
   公開的只有 `zh-Hant/`（我們翻的）與 `glossary.md`。
 - **中文檔是人翻的**，UTF-8、TSV、一行一條，diff 得動。
-- **`.cat` 是編譯產物**：`tools/build_lang.py` 把 UTF-8 轉成 Big5 並檢查排版，
-  Go 只讀它。**Big5 編碼的知識放在 Python，Go 不需要依賴任何編碼函式庫。**
+- **`.cat` 是編譯產物**：`tools/build_lang.py` 檢查排版與 Big5 覆蓋，
+  存成 **UTF-8**（v2），Go 只讀它。
+  **整條管線是 UTF-8，只有查倚天字模那一刻才轉 Big5**
+  （`render.DrawRune`，全專案唯一一處）——倚天字型是 Big5 排列，
+  被綁死的只有字型索引那一層。取捨與量測在 `docs/utf8-experiment.md`。
 
 ## 3. Key 的形狀
 
@@ -114,7 +117,7 @@ key <TAB> text
 magic "WLCAT\0"  (6 bytes)
 版本   uint16
 條數   uint32
-逐條：keyLen uint16、key（UTF-8）、textLen uint16、text（Big5 bytes）
+逐條：keyLen uint16、key（UTF-8）、textLen uint16、text（UTF-8 bytes）
 ```
 
 刻意做成最笨的格式：**Go 那邊只要會讀就好**，所有判斷都在編譯時做完了。
