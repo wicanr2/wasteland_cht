@@ -28,6 +28,9 @@ type Scene struct {
 	save  *assets.Save
 	// saveDir 是 `Save` 指令要寫回的資料目錄；空的就不寫檔（見 SetSaveDir）。
 	saveDir string
+	// longNames 是每個角色槽的完整名字（`internal/play/names.go`）。
+	// 存檔那一格只有 13 bytes，超過的部分靠這一份。
+	longNames longNames
 
 	frame   *render.Frame
 	dirty   bool
@@ -37,7 +40,7 @@ type Scene struct {
 	// （字型檔玩家自備，docs/spec/10 §4）。
 	eten *assets.ETenFont
 	// cjk 是這一步要顯示的中文（Big5），空的就用 message 走英文路徑。
-	cjk []byte
+	cjk string
 	// cat 是翻譯目錄。沒有就整條中文關掉，遊戲跑英文（docs/spec/11 §7）。
 	cat *lang.Catalogue
 	// blockFile／blockID 是目前這張地圖的來源，組 key 用。
@@ -85,7 +88,7 @@ type Scene struct {
 	mouse input.Mouse
 
 	// journalHead 是手札的標題列（中文，Big5）。空的就走英文 message。
-	journalHead []byte
+	journalHead string
 
 	// placeIntro 是開場那句地點名的英文原文（存檔的全域狀態，`docs/re/30`）。
 	// 留著是因為**它要在三個不同的時機重印**：建場景、載完翻譯目錄、
@@ -192,7 +195,7 @@ func (s *Scene) sayPlace() {
 	if zh := s.placeCJK(s.placeIntro); len(zh) > 0 {
 		s.message, s.cjk = "", zh
 	} else {
-		s.message, s.cjk = s.placeIntro, nil
+		s.message, s.cjk = s.placeIntro, ""
 	}
 	s.dirty = true
 }
@@ -208,10 +211,10 @@ func (s *Scene) LoadFont(dir string) error {
 	return nil
 }
 
-// SetCJK 設定這一步要顯示的中文訊息（Big5）。翻譯目錄接上之前，
+// SetCJK 設定這一步要顯示的中文訊息（UTF-8）。翻譯目錄接上之前，
 // 這是讓呈現層拿到中文的唯一入口——規則層永遠只給編號。
-func (s *Scene) SetCJK(b []byte) {
-	s.cjk = b
+func (s *Scene) SetCJK(text string) {
+	s.cjk = text
 	s.dirty = true
 }
 
@@ -292,12 +295,12 @@ func (s *Scene) HiFrame() *render.HiFrame {
 	if s.message != "" || len(s.journalHead) > 0 {
 		row++
 	}
-	eachMessageCell(s.cjk, rect, row, func(col, row int, ascii, hi, lo byte) {
-		if ascii != 0 {
-			s.drawASCII(h, ascii, col, row)
+	eachMessageCell(s.cjk, rect, row, func(col, row int, r rune) {
+		if r < 0x80 {
+			s.drawASCII(h, byte(r), col, row)
 			return
 		}
-		h.DrawCJK(s.eten, hi, lo, col, row, 15)
+		h.DrawRune(s.eten, r, col, row, 15)
 	})
 	s.drawCursor(h)
 	return h
@@ -377,8 +380,7 @@ func (s *Scene) msgRect() textRect {
 //
 // ⚠ 切掉後面那種寫法在「只印一則訊息」時看起來完全正常，
 // 要到戰鬥指令階段問第二個人才分得出來——那時第三、四個人的選單整段不見。
-func eachMessageCell(text []byte, rect textRect, row int,
-	f func(col, row int, ascii, hi, lo byte)) {
+func eachMessageCell(text string, rect textRect, row int, f func(col, row int, r rune)) {
 	// ⚠ **上緣是傳進來的起始列，不是區域的第一列。** 呼叫端會把起點往下推一行
 	// 讓出標題（手札的「手札 1／166」、英文訊息那一行）；用 `rect.Row` 當上緣的話，
 	// 捲動之後的正文會蓋在標題上，而**兩行疊在一起還是看得到字**——
@@ -386,46 +388,34 @@ func eachMessageCell(text []byte, rect textRect, row int,
 	top := row
 	// 先量最後一格落在哪一列，超出下緣就整段往上挪。
 	last := row
-	walkMessage(text, rect, row, func(_, r int, _, _, _ byte) { last = r })
+	walkMessage(text, rect, row, func(_, r int, _ rune) { last = r })
 	if over := last - rect.LastRow(); over > 0 {
 		row -= over
 	}
-	walkMessage(text, rect, row, func(col, r int, a, hi, lo byte) {
+	walkMessage(text, rect, row, func(col, r int, ch rune) {
 		if r < top {
 			return // 已經捲出上緣的行
 		}
-		f(col, r, a, hi, lo)
+		f(col, r, ch)
 	})
 }
 
 // walkMessage 是不看區域下緣的逐格走訪——`eachMessageCell` 量一次、畫一次，
 // 兩次都走這一支。**只有一份換行邏輯**，量到的與畫出來的不會漂。
-func walkMessage(text []byte, rect textRect, row int,
-	f func(col, row int, ascii, hi, lo byte)) {
+func walkMessage(text string, rect textRect, row int, f func(col, row int, r rune)) {
 	col := rect.Col
-	for i := 0; i < len(text); {
+	for _, c := range text {
 		if col >= rect.Col+rect.Width {
 			col = rect.Col
 			row++
 		}
-		c := text[i]
-		switch {
-		case c == '\r' || c == '\n':
+		if c == '\r' || c == '\n' {
 			// 原版的斷行控制碼：換一行、不佔格。
 			col = rect.Col
 			row++
-			i++
 			continue
-		case c < 0x80:
-			f(col, row, c, 0, 0)
-			i++
-		default:
-			if i+1 >= len(text) {
-				return // 落單的高位元組：跳過，不要拿下一輪的 byte 湊
-			}
-			f(col, row, 0, text[i], text[i+1])
-			i += 2
 		}
+		f(col, row, c)
 		col++
 	}
 }
@@ -634,6 +624,9 @@ func loadPartyGroup(save *assets.Save, n int) (*game.Party, int, error) {
 		if err != nil {
 			return nil, 0, fmt.Errorf("角色記錄 %d：%w", id, err)
 		}
+		// ⚠ 名字這裡是存檔裡那 13 bytes（截斷版）。完整名字在側車檔，
+		// 由 `Scene.applyLongNames` 在載完之後蓋上去——**這一支是自由函式，
+		// 拿不到 Scene**，不要在這裡查側車檔。
 		p.Members = append(p.Members, game.LoadCharacter(raw))
 	}
 	if len(p.Members) == 0 {
@@ -699,7 +692,7 @@ func (s *Scene) Message() string { return s.message }
 
 // CJK 是這一步的中文訊息（Big5）。空的表示這一步走英文路徑。
 // 給驗收工具看的——畫面自己直接讀內部欄位。
-func (s *Scene) CJK() []byte { return s.cjk }
+func (s *Scene) CJK() string { return s.cjk }
 
 // Mode 是畫面現在停在哪一層，順序與 Update 的路由完全一致
 // （`docs/spec/24`）。**驗收工具用**：訊息列看不出「進了設施但選單沒開」
@@ -929,7 +922,7 @@ func (s *Scene) updateCombat(in input.Input) (bool, error) {
 		s.dirty = true
 		if n := len(res.Lines); n > 0 {
 			s.message = res.Lines[n-1]
-			s.cjk = nil
+			s.cjk = ""
 			if len(res.CJK) == n {
 				s.cjk = res.CJK[n-1]
 			}
@@ -991,17 +984,17 @@ func (s *Scene) showCombatPrompt() {
 	// 中文：名字 ＋ 字串 55（`, 選擇：` ＋ 七個 `\x10<文字>`）。
 	// `RenderBytes` 會把 `\x10` 拿掉、把 `\x0D` 留成斷行控制碼，熱鍵字母留著——
 	// **不要壓成一行**，那一塊有 13 列。
-	var zh []byte
-	if b := c.zhStr(strChoose, textlayout.Options{}); b != nil {
-		zh = append([]byte(m.Name), b...)
+	var zh string
+	if b := c.zhStr(strChoose, textlayout.Options{}); b != "" {
+		zh = m.Name + b
 	}
 	// 這一輪已經有話要說（遭遇開始、上一回合的結果）就接在後面，
 	// **不要蓋掉**——玩家要同時看到發生什麼與能按什麼。
 	switch {
-	case zh != nil && len(s.cjk) > 0:
-		s.cjk = append(append(append([]byte{}, s.cjk...), '\n'), zh...)
+	case zh != "" && len(s.cjk) > 0:
+		s.cjk = s.cjk + string('\n') + zh
 		s.message = ""
-	case zh != nil:
+	case zh != "":
 		s.cjk, s.message = zh, ""
 	case s.message != "":
 		s.message += "\r" + en
@@ -1016,31 +1009,28 @@ func (s *Scene) showCombatPrompt() {
 // 指令選單在原版是**每個選項一行**（七行），而訊息視窗只有六行、
 // 原版怎麼容納還沒逆向（`docs/re/40` §5）。中文一個字一格，
 // 七個選項排成一行是 35 格左右，38 格的視窗放得下。
-func oneLine(b []byte) []byte {
-	out := make([]byte, 0, len(b))
+func oneLine(text string) string {
+	var out strings.Builder
 	space := true // 開頭的空白一律吃掉
-	for _, c := range b {
+	for _, c := range text {
 		if c == '\n' || c == '\r' || c == ' ' {
 			if !space {
-				out = append(out, ' ')
+				out.WriteRune(' ')
 				space = true
 			}
 			continue
 		}
-		out = append(out, c)
+		out.WriteRune(c)
 		space = false
 	}
-	for len(out) > 0 && out[len(out)-1] == ' ' {
-		out = out[:len(out)-1]
-	}
-	return out
+	return strings.TrimRight(out.String(), " ")
 }
 
 // combatOverMessage 是戰鬥結束那一行（英文 ＋ 中文）。
 //
 // 三句都是重製版自己的收尾（原版打完是回地圖、經驗值逐人前後相減報，
 // `docs/re/51` §3），所以走 `ui:`。
-func (s *Scene) combatOverMessage(won bool, out EncounterResult) (string, []byte) {
+func (s *Scene) combatOverMessage(won bool, out EncounterResult) (string, string) {
 	if !won {
 		return "The party has fallen.", s.uiText("combat.fallen")
 	}
@@ -1052,9 +1042,9 @@ func (s *Scene) combatOverMessage(won bool, out EncounterResult) (string, []byte
 		return "The battle is over.", s.uiText("combat.over")
 	}
 	en := fmt.Sprintf("The party gains %d experience.", total)
-	var zh []byte
+	var zh string
 	if f := s.uiText("combat.partyxp"); len(f) > 0 {
-		zh = []byte(fmt.Sprintf(string(f), total))
+		zh = fmt.Sprintf(f, total)
 	}
 	return en, zh
 }
@@ -1187,9 +1177,9 @@ func (s *Scene) walk(dir game.Direction) (bool, error) {
 			zh := s.cjkLookup(lang.BlockKey(s.blockFile, s.blockID, n), textlayout.Options{})
 			// 有中文就只加中文——`sayT` 已經把英文那一份清掉了，
 			// 兩份疊上去訊息視窗六行放不下（`docs/spec/10` §2）。
-			if s.cjk != nil && zh != nil {
-				s.cjk = append(append([]byte{}, zh...), s.cjk...)
-			} else if s.cjk == nil {
+			if s.cjk != "" && zh != "" {
+				s.cjk = zh + s.cjk
+			} else if s.cjk == "" {
 				s.message = s.world.Block.Strings[n] + s.message
 			}
 		}
@@ -1237,7 +1227,7 @@ func (s *Scene) walk(dir game.Direction) (bool, error) {
 	if len(res.Gate.Failed) > 0 {
 		if line := s.gateHurtLine(res.Gate); line != "" {
 			s.message = line
-			if zh := s.gateHurtCJK(res.Gate); zh != nil {
+			if zh := s.gateHurtCJK(res.Gate); zh != "" {
 				s.message, s.cjk = "", zh
 			}
 		}
@@ -1432,7 +1422,16 @@ func (s *Scene) StoreTo(save *assets.Save) error {
 		if err != nil {
 			return err
 		}
-		s.world.Party.Members[i].StoreTo(raw)
+		m := s.world.Party.Members[i]
+		// ⚠ **`StoreTo` 只寫得下 13 bytes**（`game.NameForSave` 會在 rune
+		// 邊界截）。完整名字記進側車檔，讀檔時蓋回來。
+		m.StoreTo(raw)
+		if int(id) < NameSlots {
+			s.longNames[id] = ""
+			if !game.NameFitsSave(m.Name) {
+				s.longNames[id] = m.Name
+			}
+		}
 		i++
 	}
 	return nil
@@ -1459,19 +1458,48 @@ func (s *Scene) setStock(id, v byte) {
 //
 // 空字串 ＝ **只更新記憶體、不寫檔**，無頭工具與測試用；
 // 那時 `Save` 會照實說它沒有寫出去，不會報一句「存好了」。
-func (s *Scene) SetSaveDir(dir string) { s.saveDir = dir }
+// SetSaveDir 設定存檔目錄，順便把長名字的側車檔讀進來。
+//
+// ⚠ **要在載入隊伍之前呼叫**——名字是在 `partyFromSave` 那一刻蓋上去的，
+// 之後才設目錄的話這一輪的名字仍然是存檔裡那 13 bytes（下次讀檔才對）。
+func (s *Scene) SetSaveDir(dir string) {
+	s.saveDir = dir
+	s.longNames = loadLongNames(dir)
+	// 目錄設得比隊伍晚時，把已經載進來的角色名字補上。
+	s.applyLongNames()
+}
+
+// applyLongNames 把側車檔的名字蓋到目前這一組隊伍上。
+func (s *Scene) applyLongNames() {
+	if s.save == nil || s.world == nil || s.world.Party == nil {
+		return
+	}
+	g := s.save.SlotGroups()[s.groupID]
+	i := 0
+	for _, id := range g.Members {
+		if id == 0 || i >= len(s.world.Party.Members) {
+			continue
+		}
+		if m := s.world.Party.Members[i]; m != nil && int(id) < NameSlots {
+			if n := s.longNames[id]; n != "" {
+				m.Name = n
+			}
+		}
+		i++
+	}
+}
 
 // translate 查這一步的訊息有沒有中文。查不到就回 nil，顯示原文
 // （docs/spec/11 §7：半成品的中文化要能玩）。
-func (s *Scene) translate(res game.StepResult) []byte {
+func (s *Scene) translate(res game.StepResult) string {
 	if s.cat == nil {
-		return nil
+		return ""
 	}
 	// ⚠ **key 的 slot 是字串編號，不是記錄編號。** `describe` 印的是
 	// `Event.Strings` 指到的那幾條，翻譯要查同一組編號——
 	// 拿 `Event.Record` 去查會**每次都查不到**，而症狀只是「畫面上是英文」，
 	// 看起來像還沒翻。
-	var out []byte
+	var out string
 	for _, n := range s.stringSlots(res) {
 		if n <= 0 {
 			continue
@@ -1480,8 +1508,8 @@ func (s *Scene) translate(res game.StepResult) []byte {
 		// 單數、男性、him——**原版在印之前設的那三個變數還沒 RE**
 		// （`ds:4687h`／`ds:470Bh`／`ds:471Ah`），地圖敘述大多不帶變形碼。
 		if b := s.cjkLookup(lang.BlockKey(s.blockFile, s.blockID, n),
-			textlayout.Options{}); b != nil {
-			out = append(out, b...)
+			textlayout.Options{}); b != "" {
+			out += b
 		}
 	}
 	return out
@@ -1700,7 +1728,7 @@ func (s *Scene) gateHurtLine(g game.GateResult) string {
 
 // gateHurtCJK 是同一句的中文：名字 ＋ 字串 0x63（` gets hurt for `）＋ 點數。
 // 查不到就回 nil，畫面留英文那一句。
-func (s *Scene) gateHurtCJK(g game.GateResult) []byte {
+func (s *Scene) gateHurtCJK(g game.GateResult) string {
 	total := 0
 	for _, h := range g.Failed {
 		if h.Field == 0x1D && h.Amount < 0 {
@@ -1708,17 +1736,17 @@ func (s *Scene) gateHurtCJK(g game.GateResult) []byte {
 		}
 	}
 	if total == 0 {
-		return nil
+		return ""
 	}
 	name := s.uiText("gate.party")
 	if len(g.Failed) == 1 {
 		if m := g.Failed[0].Member; m >= 0 && m < len(s.world.Party.Members) {
-			name = []byte(s.world.Party.Members[m].Name)
+			name = s.world.Party.Members[m].Name
 		}
 	}
 	return zhJoin(name,
 		s.cjkExe(exeTable1, 0x63, textlayout.Options{}),
-		[]byte(fmt.Sprintf("%d", total)),
+		fmt.Sprintf("%d", total),
 		s.uiText("gate.damage"))
 }
 
@@ -1727,19 +1755,19 @@ func (s *Scene) gateHurtCJK(g game.GateResult) []byte {
 // ⚠ 不解碼的話症狀很像「這句沒翻」：`\x0A` 就是 `\n`，畫面上會把單複數
 // **兩段都印出來**、中間多一個換行；`\x0B`（名字）、`\x0F`（數量）、
 // `\x10`（熱鍵標記）則變成怪字元。譯文裡這些碼很常見（`docs/re/28`）。
-func (s *Scene) cjkLookup(key string, opt textlayout.Options) []byte {
+func (s *Scene) cjkLookup(key string, opt textlayout.Options) string {
 	if s.cat == nil {
-		return nil
+		return ""
 	}
 	b, ok := s.cat.Lookup(key)
 	if !ok {
-		return nil
+		return ""
 	}
-	return textlayout.RenderBytes(b, opt)
+	return textlayout.Render(b, opt)
 }
 
 // cjkExe 查執行檔字串表第 table 張的第 n 條譯文。
-func (s *Scene) cjkExe(table, n int, opt textlayout.Options) []byte {
+func (s *Scene) cjkExe(table, n int, opt textlayout.Options) string {
 	return s.cjkLookup(lang.ExeKey(table, n), opt)
 }
 
@@ -1757,7 +1785,7 @@ func (s *Scene) say(n int, opt textlayout.Options) { s.sayT(exeTable1, n, opt) }
 func (s *Scene) sayT(table, n int, opt textlayout.Options) {
 	s.message = s.exeStringN(table, n)
 	s.cjk = s.cjkExe(table, n, opt)
-	if s.cjk != nil {
+	if s.cjk != "" {
 		// 有中文就不要再畫英文——訊息視窗只有六行，兩份疊上去誰都讀不完
 		// （英文 8 × 8、中文 16 × 15，`docs/spec/10` §2）。
 		s.message = ""
@@ -1775,7 +1803,7 @@ func (s *Scene) cjkFmt(uiName string, args ...any) {
 	if len(f) == 0 {
 		return
 	}
-	s.cjk = []byte(fmt.Sprintf(string(f), args...))
+	s.cjk = fmt.Sprintf(f, args...)
 	s.message = ""
 	s.dirty = true
 }
@@ -1784,21 +1812,21 @@ func (s *Scene) cjkFmt(uiName string, args ...any) {
 func (s *Scene) sayEN(en string, uiName string) {
 	s.message = en
 	s.cjk = s.uiText(uiName)
-	if s.cjk != nil {
+	if s.cjk != "" {
 		s.message = ""
 	}
 	s.dirty = true
 }
 
 // uiText 取重製版介面文字的中文（Big5）。沒有翻譯就回 nil。
-func (s *Scene) uiText(name string) []byte {
+func (s *Scene) uiText(name string) string {
 	if s.cat == nil {
-		return nil
+		return ""
 	}
 	if b, ok := s.cat.Lookup(lang.UIKey(name)); ok {
 		return b
 	}
-	return nil
+	return ""
 }
 
 // drawASCII 在高解畫面上畫一個 ASCII 字元。
@@ -1818,15 +1846,15 @@ func (s *Scene) drawASCII(h *render.HiFrame, c byte, col, row int) {
 
 // drawCJKLine 在高解畫面上畫一行中英混排的字（Big5）。
 //
-// ⚠ **逐 byte 判型別，不能整串兩兩配對**——這一行一定夾著熱鍵字母
-// （「U 使用」），把 `U` 當成 Big5 高位元組會讓整行往後錯開。
-func (s *Scene) drawCJKLine(h *render.HiFrame, text []byte, col, row int) {
-	eachCell(text, col, row, func(col, row int, c byte, hi, lo byte) {
-		if c != 0 {
-			s.drawASCII(h, c, col, row)
+// UTF-8 逐 rune 走，ASCII 與漢字自然分得開——**這一行一定夾著熱鍵字母**
+// （「U 使用」），以前走 Big5 得小心別把 `U` 當成高位元組。
+func (s *Scene) drawCJKLine(h *render.HiFrame, text string, col, row int) {
+	eachCell(text, col, row, func(col, row int, r rune) {
+		if r < 0x80 {
+			s.drawASCII(h, byte(r), col, row)
 			return
 		}
-		h.DrawCJK(s.eten, hi, lo, col, row, 15)
+		h.DrawRune(s.eten, r, col, row, 15)
 	})
 }
 
@@ -1835,24 +1863,15 @@ func (s *Scene) drawCJKLine(h *render.HiFrame, text []byte, col, row int) {
 // **繪製與滑鼠命中判定共用這一支**（`docs/spec/29` §3）：兩邊各走一次的話，
 // 遲早會漂成「看到的字」與「點到的字」不一致，而那種錯不會有任何症狀。
 //
-// ⚠ **逐 byte 判型別，不能整串兩兩配對**——這一行一定夾著熱鍵字母
-// （「U 使用」），把 `U` 當成 Big5 高位元組會讓整行往後錯開。
+// UTF-8 逐 rune 走，ASCII 與漢字自然分得開——**這一行一定夾著熱鍵字母**
+// （「U 使用」），以前走 Big5 得小心別把 `U` 當成高位元組。
 // ⚠ **一個中文字佔一格，不是兩格**（`docs/spec/10` §3）。
-func eachCell(text []byte, col, row int, f func(col, row int, ascii, hi, lo byte)) {
-	for i := 0; i < len(text); {
-		c := text[i]
-		if c < 0x80 {
-			f(col, row, c, 0, 0)
-			col++
-			i++
-			continue
-		}
-		if i+1 >= len(text) {
-			return
-		}
-		f(col, row, 0, text[i], text[i+1])
+func eachCell(text string, col, row int, f func(col, row int, r rune)) {
+	// UTF-8 逐字元走：`range` 直接給 rune，**不用自己配對位元組**。
+	// 以前走 Big5 要判高位元組、要防落單，那些坑在這裡都不存在。
+	for _, r := range text {
+		f(col, row, r)
 		col++
-		i += 2
 	}
 }
 
@@ -1873,9 +1892,9 @@ func (s *Scene) showWeaponPick() {
 		s.message = en
 	}
 	// 中文：名字走目錄的物品名，其餘的框架字是重製版自己的（`ui:` 前綴）。
-	if zh := s.weaponPickCJK(); zh != nil {
+	if zh := s.weaponPickCJK(); zh != "" {
 		if len(s.cjk) > 0 {
-			s.cjk = append(append(append([]byte{}, s.cjk...), '\n'), zh...)
+			s.cjk = s.cjk + string('\n') + zh
 		} else {
 			s.cjk = zh
 		}
@@ -1885,33 +1904,31 @@ func (s *Scene) showWeaponPick() {
 }
 
 // weaponPickCJK 是換武器清單的中文。查不到框架字就回 nil 走英文那一份。
-func (s *Scene) weaponPickCJK() []byte {
+func (s *Scene) weaponPickCJK() string {
 	c := s.combat
 	m := c.Battle.Party.Members[c.Turn]
 	if m == nil {
-		return nil
+		return ""
 	}
 	head := s.uiText("combat.which")
 	if len(head) == 0 {
-		return nil
+		return ""
 	}
-	out := append([]byte(m.Name), head...)
+	out := m.Name + head
 	for i, slot := range c.pick.pageSlice() {
 		mark := byte(' ')
 		if slot == m.EquipIndex || slot == m.ArmorIndex {
 			mark = '*'
 		}
-		out = append(out, '\r', byte('1'+i), mark)
-		out = append(out, singularBytes(s.itemNameCJK(m.Items[slot-1].ID))...)
+		out += "\r" + string(rune('1'+i)) + string(rune(mark))
+		out += singular(s.itemNameCJK(m.Items[slot-1].ID))
 	}
 	// ⚠ **翻頁鍵要印出來**，不然玩家看得到「第一頁／共二頁」卻不知道按什麼。
 	// 走與 `USE` 同一條 `ui:use.morepage`（「0 翻頁」），頁碼用中文數字——
 	// 阿拉伯數字會被滑鼠的「點到哪一格送那一格的字元」誤判成選項。
 	if c.pick.pages() > 1 {
 		if more := s.uiText("use.morepage"); len(more) > 0 {
-			out = append(out, '\r')
-			out = append(out, more...)
-			out = append(out, cjkPageLabel(c.pick.page+1, c.pick.pages())...)
+			out += "\r" + more + cjkPageLabel(c.pick.page+1, c.pick.pages())
 		}
 	}
 	return out

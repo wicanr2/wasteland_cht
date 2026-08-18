@@ -197,8 +197,42 @@ func putRank(raw []byte, rank string) {
 	raw[recRank+n] = 0
 }
 
-// putCString 寫入名字並補 NUL，超長就截斷（原版欄位是固定長度）。
+// NameFieldBytes 是角色記錄裡名字欄的長度（`+0x00`–`+0x0C`，`docs/re/15`）。
+//
+// ⚠ **這一格是原版的，不能加長**——存檔要 byte-for-byte round-trip。
+// 記憶體裡的名字可以更長（`input.MaxName` ＝ 30 bytes ＝ 10 個中文字），
+// 超過這 13 bytes 的部分存進側車檔 `WLNAMES`（`internal/play/names.go`）。
+const NameFieldBytes = 13
+
+// NameForSave 把名字裁成寫得進欄位的樣子。
+//
+// ⚠ **一定要在 rune 邊界截。** UTF-8 一個漢字三個 byte，從中間切下去
+// 存檔裡會留下半個字，讀回來就是亂碼——而且那個亂碼會**寫進玩家的存檔**，
+// 不是畫面上看看而已。
+func NameForSave(name string) string {
+	if len(name) <= NameFieldBytes {
+		return name
+	}
+	cut := 0
+	for i := range name {
+		if i > NameFieldBytes {
+			break
+		}
+		cut = i
+	}
+	return name[:cut]
+}
+
+// NameFitsSave 回報這個名字寫得進存檔而不會被截。
+//
+// 呈現層拿它提醒玩家——**不要靜靜截掉**，玩家會看到自己沒打過的名字。
+func NameFitsSave(name string) bool { return len(name) <= NameFieldBytes }
+
+// putCString 寫入名字並補 NUL，超長就在 rune 邊界截（原版欄位是固定長度）。
 func putCString(dst []byte, s string) {
+	if len(s) > len(dst) {
+		s = NameForSave(s)
+	}
 	n := copy(dst, s)
 	for i := n; i < len(dst); i++ {
 		dst[i] = 0

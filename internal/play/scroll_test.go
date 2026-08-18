@@ -18,13 +18,11 @@ func TestMessageCellsScrollInsteadOfClipping(t *testing.T) {
 	for _, s := range []string{"one", "two", "three", "four", "five"} {
 		lines = append(lines, s)
 	}
-	text := []byte(strings.Join(lines, "\r"))
+	text := strings.Join(lines, "\r")
 
 	seen := map[int]string{}
-	eachMessageCell(text, rect, rect.Row, func(col, row int, a, hi, lo byte) {
-		if a != 0 {
-			seen[row] += string(a)
-		}
+	eachMessageCell(text, rect, rect.Row, func(col, row int, r rune) {
+		seen[row] += string(r)
 	})
 	// 三列的區域要看到最後三行。
 	want := map[int]string{1: "three", 2: "four", 3: "five"}
@@ -42,10 +40,8 @@ func TestMessageCellsScrollInsteadOfClipping(t *testing.T) {
 func TestMessageCellsDoNotScrollWhenItFits(t *testing.T) {
 	rect := textRect{Col: 15, Row: 1, Width: 24, Height: 5}
 	seen := map[int]string{}
-	eachMessageCell([]byte("aa\rbb"), rect, rect.Row, func(col, row int, a, hi, lo byte) {
-		if a != 0 {
-			seen[row] += string(a)
-		}
+	eachMessageCell("aa\rbb", rect, rect.Row, func(col, row int, r rune) {
+		seen[row] += string(r)
 	})
 	if seen[1] != "aa" || seen[2] != "bb" {
 		t.Errorf("放得下就不該捲，得到 %v", seen)
@@ -72,15 +68,15 @@ func TestScrolledPanelStaysClickable(t *testing.T) {
 		start++
 	}
 	if len(s.cjk) > 0 {
-		eachMessageCell(s.cjk, rect, start, func(col, row int, a, hi, lo byte) {
-			if a > ' ' {
-				drawn[[2]int{col, row}] = a
+		eachMessageCell(s.cjk, rect, start, func(col, row int, r rune) {
+			if r > ' ' && r < 0x80 {
+				drawn[[2]int{col, row}] = byte(r)
 			}
 		})
 	} else {
-		eachMessageCell([]byte(s.message), rect, rect.Row, func(col, row int, a, hi, lo byte) {
-			if a > ' ' {
-				drawn[[2]int{col, row}] = a
+		eachMessageCell(s.message, rect, rect.Row, func(col, row int, r rune) {
+			if r > ' ' && r < 0x80 {
+				drawn[[2]int{col, row}] = byte(r)
 			}
 		})
 	}
@@ -110,10 +106,8 @@ func TestSecondMemberSeesTheWholeMenu(t *testing.T) {
 	}
 	rect := s.msgRect()
 	rows := map[int]string{}
-	eachMessageCell([]byte(msg), rect, rect.Row, func(col, row int, a, hi, lo byte) {
-		if a != 0 {
-			rows[row] += string(a)
-		}
+	eachMessageCell(msg, rect, rect.Row, func(col, row int, r rune) {
+		rows[row] += string(r)
 	})
 	var body []string
 	for r := rect.Row; r <= rect.LastRow(); r++ {
@@ -152,12 +146,10 @@ func TestSecondMemberSeesTheWholeMenu(t *testing.T) {
 func TestScrollDoesNotOverwriteTheHeaderRow(t *testing.T) {
 	rect := textRect{Col: 15, Row: 1, Width: 24, Height: 4}
 	start := rect.Row + 1 // 第 1 列是標題
-	text := []byte("one\rtwo\rthree\rfour\rfive\rsix")
+	text := "one\rtwo\rthree\rfour\rfive\rsix"
 	rows := map[int]string{}
-	eachMessageCell(text, rect, start, func(col, row int, a, hi, lo byte) {
-		if a != 0 {
-			rows[row] += string(rune(a))
-		}
+	eachMessageCell(text, rect, start, func(col, row int, r rune) {
+		rows[row] += string(r)
 	})
 	if _, ok := rows[rect.Row]; ok {
 		t.Errorf("正文畫到標題那一列了：%q（全部：%v）", rows[rect.Row], rows)

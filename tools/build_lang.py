@@ -30,7 +30,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from extract_strings import unescape  # noqa: E402
 
 MAGIC = b"WLCAT\0"
-VERSION = 1
+VERSION = 2
 
 # 這些控制碼是文字變形的分段，數量必須與原文一致（docs/re/28）。
 VARIANT_CODES = (0x0A, 0x0C, 0x0E, 0x0F)
@@ -242,11 +242,14 @@ def main() -> None:
                 f"{key}：\\x10 後的按鍵 原文 {a}、譯文 {b}"
                 "——那個字元同時是點擊該列送出的鍵，不能翻（docs/re/43）"
             )
-        data, missing = to_big5(text)
+        # ⚠ **Big5 檢查留著，但存進 .cat 的是 UTF-8。**
+        # 倚天字型是 Big5 排列，編不出來的字畫不出來——這一關要在編譯期擋掉，
+        # 不能等到執行期 fallback。轉換本身在 Go 那一側（畫的那一刻）做。
+        _, missing = to_big5(text)
         if missing:
             errors.append(f"{key}：Big5 編不出 {''.join(sorted(set(missing)))}")
             continue
-        entries.append((key, data))
+        entries.append((key, text.encode("utf-8")))
 
     if errors:
         for e in errors:

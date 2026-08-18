@@ -11,7 +11,7 @@ package play
 // （`docs/re/100` §3）。
 
 import (
-	"bytes"
+	"strings"
 
 	"github.com/wicanr2/wasteland_cht/internal/game"
 	"github.com/wicanr2/wasteland_cht/internal/input"
@@ -49,21 +49,21 @@ func (s *Scene) beginQuestion(rec []byte) {
 func (s *Scene) showQuestion() {
 	slot := int(s.question.q.Prompt)
 	s.message = ""
-	s.cjk = nil
+	s.cjk = ""
 	if s.world != nil && s.world.Block != nil &&
 		slot >= 0 && slot < len(s.world.Block.Strings) {
 		s.message = s.world.Block.Strings[slot]
 	}
 	if zh := s.cjkLookup(lang.BlockKey(s.blockFile, s.blockID, slot),
-		textlayout.Options{}); zh != nil {
+		textlayout.Options{}); zh != "" {
 		s.cjk = zh
 		s.message = "" // 有中文就不要再畫英文（訊息視窗只有六行）
 	}
 	if !s.question.q.SingleKey {
 		// 打字模式原版會先印一個 `>`（`0x151B6` 的 `sub_19DC3`）。
 		typed := s.question.entry.Text()
-		if s.cjk != nil {
-			s.cjk = append(append(append([]byte{}, s.cjk...), '\r', '>'), typed...)
+		if s.cjk != "" {
+			s.cjk += "\r>" + string(typed)
 		} else {
 			s.message += "\r>" + string(typed)
 		}
@@ -126,7 +126,9 @@ func (s *Scene) answerQuestion(text []byte) {
 	q, rec := s.question.q, s.question.rec
 	answers := make([][]byte, 0, len(q.Answers))
 	for _, slot := range q.Answers {
-		answers = append(answers, s.blockAnswer(int(slot)))
+		// ⚠ 密語比對是**逐 byte 全等**（`sub_18D8E`，`docs/re/46`），
+		// 而輸入層是 ASCII——這條路刻意不走 UTF-8 文字層。
+		answers = append(answers, []byte(s.blockAnswer(int(slot))))
 	}
 	// **照順序試，第一個相等的贏**；全部不中就落到「答案數」那一格，
 	// 也就是答錯那一支（`0x15219` 的 `ds:0A651h`）。
@@ -143,16 +145,16 @@ func (s *Scene) answerQuestion(text []byte) {
 // ⚠ **答案不走翻譯目錄**：比對是逐 byte 全等而輸入層是 ASCII
 // （`docs/re/46` §3），翻成中文玩家就永遠打不出來。
 // `translations/must-not-translate.tsv` 擋的就是這一批。
-func (s *Scene) blockAnswer(slot int) []byte {
+func (s *Scene) blockAnswer(slot int) string {
 	if s.world == nil || s.world.Block == nil ||
 		slot < 0 || slot >= len(s.world.Block.Strings) {
-		return nil
+		return ""
 	}
-	return bytes.TrimRight([]byte(s.world.Block.Strings[slot]), "\r\n ")
+	return strings.TrimRight(s.world.Block.Strings[slot], "\r\n ")
 }
 
 func (s *Scene) closeQuestion() {
 	s.question = questionState{}
-	s.message, s.cjk = "", nil
+	s.message, s.cjk = "", ""
 	s.dirty = true
 }
