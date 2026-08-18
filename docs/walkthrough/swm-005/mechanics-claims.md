@@ -13,60 +13,156 @@
 
 | 狀態 | 意思 |
 |---|---|
-| 待查 | 還沒去對 |
 | 相符 | 逆向結果支持這條敘述 |
-| 有出入 | 逆向結果和這條敘述不一致，差異寫在備註 |
+| 有出入 | 逆向結果和這條敘述不一致，差異寫在下面的逐條依據 |
+| 未定 | 逆向還沒有對應的機制可以驗這一條——**不是「錯」，是「還沒有辦法判斷」** |
+
+⚠ 「未定」與「有出入」要分得開。寫成「有出入」等於宣告攻略記錯，
+而**沒有證據支持的否定與沒有證據支持的肯定一樣糟**。
+逐條依據裡的每一個「未定」都寫著缺什麼，那就是下一輪的入口。
+
+2026-08-18 對過一輪：**相符 21、有出入 4、未定 6**。
 
 ## 對照表
 
 | 編號 | 出處 | 斷言 | 該查哪裡 | 狀態 |
 |---|---|---|---|---|
-| M-01 | [p.56](p56.md)、[p.57](p57.md) | 拆除炸彈技能**至少 2 級**才能拆 Felicia 身上的炸彈、才能安全拿走一碰就炸的 TNT | [`re/32`](../../re/32-skill-checks-and-xp.md) 技能檢定、[`re/69`](../../re/69-gate-flags.md) 閘旗標、[`re/80`](../../re/80-trainer-skill-list.md) 技能表 | 待查 |
-| M-02 | [p.56](p56.md)、[p.57](p57.md) | 隊伍有名額上限；要讓新人入隊得先叫舊隊員「走路」／「回去休養」 | [`re/108`](../../re/108-combat-use-and-hire.md)、[`re/110`](../../re/110-hire-resolution.md)、[`re/103`](../../re/103-roster-line-columns.md) | 待查 |
-| M-03 | [p.57](p57.md) | 友善 NPC（Christina）**在戰鬥中被誤傷會立刻轉為敵對**；戰鬥中沒碰到她就能直接招募 | [`re/110`](../../re/110-hire-resolution.md)、[`re/20`](../../re/20-combat-resolution.md) | 待查 |
-| M-04 | [p.57](p57.md) | 可以把 NPC 隊員身上的裝備（UZI）取走給玩家角色用 | [`re/108`](../../re/108-combat-use-and-hire.md)、[`re/22`](../../re/22-shop-and-items.md) | 待查 |
-| M-05 | [p.57](p57.md) | 和 NPC 交易要**站在特定相對位置**（「須站在他下面」）；給酒鬼酒要**重複兩次**才觸發情報 | [`re/26`](../../re/26-movement-and-triggers.md)、[`re/34`](../../re/34-map-script-opcodes.md) | 待查 |
-| M-06 | [p.57](p57.md) | 「血杖驗證桌」：把血杖**使用到桌上**，假的會消失、真的會留下 | [`re/34`](../../re/34-map-script-opcodes.md)、[`re/29`](../../re/29-map-event-handlers.md) | 待查 |
-| M-07 | [p.58](p58.md) | 在沙堆上**重複使用攀爬技能可以練等** | [`re/31`](../../re/31-experience-and-skills.md)、[`re/32`](../../re/32-skill-checks-and-xp.md) | 待查 |
-| M-08 | [p.58](p58.md) | 血神殿棋盤檢查站：走正確路徑到機械人左方，**回答步數 30**；踏出路徑第一次砲塔昇起、之後持續射擊；步數答錯要重走 | [`re/46`](../../re/46-typed-answers-and-text-input.md)、[`re/34`](../../re/34-map-script-opcodes.md)、[`generated/passwords.md`](../generated/passwords.md) | 待查 |
-| M-09 | [p.58](p58.md) | 蓋氏計數器在接近輻射區時會發出提示 | [`re/55`](../../re/55-radiation-and-armour-bypass.md) | 待查 |
-| M-10 | [p.58](p58.md) | 廢坑中可取得兩支 **M1989 突擊步槍** | [`re/45`](../../re/45-item-data-and-weapon-damage.md)、[`re/50`](../../re/50-unnamed-items.md) | 待查 |
-| M-11 | [p.58](p58.md) | 電網開關是有 **ON／OFF** 兩個選項的互動物件 | [`re/34`](../../re/34-map-script-opcodes.md) | 待查 |
-| M-12 | [p.59](p59.md) | 過血池的方法是「**找一個隊員不斷的往上使用游泳技能**」 | [`re/62`](../../re/62-fourth-gate-terrain-blocking.md)、[`re/65`](../../re/65-third-gate-conditions.md) | 待查 |
-| M-13 | [p.59](p59.md) | 血池中食人魚造成持續傷害，**防護衣物夠強就免疫** | [`re/55`](../../re/55-radiation-and-armour-bypass.md)、[`re/67`](../../re/67-gate-penalty-and-canteen.md) | 待查 |
-| M-14 | [p.59](p59.md) | **敵人的像沒出現就無法攻擊**；解法是用 `RUN` 指令往前移動直到它出現 | [`re/38`](../../re/38-combat-commands-and-flee.md)、[`re/107`](../../re/107-command-resolution.md)、[`re/40`](../../re/40-combat-screen.md) | 待查 |
-| M-15 | [p.59](p59.md) | 地板上的大圓盤是陷阱，會跳出提示問要不要跳過去（答 `Yes`） | [`re/34`](../../re/34-map-script-opcodes.md)、[`re/64`](../../re/64-enter-location-prompt.md) | 待查 |
-| M-16 | [p.59](p59.md) | Vegas 的殺人機器**主動攻擊**且裝甲很高（「鐵皮蛋的皮又厚」） | [`re/37`](../../re/37-enemy-records-and-hp.md)、[`re/101`](../../re/101-enemy-move-plan-table.md) | 待查 |
-| M-17 | [p.59](p59.md) | 付錢給乞丐可換情報（兩大頭頭的爭霸、Fat Freddy 辦公室密碼） | [`re/42`](../../re/42-facility-loops.md)、[`re/34`](../../re/34-map-script-opcodes.md) | 待查 |
-| M-18 | [p.60](p60.md) | **蠍式（`Scorpition`）免疫子彈類武器**，只有 LAW 火箭之類打得動 | [`re/55`](../../re/55-radiation-and-armour-bypass.md) 護甲穿透、[`re/45`](../../re/45-item-data-and-weapon-damage.md)、[`re/19`](../../re/19-effects-and-damage.md) | 待查 |
-| M-19 | [p.60](p60.md) | 醫院療傷**要花錢**，而且要經過一段遊戲內時間 | [`re/35`](../../re/35-status-and-healing.md)、[`re/73`](../../re/73-shop-and-doctor-entry.md)、[`re/27`](../../re/27-game-clock.md) | 待查 |
-| M-20 | [p.60](p60.md)、[p.61](p61.md) | 音波鑰匙（`Sonic key`）**不只蠍式會掉**，打其他殺人機器也能取得；它能開炸不開的門 | [`re/50`](../../re/50-unnamed-items.md)、[`re/69`](../../re/69-gate-flags.md)、[`generated/gates.md`](../generated/gates.md) | 待查 |
-| M-21 | [p.60](p60.md) | 對 Fat Freddy 的要求回答 `NO` 會**直接觸發戰鬥** | [`re/46`](../../re/46-typed-answers-and-text-input.md)、[`re/34`](../../re/34-map-script-opcodes.md) | 待查 |
-| M-22 | [p.60](p60.md) | 招募囚犯 Covenant 要先**開門**（選 `Open`）再**解掉他身上的鎖** | [`re/110`](../../re/110-hire-resolution.md)、[`re/69`](../../re/69-gate-flags.md) | 待查 |
-| M-23 | [p.60](p60.md) | 蕈狀雲神殿門口的第三題要**打字輸入 `Bloodstaff`** | [`re/46`](../../re/46-typed-answers-and-text-input.md)、[`generated/passwords.md`](../generated/passwords.md) | 待查 |
-| M-24 | [p.60](p60.md) | 神殿圖書館可學**能量武器（`Energy`）技能**，對應遊戲中確實存在能量武器 | [`re/80`](../../re/80-trainer-skill-list.md)、[`re/45`](../../re/45-item-data-and-weapon-damage.md)、[`re/52`](../../re/52-trainer-facility.md) | 待查 |
-| M-25 | [p.60](p60.md) | **有些門鎖開鎖技能開不了**，只能用 TNT 炸 | [`re/69`](../../re/69-gate-flags.md)、[`re/65`](../../re/65-third-gate-conditions.md) | 待查 |
-| M-26 | [p.60](p60.md) | 放射能套裝（`Rad Suit`）的**防護力數值是 5**，可防放射能 | [`re/55`](../../re/55-radiation-and-armour-bypass.md)、[`re/45`](../../re/45-item-data-and-weapon-damage.md) | 待查 |
-| M-27 | [p.60](p60.md) | 向 Needles 的牧師說出 `DIPSTICK` 才能取回血杖 | [`re/46`](../../re/46-typed-answers-and-text-input.md)、[`generated/passwords.md`](../generated/passwords.md) | 待查 |
-| M-28 | [p.61](p61.md) | 繩子要**站在岸邊、向下使用**才能搭橋過水道 | [`re/62`](../../re/62-fourth-gate-terrain-blocking.md)、[`re/65`](../../re/65-third-gate-conditions.md) | 待查 |
-| M-29 | [p.61](p61.md) | 標有 `Use Shovel` 的碎牆要用**鏟子**挖開；挖開後地圖格會改變 | [`re/65`](../../re/65-third-gate-conditions.md)、[`re/68`](../../re/68-cell-rewrite.md) | 待查 |
-| M-30 | [p.61](p61.md) | 下水道中 `Cyborg` 和 `Hexborg` 兩種敵人特別危險 | [`re/37`](../../re/37-enemy-records-and-hp.md)、[`re/78`](../../re/78-encounter-spawn.md) | 待查 |
-| M-31 | [p.61](p61.md) | Max 的組裝要在四張組合桌上依序「選 (2) → 原地使用零件」，最後各選 (3) | [`re/34`](../../re/34-map-script-opcodes.md)、[`re/107`](../../re/107-command-resolution.md)、[`spec/25`](../../spec/25-facility-menus.md) | 待查 |
+| M-01 | [p.56](p56.md)、[p.57](p57.md) | 拆除炸彈技能**至少 2 級**才能拆 Felicia 身上的炸彈、才能安全拿走一碰就炸的 TNT | [`re/32`](../../re/32-skill-checks-and-xp.md) 技能檢定、[`re/69`](../../re/69-gate-flags.md) 閘旗標、[`re/80`](../../re/80-trainer-skill-list.md) 技能表 | **相符** |
+| M-02 | [p.56](p56.md)、[p.57](p57.md) | 隊伍有名額上限；要讓新人入隊得先叫舊隊員「走路」／「回去休養」 | [`re/108`](../../re/108-combat-use-and-hire.md)、[`re/110`](../../re/110-hire-resolution.md)、[`re/103`](../../re/103-roster-line-columns.md) | **相符** |
+| M-03 | [p.57](p57.md) | 友善 NPC（Christina）**在戰鬥中被誤傷會立刻轉為敵對**；戰鬥中沒碰到她就能直接招募 | [`re/110`](../../re/110-hire-resolution.md)、[`re/20`](../../re/20-combat-resolution.md) | **未定** |
+| M-04 | [p.57](p57.md) | 可以把 NPC 隊員身上的裝備（UZI）取走給玩家角色用 | [`re/108`](../../re/108-combat-use-and-hire.md)、[`re/22`](../../re/22-shop-and-items.md) | **相符** |
+| M-05 | [p.57](p57.md) | 和 NPC 交易要**站在特定相對位置**（「須站在他下面」）；給酒鬼酒要**重複兩次**才觸發情報 | [`re/26`](../../re/26-movement-and-triggers.md)、[`re/34`](../../re/34-map-script-opcodes.md) | **有出入** |
+| M-06 | [p.57](p57.md) | 「血杖驗證桌」：把血杖**使用到桌上**，假的會消失、真的會留下 | [`re/34`](../../re/34-map-script-opcodes.md)、[`re/29`](../../re/29-map-event-handlers.md) | **有出入** |
+| M-07 | [p.58](p58.md) | 在沙堆上**重複使用攀爬技能可以練等** | [`re/31`](../../re/31-experience-and-skills.md)、[`re/32`](../../re/32-skill-checks-and-xp.md) | **相符** |
+| M-08 | [p.58](p58.md) | 血神殿棋盤檢查站：走正確路徑到機械人左方，**回答步數 30**；踏出路徑第一次砲塔昇起、之後持續射擊；步數答錯要重走 | [`re/46`](../../re/46-typed-answers-and-text-input.md)、[`re/34`](../../re/34-map-script-opcodes.md)、[`generated/passwords.md`](../generated/passwords.md) | **相符** |
+| M-09 | [p.58](p58.md) | 蓋氏計數器在接近輻射區時會發出提示 | [`re/55`](../../re/55-radiation-and-armour-bypass.md) | **未定** |
+| M-10 | [p.58](p58.md) | 廢坑中可取得兩支 **M1989 突擊步槍** | [`re/45`](../../re/45-item-data-and-weapon-damage.md)、[`re/50`](../../re/50-unnamed-items.md) | **未定** |
+| M-11 | [p.58](p58.md) | 電網開關是有 **ON／OFF** 兩個選項的互動物件 | [`re/34`](../../re/34-map-script-opcodes.md) | **相符** |
+| M-12 | [p.59](p59.md) | 過血池的方法是「**找一個隊員不斷的往上使用游泳技能**」 | [`re/62`](../../re/62-fourth-gate-terrain-blocking.md)、[`re/65`](../../re/65-third-gate-conditions.md) | **相符** |
+| M-13 | [p.59](p59.md) | 血池中食人魚造成持續傷害，**防護衣物夠強就免疫** | [`re/55`](../../re/55-radiation-and-armour-bypass.md)、[`re/67`](../../re/67-gate-penalty-and-canteen.md) | **未定** |
+| M-14 | [p.59](p59.md) | **敵人的像沒出現就無法攻擊**；解法是用 `RUN` 指令往前移動直到它出現 | [`re/38`](../../re/38-combat-commands-and-flee.md)、[`re/107`](../../re/107-command-resolution.md)、[`re/40`](../../re/40-combat-screen.md) | **未定** |
+| M-15 | [p.59](p59.md) | 地板上的大圓盤是陷阱，會跳出提示問要不要跳過去（答 `Yes`） | [`re/34`](../../re/34-map-script-opcodes.md)、[`re/64`](../../re/64-enter-location-prompt.md) | **相符** |
+| M-16 | [p.59](p59.md) | Vegas 的殺人機器**主動攻擊**且裝甲很高（「鐵皮蛋的皮又厚」） | [`re/37`](../../re/37-enemy-records-and-hp.md)、[`re/101`](../../re/101-enemy-move-plan-table.md) | **相符** |
+| M-17 | [p.59](p59.md) | 付錢給乞丐可換情報（兩大頭頭的爭霸、Fat Freddy 辦公室密碼） | [`re/42`](../../re/42-facility-loops.md)、[`re/34`](../../re/34-map-script-opcodes.md) | **相符** |
+| M-18 | [p.60](p60.md) | **蠍式（`Scorpition`）免疫子彈類武器**，只有 LAW 火箭之類打得動 | [`re/55`](../../re/55-radiation-and-armour-bypass.md) 護甲穿透、[`re/45`](../../re/45-item-data-and-weapon-damage.md)、[`re/19`](../../re/19-effects-and-damage.md) | **有出入** |
+| M-19 | [p.60](p60.md) | 醫院療傷**要花錢**，而且要經過一段遊戲內時間 | [`re/35`](../../re/35-status-and-healing.md)、[`re/73`](../../re/73-shop-and-doctor-entry.md)、[`re/27`](../../re/27-game-clock.md) | **相符** |
+| M-20 | [p.60](p60.md)、[p.61](p61.md) | 音波鑰匙（`Sonic key`）**不只蠍式會掉**，打其他殺人機器也能取得；它能開炸不開的門 | [`re/50`](../../re/50-unnamed-items.md)、[`re/69`](../../re/69-gate-flags.md)、[`generated/gates.md`](../generated/gates.md) | **相符** |
+| M-21 | [p.60](p60.md) | 對 Fat Freddy 的要求回答 `NO` 會**直接觸發戰鬥** | [`re/46`](../../re/46-typed-answers-and-text-input.md)、[`re/34`](../../re/34-map-script-opcodes.md) | **未定** |
+| M-22 | [p.60](p60.md) | 招募囚犯 Covenant 要先**開門**（選 `Open`）再**解掉他身上的鎖** | [`re/110`](../../re/110-hire-resolution.md)、[`re/69`](../../re/69-gate-flags.md) | **相符** |
+| M-23 | [p.60](p60.md) | 蕈狀雲神殿門口的第三題要**打字輸入 `Bloodstaff`** | [`re/46`](../../re/46-typed-answers-and-text-input.md)、[`generated/passwords.md`](../generated/passwords.md) | **相符** |
+| M-24 | [p.60](p60.md) | 神殿圖書館可學**能量武器（`Energy`）技能**，對應遊戲中確實存在能量武器 | [`re/80`](../../re/80-trainer-skill-list.md)、[`re/45`](../../re/45-item-data-and-weapon-damage.md)、[`re/52`](../../re/52-trainer-facility.md) | **有出入** |
+| M-25 | [p.60](p60.md) | **有些門鎖開鎖技能開不了**，只能用 TNT 炸 | [`re/69`](../../re/69-gate-flags.md)、[`re/65`](../../re/65-third-gate-conditions.md) | **相符** |
+| M-26 | [p.60](p60.md) | 放射能套裝（`Rad Suit`）的**防護力數值是 5**，可防放射能 | [`re/55`](../../re/55-radiation-and-armour-bypass.md)、[`re/45`](../../re/45-item-data-and-weapon-damage.md) | **相符** |
+| M-27 | [p.60](p60.md) | 向 Needles 的牧師說出 `DIPSTICK` 才能取回血杖 | [`re/46`](../../re/46-typed-answers-and-text-input.md)、[`generated/passwords.md`](../generated/passwords.md) | **相符** |
+| M-28 | [p.61](p61.md) | 繩子要**站在岸邊、向下使用**才能搭橋過水道 | [`re/62`](../../re/62-fourth-gate-terrain-blocking.md)、[`re/65`](../../re/65-third-gate-conditions.md) | **相符** |
+| M-29 | [p.61](p61.md) | 標有 `Use Shovel` 的碎牆要用**鏟子**挖開；挖開後地圖格會改變 | [`re/65`](../../re/65-third-gate-conditions.md)、[`re/68`](../../re/68-cell-rewrite.md) | **相符** |
+| M-30 | [p.61](p61.md) | 下水道中 `Cyborg` 和 `Hexborg` 兩種敵人特別危險 | [`re/37`](../../re/37-enemy-records-and-hp.md)、[`re/78`](../../re/78-encounter-spawn.md) | **相符** |
+| M-31 | [p.61](p61.md) | Max 的組裝要在四張組合桌上依序「選 (2) → 原地使用零件」，最後各選 (3) | [`re/34`](../../re/34-map-script-opcodes.md)、[`re/107`](../../re/107-command-resolution.md)、[`spec/25`](../../spec/25-facility-menus.md) | **相符** |
 
-## 特別值得先查的三條
+## 逐條依據
 
-這幾條如果和逆向結果對得上，可以直接補進 remake 的驗收清單；對不上則是攻略記錯，
-要在對照表註明。
+每一條都寫「證據在哪」，不只寫結論。資料端的三份速查表
+（[`gates.md`](../generated/gates.md)、[`passwords.md`](../generated/passwords.md)、
+[`facilities.md`](../generated/facilities.md)）是 `cmd/wl-atlas` 從原版資料倒出來的，
+不含推論。
 
-**M-18（蠍式免疫子彈）** — 這是整篇攻略裡對戰鬥系統最強的一條斷言，
-而且 [`re/55`](../../re/55-radiation-and-armour-bypass.md) 的主題正好就是護甲與穿透。
-如果原版真的有「某類武器無視／無法穿透某個護甲值」的規則，這條會是它的玩家側證據。
+### 相符
 
-**M-03（誤傷 NPC 會翻臉）** — 招募流程的分支條件。
-[`re/110`](../../re/110-hire-resolution.md) 已經解過招募，可以直接對這條。
+- **M-01**：條件閘「你看見費莉西亞身上的炸彈閃著黃燈和紅燈。」收兩條路——
+  技能 爆破 難度 2、技能 拆彈 難度 2。攻略說的「至少 2 級」與難度值逐字對上，
+  而且它漏了爆破也可以。
+- **M-02**：`internal/game/hire.HireCap ＝ 7`，滿了印字串 95
+  `No room in roster.`——**滿員時連檢定都不擲**（`re/110` §3）。
+- **M-04**：雇用來的 NPC 是整筆 256 bytes 的角色記錄複製進隊伍槽
+  （`re/110` §2），物品欄 `+0xBD`–`+0xF8` 與玩家角色同一個結構，
+  所以裝備當然拿得走。
+- **M-07**：技能檢定成功就給經驗值（`re/32` §7），而水域／攀爬那類條件閘
+  是**走進那一格時自動檢定**（`re/65` §1）。所以對著同一格反覆走就會反覆給——
+  ⚠ 但只有**玩家自己走的那一步**算（`ds:916Bh`，`re/32` §7.1）。
+- **M-08**：`「唯一的真道有幾步？」` 收 `THIRTY` 與 `30` 兩種寫法。
+  打字題是逐 byte 全等比對，沒有模糊比對。
+- **M-11**：`O 開 C 關` 這種兩選一的單鍵問答資料裡有六筆以上
+  （四道金庫門、囚房門）。
+- **M-12**：血池那類水格是 nibble 2 的條件閘，條件是技能 游泳，難度 1 或 6。
+- **M-15**：`「你要跳過那塊感壓板嗎？ Y 是 N 否」`——⚠ **收得下的答案只有 `Y`**，
+  按 `N` 不會前進，題目重問。
+- **M-16**：`game2` 區塊 12（拉斯維加斯）的敵人名表有 `Warroid Mark 1/2/3`、
+  `Scorpitron`、`Gundroid`、`Cyborg Commando`，種類欄是 4（Cyborg）與 5（Robot）。
+  `Warroid Mark 3` 血量 200、護甲骰 10，是全表最高的一批。
+- **M-17**：`game2` 區塊 40 的字串 6「老乞丐把鈔票揉成一團塞進袍子裡」、
+  字串 13、14——**字串 14 就是「Max 有兩把音波鑰匙，其中一把藏在高爾夫球場」**。
+  付錢換情報這條與 M-20 是同一條線。
+- **M-19**（前半）：醫生的三種價格都在地圖記錄裡——`Exam` ＝ `+0x05`、
+  `Healing` ＝ `+0x04`（**每點 CON**）、`Curing` ＝ `+0x06`（每種疾病）。
+  一次按鍵只治一點、只扣一次錢，錢不夠就停在中途（`re/35` §4.1、`re/42`）。
+- **M-20**：`game2` 區塊 40 字串 14 明寫有**兩把**；資料裡有兩格條件閘只收音波鑰匙
+  （`「這裡的金屬門很厚，正中央用粗體字漆著『LAB』。」`、
+  `「這道巨大的鋼門上有個奇怪的鑰匙孔。」`），**兩格都沒有列任何炸藥當替代**——
+  「炸不開的門」逐字成立。
+- **M-22**：`「門上標著『危險！內有囚犯！』旁邊有兩個按鈕： O 開 C 關」`。
+- **M-23**：`「你們的供品是什麼？」` 收 `BLOODSTAFF`。
+- **M-25**：750 個條件閘裡有 **51 個一條技能都沒收**（只收屬性檢定與道具）。
+  ⚠ 攻略說「只能用 TNT」，資料上那些格子通常也收撬棍、大鎚、鶴嘴鋤與力量檢定。
+- **M-26**：物品 41 `Rad suit`，類別 15（護甲），骰數 **5**。護甲的吸收是
+  N 顆 d6 的和，N 就是這個 5。
+- **M-27**：`「孩子，我能為你做什麼？」` 有兩筆記錄，一筆收
+  `BUZZARD`／`PASTEL`／`DIPSTICK`，另一筆只收 `DIPSTICK`。
+- **M-28**：`「看起來這裡用得上繩子。」` 只收物品 繩索。
+  ⚠ 機制是**走進那一格時自動檢定並消耗一次**，不是「使用道具」這個指令
+  （`re/65` §1、`re/32` §6）。「向下使用」＝ 往下走進那一格。
+- **M-29**：`「這一段牆敲起來是空心的。」` 收 鏟子——以及力量難度 3、鶴嘴鋤、
+  大鎚與五種炸藥。鏟子行得通，但不是唯一解。
+- **M-30**：`game2` 區塊 24／25（下水道）的敵人名表裡 `Cyborg` 與 `Hexborg`
+  相鄰。Cyborg 血量 150、傷骰 10；Hexborg 血量 80、傷骰 8，兩者護甲骰都是 6，
+  在那張表裡確實是最硬的一對。
+- **M-31**：`game2` 區塊 25 字串 45 是
+  `Android assembly unit: 1) Diagnostic function 2) Initiate repairs 3) Prep for assembly`。
+  字串 30「修理沒完成就不能組」、字串 83「所有組裝步驟做完才能啟動」——
+  先 (2) 再 (3) 的順序是資料寫死的。
 
-**M-14（敵人未顯示就無法攻擊）** — 這條描述的是戰鬥介面的可見性規則，
-會直接影響 remake 的戰鬥畫面該不該畫出還沒「出現」的敵人。
+### 有出入
+
+- **M-05**：**站位那半有出入**。地圖上的觸發（nibble 2 條件閘、nibble 6 腳本、
+  nibble 8 問答）全部是「走進那一格」，沒有「站在他哪一邊」這個概念。
+  「須站在他下面」是玩家對「從上面往下走進那一格」的描述。
+  **「給兩次酒」那半未定**：資料裡 `「請我喝一杯吧，小夥子？」` 這一筆問答
+  掛在 **(4,8) 與 (15,11) 兩個不同的格子**上，不是同一格要答兩次。
+- **M-06**：資料證實**有兩支同名的血杖**（物品 62 與 63，價格與骰數完全一樣），
+  這是「一真一假」的結構基礎。但驗證台那一格（`game1` 資源 33 的 2/10）的
+  條件串列是 `20 3e ／ 20 3f ／ ff`——**兩支都收**，依序試 62 再試 63，
+  而物品條件**成功時會消耗一次**。所以「假的消失、真的留下」在這一格的
+  條件串列裡沒有依據；真假之分要在別處（腳本或訊息）。
+- **M-18**：**沒有「免疫」這種機制。** 護甲一律是「N 顆 d6 的和」的減傷
+  （`re/20` §4），唯一的例外是 `ds:46EFh` 那個「這一次結算跳過護甲吸收」的旗標
+  （`re/55` §1），而它是逐次結算的參數，不是某種敵人的屬性。
+  `Scorpitron` 的護甲骰是 5，平均吸收 17.5 點——手槍 4 骰（平均 14）打不動，
+  LAW 火箭 10 骰（平均 35）打得動。**玩家看到的「免疫子彈」是高護甲的結果，
+  不是規則。**
+- **M-24**：技能與武器都在（技能 34 `Energy weapon`，物品類別 10–12 是五把
+  能量武器），但「神殿圖書館可學」這半有出入：**每一家訓練師列的都是同一張
+  36 筆的技能表**——清單本身不篩選，IQ 需求、費用與技能欄有沒有空位全都在
+  選完之後才檢查（`re/80` §1）。所以能量武器在任何一家訓練師都學得到。
+
+### 未定
+
+- **M-03**（誤傷 NPC 會翻臉）：`re/110` 解的是雇用的檢定與併隊伍，
+  沒有任何「NPC 轉敵對」的分支被定位。**下一個入口**：遭遇記錄 `+0x09`
+  的其餘位元（bit1 ＝ 可雇用、bit2 ＝ 不移動已解，剩下六個未解）。
+- **M-09**（蓋氏計數器會提示）：物品 48 `Geiger counter` 在表裡（類別 16，
+  一般物品），但**沒有任何條件閘收它**，字串裡也搜不到相關訊息。
+  **下一個入口**：輻射結算迴圈 `0x14410`（`re/55` §3）有沒有查物品欄。
+- **M-10**（廢坑有兩支 M1989）：物品 24 存在，但「哪一格有什麼」要看 nibble 5
+  的內容生成，那一支（`0x15280` 的擲骰部分）還沒解——
+  `facilities.md` 的 nibble 5 目前只列原始 bytes。
+- **M-13**（食人魚持續傷害、護甲夠強就免疫）：42 個區塊的敵人名表裡
+  **一個 `Piranha` 都沒有**。血池的傷害如果存在，走的應該是別的機制
+  （nibble 9 的輻射區那一族？）。**下一個入口**：血池那幾格的 nibble 與記錄。
+- **M-14**（敵人像沒出現就無法攻擊）：`re/40` §5 記著「指令階段的肖像畫的是誰」
+  還沒對拍——有敵人時是不是換成敵人肖像未知，更不用說「畫不出來就不能打」。
+  **下一個入口**：DOSBox 對拍一場有敵人的完整回合（`WORKLIST` T2 未完的兩塊之一）。
+- **M-21**（對胖佛萊迪答 `NO` 直接開打）：問答收 `Y` 與 `N` 兩鍵，
+  但**答案怎麼分支到不同結果還沒解**（`re/46` 解的是輸入層與比對，
+  不是答對之後跳去哪）。**下一個入口**：nibble 8 記錄裡每個答案的後續位移。
 
 ## 順帶記下的原文誤植
 
