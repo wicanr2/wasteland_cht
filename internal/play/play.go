@@ -122,9 +122,6 @@ type Scene struct {
 	settings     settingsState // 音樂開關與音量
 	quickPath    string        // F5／F9 的存檔檔案；空 ＝ 沒開
 
-	// portrait 是這場遭遇要顯示的敵人肖像圖編號（−1 ＝ 沒有）。
-	portrait int
-
 	// journal 是段落手札（`docs/spec/19`）。載不到就是 nil——
 	// 沒有正文時遊戲照跑，只是讀不到段落。
 	journal *Journal
@@ -285,6 +282,13 @@ func (s *Scene) HiFrame() *render.HiFrame {
 	if s.combat != nil {
 		if hdr := rosterHeaderCJK(s.uiText); len(hdr) > 0 {
 			s.drawCJKLine(h, hdr, 0, render.RosterHeaderRow)
+		}
+		// 肖像框的說明（`docs/re/115` §3）：置中在 12 格裡。
+		if en, zh := s.portraitCaption(); zh != "" {
+			zh = fitCaption(zh)
+			s.drawCJKLine(h, zh, captionCol(zh), render.FacilityNameRow)
+		} else if en != "" && s.hiText() {
+			s.drawASCIILine(h, en, captionCol(en), render.FacilityNameRow)
 		}
 	}
 	// 設施畫面那幾行（店名、選單、清單）走自己的座標，不在訊息視窗裡。
@@ -596,9 +600,8 @@ func New(rom *assets.Rom) (*Scene, error) {
 		gfx:   &render.Graphics{Icons: icons, Masks: masks, Tiles: tiles},
 		world: game.NewWorld(block, party, rng.New()),
 		save:  save,
-		dirty:    true,
-		sound:    -1,
-		portrait: -1,
+		dirty: true,
+		sound: -1,
 	}
 	s.world.Clock = clock
 	// 手札預設是空的（沒有引用表、沒有正文），由呼叫端 LoadJournal 載入——
@@ -1745,16 +1748,27 @@ func (s *Scene) drawMap(f *render.Frame) {
 	}
 }
 
-// drawPortrait 畫敵人肖像（遭遇時，`docs/re/37` §3.2）。
+// drawPortrait 畫肖像框：一張圖 ＋ 一行說明（`docs/re/115`）。
 //
-// 位置與設施圖相同——兩者走同一支載入器（`docs/re/23` §4）。
+// 位置與設施圖相同——兩者走同一支載入器（`docs/re/23` §4），
+// 說明也印在同一格（欄 1、列 12，`0x190DE`）。
 // 名單從字元列 14（y ＝ 112）起，圖是 y ＝ 8–92，**不重疊**。
+//
+// ⚠ **沒有敵人時不是留白**：原版畫遊俠（圖 8、字串 96）。空地遭遇走的
+// 正是這一支（`docs/re/115` §2）。
 func (s *Scene) drawPortrait(f *render.Frame) {
-	if s.portrait < 0 || s.pics == nil || s.portrait >= len(s.pics) {
+	pic := s.portraitPicture()
+	if pic >= 0 && s.pics != nil && pic < len(s.pics) {
+		f.DrawIndexed(s.pics[pic], render.FacilityPicX, render.FacilityPicY,
+			render.ViewClip())
+	}
+	// 中文那一行由 HiFrame 畫（8 × 8 的字模畫不出中文，先畫英文再蓋會留殘影）。
+	if s.hiText() {
 		return
 	}
-	f.DrawIndexed(s.pics[s.portrait], render.FacilityPicX, render.FacilityPicY,
-		render.ViewClip())
+	if en, _ := s.portraitCaption(); en != "" {
+		_ = f.DrawLineAt(s.font, en, captionCol(en), render.FacilityNameRow)
+	}
 }
 
 // drawRoster 畫戰鬥那一種：地圖視窗換成隊伍名單（docs/re/40 §1）。

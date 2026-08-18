@@ -27,7 +27,7 @@
 | [`13-encounters-and-spawning.md`](13-encounters-and-spawning.md) | **READY**（已實作） | `internal/game` ✅ | — 佇列由 `sub_14664` 每次掃描整個重建（`docs/re/39`），敵人格由 `sub_16890` 每步生成（`docs/re/78`）|
 | [`14-combat-commands.md`](14-combat-commands.md) | **READY**（已實作） | `internal/game` ✅ | — 四支處理程式已解（`docs/re/41`）|
 | [`15-encounter-scan.md`](15-encounter-scan.md) | **READY**（已實作） | `internal/game` ✅ | — 接戰值三種值已解：不能行動 0、裝備類別 ∈ 2–13 → `0xFE`、其餘 `0x0F`（`docs/re/45` §4.1）|
-| [`16-combat-screen.md`](16-combat-screen.md) | **READY**（已實作） | `internal/play` ✅ | — 訊息的主詞與受詞已解（`docs/re/86`）；版面四塊已對到實機（`docs/re/103`、`105`）。⚠ 剩肖像框畫的是誰 |
+| [`16-combat-screen.md`](16-combat-screen.md) | **READY**（已實作） | `internal/play` ✅ | — 訊息的主詞與受詞已解（`docs/re/86`）；版面四塊已對到實機（`docs/re/103`、`105`）；肖像框畫的是誰已解並接上（`docs/re/115`） |
 | [`17-command-handlers.md`](17-command-handlers.md) | **READY**（已實作） | `internal/game` ✅ | 可雇用對象的算法、Use 那個 byte 的欄位配置未解 |
 | [`18-facility-loops.md`](18-facility-loops.md) | **READY**（已實作） | `internal/game` ✅ | — 賣價與買價是同一個公式只差指數（`docs/re/22` §3.1）；清單框架已解（`docs/re/53`）|
 | [`19-paragraph-journal.md`](19-paragraph-journal.md) | **READY**（已實作） | `internal/game` ✅、`internal/play` ✅ | — |
