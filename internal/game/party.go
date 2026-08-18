@@ -53,6 +53,14 @@ type Character struct {
 	Praised bool
 	Skills     []Slot          // +0x80，30 格
 	Items      []Slot          // +0xBD，30 格
+
+	// Source 是這個角色**整筆 256 bytes 的來源記錄**，只有雇用來的 NPC 有
+	// （`docs/re/110` §2：原版是逐 byte 抄 256 bytes 進隊伍的記錄槽）。
+	//
+	// ⚠ 存檔時要**先把它原樣寫下去、再讓 `StoreTo` 蓋已解欄位**。
+	// 少了這一步，新隊員在存檔裡就只有我們解過的那些欄位，
+	// 未解區域會是上一個佔用那一格的人留下的殘骸——而**畫面上完全看不出來**。
+	Source []byte
 }
 
 // Dead 照原版的判定：CON 兩個 byte 都是 0（`sub_172AE`）。**不看正負**。

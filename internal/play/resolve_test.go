@@ -6,6 +6,7 @@ import (
 
 	"github.com/wicanr2/wasteland_cht/internal/game"
 	"github.com/wicanr2/wasteland_cht/internal/input"
+	"github.com/wicanr2/wasteland_cht/internal/textlayout"
 )
 
 // 戰鬥的七個指令**按下去要有事發生**（`docs/re/107`）。
@@ -266,18 +267,25 @@ func TestRejectedCommandSaysWhy(t *testing.T) {
 		t.Skip("這一格開不了戰鬥")
 	}
 	turn := s.combat.Turn
-	step(t, s, input.Input{Dir: input.DirNone, Char: 'H'}) // 還沒做的指令
+	// 用「沒有人可以雇用」當例子：把三組敵人都移走，再按 H。
+	for g := 0; g < game.EnemyGroups; g++ {
+		s.combat.Battle.RemoveGroup(g)
+	}
+	step(t, s, input.Input{Dir: input.DirNone, Char: 'H'})
 	if s.combat.Turn != turn {
 		t.Fatal("打回票應該重問同一個人")
 	}
+	if s.combat.HirePicking() {
+		t.Fatal("一組敵人都沒有卻開了「哪一組？」")
+	}
 	if len(s.cjk) > 0 {
 		// 中文那條路：訊息接在提示前面。
-		if !strings.Contains(s.cjk, s.uiText("combat.notyet")) {
-			t.Error("中文訊息沒有出現在面板上")
+		if !strings.Contains(s.cjk, s.combat.zhStr(int(game.MsgNoOneInRange), textlayout.Options{})) {
+			t.Errorf("中文訊息沒有出現在面板上：%q", s.cjk)
 		}
 		return
 	}
-	if !strings.Contains(s.Message(), "not implemented") {
+	if !strings.Contains(s.Message(), "within range") {
 		t.Errorf("英文訊息沒有出現在面板上：%q", s.Message())
 	}
 }

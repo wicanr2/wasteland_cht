@@ -319,9 +319,11 @@ func (s *CombatScene) resolveCommands() msgs {
 		case game.CmdUse:
 			out.join(s.resolveUse(i, m))
 			continue
+		case game.CmdHire:
+			out.join(s.resolveHire(i, m))
+			continue
 		default:
-			// 攻擊、逃跑在別的迴圈結算；Hire 的結算端還沒逆向完
-			// （`docs/re/107` §6）——**不做事，不猜**。
+			// 攻擊與逃跑在別的迴圈結算。
 			continue
 		}
 		if en := resolveText(m.Name, r); en != "" {

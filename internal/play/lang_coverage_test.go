@@ -182,7 +182,7 @@ var uiCatalogueKeys = []string{
 	"use.nothinghappens", "use.works", "use.fails",
 	"gate.party", "gate.damage",
 	"combat.attacked", "combat.hit", "combat.fallen", "combat.over",
-	"combat.which", "combat.notyet", "combat.partyxp",
+	"combat.which", "combat.partyxp", "hire.joins",
 	"enc.inside", "enc.none", "enc.groupnone",
 	"save.none", "save.done", "save.donenonames", "save.memoryonly", "save.nodata",
 	"radio.nothing", "view.none", "view.switched",
