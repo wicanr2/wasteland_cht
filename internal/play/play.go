@@ -1455,8 +1455,13 @@ func (s *Scene) StoreTo(save *assets.Save) error {
 	gl[12] = s.world.Clock.Hour
 
 	// 角色記錄：就地蓋回已解欄位。
+	//
+	// ⚠ 隊伍**會變長**（戰鬥雇用了 NPC，`docs/re/110`）。這時要照原版做兩件事：
+	// 配一個空的記錄編號、把它填進隊伍槽表（`0x13355`）。少了第二件的話
+	// 新隊員這一局玩得到、存完就不見了——而**存檔當下不會有任何錯誤**。
+	ids := slotIDs(slot, len(s.world.Party.Members))
 	i := 0
-	for _, id := range g.Members {
+	for _, id := range ids {
 		if id == 0 {
 			continue
 		}
@@ -1468,6 +1473,11 @@ func (s *Scene) StoreTo(save *assets.Save) error {
 			return err
 		}
 		m := s.world.Party.Members[i]
+		// 雇用來的 NPC 帶著整筆 256 bytes：**先原樣寫下去再蓋已解欄位**，
+		// 未解區域才會是那個 NPC 的，而不是上一個佔用那一格的人留下的。
+		if len(m.Source) == len(raw) {
+			copy(raw, m.Source)
+		}
 		// ⚠ **`StoreTo` 只寫得下 13 bytes**（`game.NameForSave` 會在 rune
 		// 邊界截）。完整名字記進側車檔，讀檔時蓋回來。
 		m.StoreTo(raw)
@@ -1480,6 +1490,42 @@ func (s *Scene) StoreTo(save *assets.Save) error {
 		i++
 	}
 	return nil
+}
+
+// slotIDs 回傳「這 n 個隊員各自要寫進哪一筆角色記錄」，必要時**就地補上新的**。
+//
+// 槽表是 8 格（`docs/spec/05` §3.1），0 ＝ 空。原版雇用時是
+// `隊伍槽表[人數] ← 記錄編號`（`0x13355`），記錄編號取自 `ds:4656h`——
+// 也就是「下一個沒人用的編號」。這裡照同一條路：先用槽表上已有的，
+// 不夠就從 1–7 裡挑一個沒被用到的補進槽表。
+//
+// ⚠ **記錄編號只有 1–7**（第 0 筆是全域狀態）。配不出來就少寫一個人，
+// 而不是覆蓋別人的記錄——雇用那一側已經有 7 人上限擋著。
+func slotIDs(slot []byte, want int) []byte {
+	used := map[byte]bool{}
+	ids := make([]byte, 0, want)
+	for i := 0; i < 8 && i < len(slot); i++ {
+		if slot[i] != 0 {
+			used[slot[i]] = true
+			ids = append(ids, slot[i])
+		}
+	}
+	for at := len(ids); len(ids) < want && at < 8; at++ {
+		var free byte
+		for id := byte(1); id <= 7; id++ {
+			if !used[id] {
+				free = id
+				break
+			}
+		}
+		if free == 0 {
+			break
+		}
+		used[free] = true
+		slot[at] = free
+		ids = append(ids, free)
+	}
+	return ids
 }
 
 // Save 回傳目前這一份存檔（呼叫者負責寫檔）。

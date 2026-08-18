@@ -66,6 +66,9 @@ func (s *Scene) StartEncounter() (*CombatScene, error) {
 	// 中文那三條路（原版字串表 1、重製版介面文字、敵人名稱）與 `World`
 	// 都在 `wireCombat` 裡一起接——三個都可以是 nil／空，那時戰鬥訊息就是英文。
 	c := s.wireCombat(NewCombatScene(b))
+	// 雇用要讀這一格記錄的 `+0x09`（`docs/re/110` §2）——**與原版同一筆**：
+	// 原版的 `ds:46C6h` 也是「那一格的 nibble 決定 section、再取那一筆」。
+	c.EncRecord = rec
 	c.Log = append(c.Log, "Encounter begins...")
 	c.LastCJK = c.zhStr(strEncounterBegins, textlayout.Options{})
 	s.combat = c

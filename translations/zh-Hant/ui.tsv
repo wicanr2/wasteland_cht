@@ -21,7 +21,6 @@ ui:combat.hit	%s 命中 %s，%d 點傷害
 ui:combat.fallen	全隊倒下了。
 ui:combat.over	戰鬥結束。
 ui:combat.which	，換哪一件？
-ui:combat.notyet	這個指令還沒做。
 ui:combat.partyxp	全隊獲得 %d 點經驗值。
 ui:enc.inside	這裡面不行。
 ui:enc.none	這裡沒有可打的敵人。
@@ -85,3 +84,4 @@ ui:wound.ser	重傷
 ui:wound.crt	危急
 ui:wound.mrt	瀕死
 ui:wound.com	深昏迷
+ui:hire.joins	%s加入了隊伍。

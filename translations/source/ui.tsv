@@ -28,7 +28,6 @@ ui:combat.hit	%s hits %s for %d
 ui:combat.fallen	The party has fallen.
 ui:combat.over	The battle is over.
 ui:combat.which	, which item?
-ui:combat.notyet	That command is not implemented yet.
 ui:combat.partyxp	The party gains %d experience.
 ui:enc.inside	Not in here.
 ui:enc.none	Nothing to fight here.
@@ -92,3 +91,4 @@ ui:wound.ser	SER
 ui:wound.crt	CRT
 ui:wound.mrt	MRT
 ui:wound.com	COM
+ui:hire.joins	%s joins the party.

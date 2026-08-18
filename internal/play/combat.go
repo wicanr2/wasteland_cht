@@ -243,6 +243,11 @@ type CombatScene struct {
 
 	// pick 是「換武器」清單開著時的狀態（`docs/re/107` §2）。
 	pick weaponPick
+	// hire 是「哪一組？」開著時的狀態（`docs/re/110`）。
+	hire hirePick
+	// EncRecord 是這場遭遇那一格的記錄——雇用要讀它的 `+0x09`
+	// （`docs/re/110` §2）。**空的話 `H` 一律失敗**，不猜一個 NPC 出來。
+	EncRecord []byte
 	// useID 是每個成員這一回合 `USE` 選中的技能／物品／屬性編號。
 	//
 	// ⚠ 原版存在 `ds:A9FDh`，索引是**角色編號**不是隊伍槽（`docs/re/108` §1）——
@@ -401,15 +406,9 @@ func (s *CombatScene) Choose(key byte, armed bool) bool {
 		return false // 由 Scene.updateCombat 接手，這個人還沒下完令
 	}
 	if cmd == game.CmdHire {
-		// ⚠ **不要靜靜吃掉按鍵。** 這兩個指令的結算端只定位到入口
-		// （`docs/re/107` §4、§6 各有兩三支子函式沒讀），接了就是編一個規則。
-		// 但「選了之後什麼都沒發生」比「說還沒做」更糟——玩家會以為用掉了道具。
-		// 這一句是**重製版自己的話**（`ui:` 前綴），不是原版字串。
-		s.Log = append(s.Log, "That command is not implemented yet.")
-		if s.UI != nil {
-			s.LastCJK = s.UI("combat.notyet")
-		}
-		return false // 重問這個人
+		// 開「哪一組？」（`docs/re/110`）。候選是**還有敵人的組**，
+		// 能不能雇用要到結算才知道——原版也是這個順序。
+		return s.beginHirePick()
 	}
 	if cmd == game.CmdWeapon {
 		// ⚠ **換武器要先選一件**：參數留 0 的話結算階段什麼都不會做
