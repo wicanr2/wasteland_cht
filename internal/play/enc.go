@@ -67,7 +67,7 @@ func (s *Scene) cmdEnc() (bool, error) {
 	// 中文是同兩條原版字串接起來（54 ＋ 76）。
 	s.cjk = zhJoin(s.cjkExe(exeTable1, strNotOnMap, textlayout.Options{}),
 		s.cjkExe(exeTable1, strExecuteRound, textlayout.Options{}))
-	if s.cjk != nil {
+	if s.cjk != "" {
 		s.message = ""
 	}
 	s.dirty = true
@@ -108,7 +108,7 @@ func (s *Scene) beginEmptyRound() (bool, error) {
 	s.snapshot = s.takeXP()
 	s.portrait = -1
 	s.combat = s.wireCombat(NewCombatScene(b))
-	s.message, s.cjk = "", nil
+	s.message, s.cjk = "", ""
 	s.showCombatPrompt()
 	s.dirty = true
 	return true, nil
@@ -168,7 +168,7 @@ func (s *Scene) updateEncAsk(in input.Input) (bool, error) {
 		default:
 			s.message = fmt.Sprintf("Party %d: nothing to fight.", n+1)
 			if f := s.uiText("enc.groupnone"); len(f) > 0 {
-				s.cjk = []byte(fmt.Sprintf(string(f), n+1))
+				s.cjk = fmt.Sprintf(f, n+1)
 				s.message = ""
 			}
 		}

@@ -47,25 +47,25 @@ func (s *Scene) openHelp() {
 
 func (s *Scene) showHelp() {
 	var en strings.Builder
-	var zh []byte
+	var zh string
 	title := s.uiText("help.title")
 	if len(title) > 0 {
-		zh = append(zh, title...)
-		zh = append(zh, '\r')
+		zh += title
+		zh += "\r"
 	} else {
 		en.WriteString("KEYS\r")
 	}
 	for _, l := range helpLines {
 		en.WriteString(l.key + "  " + l.en + "\r")
-		if t := s.uiText(l.ui); len(t) > 0 && zh != nil {
-			zh = append(zh, l.key...)
-			zh = append(zh, ' ')
-			zh = append(zh, t...)
-			zh = append(zh, '\r')
+		if t := s.uiText(l.ui); len(t) > 0 && zh != "" {
+			zh += l.key
+			zh = zh + string(' ')
+			zh += t
+			zh += "\r"
 		}
 	}
 	s.message, s.cjk = en.String(), zh
-	if zh != nil {
+	if zh != "" {
 		s.message = ""
 	}
 	s.dirty = true
@@ -78,7 +78,7 @@ func (s *Scene) updateHelp(in input.Input) (bool, error) {
 		return true, nil
 	}
 	s.help = false
-	s.message, s.cjk = "", nil
+	s.message, s.cjk = "", ""
 	s.dirty = true
 	return true, nil
 }
@@ -116,15 +116,15 @@ func (s *Scene) showSettings() {
 	xEN, xUI := onoff(s.settings.SFXOn)
 	s.message = fmt.Sprintf("SETTINGS\rM Music: %s\r- / + Volume: %d\rX Sound: %s\rESC close",
 		mEN, s.settings.MusicVol, xEN)
-	var zh []byte
+	var zh string
 	if t := s.uiText("settings.title"); len(t) > 0 {
-		zh = append(zh, t...)
-		zh = append(zh, '\r')
+		zh += t
+		zh += "\r"
 		zh = appendUILine(zh, s.uiText("settings.music"), "M", s.uiText(mUI))
 		zh = appendUILine(zh, s.uiText("settings.volume"), "- +",
-			[]byte(fmt.Sprintf("%d", s.settings.MusicVol)))
+			fmt.Sprintf("%d", s.settings.MusicVol))
 		zh = appendUILine(zh, s.uiText("settings.sfx"), "X", s.uiText(xUI))
-		zh = append(zh, s.uiText("settings.close")...)
+		zh += s.uiText("settings.close")
 		s.message = ""
 	}
 	s.cjk = zh
@@ -134,14 +134,11 @@ func (s *Scene) showSettings() {
 // appendUILine 組一行「〔熱鍵〕標籤：值」。熱鍵是空字串就不印。
 //
 // ⚠ 熱鍵**只能是 ASCII**：這一行會接進 Big5 位元組串（同 helpLines 的字母欄）。
-func appendUILine(dst, label []byte, key string, value []byte) []byte {
+func appendUILine(dst, label, key, value string) string {
 	if key != "" {
-		dst = append(dst, key...)
-		dst = append(dst, ' ')
+		dst += key + " "
 	}
-	dst = append(dst, label...)
-	dst = append(dst, value...)
-	return append(dst, '\r')
+	return dst + label + value + "\r"
 }
 
 // updateSettings 收設定畫面的按鍵。
@@ -150,7 +147,7 @@ func appendUILine(dst, label []byte, key string, value []byte) []byte {
 func (s *Scene) updateSettings(in input.Input) (bool, error) {
 	if in.Action == input.ActionCancel || in.Fn == input.FnSettings {
 		s.settingsOpen = false
-		s.message, s.cjk = "", nil
+		s.message, s.cjk = "", ""
 		s.dirty = true
 		return true, nil
 	}
@@ -202,7 +199,7 @@ func (s *Scene) updateQuit(in input.Input) (bool, error) {
 		return false, nil
 	case input.Upper(in.Char) == 'N' || in.Action == input.ActionCancel:
 		s.quitAsk = false
-		s.message, s.cjk = "", nil
+		s.message, s.cjk = "", ""
 		s.dirty = true
 	}
 	return true, nil
@@ -235,10 +232,10 @@ func (s *Scene) quitSave() error {
 }
 
 // cjkFmtText 是 cjkFmt 的「回傳而不是寫進 s.cjk」版本。
-func (s *Scene) cjkFmtText(name string, args ...any) []byte {
+func (s *Scene) cjkFmtText(name string, args ...any) string {
 	f := s.uiText(name)
 	if len(f) == 0 {
-		return nil
+		return ""
 	}
-	return []byte(fmt.Sprintf(string(f), args...))
+	return fmt.Sprintf(f, args...)
 }

@@ -148,14 +148,14 @@ func (s *Scene) TickEnding() bool {
 }
 
 // endingCJK 取第 n 條結局敘述的中文（key `exe:4:<n>`）。沒翻就回 nil。
-func (s *Scene) endingCJK(n int) []byte {
+func (s *Scene) endingCJK(n int) string {
 	if s.cat == nil {
-		return nil
+		return ""
 	}
 	if b, ok := s.cat.Lookup(lang.ExeKey(EndingTable, n)); ok {
 		return b
 	}
-	return nil
+	return ""
 }
 
 // endingText 取第 n 條結局敘述的英文原文。查不到就回空字串。

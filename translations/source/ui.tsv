@@ -35,6 +35,7 @@ ui:enc.none	Nothing to fight here.
 ui:enc.groupnone	Party %d: nothing to fight.
 ui:save.none	No save loaded.
 ui:save.done	Game saved.
+ui:save.donenonames	Game saved (long names not written).
 ui:save.memoryonly	Game state updated (not written to disk).
 ui:save.nodata	Game state updated (no data files loaded).
 ui:radio.nothing	HQ: nothing to report.

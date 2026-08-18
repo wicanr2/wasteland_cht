@@ -13,7 +13,7 @@ func paragraphCat() string {
 
 func TestJournalWithoutCatalogueIsSafe(t *testing.T) {
 	j := NewJournal(game.ParagraphRefs{}, nil)
-	if b := j.Text(7); b != nil {
+	if b := j.Text(7); b != "" {
 		t.Fatalf("沒有目錄時應該回 nil，得到 %q", b)
 	}
 	have, total := j.Translated()
@@ -37,13 +37,13 @@ func TestJournalLoadsParagraphs(t *testing.T) {
 	if have != total {
 		var missing []int
 		for n := 1; n <= total; n++ {
-			if j.Text(n) == nil {
+			if j.Text(n) == "" {
 				missing = append(missing, n)
 			}
 		}
 		t.Fatalf("已翻 %d／%d 段，缺 %v", have, total, missing)
 	}
-	if b := j.Text(total + 1); b != nil {
+	if b := j.Text(total + 1); b != "" {
 		t.Fatal("超出 162 的編號不該查得到東西")
 	}
 

@@ -121,17 +121,24 @@ func (s *Scene) doSave() (bool, error) {
 		if len(s.itemsRaw) > 0 {
 			if err := s.rom.SetItemTable(s.save.File, 0, s.itemsRaw); err != nil {
 				s.message = "SAVE FAILED: " + err.Error()
-				s.cjk = nil
+				s.cjk = ""
 				s.dirty = true
 				return true, nil
 			}
 		}
 		if err := s.rom.WriteSave(s.save, s.saveDir); err != nil {
 			s.message = "SAVE FAILED: " + err.Error()
-			s.cjk = nil
-		} else {
-			s.sayEN("Game saved.", "save.done")
+			s.cjk = ""
+			break
 		}
+		// 長名字的側車檔（`internal/play/names.go`）。
+		// ⚠ **寫不出來不算存檔失敗**——原版存檔已經寫成功了，
+		// 遊戲進度都在；掉的只有超過 13 bytes 的那截名字。
+		if err := storeLongNames(s.saveDir, s.longNames); err != nil {
+			s.sayEN("Game saved (long names not written).", "save.donenonames")
+			break
+		}
+		s.sayEN("Game saved.", "save.done")
 	}
 	s.dirty = true
 	return true, nil
@@ -240,8 +247,8 @@ func (s *Scene) cmdDisband() (bool, error) {
 	s.disband = true
 	// 原版字串 22：`Who wants to disband?`，後面接隊員清單。
 	s.message = "Who leaves? " + s.memberMenu()
-	if zh := s.cjkExe(exeTable1, strWhoDisbands, textlayout.Options{}); zh != nil {
-		s.cjk = append(append([]byte{}, zh...), []byte(" "+s.memberMenu())...)
+	if zh := s.cjkExe(exeTable1, strWhoDisbands, textlayout.Options{}); zh != "" {
+		s.cjk = zh + " " + s.memberMenu()
 		s.message = ""
 	}
 	s.dirty = true

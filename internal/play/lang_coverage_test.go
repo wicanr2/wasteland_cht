@@ -109,7 +109,7 @@ func TestTranslationCoverage(t *testing.T) {
 	// 這裡只把數量扣掉；「有沒有多餘或漏掉的招牌」由 places_test.go 兩條
 	// 對著遊戲資料雙向驗——那比在這裡列一份手抄清單可靠。
 	placeKeys := 0
-	cat.Each(func(key string, _ []byte) {
+	cat.Each(func(key string, _ string) {
 		if strings.HasPrefix(key, "place:") {
 			placeKeys++
 		}
@@ -184,7 +184,7 @@ var uiCatalogueKeys = []string{
 	"combat.attacked", "combat.hit", "combat.fallen", "combat.over",
 	"combat.which", "combat.notyet", "combat.partyxp",
 	"enc.inside", "enc.none", "enc.groupnone",
-	"save.none", "save.done", "save.memoryonly", "save.nodata",
+	"save.none", "save.done", "save.donenonames", "save.memoryonly", "save.nodata",
 	"radio.nothing", "view.none", "view.switched",
 	"disband.single", "disband.left", "order.nothing", "order.done",
 	"roster.menu", "roster.name", "roster.nobody", "roster.joined", "roster.gone",

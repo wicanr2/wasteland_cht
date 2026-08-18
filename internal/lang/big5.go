@@ -7,6 +7,8 @@ package lang
 // 所以中文名字不需要改記錄格式，只需要把輸入編成 Big5。
 
 import (
+	"sync"
+
 	"golang.org/x/text/encoding/traditionalchinese"
 	"golang.org/x/text/transform"
 )
@@ -45,4 +47,39 @@ func RuneToBig5(r rune) ([]byte, bool) {
 		return []byte{byte(r)}, true // ASCII 直接過
 	}
 	return ToBig5(string(r))
+}
+
+// —— 字元 → Big5 的快取 ————————————————————————————————————
+//
+// ⚠ **這是 UTF-8 那條路唯一新增的執行期成本。** 畫面上每個漢字每一幀都要
+// 轉一次（`render.DrawRune`），而 `x/text` 的 transform 每次配置三塊記憶體。
+// 量過：24 個字 72 次配置。一畫面兩百個字、每秒 60 幀 ＝ 每秒三萬六千次配置，
+// 對遊戲迴圈是真的 GC 壓力。
+//
+// 快取讓它變成一次 map 查詢。**Big5 是固定對照表**，
+// 同一個字永遠對到同一組 bytes，快取不會失效。
+var (
+	big5Mu    sync.RWMutex
+	big5Cache = map[rune][2]byte{}
+)
+
+// CachedRuneToBig5 是 RuneToBig5 的快取版，給繪製這條熱路徑用。
+//
+// 只回兩個 byte 的漢字；ASCII 與編不出來的字讓呼叫端自己處理
+// （回 ok ＝ false），這樣快取裡只放固定形狀的東西。
+func CachedRuneToBig5(r rune) ([2]byte, bool) {
+	big5Mu.RLock()
+	b, ok := big5Cache[r]
+	big5Mu.RUnlock()
+	if ok {
+		return b, b != [2]byte{}
+	}
+	var out [2]byte
+	if enc, ok := ToBig5(string(r)); ok && len(enc) == 2 {
+		out = [2]byte{enc[0], enc[1]}
+	}
+	big5Mu.Lock()
+	big5Cache[r] = out
+	big5Mu.Unlock()
+	return out, out != [2]byte{}
 }

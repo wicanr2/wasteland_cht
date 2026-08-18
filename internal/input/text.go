@@ -28,8 +28,18 @@ const (
 
 // 原版的三個上限（docs/re/46 §2、§4、§5）。
 const (
-	MaxAnswer = 0x10 // 打字回答
-	MaxName   = 0x0D // 角色名字
+	MaxAnswer = 0x10 // 打字回答（原版 16 bytes，密語比對逐 byte 全等）
+	// MaxName 是角色名字的上限：**30 bytes ＝ 10 個中文字**。
+	//
+	// ⚠ **原版的欄位只有 13 bytes**（角色記錄 `+0x00`–`+0x0C`），
+	// 而且**不能加長**——`+0x0E` 起就是七個屬性，往後是金錢、性別、國籍、
+	// AC、MaxCON、CON，擴到 30 bytes 會一路蓋到 `+0x1D`。
+	// 所以原版存檔照舊寫截斷過的 13 bytes（`game.NameForSave`，在 rune
+	// 邊界截），完整名字存在重製版自己的側車檔（`internal/play/names.go`）。
+	//
+	// 30 是**畫面決定的**：名單的名字欄有 15 格（`colName`–`colAC`），
+	// 10 個中文字放得下、還留 5 格緩衝。
+	MaxName = 30
 )
 
 // Upper 是 `sub_18EFE` 出口那一段：`'a'`–`'z'` 減 0x20。
@@ -78,25 +88,18 @@ func (t *TextEntry) Key(key byte) EntryResult {
 	return EntryContinue
 }
 
-// KeyRune 收一個字元，**中文編成 Big5 存進緩衝區**（重製版的擴充）。
+// KeyRune 收一個字元，**以 UTF-8 存進緩衝區**（重製版的擴充）。
 //
-// 原版的輸入只收 ASCII 並且大寫化（`sub_18EFE`），角色名字欄是 13 bytes；
-// 中文一個字 2 bytes，所以 13 bytes 放得下 6 個中文字。
-// 編不出 Big5 的字**直接忽略**——不要塞問號進去，玩家會看到自己沒打過的名字。
+// 原版的輸入只收 ASCII 並且大寫化（`sub_18EFE`）。中文是重製版加的；
+// 緩衝區從 Big5 改成 UTF-8 之後，這一層**不再需要編碼器**——
+// 畫不畫得出來由呈現層決定（`render.DrawRune` 查不到字模就退回英文）。
 //
-// encode 由呼叫端提供（`internal/lang` 有 Big5 編碼器），
-// 這一層不認識任何編碼表。
+// encode 留著是為了相容呼叫端；傳 nil 也可以。
 func (t *TextEntry) KeyRune(r rune, encode func(rune) ([]byte, bool)) EntryResult {
 	if r < 0x80 {
 		return t.Key(byte(r))
 	}
-	if encode == nil {
-		return EntryContinue
-	}
-	b, ok := encode(r)
-	if !ok {
-		return EntryContinue
-	}
+	b := []byte(string(r))
 	if len(t.Buf)+len(b) > t.Max {
 		return EntryContinue // 放不下就不收，與 ASCII 那條一致
 	}

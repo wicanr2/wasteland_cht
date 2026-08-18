@@ -21,11 +21,11 @@ func TestCatalogueRendersWithoutControlCodes(t *testing.T) {
 	if err != nil {
 		t.Skipf("載不到翻譯目錄：%v", err)
 	}
-	bad := map[byte][]string{}
+	bad := map[rune][]string{}
 	total := 0
-	cat.Each(func(key string, raw []byte) {
+	cat.Each(func(key, raw string) {
 		total++
-		out := textlayout.RenderBytes(raw, textlayout.Options{})
+		out := textlayout.Render(raw, textlayout.Options{})
 		for _, c := range out {
 			if c >= 0x20 || c == '\n' {
 				continue
@@ -48,6 +48,6 @@ func TestCatalogueRendersWithoutControlCodes(t *testing.T) {
 	}
 	sort.Ints(codes)
 	for _, c := range codes {
-		t.Errorf("控制碼 %#02x 解完還留在畫面上，例如 %v", c, bad[byte(c)])
+		t.Errorf("控制碼 %#02x 解完還留在畫面上，例如 %v", c, bad[rune(c)])
 	}
 }

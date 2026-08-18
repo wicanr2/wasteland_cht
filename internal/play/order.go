@@ -18,7 +18,6 @@ import (
 
 	"github.com/wicanr2/wasteland_cht/internal/game"
 	"github.com/wicanr2/wasteland_cht/internal/input"
-	"github.com/wicanr2/wasteland_cht/internal/lang"
 	"github.com/wicanr2/wasteland_cht/internal/textlayout"
 )
 
@@ -85,10 +84,10 @@ func (s *Scene) orderNames() string {
 // showOrderPrompt 把字串 15 ＋ 名單放進訊息區，中英兩條路各一份。
 func (s *Scene) showOrderPrompt() {
 	names := s.orderNames()
-	s.message = strings.TrimSpace(string(oneLine([]byte(s.exeString(orderPromptStr)))) + " " + names)
-	s.cjk = nil
+	s.message = strings.TrimSpace(oneLine(s.exeString(orderPromptStr)) + " " + names)
+	s.cjk = ""
 	if zh := s.cjkExe(exeTable1, orderPromptStr, textlayout.Options{}); len(zh) > 0 {
-		s.cjk = append(append(append([]byte{}, zh...), ' '), names...)
+		s.cjk = zh + string(' ') + names
 		s.message = ""
 	}
 	s.dirty = true
@@ -135,23 +134,11 @@ func (s *Scene) updateOrder(in input.Input) (bool, error) {
 	// ⚠ **原版排完不印任何一句**（`0x12B41` 之後只有 `sub_17033` 重畫名片行）。
 	// 這一句是重製版加的確認，所以走 `ui:` 前綴——**標出來哪些話不是原版的**。
 	s.message = "Order: " + strings.Join(names, ", ")
-	s.cjk = nil
+	s.cjk = ""
 	if zh := s.uiText("order.done"); len(zh) > 0 {
-		// ⚠ **要接進 Big5 位元組串的分隔符不能直接寫 UTF-8。**
-		// `、` 的 UTF-8 是三個 byte，接進去會被當成 Big5 高位元組解讀，
-		// 把後面那個字吃掉（畫面上是「Vargas粻 hrasher」這種東西）。
-		sep, ok := lang.ToBig5("、")
-		if !ok {
-			sep = []byte(", ")
-		}
-		out := append([]byte{}, zh...)
-		for i, n := range names {
-			if i > 0 {
-				out = append(out, sep...)
-			}
-			out = append(out, n...)
-		}
-		s.cjk = out
+		// UTF-8 之後分隔符直接寫就好——**這裡以前要先 `lang.ToBig5("、")`**，
+		// 漏掉一次的症狀是「Vargas粻 hrasher」這種讀得出筆畫卻不成字的東西。
+		s.cjk = zh + strings.Join(names, "、")
 		s.message = ""
 	}
 	s.dirty = true

@@ -259,18 +259,18 @@ type CombatScene struct {
 	// Names 是六個敵人種類的名稱，訊息要用（`docs/re/85`）。
 	Names EnemyNames
 	// CJKNames 是同六個種類的中文名（Big5），與 Names 同一組編號。
-	CJKNames [6][]byte
+	CJKNames [6]string
 
 	// CJK 查執行檔字串表 1 第 n 條的譯文（Big5，控制碼已解）。
 	// 由 `Scene` 開場時接上；nil ＝ 沒有中文，畫面走英文那一份。
-	CJK func(n int, opt textlayout.Options) []byte
+	CJK func(n int, opt textlayout.Options) string
 	// UI 查重製版自己的介面文字（`translations/*/ui.tsv`）。
 	// 原版沒有對應字串、或組法是重製版自己決定的句子走這一支。
-	UI func(name string) []byte
+	UI func(name string) string
 
 	// LastCJK 是 `Log` 最後一句的中文（Big5）。指令階段那幾句
 	//（卡彈、逃跑）不走 `ResolveRound`，所以另外留一格。
-	LastCJK []byte
+	LastCJK string
 }
 
 // firstName 是隊伍第一個人的名字（`\x0B` 的代入來源）。
@@ -301,31 +301,31 @@ const (
 )
 
 // zhStr 取字串表 1 第 n 條的譯文。沒接上或查不到回 nil。
-func (s *CombatScene) zhStr(n int, opt textlayout.Options) []byte {
+func (s *CombatScene) zhStr(n int, opt textlayout.Options) string {
 	if s.CJK == nil {
-		return nil
+		return ""
 	}
 	return s.CJK(n, opt)
 }
 
-// zhJoin 把幾段接起來；**任何一段是 nil 就整句放棄**——
+// zhJoin 把幾段接起來；**任何一段是空的就整句放棄**——
 // 半句中文半句英文比整句英文更難讀，也讓「哪裡沒翻」看不出來。
-func zhJoin(parts ...[]byte) []byte {
-	var out []byte
+func zhJoin(parts ...string) string {
+	var out string
 	for _, p := range parts {
-		if p == nil {
-			return nil
+		if p == "" {
+			return ""
 		}
-		out = append(out, p...)
+		out += p
 	}
 	return out
 }
 
-// zhEnemy 是敵人的中文名（Big5）。查不到回 nil，整句就跟著放棄。
-func (s *CombatScene) zhEnemy(e *game.Enemy) []byte {
+// zhEnemy 是敵人的中文名（UTF-8）。查不到回空字串，整句就跟著放棄。
+func (s *CombatScene) zhEnemy(e *game.Enemy) string {
 	k := int(e.Data.Kind)
 	if k < 0 || k >= len(s.CJKNames) || len(s.CJKNames[k]) == 0 {
-		return nil
+		return ""
 	}
 	return s.CJKNames[k]
 }
@@ -442,16 +442,16 @@ func (s *CombatScene) Done() bool { return s.Turn < 0 }
 // ⚠ 與原版的一個差別：**中文標籤對齊值的欄座標**。原版的標籤位置與資料欄
 // 差了一兩格（`RosterHeader` 的註解），照抄那個偏移在中文下會看起來像沒對準。
 // 值的欄座標一格都沒動，動的只有標籤。
-func rosterHeaderCJK(ui func(string) []byte) []byte {
+func rosterHeaderCJK(ui func(string) string) string {
 	if ui == nil {
-		return nil
+		return ""
 	}
-	var line []byte
+	var line string
 	// ⚠ 欄座標的單位是**格**不是 byte：一個中文字兩個 byte、只佔一格
 	// （`docs/spec/10` §3）。拿 len 去對欄位會越補越偏。
 	pad := func(to int) {
 		for cjkCells(line) < to {
-			line = append(line, ' ')
+			line += " "
 		}
 	}
 	for _, f := range []struct {
@@ -466,11 +466,11 @@ func rosterHeaderCJK(ui func(string) []byte) []byte {
 		{colWeapon, "combat.hdrweapon"},
 	} {
 		t := ui(f.name)
-		if len(t) == 0 {
-			return nil // 少一條就整條退回英文，不要拼出半中半英的表頭
+		if t == "" {
+			return "" // 少一條就整條退回英文，不要拼出半中半英的表頭
 		}
 		pad(f.col)
-		line = append(line, t...)
+		line += t
 	}
 	return line
 }
@@ -482,74 +482,70 @@ func rosterHeaderCJK(ui func(string) []byte) []byte {
 //
 // 查不到翻譯就回 nil，呼叫端畫英文那一行——**不要拼出半中半英的名單**。
 // 死亡那一格是字模不是文字（`game.WoundDead`），原樣送過去。
-func rosterRowCJK(r RosterRow, ui func(string) []byte, item func(byte) []byte,
-	weaponID byte, hasWeapon bool) []byte {
+func rosterRowCJK(r RosterRow, ui func(string) string, item func(byte) string,
+	weaponID byte, hasWeapon bool) string {
 	if ui == nil {
-		return nil
+		return ""
 	}
-	con := []byte(r.CON)
+	con := r.CON
 	if key, ok := woundKeys[r.CON]; ok {
 		t := ui(key)
 		if len(t) == 0 {
-			return nil
+			return ""
 		}
 		con = t
 	}
-	weapon := []byte(r.Weapon)
+	weapon := r.Weapon
 	if hasWeapon && item != nil {
 		if t := item(weaponID); len(t) > 0 {
 			weapon = t
 		}
 	}
 
-	var line []byte
+	var line string
 	pad := func(to int) {
 		for cjkCells(line) < to {
-			line = append(line, ' ')
+			line += " "
 		}
 	}
-	var idx []byte
+	var idx string
 	if r.Index > 0 {
-		idx = []byte(fmt.Sprintf("%d>", r.Index))
+		idx = fmt.Sprintf("%d>", r.Index)
 	}
 	for _, f := range []struct {
 		col  int
-		text []byte
+		text string
 	}{
 		{colIndex, idx},
-		{colName, []byte(r.Name)},
-		{colAC, []byte(r.AC)},
-		{colAmmo, []byte(r.Ammo)},
-		{colMaxCON, []byte(r.MaxCON)},
+		{colName, r.Name},
+		{colAC, r.AC},
+		{colAmmo, r.Ammo},
+		{colMaxCON, r.MaxCON},
 		{colCON, con},
 		{colWeapon, weapon},
 	} {
-		if len(f.text) == 0 {
+		if f.text == "" {
 			continue
 		}
 		pad(f.col)
-		line = append(line, f.text...)
+		line += f.text
 	}
 	return clipCells(line, rosterCols)
 }
 
-// clipCells 把一串 Big5 截到 n 格。
+// clipCells 把一串 UTF-8 截到 n 格（**一個 rune 一格**）。
 //
 // ⚠ **不能用 len 截**：一個中文字兩個 byte、只佔一格（`docs/spec/10` §3）。
 // 拿 byte 數去截會把長名字切在中文字中間，畫面上出現半個字。
-func clipCells(b []byte, n int) []byte {
-	cells, i := 0, 0
-	for i < len(b) && cells < n {
-		if b[i] >= 0x80 {
-			if i+1 >= len(b) {
-				break // 落單的高位元組：丟掉，不要拿下一輪的 byte 湊
-			}
-			i++
+func clipCells(s string, n int) string {
+	cells := 0
+	for i := range s {
+		if cells == n {
+			return s[:i]
 		}
-		i++
 		cells++
 	}
-	return b[:i]
+	return s
 }
 
 // woundKeys 把狀態字對到翻譯目錄的鍵。
@@ -562,12 +558,12 @@ var woundKeys = map[string]string{
 }
 
 // cjkCells 是這串 Big5 佔幾格。
-func cjkCells(b []byte) int {
+func cjkCells(s string) int {
+	// UTF-8：一個 rune 一格。**不用管一個字幾個 byte**——
+	// 以前走 Big5 得判「≥ 0x80 就吃兩個」，而那個規則對 UTF-8 是錯的
+	// （一個漢字三個 byte），改型別的時候漏掉這一支就會整排偏掉。
 	n := 0
-	for i := 0; i < len(b); i++ {
-		if b[i] >= 0x80 {
-			i++
-		}
+	for range s {
 		n++
 	}
 	return n
@@ -715,7 +711,7 @@ func (s *Scene) wireCombat(c *CombatScene) *CombatScene {
 	c.Items = s.items
 	c.Names = s.enemyNames()
 	c.CJKNames = s.enemyNamesCJK()
-	c.CJK = func(n int, opt textlayout.Options) []byte { return s.cjkExe(exeTable1, n, opt) }
+	c.CJK = func(n int, opt textlayout.Options) string { return s.cjkExe(exeTable1, n, opt) }
 	c.UI = s.uiText
 	c.World = s.world
 	return c

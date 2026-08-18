@@ -191,7 +191,7 @@ func (f *FacilityScene) doctorKey(k byte, p *game.Party) {
 			if ok, reason := h.HealOne(); !ok {
 				f.setNoteReason(reason)
 			} else {
-				f.note, f.noteCJK = "", nil
+				f.note, f.noteCJK = "", ""
 			}
 		}
 	case StepCure:
@@ -411,27 +411,27 @@ func nextAble(p *game.Party, from int) int {
 func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 	f.Lines, f.CJKLines = f.Lines[:0], f.CJKLines[:0]
 	// add 一次放一行：英文與中文並排，中文查不到就是 nil（那一行畫英文）。
-	add := func(en string, zh []byte) {
+	add := func(en string, zh string) {
 		f.Lines = append(f.Lines, en)
 		f.CJKLines = append(f.CJKLines, zh)
 	}
-	num := func(n int) []byte { return []byte(fmt.Sprintf("%d", n)) }
+	num := func(n int) string { return fmt.Sprintf("%d", n) }
 	// ui 是重製版自己排的那幾行（清單的每一列、價格欄位的順序）。
-	ui := func(name string, args ...any) []byte {
+	ui := func(name string, args ...any) string {
 		if f.UI == nil {
-			return nil
+			return ""
 		}
 		b := f.UI(name)
-		if len(b) == 0 {
-			return nil
+		if b == "" {
+			return ""
 		}
-		return []byte(fmt.Sprintf(string(b), args...))
+		return fmt.Sprintf(b, args...)
 	}
 
 	if f.Facility.Name != "" {
 		// 招牌是**地圖記錄裡的明文 ASCII**，不在字串表裡，所以走查表
 		// （`internal/play/places.go`）。查不到就照原樣顯示英文。
-		var zh []byte
+		var zh string
 		if f.CJKPlace != nil {
 			zh = f.CJKPlace(f.Facility.Name)
 		}
@@ -443,7 +443,7 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 	}
 	// 「某某 你有 $N」：名字 ＋ 字串 7:4（`You have $`）＋ 數字。
 	add(fmt.Sprintf("%s  You have $%d", c.Name, c.Money),
-		zhJoin([]byte(c.Name), []byte("  "),
+		zhJoin(c.Name, "  ",
 			f.zh(exeTableShop, strYouHave, textlayout.Options{}), num(int(c.Money))))
 
 	switch {
@@ -454,8 +454,8 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 		from, to := f.page(len(f.Skills))
 		for i, sk := range f.Skills[from:to] {
 			cost := game.SkillCost(sk.Data.BaseCost, int(c.SkillLevel(sk.ID))+1)
-			var zh []byte
-			if n := f.zhSkill(sk.ID); n != nil {
+			var zh string
+			if n := f.zhSkill(sk.ID); n != "" {
 				zh = ui("facility.skillrow", i+1, string(n), cost)
 			}
 			add(fmt.Sprintf("%d) %s  cost %d", i+1, f.skillLabel(sk.ID), cost), zh)
@@ -474,8 +474,8 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 		for i, bit := range game.Diseases(c) {
 			// 病名是字串表 8 的第 1–8 條（位元 0–7，`docs/re/35` §1）。
 			name := f.zh(exeTableDoctor, strDiseaseFirst+bit, textlayout.Options{})
-			var zh []byte
-			if name != nil {
+			var zh string
+			if name != "" {
 				zh = ui("facility.row", i+1, string(name))
 			}
 			add(fmt.Sprintf("%d) %s", i+1, f.diseaseLabel(bit)), zh)
@@ -495,8 +495,8 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 			if e.Equipped {
 				mark = "*" // 裝備中要標出來，但賣得掉（docs/re/42 §3.1）
 			}
-			var zh []byte
-			if n := f.zhItem(e.Item); n != nil {
+			var zh string
+			if n := f.zhItem(e.Item); n != "" {
 				zh = ui("facility.sellrow", i+1, mark, string(n))
 			}
 			add(fmt.Sprintf("%d)%s %s", i+1, mark, f.itemLabel(e.Item)), zh)
@@ -506,8 +506,8 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 		list := f.buyList(items)
 		from, to := f.page(len(list))
 		for i, e := range list[from:to] {
-			var zh []byte
-			if n := f.zhItem(e.ID); n != nil {
+			var zh string
+			if n := f.zhItem(e.ID); n != "" {
 				zh = ui("facility.buyrow", i+1, int(e.Price), string(n))
 			}
 			add(fmt.Sprintf("%d) $%-6d %s", i+1, e.Price, f.itemLabel(e.ID)), zh)

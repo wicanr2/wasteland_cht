@@ -96,7 +96,7 @@ func TestNoStalePlaceKeys(t *testing.T) {
 	}
 
 	var stale []string
-	s.cat.Each(func(key string, _ []byte) {
+	s.cat.Each(func(key string, _ string) {
 		name, ok := strings.CutPrefix(key, "place:")
 		if !ok {
 			return
@@ -193,14 +193,15 @@ func printableASCII(s string) bool {
 }
 
 // cellIndex 把「第 n 格」換算成 Big5 串裡的 byte 位置。
-func cellIndex(b []byte, cell int) int {
+// cellIndex 是「第 cell 格」在字串裡的 byte 位移。
+//
+// ⚠ UTF-8：一個 rune 一格。**以前是 Big5 版（≥ 0x80 就吃兩個）**，
+// 那個規則對 UTF-8 是錯的（漢字三個 byte）。
+func cellIndex(s string, cell int) int {
 	n := 0
-	for i := 0; i < len(b); i++ {
+	for i := range s {
 		if n == cell {
 			return i
-		}
-		if b[i] >= 0x80 {
-			i++
 		}
 		n++
 	}
