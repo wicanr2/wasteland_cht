@@ -30,6 +30,10 @@ const (
 	friendlyBit  = 0x02
 	hireOfferBit = friendlyBit
 
+	// properNameBit 是 `+0x09` 的 **bit0 ＝ 名字從這張地圖的明文名字表取**
+	// （`0x129E9` → `loc_12A04`，`docs/re/114` §6）。清掉就印種類名。
+	properNameBit = 0x01
+
 	// recNPCGreeting／recNPCPrice 是 NPC 記錄自己的兩格（`docs/re/110` §4）。
 	recNPCGreeting = 0x30
 	recNPCPrice    = 0x31
@@ -66,6 +70,14 @@ func ReadHireOffer(rec []byte) HireOffer {
 
 // HireSection 是 NPC 記錄住的 section 型別，給呈現層取記錄用。
 func HireSection() int { return hireSectionNPC }
+
+// UseProperName 回報這一筆遭遇要不要用地圖自己的明文名字表。
+//
+// 出貨資料裡幾乎都是設的，所以**原版絕大多數的遭遇印的是專屬名字**
+// （`Juveniles`、`Woman`、`City Slicker`），不是種類名。
+func UseProperName(rec []byte) bool {
+	return len(rec) > recHireField && rec[recHireField]&properNameBit != 0
+}
 
 // Friendly 回報這一筆遭遇是不是不敵對的（`docs/re/114` §2）。
 //

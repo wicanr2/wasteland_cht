@@ -35,3 +35,20 @@ func (s *Scene) placeCJK(name string) string {
 	}
 	return ""
 }
+
+// monsterCJK 把明文敵人名字換成中文（目錄 key ＝ `monster:<原文>`）。
+//
+// 與地點招牌同一條路（顯示時查表）：那些名字寫在地圖區塊的明文名字表裡
+// （`docs/re/09` §3、`docs/re/114` §6），不在打包字串表，抽字串的工具看不到。
+//
+// ⚠ **key 用未經處理的原文**，含 `\n` 的單複數分段——譯文也保留同樣的分段，
+// 單數形由呼叫端的 `singular` 取。修掉分段再查會**查不到而且靜靜顯示英文**。
+func (s *Scene) monsterCJK(raw string) string {
+	if s.cat == nil || raw == "" {
+		return ""
+	}
+	if b, ok := s.cat.Lookup(lang.MonsterKey(raw)); ok {
+		return b
+	}
+	return ""
+}

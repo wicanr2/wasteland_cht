@@ -14,6 +14,7 @@ package lang
 import (
 	"encoding/binary"
 	"fmt"
+	"strings"
 	"os"
 )
 
@@ -129,3 +130,23 @@ func UIKey(name string) string { return "ui:" + name }
 // 地點名是**資料裡的明文 ASCII**（地圖記錄與存檔），不在字串表裡，
 // 所以 key 就是英文原名本身——查表用的是畫面上原本要印的那串字。
 func PlaceKey(name string) string { return "place:" + name }
+
+// MonsterKey 是明文敵人名字的 key（`docs/re/114` §6）。
+//
+// ⚠ **控制碼要寫成 `\xNN`**，與 `tools/extract_monster_names.py` 的 `escape()`
+// 同一套：名字用 `\n` 分單複數（`Juv\nenile\nies\n`），而翻譯檔是逐行的 TSV，
+// key 裡塞真的換行就沒辦法逐行讀。`tools/build_lang.py` 的 `read_tsv`
+// **只把譯文 unescape，key 原樣保留**，所以這一側也要用跳脫過的形式。
+// 兩邊不一致的症狀是**每一條有單複數的名字都查不到**——而畫面上只是顯示英文。
+func MonsterKey(raw string) string {
+	var b strings.Builder
+	b.WriteString("monster:")
+	for i := 0; i < len(raw); i++ {
+		if c := raw[i]; c < 0x20 || c == 0x7F {
+			fmt.Fprintf(&b, "\\x%02X", c)
+			continue
+		}
+		b.WriteByte(raw[i])
+	}
+	return b.String()
+}

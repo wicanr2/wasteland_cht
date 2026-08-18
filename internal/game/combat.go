@@ -318,6 +318,13 @@ func (c *Character) WoundLevel() int {
 type Enemy struct {
 	HP   uint16
 	Data EnemyData
+	// Type 是這一組在**遭遇記錄**裡寫的型別編號（`+0x03`／`+0x05`／`+0x07`），
+	// 同時是這張地圖明文名字表的索引（`docs/re/114` §6）。
+	//
+	// ⚠ 與 `Data.Kind` 不是同一個東西：`Kind` 是敵人資料 `+0x06` 的
+	// 1–5（Animal／Mutant／Humanoid／Cyborg／Robot），一張地圖上會重複；
+	// `Type` 才分得出「少年」與「瘋狗」。
+	Type byte
 }
 
 // TakeDamage 對敵人套用傷害，回傳是否被擊殺。

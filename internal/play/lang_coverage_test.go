@@ -105,19 +105,20 @@ func TestTranslationCoverage(t *testing.T) {
 		uiKeys++
 	}
 
-	// `place:` 那組是**地點招牌**（地圖記錄與存檔裡的明文 ASCII，不在字串表裡）。
-	// 這裡只把數量扣掉；「有沒有多餘或漏掉的招牌」由 places_test.go 兩條
-	// 對著遊戲資料雙向驗——那比在這裡列一份手抄清單可靠。
+	// `place:` 與 `monster:` 兩組是**明文名字**（地圖記錄、存檔與地圖的
+	// 明文名字表，都不在字串表裡）。這裡只把數量扣掉；「有沒有多餘或漏掉的」
+	// 由 places_test.go 與 monsters_test.go 對著遊戲資料雙向驗——
+	// 那比在這裡列一份手抄清單可靠。
 	placeKeys := 0
 	cat.Each(func(key string, _ string) {
-		if strings.HasPrefix(key, "place:") {
+		if strings.HasPrefix(key, "place:") || strings.HasPrefix(key, "monster:") {
 			placeKeys++
 		}
 	})
 
 	orphans := cat.Len() - hit - uiKeys - placeKeys
 	t.Logf("介面文字（ui:）：%d 條", uiKeys)
-	t.Logf("地點招牌（place:）：%d 條", placeKeys)
+	t.Logf("明文名字（place:／monster:）：%d 條", placeKeys)
 	t.Logf("目錄裡對不上任何原文的 key：%d 條", orphans)
 	if orphans < 0 {
 		t.Fatalf("hit(%d) 超過目錄長度(%d)——key 算法有重複", hit, cat.Len())

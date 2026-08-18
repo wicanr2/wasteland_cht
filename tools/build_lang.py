@@ -32,6 +32,9 @@ from extract_strings import unescape  # noqa: E402
 MAGIC = b"WLCAT\0"
 VERSION = 2
 
+# 訊息視窗一行的格數（`docs/re/25`）。名字類的譯文用它當上限。
+MSG_COLS = 38
+
 # 這些控制碼是文字變形的分段，數量必須與原文一致（docs/re/28）。
 VARIANT_CODES = (0x0A, 0x0C, 0x0E, 0x0F)
 
@@ -228,9 +231,16 @@ def main() -> None:
         if orig is None:
             errors.append(f"{key}：原文裡沒有這個 key（抽取工具改過？）")
             continue
-        if cells(text) > cells(orig):
+        limit = cells(orig)
+        if key.startswith(("monster:", "place:")):
+            # 專有名詞與地名的譯文是「中文（英文）」——**一定比原文長**
+            # （使用者定案 2026-08-18：保留英文讓玩家對得上原版與攻略）。
+            # 那兩類不是訊息視窗裡的句子，是名字；改用「一行」當上限，
+            # 這樣仍然擋得住離譜的長度，而不是完全不擋。
+            limit = MSG_COLS
+        if cells(text) > limit:
             errors.append(
-                f"{key}：譯文 {cells(text)} 格 > 原文 {cells(orig)} 格，訊息視窗會爆"
+                f"{key}：譯文 {cells(text)} 格 > 上限 {limit} 格，訊息視窗會爆"
             )
         for code in VARIANT_CODES:
             a, b = orig.count(chr(code)), text.count(chr(code))

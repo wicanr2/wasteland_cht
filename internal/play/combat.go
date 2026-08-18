@@ -265,6 +265,12 @@ type CombatScene struct {
 	Names EnemyNames
 	// CJKNames 是同六個種類的中文名（Big5），與 Names 同一組編號。
 	CJKNames [6]string
+	// BlockNames 是這張地圖的明文敵人名字表（`docs/re/114` §6），索引 1 起算。
+	// 遭遇記錄 `+0x09` 的 bit0 設起來時用它——那才是原版畫面上的名字。
+	BlockNames []string
+	// MonsterCJK 查一條明文名字的中文（目錄 key ＝ `monster:<原文>`）。
+	// nil 或查不到就走英文那一份。
+	MonsterCJK func(raw string) string
 
 	// CJK 查執行檔字串表 1 第 n 條的譯文（Big5，控制碼已解）。
 	// 由 `Scene` 開場時接上；nil ＝ 沒有中文，畫面走英文那一份。
@@ -328,11 +334,31 @@ func zhJoin(parts ...string) string {
 
 // zhEnemy 是敵人的中文名（UTF-8）。查不到回空字串，整句就跟著放棄。
 func (s *CombatScene) zhEnemy(e *game.Enemy) string {
+	if raw := s.properName(e); raw != "" && s.MonsterCJK != nil {
+		if zh := s.MonsterCJK(raw); zh != "" {
+			return singular(zh)
+		}
+	}
 	k := int(e.Data.Kind)
 	if k < 0 || k >= len(s.CJKNames) || len(s.CJKNames[k]) == 0 {
 		return ""
 	}
 	return s.CJKNames[k]
+}
+
+// properName 是這一隻在**這張地圖的明文名字表**裡的名字（含 `\n` 分段）。
+//
+// 兩個條件都要成立：遭遇記錄 `+0x09` 的 bit0 設著（`0x129E9` 的 `shr`），
+// 而且名字表裡有那個編號。任一個不成立就回空字串，呼叫端走種類名。
+func (s *CombatScene) properName(e *game.Enemy) string {
+	if e == nil || !game.UseProperName(s.EncRecord) {
+		return ""
+	}
+	i := int(e.Type)
+	if i <= 0 || i >= len(s.BlockNames) {
+		return ""
+	}
+	return s.BlockNames[i]
 }
 
 // NewCombatScene 開一場戰鬥的畫面：模式切成名單，開一個新的指令階段。
@@ -710,6 +736,10 @@ func (s *Scene) wireCombat(c *CombatScene) *CombatScene {
 	c.Items = s.items
 	c.Names = s.enemyNames()
 	c.CJKNames = s.enemyNamesCJK()
+	if s.world != nil && s.world.Block != nil {
+		c.BlockNames = s.world.Block.MonsterNames()
+	}
+	c.MonsterCJK = s.monsterCJK
 	c.CJK = func(n int, opt textlayout.Options) string { return s.cjkExe(exeTable1, n, opt) }
 	c.UI = s.uiText
 	c.World = s.world

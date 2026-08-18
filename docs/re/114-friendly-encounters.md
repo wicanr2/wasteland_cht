@@ -169,11 +169,16 @@ loc_12A2B: 掃到 NUL；dl−−；不為 0 就再掃一條      ; **跳過 dl �
 不是種類名。remake 目前一律印種類名（`Names.Name(Kind)`），所以畫面上
 到處都是「人形生物」。
 
-⚠ **這一條沒有跟著這一輪做**，兩個理由：
-一是它是 A7（名稱字串表）那個缺口的消費端，不是雇用專屬的；
-二是那 124 條名字是**明文 ASCII、不在打包字串表裡**，中文化要走
-與地點招牌（`place:`）同一套顯示時查表，等於多一批翻譯。
-規則已經解完，接的時候照上面那三行做。
+**接上去了**：`Block.MonsterNames()` 讀那張表，
+`CombatScene.properName` 在 bit0 設著時取 `BlockNames[Type]`，
+`enemyLabel`／`zhEnemy`／雇用清單都走它。⚠ 索引用的是**遭遇記錄裡的型別**
+（`Enemy.Type`），不是 `Data.Kind`——後者是 1–5 的大分類，一張地圖上會重複。
+
+中文化走與地點招牌（`place:`）同一套顯示時查表：
+`tools/extract_monster_names.py` 抽出 **328 條**去重的名字進
+`translations/source/monsters.tsv`，譯文在 `translations/zh-Hant/monsters.tsv`
+（`docs/spec/11` §3、§5）。名字表的筆數比一開始估的 124 條多——
+那個數字是只掃前 2 KB 的結果。
 
 ## 7. 可重跑的完整指令
 

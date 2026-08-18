@@ -102,7 +102,7 @@ func (b *Battle) Spawn(record []byte, table EnemyTable, r *rng.State) int {
 		}
 		for i := 0; i < sg.Count; i++ {
 			// 每一隻各擲各的——同組同型別的血量不一樣（docs/re/37 §3）。
-			b.AddEnemy(g, i, &Enemy{HP: data.RollHP(r), Data: data})
+			b.AddEnemy(g, i, &Enemy{HP: data.RollHP(r), Data: data, Type: sg.Type})
 			total++
 		}
 	}
