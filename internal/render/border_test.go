@@ -1,6 +1,10 @@
 package render
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/wicanr2/wasteland_cht/internal/assets"
+)
 
 // 計量表由上到下的字模（`docs/re/120` §3）。索引 0 ＝ 字元列 9。
 func TestMeterGlyphs(t *testing.T) {
@@ -56,4 +60,54 @@ func TestMeterGlyphs(t *testing.T) {
 	if MeterGlyphs(72, true) != MeterGlyphs(MeterNoReading, true) {
 		t.Error("讀數 72 以上與沒有讀數應該畫成一樣")
 	}
+}
+
+// 名單框：欄 0 與欄 39 是兩條邊，列 23 是下緣（`sub_16F70`，docs/re/125）。
+//
+// ⚠ 這一條擋的是「框畫了但被別的東西蓋掉」——畫面上很難分辨
+// 「沒畫」與「畫了但很暗」，所以直接量像素。
+func TestRosterBoxCorners(t *testing.T) {
+	lit := func(f *Frame, col, row int) bool {
+		for y := 0; y < CharHeight; y++ {
+			for x := 0; x < CharWidth; x++ {
+				if f.Pix[(row*CharHeight+y)*ScreenWidth+col*CharWidth+x] != 0 {
+					return true
+				}
+			}
+		}
+		return false
+	}
+	f := NewFrame()
+	font := testColourFont()
+	if err := f.DrawRosterBox(font, true); err != nil {
+		t.Fatalf("畫名單框失敗：%v", err)
+	}
+	for _, c := range []struct {
+		col, row int
+		what     string
+	}{
+		{0, RosterBoxTopRow, "上緣左角"},
+		{MsgBorderRight, RosterBoxTopRow, "上緣右角"},
+		{0, RosterMemberRow, "左邊框"},
+		{MsgBorderRight, RosterMemberRow, "右邊框"},
+		{0, RosterBoxBottomRow, "下緣左角"},
+		{20, RosterBoxBottomRow, "下緣"},
+		{MsgBorderRight, RosterBoxBottomRow, "下緣右角"},
+	} {
+		if !lit(f, c.col, c.row) {
+			t.Errorf("%s（欄 %d 列 %d）一個亮點都沒有", c.what, c.col, c.row)
+		}
+	}
+}
+
+// testColourFont 造一份「每一格都是實心」的假彩色字型——這裡驗的是**位置**，
+// 不是字模長什麼樣。
+func testColourFont() *assets.Font {
+	f := &assets.Font{Glyphs: make([]assets.Glyph, 256)}
+	for i := range f.Glyphs {
+		for j := range f.Glyphs[i].Pix {
+			f.Glyphs[i].Pix[j] = 15
+		}
+	}
+	return f
 }

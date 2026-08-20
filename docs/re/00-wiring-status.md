@@ -47,7 +47,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 
 ## 統計
 
-筆記 **119** 份：已接 **115**、未接 **0**、不適用 **4**。
+筆記 **120** 份：已接 **116**、未接 **0**、不適用 **4**。
 
 | # | 筆記 | 狀態 | 接在哪／為什麼 |
 |---:|---|---|---|
@@ -175,3 +175,4 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 122 | [血池那六格，與條件閘扣血到底吃不吃護甲](122-blood-pool-and-gate-armour.md) | 已接 | `internal/game/radiation.go`（`BypassesArmour` ＝ 記錄 `+0x00` 的 bit0，輻射與條件閘共用同一個判準）、`internal/game/gates.go`（`applyGatePenalty` 的 CON 那一路走傷害結算：扣護甲、全被吸收就不留 `PreHurt`）、`internal/game/gates_test.go`（`TestGatePenaltyGoesThroughArmour` 雙向：bit0 ＝ 0 吸光、bit0 ＝ 1 扣滿）。⚠ 血池那六格的 bit0 都是 1，所以**那裡護甲照樣沒用**——接上去改變的是另外 105 筆閘 |
 | 123 | [能不能打，由「這一組列不列得出來」決定](123-attack-target-range.md) | 已接 | `internal/game/encounterscan.go`（`EngageFarFor` ＝ `sub_13878` 的 `0xFE` 條件：武器有射程**而且彈匣非空**，填掉 `Engagement` 原本那個「由呼叫端給」的 `far`）、`internal/play/encounter.go`（`engageFar`）、`internal/game/encounterscan_test.go`（`TestEngageFarNeedsARangedWeaponWithAmmo`）。⚠ **還沒接的是 §1 的目標清單篩選**：remake 的遭遇只有一格、攻擊不問「哪一組」，所以「距離 ≥ 接戰值」與「不在 19 × 9 視窗內」這兩條還沒有消費端。要接的話是 `beginHirePick` 與攻擊指令共用一支「這一組列不列得出來」|
 | 124 | [外框怎麼畫，與右邊那一欄的直排 `WASTELAND`](124-screen-border-and-right-column.md) | 已接 | `internal/render/border.go`（`DrawBorder` ＝ `sub_19814` 的六個字模 ＋ `sub_197BB` 多畫的那三處、`DrawTitleLabel` ＝ `ds:AA4Dh` 那張 2 × 9 的表）、`internal/play/play.go`（`drawBorder`，**只在地圖畫面畫**，與原版的呼叫端一致）。⚠ 設施與戰鬥是另一套框（實機截圖 `54-doc-menu.png`），那一套還沒接 |
+| 125 | [名單框，以及名片行其實從欄 1 開始](125-roster-box.md) | 已接 | `internal/render/border.go`（`DrawRosterBox`／`DrawRosterBanner`／`rosterBanner`）、`internal/render/render.go`（`RosterHeaderRow` 14 → **15**）、`internal/play/combat.go`（`colIndex` 0 → **1**、`colName` 2 → **3**，中文那一套跟著右移一欄）、`internal/play/play.go`（`drawRosterBox`）、`internal/render/border_test.go`（`TestRosterBoxCorners` 直接量像素——「沒畫」與「畫了但很暗」在畫面上分不出來）|

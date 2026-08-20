@@ -233,3 +233,113 @@ func (f *Frame) DrawGeigerMeter(font *assets.Font, reading int, hasCounter bool)
 	}
 	return nil
 }
+
+// 名單框（`sub_16F70`，`docs/re/125`）。
+//
+// 原版的名單占**字元列 14–23、欄 0–39**：列 14 與列 15 合起來是一條
+// 雙倍高的橫幅（`ds:B1E1h` 與 `ds:B20Ah` 兩張字模表，上下半各一列），
+// 成員從列 16 起（`sub_1738A` 的「列 ＝ 序號 ＋ 0x0F」），列 23 是下緣。
+const (
+	RosterBoxTopRow    = 14
+	RosterBoxBottomRow = 23
+	// RosterMemberRow 是第 1 個成員的字元列（`sub_1738A`）。
+	RosterMemberRow = 16
+)
+
+// rosterBanner 是名單橫幅的兩張字模表（`ds:B1E1h`／`ds:B20Ah`）。
+//
+// 索引 1 與索引 3 是**執行期填的組別指示**（`0x16F7E` 起那五行）：
+// 上半用 `0x57 + n`、下半用 `0x95 + n`，畫出來是「目前組 `<` 總組數」。
+var rosterBanner = [2][]int{
+	{
+		0x9B, 0x57, 0x5B, 0x57, 0x9E, 0x9C, 0x9C, 0x9C, 0x50, 0x53, 0x52, 0x51,
+		0x9C, 0x9C, 0x9C, 0x9C, 0x9E, 0x53, 0x55, 0x9E, 0x53, 0x52, 0x52, 0x9E,
+		0x52, 0x53, 0x54, 0x9E, 0x55, 0x56, 0x50, 0x9E, 0x60, 0x51, 0x53, 0x61,
+		0x56, 0x50, 0x9F, 0x9A,
+	},
+	{
+		0xA1, 0x95, 0x99, 0x95, 0xA4, 0xA2, 0xA2, 0xA2, 0x8C, 0x8F, 0x8E, 0x8D,
+		0xA2, 0xA2, 0xA2, 0xA2, 0xA4, 0x8F, 0x91, 0xA4, 0x8F, 0x8E, 0x8E, 0xA4,
+		0x8E, 0x8F, 0x90, 0xA4, 0x91, 0x94, 0x8C, 0xA4, 0x92, 0x8D, 0x8F, 0x93,
+		0x94, 0x8C, 0xA5, 0xA0,
+	},
+}
+
+// 橫幅裡那兩格組別指示的位置與字模起點。
+const (
+	bannerGroupAt  = 1
+	bannerTotalAt  = 3
+	bannerTopBase  = 0x57
+	bannerBotBase  = 0x95
+)
+
+// DrawRosterBanner 畫名單框頂上那條雙倍高的橫幅（列 14–15）。
+//
+// group 與 total 都是**原版存的那個值**（0 起算），畫出來是 `n+1`。
+func (f *Frame) DrawRosterBanner(font *assets.Font, group, total int) error {
+	if font == nil {
+		return nil
+	}
+	for half, row := range [2]int{RosterBoxTopRow, RosterBoxTopRow + 1} {
+		base := bannerTopBase
+		if half == 1 {
+			base = bannerBotBase
+		}
+		for col, g := range rosterBanner[half] {
+			switch col {
+			case bannerGroupAt:
+				g = base + group
+			case bannerTotalAt:
+				g = base + total
+			}
+			if err := f.DrawGlyph(font, g, col, row, 0, false); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// DrawRosterBox 畫名單框的左右與下緣（列 16–23）。
+//
+// **重製決策**：中文表頭是單倍高的，畫不出原版那條雙倍高的橫幅，
+// 這時列 14 改畫一條普通的上緣（與外框同一組字模）。
+// 英文路徑走 `DrawRosterBanner`，與原版一樣。
+func (f *Frame) DrawRosterBox(font *assets.Font, plainTop bool) error {
+	if font == nil {
+		return nil
+	}
+	put := func(index, col, row int) error {
+		return f.DrawGlyph(font, index, col, row, 0, false)
+	}
+	if plainTop {
+		if err := put(boxTopLeft, 0, RosterBoxTopRow); err != nil {
+			return err
+		}
+		for col := 1; col < MsgBorderRight; col++ {
+			if err := put(boxHorizontal, col, RosterBoxTopRow); err != nil {
+				return err
+			}
+		}
+		if err := put(boxTopRight, MsgBorderRight, RosterBoxTopRow); err != nil {
+			return err
+		}
+	}
+	for row := RosterMemberRow; row < RosterBoxBottomRow; row++ {
+		if err := put(boxLeft, 0, row); err != nil {
+			return err
+		}
+		if err := put(boxRight, MsgBorderRight, row); err != nil {
+			return err
+		}
+	}
+	if err := put(boxBottomLeft, 0, RosterBoxBottomRow); err != nil {
+		return err
+	}
+	for col := 1; col < MsgBorderRight; col++ {
+		if err := put(boxHorizontal, col, RosterBoxBottomRow); err != nil {
+			return err
+		}
+	}
+	return put(boxBottomRight, MsgBorderRight, RosterBoxBottomRow)
+}
