@@ -721,6 +721,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `tools/ida/export_forced.py` | 強制把 IDA 漏掉的位址分析成程式碼再倒出 | 是 |
 | `tools/rng.py` | 亂數與擲骰的參考模型（附自我測試） | 否 |
 | `tools/unpack_exepack.py`／`apply_overlay.py` | 解包／合成分析映像 | 否 |
+| `tools/summarize_gate_penalties.py` | 條件閘的獎懲參數逐筆（欄位／加減／量／吃不吃護甲）| 否 |
 | `tools/summarize_chests.py` | 42 個區塊的 nibble 5 逐格內容（已定物品／待擲類別／擲骰特例），含逐筆正對照 | 否 |
 | `tools/summarize_sfx.py` | `seg005` 的音高／音長／音效表 ＋ 九首位元組碼反組譯 | 否 |
 | `tools/scan_callers.py` | 全檔掃某函式的直接呼叫點（far ＋ 同段 near），替 xref 做正對照 | 否 |
@@ -787,6 +788,8 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | [`119`](119-doctor-and-trainer-entry.md) | 醫生／商店／訓練師的進場：招呼語位移每一種不同（`+0x03`／`+0x05`／`+0x03`），三種都先 `sub_1721B` 選人；`P` ＝ 集中金錢，訓練師沒有 |
 | [`120`](120-geiger-counter.md) | 蓋氏計數器（物品 48）＝ 提示裝置：欄 38–39 的計量表 ＋ 主迴圈的滴答聲（間隔 `1d(距離＋1) ＋ 3` tick、音效 2）。**不影響傷害**，擋輻射的是 Rad suit |
 | [`121`](121-fat-freddy-gas-trap.md) | 胖佛萊迪答 `No` ＝ 毒氣：問答分支 → nibble 1 → opcode 7 掃防毒面具（**有人帶著走 `+0x03`**）→ 有面具當場開打／沒有就被毒昏搬進牢房。順帶修掉 `scan_item_refs` 的兩個假零 |
+| [`122`](122-blood-pool-and-gate-armour.md) | 血池 ＝ 資源 27 的六格 nibble 2（1d6／中心固定 5，沒過檢定的人各自受罰）；閘扣 CON 走傷害結算，**記錄 `+0x00` 的 bit0 決定跳不跳過護甲**（全檔 168 筆扣 CON 的閘：63 跳過、105 照扣）|
+| [`123`](123-attack-target-range.md) | 攻擊的目標篩選 `sub_122E9`：同地圖 ＋ 距離 < `ds:46CCh` ＋ **座標在 19 × 9 的地圖視窗內**；一組都沒有就印字串表 1 第 57 條 `No one is within range.` |
 | [`21`](21-attributes.md) | 七個屬性的記錄位移、屬性→修正值階梯、檢定骰、角色建立 |
 | [`22`](22-shop-and-items.md) | 商店、價格公式、物品資料表（95 筆 × 8 bytes） |
 | [`23`](23-picture-format.md) | 圖片格式：packed 4bpp ＋ 列間 XOR delta、82 張 `ALLPICS` |
