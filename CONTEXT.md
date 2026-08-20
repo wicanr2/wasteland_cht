@@ -394,10 +394,9 @@
 完整檢查表在 [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md)。
 
 > ⚠ 下表是**還沒解的**。**解完了還沒接上**的是另一回事，在
-> [`docs/re/00-wiring-status.md`](docs/re/00-wiring-status.md) 標「未接」：
-> 條件閘扣 CON 的護甲吸收（`120`／`122`，全檔 105 筆閘扣多了）、
-> 玩家攻擊的目標篩選（`123`）、輻射計量表（`120`）。
-> **那三條會改變玩家感受到的規則**，順位在 `WORKLIST.md` 的「下一步的順序」。
+> [`docs/re/00-wiring-status.md`](docs/re/00-wiring-status.md) 標「未接」——
+> **2026-08-20 起那一欄是空的**：最後三份（條件閘扣血的護甲吸收、接戰值、
+> 畫面外框與輻射計量表）都接上了。
 
 | # | 還沒解的 | 為什麼不擋 |
 |---|---|---|
