@@ -264,8 +264,9 @@ func (s *Scene) HiFrame() *render.HiFrame {
 	//
 	// ⚠ **戰鬥時指令列照留**（實機截圖 `24-encyes.png`）——那一列是外框的一部分，
 	// 按鍵歸戰鬥選單管。設施與結局才蓋掉。
-	if !s.title && !s.wipe.active && s.facility == nil &&
-		!s.ending.active {
+	// ⚠ **戰鬥與設施都照留**（實機截圖 `24-encyes.png`、`42-shop.png`）：
+	// 那一列是外框的一部分。結局與死亡畫面才蓋掉。
+	if !s.title && !s.wipe.active && !s.ending.active {
 		s.drawCJKLine(h, s.uiText("cmd.bar"), 0, render.CmdRow)
 	}
 	if s.journalOpen && len(s.journalHead) > 0 {
@@ -279,7 +280,7 @@ func (s *Scene) HiFrame() *render.HiFrame {
 	}
 	// 戰鬥名單的表頭：原版是寫死的 ASCII，中文走 `ui:combat.hdr*`
 	// （與指令列同一條路，8 × 8 的字模畫不出中文）。
-	if s.combat != nil {
+	if s.combat != nil || s.facility != nil {
 		if hdr := rosterHeaderCJK(s.uiText); len(hdr) > 0 {
 			s.drawCJKLine(h, hdr, 0, render.RosterHeaderRow)
 		}
@@ -291,13 +292,19 @@ func (s *Scene) HiFrame() *render.HiFrame {
 			s.drawASCIILine(h, en, captionCol(en), render.FacilityNameRow)
 		}
 	}
-	// 設施畫面那幾行（店名、選單、清單）走自己的座標，不在訊息視窗裡。
+	// 設施畫面：**招牌畫在肖像框的說明位**（欄 1、列 12），
+	// 其餘那幾行畫在選單區（欄 15 起），與原版一樣（`docs/re/117` §2）。
 	if s.facility != nil {
+		rect := s.msgRect()
 		for i, l := range s.facility.CJKLines {
 			if len(l) == 0 {
 				continue // 這一行沒有中文，由 drawFacility 畫英文
 			}
-			s.drawCJKLine(h, l, render.FacilityNameCol, render.FacilityNameRow+i)
+			col, row := facilityLineAt(rect, i, l)
+			if row > rect.LastRow() && i > 0 {
+				break
+			}
+			s.drawCJKLine(h, l, col, row)
 		}
 	}
 	// 片頭：原版清整個畫面再印字（`sub_162C7`），所以時鐘、地點名、
@@ -362,7 +369,7 @@ func (s *Scene) drawCursor(h *render.HiFrame) {
 // 訊息視窗那 6 列是空的。照地圖那條 `MsgRow-1` 算的話只放得下三個人，
 // **第四個隊員會直接看不到**——而畫面上看起來只像「隊伍只有三個人」。
 func (s *Scene) rosterLastRow() int {
-	if s.combat != nil {
+	if s.combat != nil || s.facility != nil {
 		return render.CmdRow - 1
 	}
 	return render.MsgRow - 1
@@ -384,7 +391,9 @@ func (r textRect) LastRow() int { return r.Row + r.Height - 1 }
 // 所以戰鬥的文字一律走面板。判斷條件要與 `drawRoster` 一致——
 // 一邊改了另一邊沒改的話，字會畫到名單上面。
 func (s *Scene) msgRect() textRect {
-	if s.combat != nil {
+	// 設施與戰鬥用同一塊：進了店原版就把畫面切成名單模式（`sub_1728C`），
+	// 右上那一塊是 `sub_19727` 設的選單區（`docs/re/117` §2）。
+	if s.combat != nil || s.facility != nil {
 		return textRect{render.PanelCol, render.PanelRow,
 			render.PanelWidth, render.PanelHeight}
 	}
@@ -499,8 +508,9 @@ func (s *Scene) drawHiTextLayer(h *render.HiFrame) {
 		s.drawASCIILine(h, fmt.Sprintf("%02d:%02d", c.Hour, c.Minute),
 			render.ClockCol, render.ClockRow)
 	}
-	// 戰鬥名單那幾行。狀態字與武器名有中文就走中文，查不到就整行畫英文。
-	if s.combat != nil {
+	// 名單那幾行（戰鬥與設施共用同一套版面，`docs/re/117` §2）。
+	// 狀態字與武器名有中文就走中文，查不到就整行畫英文。
+	if s.combat != nil || s.facility != nil {
 		for i, m := range s.world.Party.Members {
 			if m == nil {
 				continue
@@ -1746,7 +1756,10 @@ func (s *Scene) Frame() *render.Frame {
 	} else {
 	switch {
 	case s.facility != nil:
+		// 設施畫面 ＝ 戰鬥那一套版面（`docs/re/117` §2）：左邊肖像框、
+		// 右上選單區、底下名單、最後一列指令列。差別只在圖畫的是店主。
 		s.drawFacility(f)
+		s.drawRoster(f)
 	case s.combat != nil:
 		s.drawPortrait(f)
 		s.drawRoster(f)
@@ -1764,8 +1777,7 @@ func (s *Scene) Frame() *render.Frame {
 	// （實機截圖 `24-encyes.png`）；設施與結局才蓋掉。
 	// **有中文字型時這一行改由 HiFrame 畫**（見 drawCommandBarCJK）：
 	// 8 × 8 的字模畫不出中文，先畫英文再蓋會留下殘影。
-	if s.facility == nil && !s.ending.active && !s.wipe.active &&
-		s.eten == nil {
+	if !s.ending.active && !s.wipe.active && s.eten == nil {
 		_ = f.DrawLineAt(s.font, commandBar(), 0, render.CmdRow)
 	}
 
@@ -1851,14 +1863,14 @@ func (s *Scene) drawRoster(f *render.Frame) {
 // drawFacility 畫設施那一種：地圖視窗換成那張 ALLPICS 圖。
 func (s *Scene) drawFacility(f *render.Frame) {
 	fs := s.facility
-	// 位置是**實機對拍量出來的**（docs/re/54）：圖在視窗原點 (8, 8)、
-	// 96 × 84，地圖在右邊照常露出來——**不是整個視窗換成圖**。
+	// 圖的位置是**實機對拍量出來的**（`docs/re/54`）：視窗原點 (8, 8)、96 × 84。
 	if fs.Picture >= 0 && s.pics != nil && fs.Picture < len(s.pics) {
 		f.DrawIndexed(s.pics[fs.Picture], render.FacilityPicX, render.FacilityPicY,
 			render.ViewClip())
 		f.ApplyAnimMask(s.animMask, render.FacilityPicWidth,
 			render.FacilityPicX, render.FacilityPicY)
 	}
+	rect := s.msgRect()
 	for i, l := range fs.Lines {
 		// 有中文的那一行交給 HiFrame 畫——8 × 8 的字模畫不出中文，
 		// 先畫英文再蓋會留下殘影（與指令列同一條）。
@@ -1868,8 +1880,26 @@ func (s *Scene) drawFacility(f *render.Frame) {
 		if s.hiText() {
 			continue // 純英文那幾行也交給 HiFrame，字才會與中文同高
 		}
-		_ = f.DrawLineAt(s.font, l, render.FacilityNameCol, render.FacilityNameRow+i)
+		col, row := facilityLineAt(rect, i, l)
+		if row > rect.LastRow() && i > 0 {
+			break // 選單區滿了就停，不要壓到名單上（`docs/re/117` §2）
+		}
+		_ = f.DrawLineAt(s.font, l, col, row)
 	}
+}
+
+// facilityLineAt 回報設施畫面第 i 行畫在哪裡（`docs/re/117` §2）。
+//
+// **第 0 行是招牌**，畫在肖像框的說明位（欄 1、列 12，12 格置中，與戰鬥
+// 那一格同一個位置）；其餘畫在選單區（欄 15 起、列 1 起）。
+//
+// ⚠ 原版的設施畫面是**名單模式**：左邊肖像框、右上選單區、底下名單。
+// 全部堆在圖底下的話會壓到名單，而畫面上看起來只是「字有點擠」。
+func facilityLineAt(rect textRect, i int, text string) (col, row int) {
+	if i == 0 {
+		return captionCol(text), render.FacilityNameRow
+	}
+	return rect.Col, rect.Row + i - 1
 }
 
 // doTeleport 執行一次傳送（docs/spec/07 §6.7）。

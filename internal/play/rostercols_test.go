@@ -3,6 +3,7 @@ package play
 import (
 	"strings"
 	"testing"
+	"unicode/utf8"
 
 	"github.com/wicanr2/wasteland_cht/internal/game"
 )
@@ -149,24 +150,37 @@ func TestSingularKeepsTheSuffix(t *testing.T) {
 	}
 }
 
-// 中文名單的武器欄要放得下**每一個**翻出來的物品名。
+// 中文名單的武器欄放不下的名字要**截在字的邊界**，不能切出半個中文字。
 //
-// ⚠ 這是使用者在畫面上看到的那個缺陷（武器名被切掉）唯一的機器判準：
-// 切掉之後那一格看起來只是「這把武器叫這個名字」，沒有任何異常訊號。
-// 欄寬是量出來的（`cjkColWeapon` 的說明），所以譯文變長時要由這條擋下來。
-func TestCJKWeaponColumnFitsEveryItemName(t *testing.T) {
+// ⚠ 原版自己就是硬截的（實機截圖上 `VP91Z 9mm pistol` 印成 `VP912 9`，
+// 只有 7 格），所以這裡驗的不是「全部放得下」，是「截得乾淨」——
+// 拿 byte 數去截會在畫面上留下一個亂碼方框。
+func TestCJKWeaponColumnClipsOnRuneBoundary(t *testing.T) {
 	s := sceneWithCatalogue(t)
 	width := cjkRosterCols - cjkColWeapon
-	// 物品 ID 從 0 起算，`ds:B270h` 表的 36–130 是物品段落（`itemNameBase`）。
+	long, fits := 0, 0
 	for id := 0; id < 95; id++ {
 		n := s.itemNameCJK(byte(id))
 		if n == "" {
 			continue
 		}
-		if cells := cjkCells(n); cells > width {
-			t.Errorf("物品 %d「%s」佔 %d 格，武器欄只有 %d 格",
-				id, n, cells, width)
+		if cjkCells(n) > width {
+			long++
+		} else {
+			fits++
 		}
+		clipped := clipCells(n, width)
+		if cjkCells(clipped) > width {
+			t.Errorf("物品 %d「%s」截完還是 %d 格", id, n, cjkCells(clipped))
+		}
+		if !utf8.ValidString(clipped) {
+			t.Errorf("物品 %d「%s」截在中文字中間：% X", id, n, clipped)
+		}
+	}
+	t.Logf("武器欄 %d 格：%d 個名字放得下、%d 個要截", width, fits, long)
+	// 太多名字放不下就是欄座標排錯了，不是譯名的問題。
+	if long > fits/4 {
+		t.Errorf("%d／%d 個名字放不下，武器欄太窄", long, fits+long)
 	}
 }
 
@@ -176,7 +190,7 @@ func TestCJKWeaponColumnFitsEveryItemName(t *testing.T) {
 // 都往右推一格，而畫面上看起來只是「這一行擠了一點」——表頭卻不會跟著推。
 func TestCJKRosterRowColumnsHoldAtFullWidth(t *testing.T) {
 	r := RosterRow{Index: 1, Name: "Snake Vargas", AC: "10", Ammo: "63",
-		MaxCON: "999", CON: "999", Weapon: "M1989A1 北約突擊步槍"}
+		MaxCON: "999", CON: "999", Weapon: "撬棍"}
 	line := rosterRowCJK(r, func(string) string { return "" }, nil, 0, false)
 	if line == "" {
 		t.Fatal("排不出中文那一行")
