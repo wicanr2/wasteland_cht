@@ -571,13 +571,23 @@ func New(rom *assets.Rom) (*Scene, error) {
 	}
 	save := assets.PickNewer(a, b)
 
-	party, mapID, err := loadParty(save)
+	party, _, err := loadParty(save)
 	if err != nil {
 		return nil, err
 	}
 	clock := loadClock(save)
 
-	block, err := rom.BlockByID(mapID)
+	// **目前地圖取全域狀態的 `ds:4655h`**（`docs/re/117`），不是隊伍槽表的
+	// `+0x0A`。原版讀檔只把那 14 bytes 抄回去就載地圖，槽表的地圖是
+	// 「每一組各自在哪」，切組（`View`）時才用得到。
+	//
+	// ⚠ bit7 設起來的編號要先查表換成資源編號（建築內部走這條，
+	// `internal/assets.ResolveMapID`）——不換的話會拿 130 這種值去索引 42 個區塊。
+	mapID, err := rom.ResolveMapID(save.Globals()[gblCurMap])
+	if err != nil {
+		return nil, err
+	}
+	block, err := rom.BlockByID(int(mapID))
 	if err != nil {
 		return nil, fmt.Errorf("載入地圖 %d：%w", mapID, err)
 	}
@@ -1503,12 +1513,31 @@ func (s *Scene) StoreTo(save *assets.Save) error {
 	gl[11] = s.world.Clock.Minute
 	gl[12] = s.world.Clock.Hour
 
+	// ⚠ **目前地圖在這 14 bytes 裡，不是只在隊伍槽表**（`docs/re/117`）。
+	// 原版讀檔是 `sub_18744` 把 `[0x71A9]` 的 14 bytes 抄回 `ds:464Eh`，
+	// 接著 `sub_18350` 比 `ds:4655h` 與已載入的地圖決定要不要重載——
+	// **它一眼都沒看隊伍槽表的 `+0x0A`**。
+	//
+	// 只寫槽表的話原版會用**舊地圖 ＋ 新座標**開場：實機對拍時隊伍出現在
+	// 世界地圖的 (30, 25)，而畫面上看起來只是「傳送到奇怪的地方」。
+	gl[gblCurMap] = byte(s.blockID)
+
 	// 角色記錄：就地蓋回已解欄位。
 	//
 	// ⚠ 隊伍**會變長**（戰鬥雇用了 NPC，`docs/re/110`）。這時要照原版做兩件事：
 	// 配一個空的記錄編號、把它填進隊伍槽表（`0x13355`）。少了第二件的話
 	// 新隊員這一局玩得到、存完就不見了——而**存檔當下不會有任何錯誤**。
 	ids := slotIDs(slot, len(s.world.Party.Members))
+	// 人數與「下一筆角色記錄」也在那 14 bytes 裡（`docs/re/117` §2）：
+	// `ds:4653h` ＝ 這一組槽表上有幾個人、`ds:4656h` ＝ 已經用掉的最大記錄編號
+	// （雇用時 `sub_13435` 拿它 ＋1 當新記錄，7 人上限也是比它）。
+	//
+	// ⚠ 雇用來的隊員只寫槽表不寫這兩格的話，**原版讀檔時他不在隊伍裡**——
+	// 記錄還在檔案上，但沒有人數指到他。
+	gl[gblGroupSize] = byte(len(ids))
+	if maxID := maxByte(ids); maxID > gl[gblLastRecord] {
+		gl[gblLastRecord] = maxID
+	}
 	i := 0
 	for _, id := range ids {
 		if id == 0 {
@@ -1539,6 +1568,26 @@ func (s *Scene) StoreTo(save *assets.Save) error {
 		i++
 	}
 	return nil
+}
+
+// 全域狀態那 14 bytes（`ds:464Eh`–`465Bh`）裡有名字的幾格（`docs/re/117` §2）。
+//
+// ⚠ **不是每一格都解過**：只列出有讀寫端的，其餘原樣 round-trip。
+const (
+	gblGroupSize  = 5 // ds:4653h：這一組槽表上有幾個人
+	gblCurMap     = 7 // ds:4655h：**目前地圖**（讀檔後 sub_18350 用它決定載哪一張）
+	gblLastRecord = 8 // ds:4656h：已經用掉的最大角色記錄編號（7 人上限比的就是它）
+)
+
+// maxByte 回一串 byte 裡最大的那個；空的回 0。
+func maxByte(b []byte) byte {
+	var m byte
+	for _, v := range b {
+		if v > m {
+			m = v
+		}
+	}
+	return m
 }
 
 // slotIDs 回傳「這 n 個隊員各自要寫進哪一筆角色記錄」，必要時**就地補上新的**。

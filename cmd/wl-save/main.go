@@ -130,6 +130,11 @@ func apply(sv *assets.Save, at string, hour, mapID int) (bool, error) {
 		}
 		g := sv.SlotGroups()[0]
 		sv.Plain[g.RawIndex+10] = byte(mapID)
+		// ⚠ **兩個地方都要寫**：原版讀檔只看全域狀態那 14 bytes 裡的
+		// `ds:4655h`（相對位移 7），槽表的 `+0x0A` 是「每一組各自在哪」
+		// （`docs/re/117`）。只寫槽表的話原版會用**舊地圖 ＋ 新座標**開場，
+		// 而畫面上看起來只是「傳送到奇怪的地方」。
+		sv.Globals()[7] = byte(mapID)
 		changed = true
 	}
 	if hour >= 0 {
