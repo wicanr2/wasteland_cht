@@ -159,7 +159,7 @@
 | `0x17FEE` | seg000+0x7FEE | 40 | 5 | re/00-master-index.md、re/24-map-layers-and-tiles.md、re/25-screen-layout.md |
 | `0x18024` | seg000+0x8024 | 171 | 5 | re/00-master-index.md、re/120-geiger-counter.md、re/16-msq-block-layout.md、re/25-screen-layout.md、re/27-game-clock.md、re/48-map-icons.md |
 | `0x183B1` | seg000+0x83B1 | 110 | 5 | re/05-storage-layer.md、re/06-resource-directory.md、re/07-msq-blocks.md、re/10-huffman-compression.md、re/100-ending-trigger.md、re/27-game-clock.md、re/91-map-command-bar.md |
-| `0x18860` | seg000+0x8860 | 200 | 5 | re/43-input-and-hotkeys.md |
+| `0x18860` | seg000+0x8860 | 200 | 5 | re/126-box-labels.md、re/43-input-and-hotkeys.md |
 | `0x189B1` | seg000+0x89B1 | 158 | 5 | re/04-overlay-wla-bin.md |
 | `0x18D85` | seg000+0x8D85 | 9 | 5 | re/00-master-index.md、re/116-enemy-move-execution.md、re/37-enemy-records-and-hp.md |
 | `0x190A6` | seg000+0x90A6 | 2 | 5 | re/00-master-index.md、re/29-map-event-handlers.md、re/52-trainer-facility.md、re/72-facility-entry-and-command-bar.md、re/99-party-wipe.md |
@@ -188,7 +188,7 @@
 | `0x169CF` | seg000+0x69CF | 28 | 4 | re/00-master-index.md、re/116-enemy-move-execution.md、re/123-attack-target-range.md、re/25-screen-layout.md |
 | `0x16C6F` | seg000+0x6C6F | 13 | 4 | re/25-screen-layout.md |
 | `0x172D4` | seg000+0x72D4 | 131 | 4 | re/96-ending.md |
-| `0x17451` | seg000+0x7451 | 102 | 4 | re/00-master-index.md、re/14-fonts-and-text-encoding.md |
+| `0x17451` | seg000+0x7451 | 102 | 4 | re/00-master-index.md、re/126-box-labels.md、re/14-fonts-and-text-encoding.md |
 | `0x17574` | seg000+0x7574 | 271 | 4 | re/00-master-index.md、re/113-attract-mode.md、re/14-fonts-and-text-encoding.md、re/72-facility-entry-and-command-bar.md |
 | `0x17AF5` | seg000+0x7AF5 | 32 | 4 | re/41-command-handlers.md、re/42-facility-loops.md |
 | `0x17DF1` | seg000+0x7DF1 | 81 | 4 | re/00-master-index.md、re/27-game-clock.md、re/93-order-disband-view.md |

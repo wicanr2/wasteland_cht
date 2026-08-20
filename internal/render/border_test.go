@@ -111,3 +111,40 @@ func testColourFont() *assets.Font {
 	}
 	return f
 }
+
+// 框邊標籤的字模編碼（`docs/re/126` §1）：`(字元 & 0xDF) − 0x29`，
+// 空白 `0x33`，頭尾各一個蓋子，**整段再 ＋0x1C 換成冷色那一組**。
+func TestLabelGlyphs(t *testing.T) {
+	got := labelGlyphs("ESC")
+	// ⚠ 換色只套在 `0x18`–`0x33` 那一段：**左蓋 `0x17` 不在範圍內，原樣畫**，
+	// 右蓋 `0x28` 在範圍內，會被換掉。看起來不對稱，但原版存的就是這兩個值，
+	// 而且走的是同一支繪製常式。
+	want := []int{
+		labelCapLeft,
+		0x1C + colourBankCool, // E
+		0x2A + colourBankCool, // S
+		0x1A + colourBankCool, // C
+		labelCapRight + colourBankCool,
+	}
+	if len(got) != len(want) {
+		t.Fatalf("ESC 應該是 %d 格，得到 %d", len(want), len(got))
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Errorf("第 %d 格是 %#x，預期 %#x", i, got[i], want[i])
+		}
+	}
+	// 空白走 0x33 那一格，不是 ASCII 的 0x20。
+	if g := labelGlyphs("A B")[2]; g != labelSpace+colourBankCool {
+		t.Errorf("空白應該是 %#x，得到 %#x", labelSpace+colourBankCool, g)
+	}
+	// 位置照實機：`ROSTER ON` 在列 17、`ROSTER OFF` 在列 23——
+	// **兩筆不同的記錄**，不是同一個按鈕換字。
+	if LabelRosterOn.Row == LabelRosterOff.Row {
+		t.Error("ROSTER ON 與 OFF 的列不該一樣（docs/re/126 §2）")
+	}
+	if LabelPoolMoney.Col != 21 || LabelPoolMoney.Row != 13 {
+		t.Errorf("POOL MONEY 應該在 (21, 13)，得到 (%d, %d)",
+			LabelPoolMoney.Col, LabelPoolMoney.Row)
+	}
+}
