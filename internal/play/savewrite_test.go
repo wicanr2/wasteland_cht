@@ -183,3 +183,107 @@ func TestShopStockSurvivesSave(t *testing.T) {
 		t.Errorf("品項 %d 的庫存重開後是 %d，存檔時是 %d", target, got, before+1)
 	}
 }
+
+// TestSaveWritesCurrentMapWhereTheOriginalReadsIt：**目前地圖要寫進全域狀態**。
+//
+// ⚠ 原版讀檔（`sub_18744`）只把全域狀態那 14 bytes 抄回 `ds:464Eh`，
+// 接著 `sub_18350` 比 `ds:4655h`（相對位移 7）決定載哪一張地圖——
+// **它一眼都沒看隊伍槽表的 `+0x0A`**（`docs/re/117`）。
+//
+// 只寫槽表的話原版會用**舊地圖 ＋ 新座標**開場，而畫面上看起來只是
+// 「傳送到奇怪的地方」。這一條是 DOSBox 實機對拍抓出來的。
+func TestSaveWritesCurrentMapWhereTheOriginalReadsIt(t *testing.T) {
+	dir, rom := copyDataDir(t)
+	s, err := New(rom)
+	if err != nil {
+		t.Fatalf("開場失敗：%v", err)
+	}
+	s.SetSaveDir(dir)
+	const (
+		wantMap  = 21
+		wantX    = 2
+		wantY    = 22
+		gblMapAt = 7
+	)
+	if err := s.LoadMap(wantMap, wantX, wantY); err != nil {
+		t.Fatal(err)
+	}
+	confirmed(t, s, 'S')
+	if got := s.Message(); got != "Game saved." {
+		t.Fatalf("存檔訊息是 %q", got)
+	}
+
+	// 直接看那一格：這是原版真正會讀的地方。
+	rom2, err := assets.OpenModified(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := rom2.LoadImage(testImage); err != nil {
+		t.Fatal(err)
+	}
+	a, err := rom2.LoadSave("game1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := rom2.LoadSave("game2")
+	if err != nil {
+		t.Fatal(err)
+	}
+	sv := assets.PickNewer(a, b)
+	if got := sv.Globals()[gblMapAt]; got != wantMap {
+		t.Errorf("全域狀態的目前地圖 ＝ %d，預期 %d", got, wantMap)
+	}
+	// 隊伍槽表那一份也要在（切組時用得到）。
+	if got := sv.SlotGroups()[0].MapID; got != wantMap {
+		t.Errorf("隊伍槽表的地圖 ＝ %d，預期 %d", got, wantMap)
+	}
+
+	// 端到端：重開之後真的在那張地圖上。
+	s2, err := New(rom2)
+	if err != nil {
+		t.Fatalf("從寫出去的存檔開場失敗：%v", err)
+	}
+	if got := s2.World().Block.Resource.ID; got != wantMap {
+		t.Errorf("重開後在地圖 %d，預期 %d", got, wantMap)
+	}
+}
+
+// copyDataDir 複製一份可寫的原版資料目錄（原版目錄唯讀，`CLAUDE.md` §4）。
+func copyDataDir(t *testing.T) (string, *assets.Rom) {
+	t.Helper()
+	src := os.Getenv("WL_DATA")
+	if src == "" {
+		src = "../../workplace/orig/wastland"
+	}
+	if _, err := os.Stat(src); err != nil {
+		t.Skipf("找不到原版資料目錄 %s，跳過", src)
+	}
+	dir := t.TempDir()
+	entries, err := os.ReadDir(src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, e := range entries {
+		if e.IsDir() {
+			continue
+		}
+		b, err := os.ReadFile(filepath.Join(src, e.Name()))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, e.Name()), b, 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	rom, err := assets.Open(dir)
+	if err != nil {
+		t.Skipf("開啟複製出來的資料目錄失敗：%v", err)
+	}
+	if err := rom.LoadImage(testImage); err != nil {
+		t.Skipf("載入解包映像失敗：%v", err)
+	}
+	return dir, rom
+}
+
+// testImage 是解包合成映像的路徑（測試共用）。
+const testImage = "../../workplace/analysis/unpacked/wl.merged.exe"
