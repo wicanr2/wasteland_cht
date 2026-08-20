@@ -536,6 +536,7 @@ func (s *Scene) drawHiTextLayer(h *render.HiFrame) {
 			// ⚠ 上面用的是**單人隊伍**（一次只排一個人），所以 `Index`
 			// 一律是 1——序號要從外層的迴圈補回來，不然整份名單都印 `1>`。
 			r.Index = i + 1
+			r.IndexInverse = r.Index == s.selectedMember()
 			slot, has := equippedSlot(m)
 			if zh := rosterRowCJK(r, s.uiText, s.itemNameCJK, slot.ID, has); len(zh) > 0 {
 				// 反白的兩欄要用**中文那一版的字**算欄位範圍——
@@ -1829,8 +1830,9 @@ func (s *Scene) Frame() *render.Frame {
 		_ = f.DrawClock(s.font, int(s.world.Clock.Hour), int(s.world.Clock.Minute))
 	}
 
-	// 指令列（`docs/re/91`）。**戰鬥時照留**——那一列是外框的一部分
-	// （實機截圖 `24-encyes.png`）；設施與結局才蓋掉。
+	// 指令列（`docs/re/91`）。**戰鬥與設施都照留**——那一列是外框的一部分
+	// （實機截圖 `24-encyes.png` 與 `42-shop.png`，`docs/re/117` §2 那張版面圖
+	// 的列 24 就寫著「指令列照常在」）；只有結局與轉場才蓋掉。
 	// **有中文字型時這一行改由 HiFrame 畫**（見 drawCommandBarCJK）：
 	// 8 × 8 的字模畫不出中文，先畫英文再蓋會留下殘影。
 	if !s.ending.active && !s.wipe.active && s.eten == nil {
@@ -2053,13 +2055,43 @@ func (s *Scene) drawRoster(f *render.Frame) {
 	if s.hiText() {
 		return // 名單那幾行由 HiFrame 用倚天半形字畫
 	}
+	sel := s.selectedMember()
 	for i, r := range Roster(s.world.Party, s.items, s.itemName) {
 		if row+1+i > s.rosterLastRow() {
 			break // 名單與訊息視窗在字元列上會撞（docs/spec/03 §3）
 		}
+		r.IndexInverse = r.Index == sel
 		_ = f.DrawLineInverse(s.font, r.Text(), 0, row+1+i,
 			r.InverseAt(enRoster, r.MaxCON, r.Weapon))
 	}
+}
+
+// selectedMember 是「序號要反白的那個人」（1 起算，0 ＝ 沒有）。
+//
+// 原版用 `ds:471Fh` 表示這件事（`docs/re/128`）：畫名片行之前開反白、
+// 印完序號就關，所以畫面上只有序號那兩格是反白的。兩個來源：
+//
+//   - **戰鬥指令階段正在下令的那個人**（`0x1200A`：重畫整張名單之後，
+//     再用反白版重畫他那一行）
+//   - **設施裡站在櫃檯前的那個人**（`0x1BF15` 走的是進場選人的結果）
+//
+// ⚠ 「誰要進去？」那一步還沒有人被選中——實機截圖
+// `42-shop.png` 的名單上一格反白都沒有，選完人的 `43-menu.png` 才有。
+func (s *Scene) selectedMember() int {
+	switch {
+	case s.combat != nil:
+		if s.combat.Done() || s.combat.Turn < 0 {
+			return 0
+		}
+		return s.combat.Turn + 1
+	case s.facility != nil:
+		who, ok := s.facility.Who()
+		if !ok {
+			return 0
+		}
+		return who + 1
+	}
+	return 0
 }
 
 // drawFacility 畫設施那一種：地圖視窗換成那張 ALLPICS 圖。

@@ -47,7 +47,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 
 ## 統計
 
-筆記 **122** 份：已接 **118**、未接 **0**、不適用 **4**。
+筆記 **123** 份：已接 **119**、未接 **0**、不適用 **4**。
 
 | # | 筆記 | 狀態 | 接在哪／為什麼 |
 |---:|---|---|---|
@@ -178,3 +178,4 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 125 | [名單框，以及名片行其實從欄 1 開始](125-roster-box.md) | 已接 | `internal/render/border.go`（`DrawRosterBox`／`DrawRosterBanner`／`rosterBanner`）、`internal/render/render.go`（`RosterHeaderRow` 14 → **15**）、`internal/play/combat.go`（`colIndex` 0 → **1**、`colName` 2 → **3**，中文那一套跟著右移一欄）、`internal/play/play.go`（`drawRosterBox`）、`internal/render/border_test.go`（`TestRosterBoxCorners` 直接量像素——「沒畫」與「畫了但很暗」在畫面上分不出來）|
 | 126 | [框邊上那些標籤（`ESC`、`POOL MONEY`、`ROSTER ON`）](126-box-labels.md) | 已接 | `internal/render/border.go`（`BoxLabel`／`labelGlyphs` ＝ `(ch & 0xDF) − 0x29` 那套編碼、四個實機確認過位置的標籤）、`internal/play/play.go`（地圖畫面畫 `ROSTER ON`、名單畫面畫 `ROSTER OFF`、設施再加 `ESC` 與 `POOL MONEY`）、`internal/play/shop.go`（`HasPool`：訓練師沒有這個鍵）。標籤同時是滑鼠按鈕：`internal/render/border.go`（`BoxLabel.Key`／`Hit`）、`internal/play/play.go`（`boxLabels` ＝ **繪製與滑鼠共用**的那一支）、`internal/play/mouse.go`（排在 `charAt` 前面——標籤畫在框線上，那幾格底下沒有字）、`internal/play/mouse_test.go`（`TestBoxLabelsAreButtons`）。⚠ 17 筆裡只畫了實機截圖確認過位置的那 5 筆 |
 | 127 | [名單模式的兩個框，與「那時候沒有時鐘」](127-roster-mode-boxes.md) | 已接 | `internal/render/border.go`（`DrawBox` ＝ 通用畫框、`DrawPortraitBox`／`DrawMenuBox`、`LabelMap`）、`internal/render/render.go`（`PanelHeight` 13 → **12**，列 13 是框的下緣）、`internal/play/play.go`（名單模式畫兩圈框 ＋ 按模式換下緣標籤；**時鐘只在地圖畫面畫**）|
+| 128 | [`ds:471Fh` 是「這一行的序號要反白」](128-roster-index-inverse.md) | 已接 | `internal/play/combat.go`（`RosterRow.IndexInverse` ＋ `InverseAt` 多一段範圍：序號與 `>` 那幾格，與另外兩個旗標各自獨立）、`internal/play/play.go`（`selectedMember` ＝ 戰鬥取 `CombatScene.Turn`、設施取 `FacilityScene.Who`；低解與高解兩條繪製路都設）、`internal/play/shop.go`（`Who`／`HasPool`：**「誰要進去？」那一步不反白也沒有 `POOL MONEY`**，實機 `42-shop.png` 對照 `43-menu.png`）、`internal/play/inverse_test.go`（`TestIndexInverseSpan`／`TestSelectedMemberFollowsTheCounter`）|

@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/wicanr2/wasteland_cht/internal/game"
+	"github.com/wicanr2/wasteland_cht/internal/input"
 )
 
 // 反白的兩個條件（`docs/re/111` §1）：狀態位元非 0 → 體力欄、
@@ -79,6 +80,78 @@ func TestInverseSpans(t *testing.T) {
 	plain := RosterRow{CON: "10"}
 	if plain.InverseAt(enRoster, "10", "") != nil {
 		t.Error("沒有問題的那一行不該有反白範圍")
+	}
+}
+
+// 序號反白（`ds:471Fh`，`docs/re/128`）只蓋序號與 `>` 那幾格，
+// 而且**與另外兩個旗標各自獨立**——原版是三個開關、三段範圍。
+func TestIndexInverseSpan(t *testing.T) {
+	r := RosterRow{Index: 1, Name: "Hell Razor", MaxCON: "28", CON: "28",
+		IndexInverse: true}
+	inv := r.InverseAt(enRoster, r.MaxCON, r.Weapon)
+	if inv == nil {
+		t.Fatal("序號反白的那一行應該要有反白範圍")
+	}
+	for _, c := range []struct {
+		col  int
+		want bool
+	}{
+		{colIndex - 1, false}, {colIndex, true}, {colIndex + 1, true},
+		{colIndex + 2, false},
+		// 序號反白不該波及名字與其他欄。
+		{colName, false}, {colMaxCON, false}, {colWeapon, false},
+	} {
+		if got := inv(c.col); got != c.want {
+			t.Errorf("欄 %d 反白 ＝ %v，預期 %v", c.col, got, c.want)
+		}
+	}
+
+	// 兩位數的序號多佔一格。
+	ten := RosterRow{Index: 10, IndexInverse: true}
+	inv10 := ten.InverseAt(enRoster, "", "")
+	if !inv10(colIndex+2) || inv10(colIndex+3) {
+		t.Error("序號 10 的反白範圍應該是三格（`10>`）")
+	}
+
+	// 沒被選中就不反白。
+	plain := RosterRow{Index: 2, CON: "10"}
+	if plain.InverseAt(enRoster, "10", "") != nil {
+		t.Error("沒被選中的那一行不該有反白範圍")
+	}
+}
+
+// 序號反白的來源：戰鬥是正在下令的那個人，設施是站在櫃檯前的那個人；
+// 「誰要進去？」那一步一個都不反白（實機 `42-shop.png`）。
+func TestSelectedMemberFollowsTheCounter(t *testing.T) {
+	rom := openRom(t)
+	s, err := New(rom)
+	if err != nil {
+		t.Fatalf("開場失敗：%v", err)
+	}
+	if got := s.selectedMember(); got != 0 {
+		t.Errorf("地圖上不該有人被選中，得到 %d", got)
+	}
+	// 高池鎮的商店：走上傳送格答 Y 進去，停在「誰要進去？」。
+	if err := s.LoadMap(10, 30, 25); err != nil {
+		t.Fatalf("載入高池鎮失敗：%v", err)
+	}
+	for _, k := range []byte{'i', 'Y'} {
+		if _, err := s.Update(input.Input{Char: k}); err != nil {
+			t.Fatalf("送 %q：%v", k, err)
+		}
+	}
+	if s.facility == nil {
+		t.Fatal("沒進到設施畫面")
+	}
+	if got := s.selectedMember(); got != 0 {
+		t.Errorf("「誰要進去？」那一步不該有人反白，得到 %d", got)
+	}
+	// 選第二個人：反白跟著他走。
+	if _, err := s.Update(input.Input{Char: '2'}); err != nil {
+		t.Fatalf("選人：%v", err)
+	}
+	if got := s.selectedMember(); got != 2 {
+		t.Errorf("櫃檯前是第 2 個人，反白卻在 %d", got)
 	}
 }
 

@@ -281,6 +281,26 @@
 | [`docs/re/106-text-scroll.md`](docs/re/106-text-scroll.md) | 文字滿了會**捲動**不是切掉；捲動速度 9 段（`ds:465Bh`，`<`／`>` 調）；順帶查掉 `ds:465Bh` 不是時鐘的時 |
 | [`docs/re/107-command-resolution.md`](docs/re/107-command-resolution.md) | 指令的**結算階段**跳表 `ds:A568h`：換武器、裝填、迴避各自真的做了什麼 |
 | [`docs/re/108-combat-use-and-hire.md`](docs/re/108-combat-use-and-hire.md) | 戰鬥 `Use`／`Hire` 的參數格式；九向位移表與「對角那四格選不到」|
+| [`docs/re/109-character-record-tail.md`](docs/re/109-character-record-tail.md) | 角色記錄的 `+0x4D`–`+0x7F` 沒有任何存取點，階級字串沒有長度上限 |
+| [`docs/re/110-hire-resolution.md`](docs/re/110-hire-resolution.md) | `Hire` 的結算——把 NPC 的記錄整筆複製進隊伍，成敗由魅力對決定 |
+| [`docs/re/111-roster-inverse-video.md`](docs/re/111-roster-inverse-video.md) | `sub_19E2A` 是「反白開」——卡彈的武器名與生病的隊員會被反白 |
+| [`docs/re/112-mouse-cursor-and-hotzones.md`](docs/re/112-mouse-cursor-and-hotzones.md) | 游標圖形對應哪個狀態 —— `ds:8DCDh` 是索引，`0x10D4D` 是繪製常式 |
+| [`docs/re/113-attract-mode.md`](docs/re/113-attract-mode.md) | 片頭播的是六頁開場字幕，而且有一句永遠播不到 |
+| [`docs/re/114-friendly-encounters.md`](docs/re/114-friendly-encounters.md) | 遭遇記錄 `+0x09` 是「這一組跟你什麼關係」 |
+| [`docs/re/115-portrait-box.md`](docs/re/115-portrait-box.md) | 肖像框畫的是誰——最近的那一組敵人，沒有敵人就是遊俠 |
+| [`docs/re/116-enemy-move-execution.md`](docs/re/116-enemy-move-execution.md) | 敵人在地圖上怎麼走——九個步向、三條分支的落地，與那張距離表 |
+| [`docs/re/117-save-globals-and-facility-screen.md`](docs/re/117-save-globals-and-facility-screen.md) | 目前地圖存在全域狀態裡，以及設施畫面的實機版面 |
+| [`docs/re/118-shop-stock-groups.md`](docs/re/118-shop-stock-groups.md) | 物品表有四份，商店按記錄 `+0x06` 換一份——那一欄是「這家店賣什麼」 |
+| [`docs/re/119-doctor-and-trainer-entry.md`](docs/re/119-doctor-and-trainer-entry.md) | 醫生與訓練師的進場——招呼語的位移每一種設施不一樣，三種都要先選人 |
+| [`docs/re/120-geiger-counter.md`](docs/re/120-geiger-counter.md) | 蓋氏計數器是輻射計量表 ＋ 逼近時的滴答聲 |
+| [`docs/re/121-fat-freddy-gas-trap.md`](docs/re/121-fat-freddy-gas-trap.md) | 胖佛萊迪那一題答 No ＝ 毒氣，不是當場開打 |
+| [`docs/re/122-blood-pool-and-gate-armour.md`](docs/re/122-blood-pool-and-gate-armour.md) | 血池那六格，與條件閘扣血到底吃不吃護甲 |
+| [`docs/re/123-attack-target-range.md`](docs/re/123-attack-target-range.md) | 能不能打，由「這一組列不列得出來」決定 |
+| [`docs/re/124-screen-border-and-right-column.md`](docs/re/124-screen-border-and-right-column.md) | 外框怎麼畫，與右邊那一欄的直排 `WASTELAND` |
+| [`docs/re/125-roster-box.md`](docs/re/125-roster-box.md) | 名單框，以及名片行其實從欄 1 開始 |
+| [`docs/re/126-box-labels.md`](docs/re/126-box-labels.md) | 框邊上那些標籤（`ESC`、`POOL MONEY`、`ROSTER ON`） |
+| [`docs/re/127-roster-mode-boxes.md`](docs/re/127-roster-mode-boxes.md) | 名單模式的兩個框，與「那時候沒有時鐘」 |
+| [`docs/re/128-roster-index-inverse.md`](docs/re/128-roster-index-inverse.md) | `ds:471Fh` 是「這一行的序號要反白」——三個進入點共用一個名片行 |
 | [`docs/spec/00-index.md`](docs/spec/00-index.md) | **規格索引與閘門狀態**：哪些可以動工、其餘擋在什麼上 |
 | [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
 | [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |
@@ -407,4 +427,3 @@
 | — | 物品 `+0x03` 低 3 位、敵人 `+0x04` **高** 4 位都沒有讀取端 | 資料裡有值但程式沒讀；原樣 round-trip，不給語意。⚠ 敵人 `+0x04` 的**低** 4 位有兩個用途（護甲骰數與經驗值倍數，`docs/re/37` §3.3），不要混起來 |
 | — | 物品 70／71／72 原本是什麼（`docs/re/50`） | 名字是被清空的、資料完整、字母序把開頭夾在 H–M。**這份 DOS 版問不出更多**；要答案得看別的平台版本 |
 | — | 遭遇記錄 `+0x09` 還有 **bit3 與 bit4–7 以外的位元**沒有讀取端 | bit0／bit1／bit2 與高 4 位都解完了（`docs/re/114` §2），剩下的在資料裡沒有出現過 |
-| — | `Save` 寫回兩份存檔的哪一份、32-bit 序號怎麼推進（`docs/re/97` §3.4）| remake 寫回讀進來的那一份，round-trip 與實機讀取都驗過（`docs/re/49`）|
