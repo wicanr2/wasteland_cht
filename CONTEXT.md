@@ -60,6 +60,7 @@
 | MSQ 區塊 | 兩個資料檔切開：`game1` 20 塊全部 `msq0`、`game2` 22 塊全部 `msq1`；數量與目錄索引三重吻合（`docs/re/07`） |
 | **MSQ 加密** | **已解**：`key = lo(checksum) XOR hi(checksum)`，逐 byte XOR 後 `key += 0x1F`。42/42 通過原版自己的 checksum 驗證，解密後出現 `Titanium`／`Vanadium`／`REDHAWK` 等遊戲文字（`docs/re/08`） |
 | 中文說明書 | 全 60 頁節轉錄完成，含 IBM 版補充說明書與約 200 條當年譯名（`docs/manual-cht/`） |
+| 當年的中文攻略 | **兩份**：軟體世界 5 期（1990，DOS）與精訊電腦 27 期（1988/12，**Apple II**）。兩份都逐頁轉錄並逐條驗過機制；譯名不同（遊俠／遊騎兵）三種都留 |
 | **文字變形機制** | **已解**：`0x0A`／`0x0C`／`0x0E` 是同一個骨架的三個實例（分段 ＋ 選擇子），分別對應**單複數／性別／him-her-it 三選一**；`0x0F` 印出數量、與 `0x0A` 共用選擇子。三個碼可以互相巢狀，外層沒選中時內層連分隔碼都看不到。中文化要照著保留分段（`docs/re/28`）|
 | **字型與文字編碼** | **已解**：兩套字型、兩套索引。主文字字型**內嵌在 `wl.exe`**（`seg003:0xCA60`，128 字 × 8 bytes、單色、索引 ＝ ASCII − 0x20）；`colorf.fnt` 是彩色選單字型（兩組同形不同色的字模，`ds:722Fh` 選色，不是字元碼重映射）。18 個文字控制碼解出 14 個（`docs/re/14`） |
 | 文字輸出 | `sub_1786E` 印字串（`ds:4680h`）→ 每字元處理器可切換（`ds:B265h`）。**遊戲文字是 5-bit 打包的**（`docs/re/17`）；只有少數介面字串（`Yes`、`CREATE DELETE PLAY`、`Money = $`）以明文 ASCII 存在執行檔裡 |
@@ -312,6 +313,8 @@
 | [`docs/manual/`](docs/manual/) | 官方英文手冊全文 markdown，**中英對照** |
 | [`docs/paragraphs/`](docs/paragraphs/) | 段落書 162 段全文與索引，含防拷結構標註 |
 | [`docs/walkthrough/`](docs/walkthrough/) | **自建攻略**：八章正文 ＋ `generated/` 四份機器產出的表（地圖與傳送、條件閘、問答密語、設施）。來源是 `cmd/wl-atlas` ＋ `tools/summarize_walkthrough.py` |
+| [`docs/packaging.md`](docs/packaging.md) | 三平台封裝：兩種模式的守門員、`wl-setup`（Python 移植成 Go）、UTF-8 zip、osxcross ＋ lipo、啟動器怎麼處理唯讀的包 |
+| [`docs/walkthrough/jingxun-027/`](docs/walkthrough/jingxun-027/) | 精訊電腦 27 期（1988/12，**Apple II 版**）〈遊騎兵手記〉逐頁轉錄 ＋ 14 條機制斷言對照。目前找得到最早的中文攻略 |
 | [`docs/promo-video.md`](docs/promo-video.md) | 推廣片的三段管線、視覺 token 的出處、六種版面、踩過的坑。**成品不入版控** |
 | [`docs/mt32-rhythm-probe.md`](docs/mt32-rhythm-probe.md) | MT-32 節奏鍵位的量測：哪些鍵沒有指派（含 GM 的腳踏鈸 42）、怎麼從能量與過零率挑鼓 |
 | `docs/re/generated/ida94/` | 工具匯出的清冊（JSON ＋ markdown），不含人的推論 |
