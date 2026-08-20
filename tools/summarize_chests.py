@@ -72,6 +72,14 @@ def main() -> None:
     offs = S.section_offsets(exe)
     names = item_names()
 
+    def qty(v: int) -> str:
+        """第二個 byte ＝ 件數；bit7 設著表示**還沒擲**（`0x1530F`：
+        `and al,7Fh` → `sub_18E41` → 寫回），所以那是上界不是件數。"""
+        if v & 0x80:
+            n = v & 0x7F
+            return "" if n <= 1 else f" ×1d{n}"
+        return "" if v == 1 else f" ×{v}"
+
     def say(v: int) -> str:
         if v == DONE_MARK:
             return "〔擲骰特例〕"
@@ -84,6 +92,7 @@ def main() -> None:
         "# 寶箱逐格內容（工具輸出，不含推論）",
         "",
         "`已定` ＝ 出貨資料就寫死的物品編號；`類別` ＝ 第一次踩到才擲。",
+        "件數接在物品後面：`×N` 是出貨就寫死的，`×1dN` 是踩到才擲（第二個 byte 的 bit7）。",
         "「格」空白 ＝ 出貨地圖沒有格子指到這一筆（要靠改寫才到得了）。",
         "",
         "| 資源 | 檔案 | 記錄 | 格 | 內容 |",
@@ -134,7 +143,7 @@ def main() -> None:
                 v = body[k]
                 if v != DONE_MARK and not v & 0x80 and v > CLASS_MAX:
                     off_range = True
-                items.append(say(v))
+                items.append(say(v) + qty(body[k + 1]))
                 k += 2
             if not items:
                 continue

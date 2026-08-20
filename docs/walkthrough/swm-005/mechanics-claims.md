@@ -21,7 +21,7 @@
 而**沒有證據支持的否定與沒有證據支持的肯定一樣糟**。
 逐條依據裡的每一個「未定」都寫著缺什麼，那就是下一輪的入口。
 
-2026-08-20 對過一輪：**相符 25、有出入 5、未定 1**。
+2026-08-20 對過一輪：**相符 26、有出入 5、未定 0**。
 
 ## 對照表
 
@@ -36,7 +36,7 @@
 | M-07 | [p.58](p58.md) | 在沙堆上**重複使用攀爬技能可以練等** | [`re/31`](../../re/31-experience-and-skills.md)、[`re/32`](../../re/32-skill-checks-and-xp.md) | **相符** |
 | M-08 | [p.58](p58.md) | 血神殿棋盤檢查站：走正確路徑到機械人左方，**回答步數 30**；踏出路徑第一次砲塔昇起、之後持續射擊；步數答錯要重走 | [`re/46`](../../re/46-typed-answers-and-text-input.md)、[`re/34`](../../re/34-map-script-opcodes.md)、[`generated/passwords.md`](../generated/passwords.md) | **相符** |
 | M-09 | [p.58](p58.md) | 蓋氏計數器在接近輻射區時會發出提示 | [`re/120`](../../re/120-geiger-counter.md)、[`re/55`](../../re/55-radiation-and-armour-bypass.md) | **相符** |
-| M-10 | [p.58](p58.md) | 廢坑中可取得兩支 **M1989 突擊步槍** | [`re/45`](../../re/45-item-data-and-weapon-damage.md)、[`re/50`](../../re/50-unnamed-items.md) | **未定** |
+| M-10 | [p.58](p58.md) | 廢坑中可取得兩支 **M1989 突擊步槍** | [`re/29`](../../re/29-map-event-handlers.md) §4、[`generated/ida94/chests.md`](../../re/generated/ida94/chests.md)、[`generated/maps.md`](../generated/maps.md) | **相符** |
 | M-11 | [p.58](p58.md) | 電網開關是有 **ON／OFF** 兩個選項的互動物件 | [`re/34`](../../re/34-map-script-opcodes.md) | **相符** |
 | M-12 | [p.59](p59.md) | 過血池的方法是「**找一個隊員不斷的往上使用游泳技能**」 | [`re/62`](../../re/62-fourth-gate-terrain-blocking.md)、[`re/65`](../../re/65-third-gate-conditions.md) | **相符** |
 | M-13 | [p.59](p59.md) | 血池中食人魚造成持續傷害，**防護衣物夠強就免疫** | [`re/122`](../../re/122-blood-pool-and-gate-armour.md)、[`re/67`](../../re/67-gate-penalty-and-canteen.md) | **有出入** |
@@ -184,19 +184,54 @@
   36 筆的技能表**——清單本身不篩選，IQ 需求、費用與技能欄有沒有空位全都在
   選完之後才檢查（`re/80` §1）。所以能量武器在任何一家訓練師都學得到。
 
-### 未定
+### 這一輪從「未定」收掉的
 
-- **M-10**（廢坑有兩支 M1989）：內容生成不再是缺口——`0x15280` 的擲骰讀完了
-  （`re/29` §4：類別 → `sub_15453` 數件數 → `sub_18E41` 擲一件 → 設 bit7 寫回，
-  數量也擲一次），逐格內容也倒出來了
-  （[`chests.md`](../../re/generated/ida94/chests.md)，`tools/summarize_chests.py`）。
-  **全遊戲有 11 筆寶箱記錄含固定的 M1989**（資源 13、28、31、34、38、39、41，
-  以及資源 49 的四筆）。**缺的只剩一件事：攻略說的「廢坑」是哪一個資源。**
-  唯一叫礦坑的是資源 43（世界地圖字串 7「Entering a mine shaft.」），
-  它只有一層、只通世界地圖，20 筆寶箱記錄裡一支突擊步槍都沒有——
-  所以攻略描述的「第二層／第三層 ＋ 原子爐 ＋ 輻射」不是它。
-  **下一個入口**：帶原子爐字串的是資源 20 與 38，帶輻射格的是 19／20／26／31／38；
-  拿這幾張圖的傳送關係與寶箱內容去對攻略的路線。
+- **M-10**（廢坑有兩支 M1989）：**廢坑 ＝ 資源 31**。針岩城（資源 26）有**兩個**
+  入口通往它，訊息分別是「進入鎮上的廢料坑」`(6,7)` 與「彈藥掩體裡又涼又暗」
+  `(24,11)`（[`generated/maps.md`](../generated/maps.md））——**廢坑與彈藥庫是同一張圖**，
+  這也解釋了 p.57 的地圖上兩個標註分列左下與右側。
+  攻略說的「第二層／第三層」是**同一張 32 × 32 圖裡用樓梯連起來的區塊**
+  （四處 `31 → 31` 的自我傳送，訊息是「走下樓梯時腳步聲空洞地迴響」），
+  牆上還畫著大大的藍色 `1`／`2`／`3`（字串 17–19）標樓層。
+
+  六筆寶箱記錄逐項對上攻略的收穫清單：
+
+  | 記錄 | 內容 | 攻略 |
+  |---:|---|---|
+  | 1 | **M1989A1 ×2**、M1911A1 ×2、45 clip ×5、7.62 clip ×7 | 「兩支 M1989 突擊步槍」「彈藥一堆」 |
+  | 0 | **Rad suit ×2**、Bullet proof shirt | 「防護衣數件」 |
+  | 2 | Grenade ×1d15、Plastic explosive ×1d3、TNT | p.57 在彈藥庫拿到的 TNT |
+  | 5 | Ruby ring、Bloodstaff | p.58 的紅寶石戒指與血杖 |
+
+  件數是這一輪才讀出來的：記錄裡每個物品後面那個 byte 就是件數，
+  bit7 設著表示「還沒擲」（`0x1530F`），所以 `×1d15` 是上界不是件數
+  （`tools/summarize_chests.py` 現在把兩種都印出來）。
+
+  輻射也對得上：**資源 31 全圖只有一格 nibble 9**（其餘有輻射的是 0、19、20、
+  26、38），正好是攻略寫的「走到大房間前計數器突然叫了起來」——
+  一格輻射就是計量表與滴答聲的來源（[`re/120`](../../re/120-geiger-counter.md) §2）。
+
+  ```bash
+  # 每張圖有幾格輻射（nibble 9）
+  docker run --rm --log-opt max-size=10m --log-opt max-file=3 --network none \
+    -v "$PWD:/w" -w /w -u "$(id -u):$(id -g)" python:3.12-slim python3 -c "
+  import sys; sys.path.insert(0, 'tools')
+  from pathlib import Path
+  import summarize_chests as C
+  S = C._scan()
+  exe, g1, g2 = (Path(p).read_bytes() for p in (
+      'workplace/analysis/unpacked/wl.merged.exe',
+      'workplace/orig/wastland/game1', 'workplace/orig/wastland/game2'))
+  for res_id, label, body, map_size in S.load(exe, g1, g2):
+      dim = body[map_size + S.DIM_AT] if map_size + S.DIM_AT < len(body) else 0
+      n = sum(1 for _ in S.cells_of(body, dim, 9)) if dim else 0
+      if n: print(res_id, label, dim, n)"
+  ```
+
+  ⚠ 攻略寫的「已停止運轉的原子爐」在這張圖上**沒有對應的字串**：
+  資源 31 的輻射來源是「A broken radioactive waste container」（字串 12），
+  帶 `reactor` 字樣的是資源 20 與 38，與針岩城不相通。
+  這是敘述用詞的差異，不影響 M-10 本身。
 
 ## 順帶記下的原文誤植
 
