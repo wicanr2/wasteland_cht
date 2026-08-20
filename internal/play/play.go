@@ -145,6 +145,11 @@ type Scene struct {
 	// items 是物品資料表（存檔區那一份，docs/re/45 §2）。
 	// **武器傷害要靠它**——沒有它每個人的傷害都是 0，戰鬥永遠打不完。
 	items game.ItemTable
+	// itemStock 是**目前載進來的那一組庫存**（原版 `ds:46C5h`，`docs/re/118`）。
+	// 物品表在檔案裡有四份：`game1` 三份、`game2` 一份，價錢與傷害完全相同，
+	// **只有庫存那一欄（`+0x02`）不一樣**——進商店時照它的記錄 `+0x06` 換一份。
+	itemStock byte
+
 	// itemsRaw 是同一張表的明文位元組。**庫存是遊戲狀態**（賣一件 +1），
 	// 存檔時要連它一起寫回去，所以留一份原始資料在手上。
 	itemsRaw []byte
@@ -652,7 +657,10 @@ func New(rom *assets.Rom) (*Scene, error) {
 	}
 	s.placeIntro = save.Place()
 	s.sayPlace()
-	if raw, err := rom.LoadItemTable(save.File, 0); err == nil {
+	// ⚠ **物品表固定住在 `game1`／`game2`，與「哪一份存檔比較新」無關**
+	// （`0x1860B` 的 `dx ← 53C5h` 是 game1 的位移，只有第 4 組換 game2）。
+	// 開場載第 0 組——原版 `ds:46C4h` 的初值就是 0（`0x16341`）。
+	if raw, err := rom.LoadItemTable(itemStockFile(0), itemStockSlot(0)); err == nil {
 		s.items, s.itemsRaw = game.ParseItemTable(raw), raw
 	} else {
 		// 載不到就維持空表：傷害會是 0，但遊戲跑得動。

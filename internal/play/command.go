@@ -119,7 +119,7 @@ func (s *Scene) doSave() (bool, error) {
 		// 物品表（店家庫存）與存檔是同一個檔案裡的兩個資源，
 		// 先把它蓋回記憶體，再由 WriteSave 一次寫出去。
 		if len(s.itemsRaw) > 0 {
-			if err := s.rom.SetItemTable(s.save.File, 0, s.itemsRaw); err != nil {
+			if err := s.rom.SetItemTable(itemStockFile(s.itemStock), itemStockSlot(s.itemStock), s.itemsRaw); err != nil {
 				s.message = "SAVE FAILED: " + err.Error()
 				s.cjk = ""
 				s.dirty = true
