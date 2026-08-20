@@ -93,3 +93,5 @@ ui:wound.crt	CRT
 ui:wound.mrt	MRT
 ui:wound.com	COM
 ui:hire.joins	%s joins the party.
+ui:facility.noheal	No treatment needed.
+ui:facility.skillfull	No room for another skill.

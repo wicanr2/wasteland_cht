@@ -67,12 +67,12 @@ func TestHeal(t *testing.T) {
 		t.Fatalf("治完應該滿血、剩 10 元，得到 CON %d／錢 %d", c.CON, c.Money)
 	}
 	// 滿血的人不需要治。
-	if ok, why := f.Heal(c); ok || why != "不需要治療" {
+	if ok, why := f.Heal(c); ok || why != ReasonNoHealNeeded {
 		t.Fatalf("滿血不該能治：ok=%v why=%q", ok, why)
 	}
 	// 錢不夠整筆失敗，不扣款也不回血。
 	poor := &Character{CON: 1, MaxCON: 28, Money: 10}
-	if ok, why := f.Heal(poor); ok || why != "錢不夠" {
+	if ok, why := f.Heal(poor); ok || why != ReasonNoMoney {
 		t.Fatalf("錢不夠應該失敗：ok=%v why=%q", ok, why)
 	}
 	if poor.Money != 10 || poor.CON != 1 {
@@ -96,12 +96,12 @@ func TestCure(t *testing.T) {
 		t.Fatalf("應該扣 200，剩 %d", c.Money)
 	}
 
-	if ok, why := f.Cure(c, 5); ok || why != "沒有這種病" {
+	if ok, why := f.Cure(c, 5); ok || why != ReasonNoSuchDisease {
 		t.Fatalf("已經治好的不該再治：ok=%v why=%q", ok, why)
 	}
 
 	broke := &Character{Money: 10, Status: StatusRabies}
-	if ok, why := f.Cure(broke, 5); ok || why != "錢不夠" {
+	if ok, why := f.Cure(broke, 5); ok || why != ReasonNoMoney {
 		t.Fatalf("錢不夠應該失敗：ok=%v why=%q", ok, why)
 	}
 	if broke.Status != StatusRabies {
@@ -115,7 +115,7 @@ func TestExamAndBuy(t *testing.T) {
 	if ok, _ := f.Exam(c); !ok || c.Money != 5 {
 		t.Fatalf("檢查費 20，應該剩 5，得到 %d", c.Money)
 	}
-	if ok, why := f.Exam(c); ok || why != "錢不夠" {
+	if ok, why := f.Exam(c); ok || why != ReasonNoMoney {
 		t.Fatalf("剩 5 元不該付得起 20：ok=%v why=%q", ok, why)
 	}
 

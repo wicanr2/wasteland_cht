@@ -305,9 +305,9 @@ func (s *Scene) HiFrame() *render.HiFrame {
 			if len(l) == 0 {
 				continue // 這一行沒有中文，由 drawFacility 畫英文
 			}
-			col, row := facilityLineAt(rect, i, l)
-			if row > rect.LastRow() && i > 0 {
-				break
+			col, row, ok := facilityLineAt(rect, i, len(s.facility.CJKLines), l)
+			if !ok {
+				continue
 			}
 			s.drawCJKLine(h, l, col, row)
 		}
@@ -540,12 +540,21 @@ func (s *Scene) drawHiTextLayer(h *render.HiFrame) {
 		}
 	}
 	// 設施那幾行裡沒有中文的（店名以外的清單多半是英文物品名）。
+	//
+	// ⚠ **位置要走 `facilityLineAt`，與中文那一份同一支。** 這裡本來自己算
+	// 「招牌那一列 ＋ i」，於是第 2 行以後一路往下畫，招呼語折行的第二行
+	// 正好落在名單表頭上——兩層字疊在一起，畫面上像是表頭變得很擠。
 	if s.facility != nil {
+		rect := s.msgRect()
 		for i, l := range s.facility.Lines {
 			if i < len(s.facility.CJKLines) && len(s.facility.CJKLines[i]) > 0 {
 				continue
 			}
-			s.drawASCIILine(h, l, render.FacilityNameCol, render.FacilityNameRow+i)
+			col, row, ok := facilityLineAt(rect, i, len(s.facility.Lines), l)
+			if !ok {
+				continue
+			}
+			s.drawASCIILine(h, l, col, row)
 		}
 	}
 	// 訊息視窗的英文。有中文正文時只留第一行當標題（與 `Frame` 同一條規則）。
@@ -1022,11 +1031,26 @@ func (s *Scene) updateCombat(in input.Input) (bool, error) {
 	if c.Done() {
 		res := c.ResolveRound()
 		s.dirty = true
+		// ⚠ **一回合的每一行都要留**。只取最後一行的話，玩家看不到自己
+		// 打中沒有、扣了幾點——畫面上只剩「某某獲得 N 點經驗值」。
+		// 訊息區本來就會捲（`eachMessageCell`／`docs/re/106` §1），
+		// 超過高度時最後一行仍然看得到，所以整段接起來是安全的。
 		if n := len(res.Lines); n > 0 {
-			s.message = res.Lines[n-1]
-			s.cjk = ""
-			if len(res.CJK) == n {
-				s.cjk = res.CJK[n-1]
+			s.message, s.cjk = strings.Join(res.Lines, "\r"), ""
+			// **有中文就整段換成中文**（與換武器清單同一條規矩）：
+			// 兩層各自捲動，同時留著英文會讓兩邊差一行、疊在一起。
+			// 逐行對齊時**這一行沒有譯文就放英文原句**，不要留空——
+			// 空行會讓行數對不上，畫面上少一句話。
+			if anyCJK(res.CJK) {
+				zh := make([]string, n)
+				for i := range zh {
+					if i < len(res.CJK) && res.CJK[i] != "" {
+						zh[i] = res.CJK[i]
+					} else {
+						zh[i] = res.Lines[i]
+					}
+				}
+				s.cjk, s.message = strings.Join(zh, "\n"), ""
 			}
 		}
 		if res.Over {
@@ -1037,8 +1061,10 @@ func (s *Scene) updateCombat(in input.Input) (bool, error) {
 		// 敵人在地圖上移動（`docs/re/116`）：結算之後執行這一回合的計畫，
 		// 再替**下一回合**算一份——原版的順序是「算計畫 → 下令與結算 →
 		// 執行」，所以下一回合的命中基礎值用的是下一回合的計畫。
+		// ⚠ **接在結算後面，不要蓋掉**。原本是覆寫，於是一整輪的命中與
+		// 傷害全部被「某某移動到更好的位置」吃掉。
 		if en, zh := s.moveEnemies(); en != "" {
-			s.message, s.cjk = en, zh
+			s.appendMessage(en, zh)
 			c.Log = append(c.Log, en)
 		}
 		s.planEnemyMove()
@@ -1888,12 +1914,52 @@ func (s *Scene) drawFacility(f *render.Frame) {
 		if s.hiText() {
 			continue // 純英文那幾行也交給 HiFrame，字才會與中文同高
 		}
-		col, row := facilityLineAt(rect, i, l)
-		if row > rect.LastRow() && i > 0 {
-			break // 選單區滿了就停，不要壓到名單上（`docs/re/117` §2）
+		col, row, ok := facilityLineAt(rect, i, len(fs.Lines), l)
+		if !ok {
+			continue // 捲出去的行（`docs/re/106` §1）
 		}
 		_ = f.DrawLineAt(s.font, l, col, row)
 	}
+}
+
+// appendMessage 把一句話接在訊息區後面（英文用 `\r`、中文用 `\n` 分行，
+// 與 `walkMessage`／`walkBody` 的分行字元一致）。
+//
+// ⚠ 中文那一側**沒有譯文就放英文**：兩邊的行數必須一樣，
+// 否則中文那一層會少一行，而畫面看起來只是「那句話沒出現」。
+func (s *Scene) appendMessage(en, zh string) {
+	if s.cjk != "" || zh != "" {
+		if zh == "" {
+			zh = en // 這一句沒有譯文，放英文原句佔住那一行
+		}
+		if s.cjk != "" {
+			s.cjk += "\n" + zh
+		} else {
+			s.cjk = zh
+		}
+		s.message = "" // 有中文就整段走中文，兩層不並存
+		s.dirty = true
+		return
+	}
+	if s.message != "" {
+		s.message += "\r" + en
+	} else {
+		s.message = en
+	}
+	s.dirty = true
+}
+
+// anyCJK 回報這一批行裡有沒有任何一行有譯文。
+//
+// ⚠ 判準是「**有沒有**」不是「**每一行都有**」：目錄載進來的時候多數行有譯文，
+// 少數（人名接的句子）沒有，那幾行放英文原句就好。
+func anyCJK(lines []string) bool {
+	for _, l := range lines {
+		if l != "" {
+			return true
+		}
+	}
+	return false
 }
 
 // facilityLineAt 回報設施畫面第 i 行畫在哪裡（`docs/re/117` §2）。
@@ -1903,11 +1969,21 @@ func (s *Scene) drawFacility(f *render.Frame) {
 //
 // ⚠ 原版的設施畫面是**名單模式**：左邊肖像框、右上選單區、底下名單。
 // 全部堆在圖底下的話會壓到名單，而畫面上看起來只是「字有點擠」。
-func facilityLineAt(rect textRect, i int, text string) (col, row int) {
+// ⚠ **選單區滿了要捲掉最前面的行，不是把後面的切掉**（`docs/re/106` §1）。
+// 剛剛那句回應永遠是最後一行——切後面等於把它吃掉，而畫面看起來
+// 只是「按了沒反應」（買不起時完全沒有回饋，就是這樣來的）。
+//
+// total 是這一次要畫幾行；ok 為 false 表示這一行被捲出去了，不要畫。
+func facilityLineAt(rect textRect, i, total int, text string) (col, row int, ok bool) {
 	if i == 0 {
-		return captionCol(text), render.FacilityNameRow
+		return captionCol(text), render.FacilityNameRow, true
 	}
-	return rect.Col, rect.Row + i - 1
+	skip := total - 1 - rect.Height
+	if skip < 0 {
+		skip = 0
+	}
+	row = rect.Row + (i - 1) - skip
+	return rect.Col, row, row >= rect.Row
 }
 
 // doTeleport 執行一次傳送（docs/spec/07 §6.7）。

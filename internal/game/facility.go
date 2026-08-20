@@ -127,10 +127,10 @@ func (f Facility) HealCost(c *Character) (points int, cost uint32) {
 func (f Facility) Heal(c *Character) (ok bool, reason string) {
 	points, cost := f.HealCost(c)
 	if points <= 0 {
-		return false, "不需要治療"
+		return false, ReasonNoHealNeeded
 	}
 	if c.Money < cost {
-		return false, "錢不夠"
+		return false, ReasonNoMoney
 	}
 	c.Money -= cost
 	c.CON = c.MaxCON
@@ -140,15 +140,15 @@ func (f Facility) Heal(c *Character) (ok bool, reason string) {
 // Cure 付錢治一種病（bit 0–7）。
 func (f Facility) Cure(c *Character, bit int) (ok bool, reason string) {
 	if bit < 0 || bit > 7 {
-		return false, "沒有這種病"
+		return false, ReasonNoSuchDisease
 	}
 	mask := uint8(1) << bit
 	if c.Status&mask == 0 {
-		return false, "沒有這種病"
+		return false, ReasonNoSuchDisease
 	}
 	cost := f.Price(docCure)
 	if c.Money < cost {
-		return false, "錢不夠"
+		return false, ReasonNoMoney
 	}
 	c.Money -= cost
 	c.Status &^= mask
@@ -160,7 +160,7 @@ func (f Facility) Cure(c *Character, bit int) (ok bool, reason string) {
 func (f Facility) Exam(c *Character) (ok bool, reason string) {
 	cost := f.Price(docExam)
 	if c.Money < cost {
-		return false, "錢不夠"
+		return false, ReasonNoMoney
 	}
 	c.Money -= cost
 	return true, ""
@@ -170,11 +170,11 @@ func (f Facility) Exam(c *Character) (ok bool, reason string) {
 func (f Facility) Buy(c *Character, itemID byte, base uint16) (ok bool, reason string) {
 	price := uint32(ShopPrice(base, f.Record[shopDiscount]))
 	if c.Money < price {
-		return false, "錢不夠"
+		return false, ReasonNoMoney
 	}
 	slot, ok := FirstEmptyItemSlot(c.Items)
 	if !ok {
-		return false, "帶不下了"
+		return false, ReasonInventoryFull
 	}
 	c.Money -= price
 	c.Items = putSlot(c.Items, slot, Slot{ID: itemID, Value: 1})
