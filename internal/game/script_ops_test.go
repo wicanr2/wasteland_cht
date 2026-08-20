@@ -132,7 +132,7 @@ func TestOpBranchOnFirstMember(t *testing.T) {
 	}
 }
 
-// opcode 7：沒帶物品 0x2F 的人 CON ← −5；只要有一個人帶著就走 +0x05（`0x1A699`）。
+// opcode 7：沒帶物品 0x2F 的人 CON ← −5；只要有一個人帶著就走 +0x03（`0x1A699`）。
 func TestOpNeedItem(t *testing.T) {
 	t.Run("有人帶著", func(t *testing.T) {
 		with := &Character{Name: "有", CON: 20, Items: []Slot{{ID: needItemID}}}
@@ -150,8 +150,8 @@ func TestOpNeedItem(t *testing.T) {
 		if without.PreHurt != 18 {
 			t.Errorf("扣血前的值要備份到 +0x26，得到 %d", without.PreHurt)
 		}
-		if r[1] != 0xBB || r[2] != 0xBC {
-			t.Errorf("有人帶著要走 +0x05，得到 %#02x %#02x", r[1], r[2])
+		if r[1] != 0xAA || r[2] != 0xAB {
+			t.Errorf("有人帶著要走 +0x03，得到 %#02x %#02x", r[1], r[2])
 		}
 	})
 	t.Run("一個都沒有", func(t *testing.T) {
@@ -159,8 +159,8 @@ func TestOpNeedItem(t *testing.T) {
 			&Party{Members: []*Character{{CON: 20}, {CON: 20}}}, nil)
 		r := []byte{0, 0, 0, 0xAA, 0xAB, 0xBB, 0xBC}
 		runOp(w, OpNeedItem, r)
-		if r[1] != 0xAA || r[2] != 0xAB {
-			t.Errorf("一個都沒有才走 +0x03，得到 %#02x %#02x", r[1], r[2])
+		if r[1] != 0xBB || r[2] != 0xBC {
+			t.Errorf("一個都沒有才走 +0x05，得到 %#02x %#02x", r[1], r[2])
 		}
 	})
 }

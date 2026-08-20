@@ -38,6 +38,7 @@ SCRIPT_TYPE = 6
 OPCODE_TABLE_TYPE = 0x10  # 記錄 +0x00 → opcode 的對照表
 OP_CARRY_CHECK = 43
 OP_MAX = 43
+MAX_RECORDS = 256  # 指標表最多找幾項才放棄（找第一個非 0 用）
 CLASS_MAX = 18
 CHEST_ITEMS_AT = 0x02
 CARRY_LIST_AT = 0x07
@@ -65,12 +66,27 @@ def u16(b: bytes, off: int | None) -> int | None:
 
 
 def array(body: bytes, at: int | None):
-    """指標陣列：第一項就是第一筆記錄的位置，所以項數 ＝ (第一項 − 起點) ÷ 2。"""
+    """指標陣列：記錄資料緊接在表後面，所以項數 ＝ (最前面那筆記錄 − 起點) ÷ 2。
+
+    ⚠ **表裡可以有 0**（那一格的記錄不存在），而且**可以出現在第 0 項**——
+    資源 40 的寶箱表就是這樣。拿第 0 項當「第一筆記錄」會讀到 0、判定失敗、
+    整個 section 被跳過，而症狀是「這個區塊沒有寶箱」，與真的沒有長得一樣。
+    要取的是**第一個非 0 的項**，再回頭檢查它容不容得下自己的索引。
+    """
     start = u16(body, at)
-    first = u16(body, start) if start else None
-    if not start or not first or not (start < first <= len(body)) or (first - start) % 2:
+    if not start:
         return None, 0
-    return start, (first - start) // 2
+    for i in range(MAX_RECORDS):
+        first = u16(body, start + 2 * i)
+        if first is None:
+            return None, 0
+        if not first:
+            continue  # 這一格沒有記錄，往下找
+        if not (start < first <= len(body)) or (first - start) % 2:
+            return None, 0
+        count = (first - start) // 2
+        return (start, count) if count > i else (None, 0)
+    return None, 0
 
 
 def cells_of(body: bytes, dim: int, nibble: int):
@@ -121,12 +137,17 @@ def main() -> None:
         # 腳本。⚠ 沒有 nibble 6 的格子就沒有腳本——這種區塊的 section 6
         # 指標常常與別的 section 指到同一處（＝ 這個 section 不存在），
         # 照樣走下去會把別人的資料讀成 opcode。
-        if not any(True for _ in cells_of(body, dim, SCRIPT_TYPE)):
-            no_script += 1
-            continue
         start, count = array(body, map_size + offs[SCRIPT_TYPE])
         opbase = u16(body, map_size + offs[OPCODE_TABLE_TYPE])
-        if not start or not opbase:
+        shared = start is not None and any(
+            t != SCRIPT_TYPE and u16(body, map_size + offs[t]) == start
+            for t in range(SECTION_TYPES)
+        )
+        # ⚠ 出貨地圖上沒有 nibble 6 的格子**不代表這張圖沒有腳本**：
+        # nibble 8 的答案分支會把腳下那一格改寫成 (6, N)（`docs/re/46` §4.1），
+        # 那些記錄只在執行期才被指到。所以閘門改成「這個 section 的指標
+        # 有沒有和別的型別撞在一起」——撞了就是這張圖沒有這個 section。
+        if not start or not opbase or shared:
             no_script += 1
             continue
         # 0x10 表裡存的是 opcode，所以它的有效長度 ＝ 開頭連續 ≤ 43 的那一段。
@@ -175,7 +196,8 @@ def main() -> None:
         + (f"（{dict(bad_op)}）" if bad_op else ""),
         f"- 寶箱未擲定類別超出 0–{CLASS_MAX} 的：**{sum(bad_class.values())}**"
         + (f"（{dict(bad_class)}）" if bad_class else ""),
-        f"- 沒有 nibble 6 的格子而跳過的區塊：**{no_script}**（那些區塊沒有腳本）",
+        f"- section 6 的指標與別的型別撞在一起而跳過的區塊：**{no_script}**"
+        "（那些區塊沒有腳本）",
         f"- `+0x00` 指到 opcode 表外而跳過的記錄：**{out_of_table}**",
         "",
         (

@@ -21,7 +21,7 @@
 而**沒有證據支持的否定與沒有證據支持的肯定一樣糟**。
 逐條依據裡的每一個「未定」都寫著缺什麼，那就是下一輪的入口。
 
-2026-08-20 對過一輪：**相符 23、有出入 4、未定 4**。
+2026-08-20 對過一輪：**相符 24、有出入 4、未定 3**。
 
 ## 對照表
 
@@ -47,7 +47,7 @@
 | M-18 | [p.60](p60.md) | **蠍式（`Scorpition`）免疫子彈類武器**，只有 LAW 火箭之類打得動 | [`re/55`](../../re/55-radiation-and-armour-bypass.md) 護甲穿透、[`re/45`](../../re/45-item-data-and-weapon-damage.md)、[`re/19`](../../re/19-effects-and-damage.md) | **有出入** |
 | M-19 | [p.60](p60.md) | 醫院療傷**要花錢**，而且要經過一段遊戲內時間 | [`re/35`](../../re/35-status-and-healing.md)、[`re/73`](../../re/73-shop-and-doctor-entry.md)、[`re/27`](../../re/27-game-clock.md) | **相符** |
 | M-20 | [p.60](p60.md)、[p.61](p61.md) | 音波鑰匙（`Sonic key`）**不只蠍式會掉**，打其他殺人機器也能取得；它能開炸不開的門 | [`re/50`](../../re/50-unnamed-items.md)、[`re/69`](../../re/69-gate-flags.md)、[`generated/gates.md`](../generated/gates.md) | **相符** |
-| M-21 | [p.60](p60.md) | 對 Fat Freddy 的要求回答 `NO` 會**直接觸發戰鬥** | [`re/46`](../../re/46-typed-answers-and-text-input.md)、[`re/34`](../../re/34-map-script-opcodes.md) | **未定** |
+| M-21 | [p.60](p60.md) | 對 Fat Freddy 的要求回答 `NO` 會**直接觸發戰鬥** | [`re/121`](../../re/121-fat-freddy-gas-trap.md)、[`re/46`](../../re/46-typed-answers-and-text-input.md)、[`re/71`](../../re/71-nibble12-batch-patch.md) | **相符** |
 | M-22 | [p.60](p60.md) | 招募囚犯 Covenant 要先**開門**（選 `Open`）再**解掉他身上的鎖** | [`re/110`](../../re/110-hire-resolution.md)、[`re/69`](../../re/69-gate-flags.md) | **相符** |
 | M-23 | [p.60](p60.md) | 蕈狀雲神殿門口的第三題要**打字輸入 `Bloodstaff`** | [`re/46`](../../re/46-typed-answers-and-text-input.md)、[`generated/passwords.md`](../generated/passwords.md) | **相符** |
 | M-24 | [p.60](p60.md) | 神殿圖書館可學**能量武器（`Energy`）技能**，對應遊戲中確實存在能量武器 | [`re/80`](../../re/80-trainer-skill-list.md)、[`re/45`](../../re/45-item-data-and-weapon-damage.md)、[`re/52`](../../re/52-trainer-facility.md) | **有出入** |
@@ -136,6 +136,13 @@
   逐格取最小。主迴圈 `0x16B49` 再拿同一個讀數決定滴答聲的間隔
   （`1d(距離＋1) ＋ 3` 個 BIOS tick，音效 2）——**越近響得越密**，
   那就是攻略寫的「叫了起來」。與誰帶著無關，也不影響傷害。
+- **M-21**：**整條鏈讀出來了**（`re/121`）。答 `No` 觸發的不是戰鬥而是**毒氣**：
+  那一格先改寫成 nibble 1 記錄 1（「他按下桌上的按鈕，你聽見輕微的嘶嘶聲」），
+  再改寫成 section 6 記錄 11 ＝ opcode 7 ——**全隊掃防毒面具**（物品 0x2F），
+  沒有的人 `CON ← −5`。有人戴上 → 印「Combat flares. Freddy's henchmen go for
+  their guns」並在 (6, 23) 放一組遭遇（**攻略作者遇到的就是這一條**）；
+  一個都沒有 → 全隊被毒昏、傳送進牢房那一區，同一組遭遇仍然留在原地。
+  所以「會觸發戰鬥」對，「直接」要拆開。
 
 ### 有出入
 
@@ -174,9 +181,6 @@
   **還沒解的是後半**：「不能打」的閘門不在肖像那條路上（`ds:A420h` 只有肖像在讀），
   攻擊被擋是另一個判準。**下一個入口**：`sub_122E9` 的失敗條件，
   以及攻擊指令結算時的射程檢查。
-- **M-21**（對胖佛萊迪答 `NO` 直接開打）：問答收 `Y` 與 `N` 兩鍵，
-  但**答案怎麼分支到不同結果還沒解**（`re/46` 解的是輸入層與比對，
-  不是答對之後跳去哪）。**下一個入口**：nibble 8 記錄裡每個答案的後續位移。
 
 ## 順帶記下的原文誤植
 
