@@ -43,3 +43,4 @@ translations/source/*.bak
 # 交付物打包（含原版衍生素材與影片，不入版控）
 dist-all/
 dist-build/
+dist-platform/
