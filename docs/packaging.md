@@ -4,7 +4,8 @@
 tools/package.sh <public|local-full> <linux-x64|windows-x64|macos-universal>
 ```
 
-產物落在 `dist-platform/<模式>/<平台>/`（gitignore）。六個組合各跑一次就是完整一輪。
+產物落在 `dist-all/<模式>/<平台>/`（gitignore）。六個組合各跑一次就是完整一輪，
+而 `tools/dist.sh` 就是「跑滿六個，再把配樂與推廣片收進同一棵樹」的那一支。
 
 ---
 
@@ -101,7 +102,20 @@ AppImage 掛起來是唯讀的、`.app` 也不該被寫，而這個遊戲要寫�
 | local-full | windows-x64 | `.zip`（121 筆）| 21 MB |
 | local-full | macos-universal | `.zip`（125 筆）| 25 MB |
 
-## 6. 要用到的 image
+## 6. 交付物集中在 dist-all
+
+```
+dist-all/
+  public/<平台>/      可散布的三個包
+  local-full/<平台>/  不可散布的三個包
+  music/{midi,ogg}/   配樂（midi 可散布、ogg 不可）
+  promo/              推廣片
+  SHA256SUMS          全部檔案的校驗碼
+```
+
+一次跑完：`tools/dist.sh`。包已經跑過、只想重收音樂與影片：`tools/dist.sh --skip-packages`。
+
+## 7. 要用到的 image
 
 ```bash
 docker build --network host -t wasteland-go:1.24-x11  -f docker/wasteland-go.Dockerfile  docker/

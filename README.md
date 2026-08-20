@@ -296,6 +296,9 @@ tools/package.sh public macos-universal  # zip，裡面是 universal 的 .app
 `local-full` 是同一套加上原版資料、倚天字型與背景音樂的自留版本，**不可散布**。
 每個決定的理由在 [`docs/packaging.md`](docs/packaging.md)。
 
+交付物集中在 `dist-all/`（不入版控）：`public/`、`local-full/`、`music/`、`promo/`
+與一份 `SHA256SUMS`。一次跑完六個包再收齊其他東西是 `tools/dist.sh`。
+
 滑鼠也能玩：點地圖往那個方向走一步、點指令列下指令、點清單選那一項、右鍵取消。
 游標用的是原版 `CURS` 的八個圖，而且**跟著狀態換**——指到可點的字換一個、
 在地圖視窗上按方向換成箭頭、指到隊伍自己那一格換成十字。
