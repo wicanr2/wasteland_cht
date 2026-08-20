@@ -94,6 +94,12 @@ type Sounder interface{ TakeSound() int }
 // 沒實作也照跑——檢視器場景就沒有。
 type Animator interface{ TickAnim() bool }
 
+// Geiger 是會週期性滴答的場景（蓋氏計數器，`docs/re/120` §4）。
+//
+// ⚠ 這與 `Sounder` 不同層：`Sounder` 是「這一幀有沒有人觸發音效」，
+// 而滴答**沒有觸發事件**——它是計時器自己走出來的，所以要有一個週期性的來源。
+type Geiger interface{ TickGeiger() }
+
 
 
 // animTicksPerFrame 是幾幀推一拍動畫。60 TPS ÷ 3 ＝ 20 Hz，
@@ -189,6 +195,11 @@ func (g *Game) Update() error {
 		g.animTick = 0
 		if a, ok := g.scene.(Animator); ok {
 			a.TickAnim()
+		}
+		// 蓋氏計數器的滴答也是照 BIOS tick 走的（`docs/re/120` §4），
+		// 與設施動畫同一個分頻。
+		if gg, ok := g.scene.(Geiger); ok {
+			gg.TickGeiger()
 		}
 	}
 	// 背景音樂跟著場景走：換模式換曲、設定裡關掉就停。

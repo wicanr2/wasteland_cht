@@ -122,6 +122,9 @@ al ≥ 9 → 整條空的                      ; 讀數 ≥ 72 或 0FFh
 所以**距離越近，取樣上界越小、平均間隔越短，滴答越密**；
 沒帶計數器或視野裡沒有輻射格時一聲都不響。
 
+remake 這一側是 `Scene.TickGeiger`，分頻交給呈現層（`internal/ui/ui.go`：
+60 TPS ÷ 3 ＝ 20 Hz，整數分頻裡最接近 18.2 Hz 的一檔，與設施動畫同一個計數）。
+
 推論等級：§1–§4 全部**已確認**（讀到程式碼並解釋得通）。
 `0x16234` 在畫面初始化時把 `ds:46EEh` 設成 0（不是 `0FFh`）——**未解**，
 它之後緊接著就會被視窗重畫那一支重算，實際影響看不出來。
@@ -150,7 +153,7 @@ python3 tools/dump_font.py colour workplace/orig/wastland/colorf.fnt out.txt
 ```
 
 實機對照：`workplace/dosbox/shots/20-map.png` 右緣就是這根管子
-（直排的 `RADIATION` 標籤在它上面，屬於外框那一層）。
+（直排的 `WASTELAND` 在它上面，屬於外框那一層，`docs/re/124` §3）。
 
 ## 7. 這一輪學到的（寫成規則）
 

@@ -145,6 +145,10 @@ type Scene struct {
 	// `TakeSound` 取走就清掉，所以同一個觸發不會播兩次。
 	sound int
 
+	// geigerTicks 是蓋氏計數器滴答聲的倒數（原版 `ds:AAE5h`，`docs/re/120` §4），
+	// 單位是 BIOS tick。歸零時播音效 2 並重新抽一次間隔。
+	geigerTicks int
+
 	// items 是物品資料表（存檔區那一份，docs/re/45 §2）。
 	// **武器傷害要靠它**——沒有它每個人的傷害都是 0，戰鬥永遠打不完。
 	items game.ItemTable
@@ -1959,6 +1963,46 @@ func (s *Scene) geigerReading() int {
 		}
 	}
 	return best
+}
+
+// TickGeiger 推進一個 BIOS tick 的蓋氏計數器滴答聲（`docs/re/120` §4）。
+//
+// 原版在主迴圈 `0x16B49` 每個 BIOS tick 看一次讀數：`0xFF`（視野裡沒有輻射格
+// 或全隊沒帶計數器）整段跳過，一聲都不響；否則倒數遞減，歸零就播音效 2、
+// 間隔重設成 `1d(讀數＋1) ＋ 3` 個 tick。**讀數越小上界越小，滴答越密。**
+//
+// ⚠ **分頻是呈現層的事**（同 `TickAnim`）：這裡收到一次就算一個 BIOS tick。
+//
+// ⚠ 只有地圖畫面會滴答。那段程式碼在地圖主迴圈裡，戰鬥與設施各自是別的迴圈
+// （`docs/re/51` §1、`docs/re/29` §5.4），而且讀數本身也只在重畫地圖視窗時才更新。
+func (s *Scene) TickGeiger() {
+	if s.combat != nil || s.facility != nil {
+		return
+	}
+	d := s.geigerReading()
+	if d == render.MeterNoReading || !s.partyHasGeiger() {
+		return
+	}
+	if s.geigerTicks == 0 {
+		// 原版是 `dl ＋1` 之後才擲，所以讀數 0（站在輻射格上）也擲得出 1。
+		s.geigerTicks = s.rollGeigerGap(d)
+	}
+	s.geigerTicks--
+	if s.geigerTicks == 0 {
+		s.playSound(SoundGeigerTick)
+	}
+}
+
+// SoundGeigerTick 是滴答聲的音效編號（`sub_1CBD3(2)`，`docs/re/44` §6 的第 2 顆）。
+const SoundGeigerTick = 2
+
+// rollGeigerGap 抽下一次滴答的間隔：`1d(讀數＋1) ＋ 3`（`0x16B59`）。
+// 沒有產生器時退回固定的下界，不要讓滴答停掉。
+func (s *Scene) rollGeigerGap(reading int) int {
+	if s.world == nil || s.world.RNG == nil {
+		return 1 + 3
+	}
+	return s.world.RNG.Roll(reading+1) + 3
 }
 
 // partyHasGeiger 回報隊上**有沒有人**帶著蓋氏計數器（`sub_17E42` 的迴圈，
