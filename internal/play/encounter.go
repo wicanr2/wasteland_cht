@@ -88,7 +88,7 @@ func (s *Scene) scanGroups() [game.QueueGroups]game.PartyGroupState {
 				X:       int(s.world.Party.X),
 				Y:       int(s.world.Party.Y),
 				Engage: game.Engagement(s.world.Party.Members,
-					func(int) bool { return false }),
+					s.engageFar(s.world.Party.Members)),
 			}
 			continue
 		}
@@ -100,10 +100,22 @@ func (s *Scene) scanGroups() [game.QueueGroups]game.PartyGroupState {
 			Present: true,
 			X:       int(g.X),
 			Y:       int(g.Y),
-			Engage:  game.Engagement(members, func(int) bool { return false }),
+			Engage:  game.Engagement(members, s.engageFar(members)),
 		}
 	}
 	return out
+}
+
+// engageFar 是 `game.Engagement` 要的那個判準：**這個人的武器有射程且有子彈**
+// （`sub_13878`，`docs/re/123` §2）。沒有物品表就一律回 false ——
+// 那等於全隊都是近戰接戰值，與原版「沒武器就 0x0F」同一個方向。
+func (s *Scene) engageFar(members []*game.Character) func(int) bool {
+	return func(i int) bool {
+		if i < 0 || i >= len(members) {
+			return false
+		}
+		return game.EngageFarFor(members[i], s.items)
+	}
 }
 
 // groupMembers 把一組槽表的角色記錄讀出來（只給接戰值用，不建完整隊伍）。

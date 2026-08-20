@@ -117,8 +117,9 @@ func (q *EncounterQueue) sortGroup(group int) {
 
 // Engagement 是一個隊伍組的接戰值：該組成員接戰值的最大值（docs/re/39 §4）。
 //
-// far 由呼叫端提供——決定 0xFE 的那條路（sub_199F1／sub_19D2F）還沒逆向，
-// **不要在這裡猜一個條件出來**。
+// far 由呼叫端提供，判準是 `EngageFarFor`（`sub_13878`，`docs/re/123` §2）：
+// **裝備的武器有射程而且彈匣不是空的**。呼叫端要拿得到物品表才算得出來，
+// 所以留成參數。
 func Engagement(members []*Character, far func(int) bool) int {
 	best := EngageNone
 	for i, m := range members {
@@ -248,4 +249,37 @@ func (q *EncounterQueue) Nearest(group int) (QueueEntry, bool) {
 		}
 	}
 	return QueueEntry{}, false
+}
+
+// EngageFarFor 回報這個人夠不夠格拿到 `EngageFar`（`sub_13878` 的 `0xFE` 那條）。
+//
+// 原版的三步（`0x1388B`–`0x1389B`）：
+//
+//	sub_196B2 → 裝備武器那一格的物品資料
+//	sub_199F1 → 物品資料 +0x03 ＝ 類別；**是 0 就沒武器**，退回近戰
+//	sub_19D2F → 類別在 ds:CD00h 的射程清單裡才繼續
+//	sub_138C1 → 彈匣裡的發數（物品槽附屬 byte 的低 6 位）是 0
+//	            就走 sub_1391E，把接戰值**壓回 0x0F**
+//
+// 所以「有射程」不只看武器種類，**還要有子彈**。三個條件缺一個都是 `EngageClose`，
+// 而接戰值就是攻擊挑得到誰的距離上限（`docs/re/123` §2）——
+// 少了這一段，空彈匣的槍照樣打得到遠處的敵人。
+func EngageFarFor(c *Character, items ItemTable) bool {
+	if c == nil || items == nil || c.EquipIndex == 0 {
+		return false
+	}
+	i := int(c.EquipIndex)
+	if i >= len(c.Items) {
+		return false
+	}
+	slot := c.Items[i]
+	if slot.ID == 0 {
+		return false
+	}
+	d, ok := items.Get(slot.ID)
+	if !ok || !d.Class.Ranged() {
+		return false
+	}
+	// 附屬 byte 的低 6 位是剩餘發數（高 2 位另有用途，`docs/re/21` §5.1）。
+	return slot.Value&0x3F != 0
 }
