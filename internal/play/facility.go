@@ -15,11 +15,29 @@ import (
 	"github.com/wicanr2/wasteland_cht/internal/textlayout"
 )
 
-// 設施記錄裡這一輪用到的兩個位移。
-const (
-	recGreeting   = 0x05 // 招呼語（指到這張地圖自己的字串，`0x1BEB7`）
-	recStockGroup = 0x06 // 這家店賣哪一組東西（`0x1BEA2`，`docs/re/118`）
-)
+// recStockGroup 是商店記錄裡「這家店賣哪一組東西」的位移（`0x1BEA2`，`docs/re/118`）。
+const recStockGroup = 0x06
+
+// greetingAt 回報這一種設施的招呼語字串編號放在記錄的第幾個 byte
+// （`docs/re/119` §1）。−1 ＝ 這一種沒有招呼語。
+func greetingAt(k game.FacilityKind) int {
+	switch k {
+	case game.FacilityShop:
+		return 0x05 // `0x1BEB7`：抄進 ds:DBF4h
+	case game.FacilityDoctor, game.FacilityTrainer:
+		return 0x03 // `0x1C29F`／`0x1BBCF`：直接餵給 sub_178A0
+	}
+	return -1
+}
+
+// asksWho 回報這一種設施進場要不要先問「誰要進去」（`sub_1721B`）。
+func asksWho(k game.FacilityKind) bool {
+	switch k {
+	case game.FacilityShop, game.FacilityDoctor, game.FacilityTrainer:
+		return true
+	}
+	return false
+}
 
 // ableCount 數這一組有幾個人能行動（`sub_172BB` 那個條件）。
 func ableCount(p *game.Party) int {
@@ -206,17 +224,23 @@ func (s *Scene) EnterFacility(record []byte) *FacilityScene {
 		// 「有些設施的招牌是中文、有些是英文」。
 		fs.CJKLines = append(fs.CJKLines, fs.CJKPlace(f.Name))
 	}
-	// 招呼語：記錄 `+0x05` 指到**這張地圖自己的字串**（`docs/re/117` §2.1）。
-	if len(record) > recGreeting && s.world != nil && s.world.Block != nil {
-		if n := int(record[recGreeting]); n > 0 && n < len(s.world.Block.Strings) {
-			fs.Greeting = strings.TrimSpace(s.world.Block.Strings[n])
+	// 招呼語：記錄裡的一個 byte 指到**這張地圖自己的字串**（`docs/re/119` §1）。
+	// ⚠ **位移每一種設施不一樣**：商店 `+0x05`、醫生與訓練師 `+0x03`——
+	// 拿錯位移會印出別的句子（訓練師的 `+0x05` 落在名字欄位裡）。
+	if at := greetingAt(f.Kind); at >= 0 && len(record) > at &&
+		s.world != nil && s.world.Block != nil {
+		if n := int(record[at]); n > 0 && n < len(s.world.Block.Strings) {
+			// ⚠ 原文帶著控制碼（開頭常是 `\x07` 換頁），逐字畫的話會在畫面上
+			// 變成一個方框——走 `textlayout.Render` 先把控制碼吃掉。
+			fs.Greeting = strings.TrimSpace(
+				textlayout.Render(s.world.Block.Strings[n], textlayout.Options{}))
 			fs.GreetingCJK = s.cjkLookup(
 				lang.BlockKey(s.blockFile, s.blockID, n), textlayout.Options{})
 		}
 	}
-	// 商店而且隊伍不只一個人 → 先問「誰要進去？」（`docs/re/42` §1）。
-	// **一個人就不問**，原版也是直接用他。
-	if f.Kind == game.FacilityShop && s.world != nil && ableCount(s.world.Party) > 1 {
+	// 商店、醫生、訓練師三種都先問「誰要進去／誰要治療」（`sub_1721B`，
+	// `docs/re/119` §1）。**一個人就不問**，原版也是直接用他。
+	if asksWho(f.Kind) && s.world != nil && ableCount(s.world.Party) > 1 {
 		fs.state.Step = StepWho
 	}
 	fs.ItemName, fs.SkillName = s.itemName, s.skillName
@@ -281,6 +305,12 @@ func (s *Scene) trainableSkills() []TrainableSkill {
 	}
 	out := make([]TrainableSkill, 0, len(raw)/2)
 	for i := 0; i+1 < len(raw); i += 2 {
+		if i == 0 {
+			// ⚠ **第 0 格不是技能**（與物品表第 0 筆同一種佔位），
+			// 原版的清單第一列是 `Brawling`（實機截圖 `61-tr-menu.png`）。
+			// 列出來的話畫面上會多一行沒有名字的 `skill 0`。
+			continue
+		}
 		d := game.ParseSkillData(raw[i], raw[i+1])
 		if d.BaseCost == 0 {
 			continue // 費用 0 的槽不是可學的技能

@@ -24,7 +24,7 @@
 | `0x19C2C` | seg000+0x9C2C | 40 | 26 | re/00-master-index.md、re/110-hire-resolution.md、re/20-combat-resolution.md、re/21-attributes.md、re/32-skill-checks-and-xp.md、re/36-combat-rounds.md、re/88-hit-accumulator.md、re/90-party-initiative.md |
 | `0x19EFC` | seg000+0x9EFC | 22 | 26 | re/00-master-index.md、re/106-text-scroll.md、re/116-enemy-move-execution.md、re/14-fonts-and-text-encoding.md、re/28-text-variants.md、re/51-encounter-driver.md、re/55-radiation-and-armour-bypass.md、re/58-line-flush-and-scrollback.md、re/87-enemy-map-movement.md |
 | `0x13A56` | seg000+0x3A56 | 28 | 25 | re/00-master-index.md、re/101-enemy-move-plan-table.md、re/108-combat-use-and-hire.md、re/110-hire-resolution.md、re/114-friendly-encounters.md、re/115-portrait-box.md、re/20-combat-resolution.md、re/32-skill-checks-and-xp.md、re/37-enemy-records-and-hp.md、re/88-hit-accumulator.md |
-| `0x1728C` | seg000+0x728C | 34 | 25 | re/117-save-globals-and-facility-screen.md、re/25-screen-layout.md、re/29-map-event-handlers.md、re/38-combat-commands-and-flee.md、re/40-combat-screen.md、re/41-command-handlers.md、re/42-facility-loops.md、re/51-encounter-driver.md、re/52-trainer-facility.md、re/72-facility-entry-and-command-bar.md、re/92-use-command.md、re/93-order-disband-view.md、re/99-party-wipe.md |
+| `0x1728C` | seg000+0x728C | 34 | 25 | re/117-save-globals-and-facility-screen.md、re/119-doctor-and-trainer-entry.md、re/25-screen-layout.md、re/29-map-event-handlers.md、re/38-combat-commands-and-flee.md、re/40-combat-screen.md、re/41-command-handlers.md、re/42-facility-loops.md、re/51-encounter-driver.md、re/52-trainer-facility.md、re/72-facility-entry-and-command-bar.md、re/92-use-command.md、re/93-order-disband-view.md、re/99-party-wipe.md |
 | `0x19C04` | seg000+0x9C04 | 40 | 25 | re/101-enemy-move-plan-table.md、re/110-hire-resolution.md |
 | `0x18E41` | seg000+0x8E41 | 30 | 24 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/13-rng.md、re/20-combat-resolution.md、re/29-map-event-handlers.md、re/37-enemy-records-and-hp.md、re/77-encounter-spawn-gap.md、re/78-encounter-spawn.md、re/89-enemy-target-and-down.md |
 | `0x163C4` | seg000+0x63C4 | 50 | 22 | re/25-screen-layout.md、re/29-map-event-handlers.md、re/38-combat-commands-and-flee.md、re/40-combat-screen.md、re/51-encounter-driver.md、re/64-enter-location-prompt.md、re/92-use-command.md |
@@ -80,7 +80,7 @@
 | `0x118D2` | seg000+0x18D2 | 214 | 9 | re/03-boot-and-asset-loading.md、re/05-storage-layer.md、re/11-huffman-decoder.md |
 | `0x173D2` | seg000+0x73D2 | 122 | 9 | re/106-text-scroll.md、re/113-attract-mode.md、re/72-facility-entry-and-command-bar.md、re/91-map-command-bar.md、re/95-main-menu.md |
 | `0x17852` | seg000+0x7852 | 5 | 9 | re/42-facility-loops.md |
-| `0x178A0` | seg000+0x78A0 | 3 | 9 | re/16-msq-block-layout.md、re/17-packed-text.md、re/18-block-text.md、re/22-shop-and-items.md、re/46-typed-answers-and-text-input.md、re/52-trainer-facility.md、re/67-gate-penalty-and-canteen.md、re/69-gate-flags.md、re/74-heat-entry-and-gate-display.md |
+| `0x178A0` | seg000+0x78A0 | 3 | 9 | re/119-doctor-and-trainer-entry.md、re/16-msq-block-layout.md、re/17-packed-text.md、re/18-block-text.md、re/22-shop-and-items.md、re/46-typed-answers-and-text-input.md、re/52-trainer-facility.md、re/67-gate-penalty-and-canteen.md、re/69-gate-flags.md、re/74-heat-entry-and-gate-display.md |
 | `0x17CD2` | seg000+0x7CD2 | 25 | 9 | re/00-master-index.md、re/110-hire-resolution.md、re/114-friendly-encounters.md、re/116-enemy-move-execution.md、re/16-msq-block-layout.md、re/29-map-event-handlers.md、re/34-map-script-opcodes.md、re/46-typed-answers-and-text-input.md、re/69-gate-flags.md、re/70-nibble1-and-facility-entry.md |
 | `0x18D27` | seg000+0x8D27 | 5 | 9 | re/41-command-handlers.md |
 | `0x19BEC` | seg000+0x9BEC | 4 | 9 | re/00-master-index.md、re/101-enemy-move-plan-table.md、re/110-hire-resolution.md、re/88-hit-accumulator.md |
@@ -90,7 +90,7 @@
 | `0x1393E` | seg000+0x393E | 9 | 8 | re/00-master-index.md、re/109-character-record-tail.md、re/16-msq-block-layout.md、re/32-skill-checks-and-xp.md |
 | `0x1651A` | seg000+0x651A | 19 | 8 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/108-combat-use-and-hire.md、re/116-enemy-move-execution.md、re/26-movement-and-triggers.md、re/32-skill-checks-and-xp.md、re/92-use-command.md |
 | `0x16EE8` | seg000+0x6EE8 | 56 | 8 | re/42-facility-loops.md、re/93-order-disband-view.md |
-| `0x1721B` | seg000+0x721B | 52 | 8 | re/42-facility-loops.md、re/43-input-and-hotkeys.md、re/46-typed-answers-and-text-input.md、re/52-trainer-facility.md、re/91-map-command-bar.md、re/92-use-command.md、re/93-order-disband-view.md |
+| `0x1721B` | seg000+0x721B | 52 | 8 | re/119-doctor-and-trainer-entry.md、re/42-facility-loops.md、re/43-input-and-hotkeys.md、re/46-typed-answers-and-text-input.md、re/52-trainer-facility.md、re/91-map-command-bar.md、re/92-use-command.md、re/93-order-disband-view.md |
 | `0x18350` | seg000+0x8350 | 97 | 8 | re/00-master-index.md、re/117-save-globals-and-facility-screen.md、re/24-map-layers-and-tiles.md、re/25-screen-layout.md、re/27-game-clock.md、re/51-encounter-driver.md、re/60-teleport-and-map-change.md |
 | `0x18D2C` | seg000+0x8D2C | 5 | 8 | re/41-command-handlers.md |
 | `0x1968C` | seg000+0x968C | 32 | 8 | re/00-master-index.md、re/107-command-resolution.md、re/15-character-record.md、re/32-skill-checks-and-xp.md、re/41-command-handlers.md、re/65-third-gate-conditions.md |
@@ -380,7 +380,7 @@
 | `0x1997B` | seg000+0x997B | 94 | 2 | re/00-master-index.md、re/109-character-record-tail.md、re/15-character-record.md、re/92-use-command.md |
 | `0x199D9` | seg000+0x99D9 | 24 | 2 | re/92-use-command.md |
 | `0x19A0F` | seg000+0x9A0F | 13 | 2 | re/00-master-index.md、re/45-item-data-and-weapon-damage.md |
-| `0x19A41` | seg000+0x9A41 | 23 | 2 | re/15-character-record.md |
+| `0x19A41` | seg000+0x9A41 | 23 | 2 | re/119-doctor-and-trainer-entry.md、re/15-character-record.md |
 | `0x19A58` | seg000+0x9A58 | 68 | 2 | re/00-master-index.md、re/32-skill-checks-and-xp.md、re/44-audio.md、re/65-third-gate-conditions.md、re/67-gate-penalty-and-canteen.md、re/92-use-command.md |
 | `0x19ACD` | seg000+0x9ACD | 130 | 2 | re/107-command-resolution.md |
 | `0x19B67` | seg000+0x9B67 | 26 | 2 | re/31-experience-and-skills.md、re/51-encounter-driver.md |

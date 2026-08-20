@@ -56,7 +56,7 @@ ui:facility.sold	Sold for $%d.
 ui:facility.learned	Learned %s.
 ui:facility.row	%d) %s
 ui:facility.more	MORE!
-ui:facility.skillrow	%d) %s  cost %d
+ui:facility.skillrow	%d) %2d %3d %3d  %s
 ui:facility.sellrow	%d)%s %s
 ui:facility.buyrow	%d) %8d  %s
 ui:help.title	KEYS

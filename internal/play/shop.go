@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/wicanr2/wasteland_cht/internal/game"
+	"github.com/wicanr2/wasteland_cht/internal/render"
 	"github.com/wicanr2/wasteland_cht/internal/textlayout"
 )
 
@@ -23,7 +24,13 @@ const (
 	strOutOfStock   = 1  // 7：`We are temporarily out of stock.`
 	strYouHave      = 4  // 7：`You have $`
 	strNothingWant  = 5  // 7：`You don't have anything they want!`
-	strWhoEnters    = 2  // 7：`Who wants to enter?`
+	strWhoEnters    = 2  // 7：`Who wants to enter?`（商店）
+	strWhoTreat     = 23 // 8：`Who wants treatment?`（醫生）
+	strBeyondHelp   = 9  // 8：`\x0B is beyond my help.`
+	strRecommend    = 10 // 8：`"Well \x0B, I would recommend:"`
+	strTrainerWho   = 5  // 6：`Who wants to enter?`（訓練師）
+	strNoCondition  = 6  // 6：`\x0B is in no condition to learn.`
+	strTrainerHead  = 3  // 6：`   IQ PTS LVL   SKILL`
 	strCantBuy      = 3  // 7：`\x0B can't buy anything.`
 	strBuyOrSell    = 6  // 7：`Do you want to:` ＋ Buy／Sell
 	strPriceItem    = 7  // 7：`   PRICE     ITEM`
@@ -135,6 +142,13 @@ func (f *FacilityScene) Key(k byte, p *game.Party, items game.ItemTable) bool {
 		}
 	}
 
+	// 「誰要進去／誰要治療」那一層三種設施共用（`sub_1721B`，`docs/re/119`）：
+	// 只收號碼，選到不能行動的人要印一句話退回來重選。
+	if st.Step == StepWho {
+		f.whoKey(k, p)
+		f.refresh(p, items)
+		return true
+	}
 	switch f.Facility.Kind {
 	case game.FacilityShop:
 		f.shopKey(k, p, items)
@@ -150,26 +164,47 @@ func (f *FacilityScene) Key(k byte, p *game.Party, items game.ItemTable) bool {
 	return true
 }
 
-func (f *FacilityScene) shopKey(k byte, p *game.Party, items game.ItemTable) {
-	st := f.state
-	// 「誰要進去？」那一層只收號碼：選到不能行動的人要退回來重選
-	// （`sub_172BB` → 字串 3），其餘鍵一律不動。
-	if st.Step == StepWho {
-		if k < '1' || k > '9' {
-			return
-		}
-		n := int(k - '1')
-		if n >= len(p.Members) || p.Members[n] == nil {
-			return
-		}
-		if !game.CanCommand(p.Members[n]) {
-			f.setNote(p.Members[n].Name+" can't buy anything.",
-				exeTableShop, strCantBuy)
-			return
-		}
-		st.Who, st.Step = n, StepMain
+// whoKey 是「誰要進去？」那一層的按鍵（三種設施共用）。
+func (f *FacilityScene) whoKey(k byte, p *game.Party) {
+	if k < '1' || k > '9' {
 		return
 	}
+	n := int(k - '1')
+	if n >= len(p.Members) || p.Members[n] == nil {
+		return
+	}
+	if !game.CanCommand(p.Members[n]) {
+		en, table, id := f.cantMessage()
+		f.setNote(p.Members[n].Name+en, table, id)
+		return
+	}
+	f.state.Who, f.state.Step = n, StepMain
+}
+
+// whoPrompt 是那一層要印的問句（每種設施自己的字串）。
+func (f *FacilityScene) whoPrompt() (en string, table, id int) {
+	switch f.Facility.Kind {
+	case game.FacilityDoctor:
+		return "Who wants treatment?", exeTableDoctor, strWhoTreat
+	case game.FacilityTrainer:
+		return "Who wants to enter?", exeTableTrainer, strTrainerWho
+	}
+	return "Who wants to enter?", exeTableShop, strWhoEnters
+}
+
+// cantMessage 是「這個人不能用這家店」那一句（接在名字後面）。
+func (f *FacilityScene) cantMessage() (en string, table, id int) {
+	switch f.Facility.Kind {
+	case game.FacilityDoctor:
+		return " is beyond my help.", exeTableDoctor, strBeyondHelp
+	case game.FacilityTrainer:
+		return " is in no condition to learn.", exeTableTrainer, strNoCondition
+	}
+	return " can't buy anything.", exeTableShop, strCantBuy
+}
+
+func (f *FacilityScene) shopKey(k byte, p *game.Party, items game.ItemTable) {
+	st := f.state
 	switch k {
 	case keyPool:
 		// 把其他隊員身上的錢全部搬給櫃檯前這個人（`sub_19B81`）。
@@ -215,8 +250,9 @@ func (f *FacilityScene) shopKey(k byte, p *game.Party, items game.ItemTable) {
 // 兩層寫成一層的話，「C」會在錯的地方被吃掉。
 func (f *FacilityScene) doctorKey(k byte, p *game.Party) {
 	st := f.state
-	if k == keyNextChar {
-		st.Who = nextAble(p, st.Who)
+	if k == keyPool {
+		// 醫生也有 `POOL MONEY`（實機截圖 `54-doc-menu.png` 的外框下緣）。
+		game.PoolMoney(p, st.Who)
 		return
 	}
 	switch st.Step {
@@ -343,12 +379,12 @@ func (f *FacilityScene) buyOne(p *game.Party, items game.ItemTable, n int) {
 // 沒有可學的。寫成錯誤分支會讓玩家莫名其妙被踢出去。
 func (f *FacilityScene) trainerKey(k byte, p *game.Party) {
 	st := f.state
-	switch {
-	case k == keyNextChar:
-		st.Who = nextAble(p, st.Who)
-	case k >= '1' && k <= '9':
+	// ⚠ **訓練師沒有 `P`**：外框下緣只有 `MORE!`，清單迴圈也沒有設
+	// `ds:470Eh`（`0x1BC42` 那一段）——實機截圖 `61-tr-menu.png`。
+	if k >= '1' && k <= '9' {
 		f.learnOne(p, f.state.Page+int(k-'1'))
 	}
+	_ = st
 }
 
 // learnOne 學清單上的第 n 個技能。
@@ -488,12 +524,26 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 	// 招呼語：**地圖記錄 `+0x05` 指到這張地圖自己的字串**（`0x1BEB7` 把它
 	// 存進 `ds:DBF4h`），不是執行檔字串表——所以每家店的招呼詞不一樣。
 	if f.Greeting != "" {
-		add(f.Greeting, f.GreetingCJK)
+		// 選單區只有 24 欄，原版會折行（實機截圖上「Welcome to the /
+		// infirmary.」就是兩列）。折不了的長字硬斷，不要讓它畫出面板。
+		en := wrapCells(f.Greeting, render.PanelWidth)
+		zh := wrapCells(f.GreetingCJK, render.PanelWidth)
+		for i := 0; i < len(en) || i < len(zh); i++ {
+			var a, b string
+			if i < len(en) {
+				a = en[i]
+			}
+			if i < len(zh) {
+				b = zh[i]
+			}
+			add(a, b)
+		}
 	}
 	if f.state.Step == StepWho {
 		// ⚠ **不列名字**：號碼與名字在底下的隊伍名單上（`1>`…`4>`），
 		// 原版就是靠那一份選人。在選單區再列一次會佔掉四行。
-		add("Who wants to enter?", f.zh(exeTableShop, strWhoEnters, textlayout.Options{}))
+		en, table, id := f.whoPrompt()
+		add(en, f.zh(table, id, textlayout.Options{}))
 		if f.note != "" {
 			add(f.note, f.noteCJK)
 		}
@@ -510,17 +560,23 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 
 	switch {
 	case f.Facility.Kind == game.FacilityTrainer:
-		add(fmt.Sprintf("Skill points: %d", c.SkillPts),
+		add(fmt.Sprintf("Skill points = %d", c.SkillPts),
 			zhJoin(f.zh(exeTableTrainer, strSkillPoints, textlayout.Options{}),
 				num(int(c.SkillPts))))
+		// 表頭與三欄照原版：IQ 需求、這一級要幾點、目前等級
+		// （字串 6:3，實機截圖 `61-tr-menu.png`）。
+		add("   IQ PTS LVL   SKILL",
+			f.zh(exeTableTrainer, strTrainerHead, textlayout.Options{}))
 		from, to := f.page(len(f.Skills))
 		for i, sk := range f.Skills[from:to] {
 			cost := game.SkillCost(sk.Data.BaseCost, int(c.SkillLevel(sk.ID))+1)
+			lvl := int(c.SkillLevel(sk.ID))
 			var zh string
 			if n := f.zhSkill(sk.ID); n != "" {
-				zh = ui("facility.skillrow", i+1, string(n), cost)
+				zh = ui("facility.skillrow", i+1, int(sk.Data.IQ), cost, lvl, string(n))
 			}
-			add(fmt.Sprintf("%d) %s  cost %d", i+1, f.skillLabel(sk.ID), cost), zh)
+			add(fmt.Sprintf("%d) %2d %3d %3d  %s",
+				i+1, sk.Data.IQ, cost, lvl, f.skillLabel(sk.ID)), zh)
 		}
 		f.addMore(add, ui, to, len(f.Skills))
 	case f.Facility.Kind == game.FacilityDoctor && f.state.Step == StepHeal:
@@ -545,11 +601,21 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 		}
 		f.addMore(add, ui, len(game.Diseases(c)), len(game.Diseases(c)))
 	case f.Facility.Kind == game.FacilityDoctor:
+		// 主選單是**條件式的**：醫生只列這個人現在用得到的項目
+		// （`0x1C2CE`–`0x1C2FF` 的三個旗標，`docs/re/119` §2）。
+		// 健康的人只有 `Exam $N` ——三個都印的話玩家會以為隨時能治療。
+		name := func() string { return c.Name }
+		add(fmt.Sprintf("\"Well %s, I would recommend:\"", c.Name),
+			f.zh(exeTableDoctor, strRecommend, textlayout.Options{Name: name}))
 		price := int(f.Facility.Price(0x05))
-		add(fmt.Sprintf("Exam $%d / Healing / Curing", price),
-			zhJoin(f.zh(exeTableDoctor, strExamPrice, textlayout.Options{}), num(price),
-				f.zh(exeTableDoctor, strHealing, textlayout.Options{}),
-				f.zh(exeTableDoctor, strCuring, textlayout.Options{})))
+		add(fmt.Sprintf("Exam $%d", price),
+			zhJoin(f.zh(exeTableDoctor, strExamPrice, textlayout.Options{}), num(price)))
+		if c.CON < c.MaxCON {
+			add("Healing", f.zh(exeTableDoctor, strHealing, textlayout.Options{}))
+		}
+		if c.Status != 0 {
+			add("Curing", f.zh(exeTableDoctor, strCuring, textlayout.Options{}))
+		}
 	case f.state.Step == StepSell:
 		add("   PRICE     ITEM", f.zh(exeTableShop, strPriceItem, textlayout.Options{}))
 		list := f.sellable(p, items)
@@ -631,4 +697,31 @@ func (f *FacilityScene) addMore(add func(string, string), ui func(string, ...any
 		zh = ui("facility.more")
 	}
 	add(moreLabel, zh)
+}
+
+// wrapCells 把一段字折成每行最多 cols 格（**一個 rune 一格**，`docs/spec/10` §3）。
+//
+// 有空白就在空白處斷，沒有就硬斷——原版的選單區只有 24 欄，
+// 不折行的話字會畫到面板外面，而畫面上看起來像「這一行怎麼跑到名單上」。
+func wrapCells(s string, cols int) []string {
+	if s == "" || cols <= 0 {
+		return nil
+	}
+	var out []string
+	for _, para := range splitLines(s) {
+		cells := []rune(para)
+		for len(cells) > cols {
+			cut := cols
+			for i := cols; i > 0; i-- {
+				if cells[i-1] == ' ' {
+					cut = i
+					break
+				}
+			}
+			out = append(out, strings.TrimRight(string(cells[:cut]), " "))
+			cells = cells[cut:]
+		}
+		out = append(out, string(cells))
+	}
+	return out
 }
