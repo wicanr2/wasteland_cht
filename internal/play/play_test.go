@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/wicanr2/wasteland_cht/internal/assets"
+	"github.com/wicanr2/wasteland_cht/internal/game"
 	"github.com/wicanr2/wasteland_cht/internal/input"
 	"github.com/wicanr2/wasteland_cht/internal/render"
 )
@@ -546,5 +547,42 @@ func TestEnterLocationAsksAndNoStays(t *testing.T) {
 	}
 	if s.MapID() != 12 {
 		t.Fatalf("答 Yes 之後在地圖 %d", s.MapID())
+	}
+}
+
+// 輻射計量表的讀數 ＝ 視野內最近的輻射格有多遠（`ds:46EEh`，docs/re/120 §2），
+// 而且**隊上沒有人帶蓋氏計數器時畫面上不顯示**。
+//
+// ⚠ 距離是原版那張表的值（10 × 歐氏），不是格數——站在旁邊一格是 10 不是 1。
+func TestGeigerReadingIsTheNearestRadiationCell(t *testing.T) {
+	rom := openRom(t)
+	s, err := New(rom)
+	if err != nil {
+		t.Fatalf("開場失敗：%v", err)
+	}
+	// 世界地圖（資源 0）的輻射帶在 (53,37) 一帶，36 格。
+	if err := s.LoadMap(0, 53, 36); err != nil {
+		t.Fatalf("載入世界地圖失敗：%v", err)
+	}
+	if got := s.geigerReading(); got != 10 {
+		t.Errorf("站在輻射格正上方，最近的一格應該是 10，得到 %d", got)
+	}
+	// 走遠一點就讀不到了（視窗 19 × 9，掃不到就是保留值）。
+	if err := s.LoadMap(0, 20, 5); err != nil {
+		t.Fatalf("載入世界地圖失敗：%v", err)
+	}
+	if got := s.geigerReading(); got != render.MeterNoReading {
+		t.Errorf("視野裡沒有輻射格應該回保留值，得到 %d", got)
+	}
+
+	// 出廠隊伍身上沒有蓋氏計數器（那是商店貨，docs/re/118）。
+	if s.partyHasGeiger() {
+		t.Error("出廠隊伍不該有蓋氏計數器")
+	}
+	// 塞一個給第一個人就算數——**與誰帶著無關**（`sub_17E42` 找到就跳出）。
+	c := s.world.Party.Members[0]
+	c.Items = append(c.Items, game.Slot{ID: game.ItemGeigerCounter, Value: 1})
+	if !s.partyHasGeiger() {
+		t.Error("隊上有一個人帶著就該算數")
 	}
 }
