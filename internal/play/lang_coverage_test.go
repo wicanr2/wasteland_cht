@@ -189,7 +189,7 @@ var uiCatalogueKeys = []string{
 	"radio.nothing", "view.none", "view.switched",
 	"disband.single", "disband.left", "order.nothing", "order.done",
 	"roster.menu", "roster.name", "roster.nobody", "roster.joined", "roster.gone",
-	"facility.examined", "facility.cured", "facility.bought", "facility.sold",
+	"facility.examined", "facility.noheal", "facility.skillfull", "facility.cured", "facility.bought", "facility.sold",
 	"facility.learned", "facility.row", "facility.skillrow",
 	"facility.sellrow", "facility.buyrow", "facility.more",
 	// F1 說明、F2 設定、F10 離開確認、F5／F9 快速存讀檔（重製版自己加的）。

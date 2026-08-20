@@ -95,12 +95,12 @@ func (c *Character) SkillLevel(id byte) byte {
 // 再看技能點夠不夠（不夠印 NOT ENOUGH SKILL POINTS!）。
 func (c *Character) LearnSkill(id byte, data SkillData) (ok bool, reason string) {
 	if c.Attributes[AttrIQ] < data.IQ {
-		return false, "IQ 不足"
+		return false, ReasonLowIQ
 	}
 	cur := c.SkillLevel(id)
 	cost := SkillCost(data.BaseCost, int(cur)+1)
 	if cost == 0 || c.SkillPts < cost {
-		return false, "技能點不足"
+		return false, ReasonNoSkillPoints
 	}
 	c.SkillPts -= cost
 	for i := range c.Skills {
@@ -115,7 +115,7 @@ func (c *Character) LearnSkill(id byte, data SkillData) (ok bool, reason string)
 	// （`docs/re/15`），往後 append 會在洞還空著的時候寫到第 31 格去。
 	slot, ok := FirstEmptyItemSlot(c.Skills)
 	if !ok {
-		return false, "技能欄滿了"
+		return false, ReasonSkillSlotsFull
 	}
 	c.Skills = putSlot(c.Skills, slot, Slot{ID: id, Value: 1})
 	return true, ""

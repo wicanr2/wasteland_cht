@@ -246,14 +246,14 @@ func TestLearnSkill(t *testing.T) {
 	// IQ 不夠。
 	dumb := &Character{SkillPts: 99}
 	dumb.Attributes[AttrIQ] = 2
-	if ok, why := dumb.LearnSkill(1, data); ok || why != "IQ 不足" {
+	if ok, why := dumb.LearnSkill(1, data); ok || why != ReasonLowIQ {
 		t.Fatalf("IQ 2 不該學得起 IQ 3 的技能，得到 ok=%v why=%q", ok, why)
 	}
 
 	// 技能點不夠。
 	poor := &Character{SkillPts: 0}
 	poor.Attributes[AttrIQ] = 18
-	if ok, why := poor.LearnSkill(1, data); ok || why != "技能點不足" {
+	if ok, why := poor.LearnSkill(1, data); ok || why != ReasonNoSkillPoints {
 		t.Fatalf("沒有技能點不該學得起來，得到 ok=%v why=%q", ok, why)
 	}
 }

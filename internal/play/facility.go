@@ -134,13 +134,36 @@ func (f *FacilityScene) setNoteUI(en, uiName string, args ...any) {
 	}
 }
 
-// setNoteReason 設一行來自規則層的失敗理由。
+// setNoteReason 把規則層回的**失敗代碼**換成畫面上那一句話。
 //
-// 規則層回的是中文字面（`internal/game` 的 `"錢不夠"`），不是 Big5——
-// 那是給開發者看的，**畫面上要走目錄**。查不到就照原樣顯示。
+// 有原版字串的走原版（`docs/re/22`／`docs/re/52` 的字串表），
+// 沒有的走重製版自己的 `ui:`。
+//
+// ⚠ 規則層回的是代碼不是文字（`game.Reason*`）。直接把它畫出來
+// 會是一行亂碼——那一層的字串是 UTF-8，這一層畫的是倚天 Big5。
 func (f *FacilityScene) setNoteReason(reason string) {
-	f.note = reason
-	f.noteCJK = ""
+	switch reason {
+	case game.ReasonNoMoney:
+		f.setNote("You don't have enough money.", exeTableDoctor, strNoMoney)
+	case game.ReasonInventoryFull:
+		f.setNote("Your inventory is full.", exeTableShop, strInvFull)
+	case game.ReasonNoSuchDisease:
+		f.setNote("You have no diseases.", exeTableDoctor, strNoDiseases)
+	case game.ReasonNoSkillPoints:
+		f.setNote("Not enough skill points!", exeTableTrainer, strNoSkillPts)
+	case game.ReasonLowIQ:
+		// 6:9 的字串以 `\x0b`（名字）開頭，`zh` 會照原版的排版接上去。
+		f.setNote("is not smart enough to learn anything here.",
+			exeTableTrainer, strNotSmart)
+	case game.ReasonNoHealNeeded:
+		f.setNoteUI("No treatment needed.", "facility.noheal")
+	case game.ReasonSkillSlotsFull:
+		// 原版對應哪一條字串**沒有查到**，所以走重製版自己的
+		// （訓練師表裡 6:1／6:2 都像，沒有證據就不要挑一個）。
+		f.setNoteUI("No room for another skill.", "facility.skillfull")
+	default:
+		f.note, f.noteCJK = reason, ""
+	}
 }
 
 // zh 查原版字串表第 table 張第 n 條的譯文。

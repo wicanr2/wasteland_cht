@@ -37,6 +37,7 @@ const (
 	strInvFull      = 8  // 7：`Your inventory is full.`
 	strSkillPoints  = 4  // 6：`Skill points = `
 	strNoSkillPts   = 7  // 6：`Not enough skill points!`
+	strNotSmart     = 9  // 6：`\x0b is not smart enough to learn anything here.`
 	strDiseaseFirst = 1  // 8：第 1–8 條 ＝ 八個狀態位元的病名
 	strExamPrice    = 11 // 8：`Exam $`
 	strHealing      = 12 // 8：`Healing`
@@ -528,6 +529,12 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 		// infirmary.」就是兩列）。折不了的長字硬斷，不要讓它畫出面板。
 		en := wrapCells(f.Greeting, render.PanelWidth)
 		zh := wrapCells(f.GreetingCJK, render.PanelWidth)
+		// ⚠ **有中文就整段走中文。** 兩邊的折行數不一樣（英文「Welcome to the ／
+		// infirmary.」兩列、中文「歡迎來到醫護所。」一列），逐行配對會讓多出來的
+		// 那一行英文沒有中文可蓋，於是卡在兩行中文之間。
+		if len(zh) > 0 {
+			en = make([]string, len(zh))
+		}
 		for i := 0; i < len(en) || i < len(zh); i++ {
 			var a, b string
 			if i < len(en) {

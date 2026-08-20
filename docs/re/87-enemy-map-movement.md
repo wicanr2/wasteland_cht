@@ -45,10 +45,11 @@ loop:
 
 ## 2. 對 remake 的意思
 
-`enemyActs` 的「打誰」仍然是暫代（「還能行動的人裡第一個」），
-而**原版怎麼選還沒解**——先前以為線索在 `sub_15036`，那是誤記。
+這一支與「打誰」無關。**打誰解在 [`89`](89-enemy-target-and-down.md) §1**
+（`roll(1..隊伍人數)` 隨機挑，挑到 CON ≤ 0 的就整個重抽），
+remake 那一側是 `internal/play/round.go` 的 `pickEnemyTarget`。
 
-移動本身已經接上了：計畫在 `game.PlanEnemyMove`、執行在
+移動本身也接上了：計畫在 `game.PlanEnemyMove`、執行在
 `internal/play/enemymove.go`，逐項見 [`116`](116-enemy-move-execution.md)。
 
 ## 3. 可重跑的完整指令

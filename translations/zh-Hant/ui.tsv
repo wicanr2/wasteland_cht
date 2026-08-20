@@ -86,3 +86,5 @@ ui:wound.crt	危急
 ui:wound.mrt	瀕死
 ui:wound.com	深昏迷
 ui:hire.joins	%s加入了隊伍。
+ui:facility.noheal	不需要治療。
+ui:facility.skillfull	技能欄滿了。
