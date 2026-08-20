@@ -550,6 +550,84 @@ func TestEnterLocationAsksAndNoStays(t *testing.T) {
 	}
 }
 
+// 滴答聲：沒讀數或沒帶計數器一聲都不響；帶著且視野裡有輻射格時，
+// 間隔落在 `1d(讀數＋1) ＋ 3` 個 BIOS tick 的值域內（`docs/re/120` §4）。
+func TestGeigerTicksOnlyWhenThereIsAReading(t *testing.T) {
+	rom := openRom(t)
+	s, err := New(rom)
+	if err != nil {
+		t.Fatalf("開場失敗：%v", err)
+	}
+	// 視野裡沒有輻射格 → 一聲都不響。
+	if err := s.LoadMap(0, 20, 5); err != nil {
+		t.Fatalf("載入世界地圖失敗：%v", err)
+	}
+	c := s.world.Party.Members[0]
+	c.Items = append(c.Items, game.Slot{ID: game.ItemGeigerCounter, Value: 1})
+	for i := 0; i < 200; i++ {
+		s.TickGeiger()
+		if s.TakeSound() >= 0 {
+			t.Fatalf("視野裡沒有輻射格，第 %d 拍卻響了", i)
+		}
+	}
+
+	// 站到輻射帶旁邊，但**先把計數器拿掉**——同樣一聲都不響。
+	if err := s.LoadMap(0, 53, 36); err != nil {
+		t.Fatalf("載入世界地圖失敗：%v", err)
+	}
+	c = s.world.Party.Members[0]
+	c.Items = nil
+	for i := 0; i < 200; i++ {
+		s.TickGeiger()
+		if s.TakeSound() >= 0 {
+			t.Fatalf("沒帶計數器，第 %d 拍卻響了", i)
+		}
+	}
+
+	// 帶上計數器：會響，而且**每次都要重新抽間隔**。
+	c.Items = append(c.Items, game.Slot{ID: game.ItemGeigerCounter, Value: 1})
+	reading := s.geigerReading()
+	if reading == render.MeterNoReading {
+		t.Fatal("站在輻射格旁邊卻沒有讀數")
+	}
+	gaps, gap := 0, 0
+	for i := 0; i < 400; i++ {
+		s.TickGeiger()
+		gap++
+		if n := s.TakeSound(); n >= 0 {
+			if n != SoundGeigerTick {
+				t.Fatalf("滴答應該是音效 %d，得到 %d", SoundGeigerTick, n)
+			}
+			// 值域：`1d(讀數＋1)` 是 1..讀數＋1，再 ＋3。
+			if gap < 4 || gap > reading+4 {
+				t.Fatalf("間隔 %d 拍不在 [4, %d] 內（讀數 %d）", gap, reading+4, reading)
+			}
+			gaps, gap = gaps+1, 0
+		}
+	}
+	if gaps < 2 {
+		t.Fatalf("400 拍只響了 %d 次，滴答沒有週期性", gaps)
+	}
+
+	// 名單模式（戰鬥／設施）就停：那段程式碼在地圖主迴圈裡，
+	// 而且讀數本身也只在重畫地圖視窗時才更新。
+	s.combat = &CombatScene{}
+	for i := 0; i < 200; i++ {
+		s.TickGeiger()
+		if s.TakeSound() >= 0 {
+			t.Fatalf("戰鬥中第 %d 拍響了", i)
+		}
+	}
+	s.combat = nil
+	s.facility = &FacilityScene{}
+	for i := 0; i < 200; i++ {
+		s.TickGeiger()
+		if s.TakeSound() >= 0 {
+			t.Fatalf("設施中第 %d 拍響了", i)
+		}
+	}
+}
+
 // 輻射計量表的讀數 ＝ 視野內最近的輻射格有多遠（`ds:46EEh`，docs/re/120 §2），
 // 而且**隊上沒有人帶蓋氏計數器時畫面上不顯示**。
 //
