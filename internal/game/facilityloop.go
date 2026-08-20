@@ -199,3 +199,31 @@ func Diseases(c *Character) []int {
 	}
 	return out
 }
+
+// PoolMoney 把其他隊員身上的錢全部搬給第 to 個人（`sub_19B81`，`docs/re/117` §3）。
+//
+// 原版的迴圈跑「這一組的每一個人」（上界 `ds:4653h`），跳過收款人自己，
+// 每一個都是「取他的錢 → 把他設成 0 → 加到收款人身上」。
+// 畫面上那個鍵是外框下緣的 `POOL MONEY`。
+//
+// ⚠ **錢的欄位是 24 bit**（角色記錄 `+0x15`），加到滿就停在上限——
+// 溢位會讓一整隊的錢變成幾百塊，而畫面上看起來只是「錢不見了」。
+func PoolMoney(p *Party, to int) uint32 {
+	if p == nil || to < 0 || to >= len(p.Members) || p.Members[to] == nil {
+		return 0
+	}
+	const maxMoney = 1<<24 - 1
+	total := uint64(p.Members[to].Money)
+	for i, m := range p.Members {
+		if i == to || m == nil {
+			continue
+		}
+		total += uint64(m.Money)
+		m.Money = 0
+	}
+	if total > maxMoney {
+		total = maxMoney
+	}
+	p.Members[to].Money = uint32(total)
+	return p.Members[to].Money
+}

@@ -37,6 +37,8 @@ func TestBuyListOpensWithRoomLeft(t *testing.T) {
 		t.Fatalf("身上 %d／%d 件卻找不到空槽", used, game.ItemSlots)
 	}
 
+	// 進場先選人（`docs/re/42` §1：隊伍不只一個人時會問「誰要進去？」）。
+	s.Facility().Key('1', s.World().Party, s.items)
 	s.Facility().Key('B', s.World().Party, s.items)
 	if got := s.Facility().state.Step; got != StepBuy {
 		t.Errorf("按 B 之後停在第 %d 層，預期 StepBuy（%d）；註記是 %q",

@@ -7,14 +7,33 @@ package play
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/wicanr2/wasteland_cht/internal/game"
+	"github.com/wicanr2/wasteland_cht/internal/lang"
 	"github.com/wicanr2/wasteland_cht/internal/render"
 	"github.com/wicanr2/wasteland_cht/internal/textlayout"
 )
 
-// recStockGroup 是設施記錄裡「這家店賣哪一組東西」的位移（`0x1BEA2`）。
-const recStockGroup = 0x06
+// 設施記錄裡這一輪用到的兩個位移。
+const (
+	recGreeting   = 0x05 // 招呼語（指到這張地圖自己的字串，`0x1BEB7`）
+	recStockGroup = 0x06 // 這家店賣哪一組東西（`0x1BEA2`，`docs/re/118`）
+)
+
+// ableCount 數這一組有幾個人能行動（`sub_172BB` 那個條件）。
+func ableCount(p *game.Party) int {
+	if p == nil {
+		return 0
+	}
+	n := 0
+	for _, m := range p.Members {
+		if m != nil && game.CanCommand(m) {
+			n++
+		}
+	}
+	return n
+}
 
 // facilityPicture 是每個設施進場要載的 ALLPICS 圖（docs/re/29 §5.4 那張表）。
 //
@@ -66,6 +85,11 @@ type FacilityScene struct {
 	Str func(table, n int) string
 	CJK      func(table, n int, opt textlayout.Options) string
 	UI  func(name string) string
+
+	// Greeting／GreetingCJK 是這家店的招呼語（地圖記錄 `+0x05` 指到的
+	// **這張地圖自己的字串**，`0x1BEB7`）。查不到就是空的，那一行不印。
+	Greeting    string
+	GreetingCJK string
 
 	// CJKLines 與 Lines 一一對應的中文（Big5）。某一行查不到就是 nil，
 	// 那一行改畫英文——**不要整片放棄**，設施畫面每一行的來源都不一樣。
@@ -181,6 +205,19 @@ func (s *Scene) EnterFacility(record []byte) *FacilityScene {
 		// 所以那邊也要走同一個查表 hook。少設一處的症狀是
 		// 「有些設施的招牌是中文、有些是英文」。
 		fs.CJKLines = append(fs.CJKLines, fs.CJKPlace(f.Name))
+	}
+	// 招呼語：記錄 `+0x05` 指到**這張地圖自己的字串**（`docs/re/117` §2.1）。
+	if len(record) > recGreeting && s.world != nil && s.world.Block != nil {
+		if n := int(record[recGreeting]); n > 0 && n < len(s.world.Block.Strings) {
+			fs.Greeting = strings.TrimSpace(s.world.Block.Strings[n])
+			fs.GreetingCJK = s.cjkLookup(
+				lang.BlockKey(s.blockFile, s.blockID, n), textlayout.Options{})
+		}
+	}
+	// 商店而且隊伍不只一個人 → 先問「誰要進去？」（`docs/re/42` §1）。
+	// **一個人就不問**，原版也是直接用他。
+	if f.Kind == game.FacilityShop && s.world != nil && ableCount(s.world.Party) > 1 {
+		fs.state.Step = StepWho
 	}
 	fs.ItemName, fs.SkillName = s.itemName, s.skillName
 	fs.CJKItemName, fs.CJKSkillName = s.itemNameCJK, s.skillNameCJK

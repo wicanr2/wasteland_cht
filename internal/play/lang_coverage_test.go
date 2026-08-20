@@ -191,7 +191,7 @@ var uiCatalogueKeys = []string{
 	"roster.menu", "roster.name", "roster.nobody", "roster.joined", "roster.gone",
 	"facility.examined", "facility.cured", "facility.bought", "facility.sold",
 	"facility.learned", "facility.row", "facility.skillrow",
-	"facility.sellrow", "facility.buyrow",
+	"facility.sellrow", "facility.buyrow", "facility.more",
 	// F1 說明、F2 設定、F10 離開確認、F5／F9 快速存讀檔（重製版自己加的）。
 	"combat.hdrname", "combat.hdrac", "combat.hdrammo",
 	"combat.hdrmax", "combat.hdrcon", "combat.hdrweapon",

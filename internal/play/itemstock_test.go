@@ -34,6 +34,10 @@ func TestShopStockGroupComesFromRecord(t *testing.T) {
 	if got := s.itemStock; got != 1 {
 		t.Errorf("載進來的是第 %d 組，預期第 1 組", got)
 	}
+	// 進場先選人（隊伍不只一個人時原版會問「誰要進去？」）。
+	if _, err := s.Update(input.Input{Char: '1'}); err != nil {
+		t.Fatal(err)
+	}
 	if _, err := s.Update(input.Input{Char: 'B'}); err != nil {
 		t.Fatal(err)
 	}
@@ -77,4 +81,70 @@ func TestItemStockGroupsDifferOnlyInStock(t *testing.T) {
 	}
 	_ = assets.ItemSlotOffsets
 	_ = game.StockNone
+}
+
+// 進商店要先問「誰要進去？」（`docs/re/117` §2.1）。
+//
+// ⚠ 隊伍只有一個人時**不問**——原版直接用他。這一條兩邊都驗，
+// 因為「多問一次」與「該問卻沒問」在畫面上都只是「選單長得不太一樣」。
+func TestShopAsksWhoEnters(t *testing.T) {
+	s := newScene(t)
+	if err := s.LoadMap(10, 30, 25); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Update(input.Input{Dir: input.DirUp}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Update(input.Input{Char: 'Y'}); err != nil {
+		t.Fatal(err)
+	}
+	if s.facility == nil {
+		t.Fatalf("沒進商店：%q", s.Message())
+	}
+	if got := s.facility.state.Step; got != StepWho {
+		t.Fatalf("進場停在第 %d 層，預期 StepWho（%d）", got, StepWho)
+	}
+	lines := strings.Join(s.facility.Lines, "\n")
+	if !strings.Contains(lines, "Who wants to enter?") {
+		t.Errorf("沒有問「誰要進去？」：\n%s", lines)
+	}
+	// 招呼語是這張地圖自己的字串（記錄 `+0x05`）。
+	if !strings.Contains(lines, "Welcome to the shop.") {
+		t.Errorf("沒有招呼語：\n%s", lines)
+	}
+
+	// 選第 2 個人 → 換他站在櫃檯前。
+	if _, err := s.Update(input.Input{Char: '2'}); err != nil {
+		t.Fatal(err)
+	}
+	if got := s.facility.state.Who; got != 1 {
+		t.Errorf("櫃檯前是第 %d 個人，預期第 1 個（0 起算）", got)
+	}
+	if got := s.facility.state.Step; got != StepMain {
+		t.Errorf("選完人停在第 %d 層，預期主選單（%d）", got, StepMain)
+	}
+}
+
+// `P` 是**集中金錢**，不是換人（`docs/re/117` §3：畫面下緣寫著 `POOL MONEY`）。
+func TestPoolMoneyGathersEveryonesCash(t *testing.T) {
+	p := &game.Party{Members: []*game.Character{
+		{Name: "A", Money: 100, CON: 10, MaxCON: 10},
+		{Name: "B", Money: 250, CON: 10, MaxCON: 10},
+		{Name: "C", Money: 7, CON: 10, MaxCON: 10},
+	}}
+	if got := game.PoolMoney(p, 1); got != 357 {
+		t.Errorf("集中之後 B 有 %d，預期 357", got)
+	}
+	for _, i := range []int{0, 2} {
+		if p.Members[i].Money != 0 {
+			t.Errorf("第 %d 個人還留著 %d", i, p.Members[i].Money)
+		}
+	}
+	// 錢的欄位是 24 bit，加到滿就停在上限（不能溢位回小數字）。
+	big := &game.Party{Members: []*game.Character{
+		{Name: "A", Money: 1<<24 - 1}, {Name: "B", Money: 1000},
+	}}
+	if got := game.PoolMoney(big, 0); got != 1<<24-1 {
+		t.Errorf("上限是 %d，得到 %d", 1<<24-1, got)
+	}
 }
