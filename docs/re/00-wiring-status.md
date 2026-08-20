@@ -47,7 +47,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 
 ## 統計
 
-筆記 **116** 份：已接 **111**、未接 **1**、不適用 **4**。
+筆記 **118** 份：已接 **111**、未接 **3**、不適用 **4**。
 
 | # | 筆記 | 狀態 | 接在哪／為什麼 |
 |---:|---|---|---|
@@ -172,3 +172,5 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 119 | [醫生與訓練師的進場——招呼語的位移每一種設施不一樣，三種都要先選人](119-doctor-and-trainer-entry.md) | 已接 | `internal/play/facility.go`（`greetingAt`／`asksWho`／`trainableSkills` 跳過第 0 格）、`internal/play/shop.go`（`whoKey`／`whoPrompt`／`cantMessage`／醫生條件式選單／訓練師三欄／`wrapCells`）、`internal/play/doctortrainer_test.go` |
 | 120 | [蓋氏計數器是輻射計量表 ＋ 逼近時的滴答聲](120-geiger-counter.md) | 未接 | 缺的是**外框那一層**：計量表畫在字元欄 38–39，而外框（欄 0–37）與它上面直排的 `RADIATION` 標籤 remake 都還沒畫，單獨浮一根管子沒有上下文。料件都在手上——`assets.Rom.FontColor()` 讀得到 `colorf.fnt` 的 `0x72`–`0x8B`，距離走既有的 `game.Distance`，音效 2 走 `docs/re/44` 的表。接的時候一起補：讀數 ＝ 視野內最近 nibble 9 格的距離、`0FFh` ＝ 不顯示、滴答間隔 `1d(距離＋1) ＋ 3` 個 tick |
 | 121 | [胖佛萊迪那一題答 No ＝ 毒氣，不是當場開打](121-fat-freddy-gas-trap.md) | 已接 | `internal/game/script.go`（`OpNeedItem` 的分支方向照 `0x1A6D4` 改正：**有人帶著走 `+0x03`**）、`internal/game/script_ops_test.go`。鏈上其他三層本來就接著：問答分支（`internal/play/question.go`）、nibble 1 收尾改寫、nibble 12 批次改寫。工具那兩個假零修在 `tools/scan_item_refs.py`（`array()` 的前導 0、腳本閘門）|
+| 122 | [血池那六格，與條件閘扣血到底吃不吃護甲](122-blood-pool-and-gate-armour.md) | 未接 | 缺的是**護甲吸收那一段**：原版的閘懲罰扣 CON 時走傷害結算，要不要扣護甲由那一格記錄 `+0x00` 的 bit0 決定（`docs/re/55` §1）；remake 的 `internal/game/gates.go` `applyGatePenalty` 一律直接扣，**全檔 105 筆該吃護甲的閘都扣多了**。接的時候要把 CON 那一路接進既有的傷害結算，並把 bit0 當參數傳進去 |
+| 123 | [攻擊要有目標——同一張地圖、距離內、而且在地圖視窗裡](123-attack-target-range.md) | 未接 | 缺的是**玩家攻擊的目標篩選**：`sub_122E9` 的三個條件（同地圖／距離 < `ds:46CCh`／座標在 19 × 9 視窗內）remake 沒有，一組都不合格要印字串表 1 第 57 條。`MsgNoOneInRange` 已經存在，但只有雇用在用。接上之後「敵人的像沒出現就打不到」才會成立（攻略 M-14）|
