@@ -6,8 +6,8 @@
 輸入：`wl.merged.exe（解包映像＋wla.bin overlay，本專案合成）`，SHA-256 `cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118`
 
 - 自動辨識函式：**641**
-- 已在筆記中出現：**519**
-- 尚未碰過：**122**
+- 已在筆記中出現：**520**
+- 尚未碰過：**121**
 
 ## 已分析（依呼叫端數量排序）
 
@@ -60,7 +60,7 @@
 | `0x17033` | seg000+0x7033 | 88 | 11 | re/107-command-resolution.md、re/25-screen-layout.md、re/42-facility-loops.md、re/93-order-disband-view.md |
 | `0x171B9` | seg000+0x71B9 | 15 | 11 | re/111-roster-inverse-video.md、re/125-roster-box.md、re/14-fonts-and-text-encoding.md、re/15-character-record.md、re/40-combat-screen.md、re/51-encounter-driver.md、re/93-order-disband-view.md |
 | `0x196C9` | seg000+0x96C9 | 18 | 11 | re/103-roster-line-columns.md、re/107-command-resolution.md、re/109-character-record-tail.md、re/15-character-record.md、re/17-packed-text.md、re/20-combat-resolution.md、re/38-combat-commands-and-flee.md、re/41-command-handlers.md |
-| `0x19727` | seg000+0x9727 | 73 | 11 | re/00-master-index.md、re/105-enc-empty-round-and-menu-region.md、re/115-portrait-box.md、re/117-save-globals-and-facility-screen.md、re/14-fonts-and-text-encoding.md、re/28-text-variants.md、re/40-combat-screen.md、re/46-typed-answers-and-text-input.md、re/52-trainer-facility.md、re/72-facility-entry-and-command-bar.md、re/91-map-command-bar.md、re/92-use-command.md、re/93-order-disband-view.md、re/99-party-wipe.md |
+| `0x19727` | seg000+0x9727 | 73 | 11 | re/00-master-index.md、re/105-enc-empty-round-and-menu-region.md、re/115-portrait-box.md、re/117-save-globals-and-facility-screen.md、re/127-roster-mode-boxes.md、re/14-fonts-and-text-encoding.md、re/28-text-variants.md、re/40-combat-screen.md、re/46-typed-answers-and-text-input.md、re/52-trainer-facility.md、re/72-facility-entry-and-command-bar.md、re/91-map-command-bar.md、re/92-use-command.md、re/93-order-disband-view.md、re/99-party-wipe.md |
 | `0x19C84` | seg000+0x9C84 | 40 | 11 | re/00-master-index.md、re/00-remake-knowledge-gaps.md、re/110-hire-resolution.md、re/13-rng.md、re/21-attributes.md、re/32-skill-checks-and-xp.md、re/36-combat-rounds.md、re/90-party-initiative.md |
 | `0x1A26C` | seg000+0xA26C | 9 | 11 | re/14-fonts-and-text-encoding.md、re/40-combat-screen.md |
 | `0x1001B` | seg000+0x1B | 3 | 10 | re/04-overlay-wla-bin.md、re/14-fonts-and-text-encoding.md、re/95-main-menu.md |
@@ -201,6 +201,7 @@
 | `0x190B8` | seg000+0x90B8 | 64 | 4 | re/115-portrait-box.md、re/38-combat-commands-and-flee.md |
 | `0x194E8` | seg000+0x94E8 | 21 | 4 | re/107-command-resolution.md、re/32-skill-checks-and-xp.md |
 | `0x1968A` | seg000+0x968A | 2 | 4 | re/109-character-record-tail.md、re/22-shop-and-items.md、re/42-facility-loops.md |
+| `0x19770` | seg000+0x9770 | 62 | 4 | re/00-master-index.md、re/127-roster-mode-boxes.md |
 | `0x19895` | seg000+0x9895 | 39 | 4 | re/117-save-globals-and-facility-screen.md、re/42-facility-loops.md |
 | `0x19A1D` | seg000+0x9A1D | 36 | 4 | re/00-master-index.md、re/15-character-record.md、re/19-effects-and-damage.md、re/99-party-wipe.md |
 | `0x19B4F` | seg000+0x9B4F | 24 | 4 | re/91-map-command-bar.md |
@@ -560,7 +561,6 @@
 | `0x1BD37` | seg000+0xBD37 | 72 | 1 |
 | `0x14F9D` | seg000+0x4F9D | 65 | 1 |
 | `0x1395B` | seg000+0x395B | 62 | 1 |
-| `0x19770` | seg000+0x9770 | 62 | 4 |
 | `0x12CFE` | seg000+0x2CFE | 58 | 4 |
 | `0x17709` | seg000+0x7709 | 58 | 2 |
 | `0x1A430` | seg000+0xA430 | 58 | 1 |
@@ -599,3 +599,4 @@
 | `0x1BB32` | seg000+0xBB32 | 19 | 2 |
 | `0x1619F` | seg000+0x619F | 18 | 3 |
 | `0x19FF2` | seg000+0x9FF2 | 18 | 1 |
+| `0x13E6E` | seg000+0x3E6E | 17 | 1 |

@@ -47,7 +47,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 
 ## 統計
 
-筆記 **121** 份：已接 **117**、未接 **0**、不適用 **4**。
+筆記 **122** 份：已接 **118**、未接 **0**、不適用 **4**。
 
 | # | 筆記 | 狀態 | 接在哪／為什麼 |
 |---:|---|---|---|
@@ -177,3 +177,4 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 124 | [外框怎麼畫，與右邊那一欄的直排 `WASTELAND`](124-screen-border-and-right-column.md) | 已接 | `internal/render/border.go`（`DrawBorder` ＝ `sub_19814` 的六個字模 ＋ `sub_197BB` 多畫的那三處、`DrawTitleLabel` ＝ `ds:AA4Dh` 那張 2 × 9 的表）、`internal/play/play.go`（`drawBorder`，**只在地圖畫面畫**，與原版的呼叫端一致）。⚠ 設施與戰鬥是另一套框（實機截圖 `54-doc-menu.png`），那一套還沒接 |
 | 125 | [名單框，以及名片行其實從欄 1 開始](125-roster-box.md) | 已接 | `internal/render/border.go`（`DrawRosterBox`／`DrawRosterBanner`／`rosterBanner`）、`internal/render/render.go`（`RosterHeaderRow` 14 → **15**）、`internal/play/combat.go`（`colIndex` 0 → **1**、`colName` 2 → **3**，中文那一套跟著右移一欄）、`internal/play/play.go`（`drawRosterBox`）、`internal/render/border_test.go`（`TestRosterBoxCorners` 直接量像素——「沒畫」與「畫了但很暗」在畫面上分不出來）|
 | 126 | [框邊上那些標籤（`ESC`、`POOL MONEY`、`ROSTER ON`）](126-box-labels.md) | 已接 | `internal/render/border.go`（`BoxLabel`／`labelGlyphs` ＝ `(ch & 0xDF) − 0x29` 那套編碼、四個實機確認過位置的標籤）、`internal/play/play.go`（地圖畫面畫 `ROSTER ON`、名單畫面畫 `ROSTER OFF`、設施再加 `ESC` 與 `POOL MONEY`）、`internal/play/shop.go`（`HasPool`：訓練師沒有這個鍵）。⚠ 標籤同時是滑鼠按鈕（`+0x03` 是它代表的按鍵），**熱區那一半還沒接**；17 筆裡只畫了實機截圖確認過位置的那 4 筆 |
+| 127 | [名單模式的兩個框，與「那時候沒有時鐘」](127-roster-mode-boxes.md) | 已接 | `internal/render/border.go`（`DrawBox` ＝ 通用畫框、`DrawPortraitBox`／`DrawMenuBox`、`LabelMap`）、`internal/render/render.go`（`PanelHeight` 13 → **12**，列 13 是框的下緣）、`internal/play/play.go`（名單模式畫兩圈框 ＋ 按模式換下緣標籤；**時鐘只在地圖畫面畫**）|

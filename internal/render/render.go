@@ -283,10 +283,13 @@ func (f *Frame) DrawGlyph(font *assets.Font, index, col, row int, color byte, in
 // 欄 15–38、列 1–13（左邊那一塊放肖像），所以「名字, choose:」加七個選項
 // 一共八行綽綽有餘。訊息視窗那 6 列在戰鬥時是名單的一部分。
 const (
-	PanelCol    = 15
-	PanelRow    = 1
-	PanelWidth  = 24 // 欄 15–38
-	PanelHeight = 13 // 列 1–13
+	PanelCol   = 15
+	PanelRow   = 1
+	PanelWidth = 24 // 欄 15–38
+	// PanelHeight ＝ **12 不是 13**：選單框的下緣在列 13（`sub_19727` 傳
+	// `bl ＝ 0x0D`），`POOL MONEY` 就印在那條線上（`docs/re/126`、`docs/re/127`）。
+	// 多算一列的話最後一行字會壓在框線與那個標籤上。
+	PanelHeight = 12 // 列 1–12
 )
 
 // DrawText 把排好的行畫進訊息視窗（欄 1–38、字元列 18–23）。

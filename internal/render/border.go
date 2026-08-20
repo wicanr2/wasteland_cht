@@ -35,6 +35,65 @@ const (
 	MeterCol = 38
 )
 
+// DrawBox 是通用畫框（`sub_19814`，`docs/re/124` §1）：左上角 (col0, row0)、
+// 右下角 (col1, row1)，六個字模拼出來。
+func (f *Frame) DrawBox(font *assets.Font, col0, row0, col1, row1 int) error {
+	if font == nil {
+		return nil
+	}
+	put := func(index, col, row int) error {
+		return f.DrawGlyph(font, index, col, row, 0, false)
+	}
+	if err := put(boxTopLeft, col0, row0); err != nil {
+		return err
+	}
+	for col := col0 + 1; col < col1; col++ {
+		if err := put(boxHorizontal, col, row0); err != nil {
+			return err
+		}
+	}
+	if err := put(boxTopRight, col1, row0); err != nil {
+		return err
+	}
+	for row := row0 + 1; row < row1; row++ {
+		if err := put(boxLeft, col0, row); err != nil {
+			return err
+		}
+		if err := put(boxRight, col1, row); err != nil {
+			return err
+		}
+	}
+	if err := put(boxBottomLeft, col0, row1); err != nil {
+		return err
+	}
+	for col := col0 + 1; col < col1; col++ {
+		if err := put(boxHorizontal, col, row1); err != nil {
+			return err
+		}
+	}
+	return put(boxBottomRight, col1, row1)
+}
+
+// 名單模式的兩個框（`sub_19770` 與 `sub_19727`，`docs/re/127`）。
+//
+// 肖像框 (0,0)–(13,13)、選單框 (14,0)–(39,13)；選單框裡的文字區是
+// 欄 15–38、**列 1–12**（列 13 是框的下緣，`POOL MONEY` 就印在上面）。
+const (
+	PortraitBoxCol1, PortraitBoxRow1 = 13, 13
+	MenuBoxCol0, MenuBoxCol1         = 14, 39
+	MenuBoxRow1                      = 13
+)
+
+// DrawPortraitBox 畫左上角那一圈（`sub_19770`）。
+func (f *Frame) DrawPortraitBox(font *assets.Font) error {
+	return f.DrawBox(font, 0, 0, PortraitBoxCol1, PortraitBoxRow1)
+}
+
+// DrawMenuBox 畫右上角那一圈（`sub_19727`）。
+func (f *Frame) DrawMenuBox(font *assets.Font) error {
+	return f.DrawBox(font, MenuBoxCol0, 0, MenuBoxCol1, MenuBoxRow1)
+}
+
 // DrawBorder 畫地圖畫面的外框（`sub_197BB`）。
 //
 // ⚠ **列 24 沒有下緣**：原版的迴圈停在列 24，畫面最底下那一列是指令列本身
@@ -402,6 +461,7 @@ var (
 	LabelRosterOff = BoxLabel{Col: 15, Row: 23, Glyphs: labelGlyphs("ROSTER OFF")}
 	LabelEsc       = BoxLabel{Col: 17, Row: 0, Glyphs: labelGlyphs("ESC")}
 	LabelPoolMoney = BoxLabel{Col: 21, Row: 13, Glyphs: labelGlyphs("POOL MONEY")}
+	LabelMap       = BoxLabel{Col: 17, Row: 13, Glyphs: labelGlyphs("MAP")}
 )
 
 // DrawBoxLabel 把一個標籤畫在框線上。
