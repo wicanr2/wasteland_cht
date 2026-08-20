@@ -721,6 +721,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `tools/ida/export_forced.py` | 強制把 IDA 漏掉的位址分析成程式碼再倒出 | 是 |
 | `tools/rng.py` | 亂數與擲骰的參考模型（附自我測試） | 否 |
 | `tools/unpack_exepack.py`／`apply_overlay.py` | 解包／合成分析映像 | 否 |
+| `tools/summarize_chests.py` | 42 個區塊的 nibble 5 逐格內容（已定物品／待擲類別／擲骰特例），含逐筆正對照 | 否 |
 | `tools/summarize_sfx.py` | `seg005` 的音高／音長／音效表 ＋ 九首位元組碼反組譯 | 否 |
 | `tools/scan_callers.py` | 全檔掃某函式的直接呼叫點（far ＋ 同段 near），替 xref 做正對照 | 否 |
 | `tools/gen_func_index.py` | 產生 `00-function-index.md` | 否 |
