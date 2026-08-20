@@ -47,14 +47,26 @@ func (s *Scene) translateMouse(m input.Mouse) (input.Input, bool) {
 	// **這一條要排在 `charAt` 前面**——標籤畫在框線上，那幾格底下
 	// 沒有可點的字，落到 `charAt` 就什麼都不會發生。
 	for _, l := range s.boxLabels() {
-		if l.Hit(col, row) {
-			if l.Key == 0x1B {
-				none.Action = input.ActionCancel
-				return none, true
-			}
-			none.Char = l.Key
-			return none, true
+		if !l.Hit(col, row) {
+			continue
 		}
+		// 版面表 `+0x03` 存的是**原版的按鍵碼**，四個箭頭那幾筆是擴充碼
+		// （掃描碼 ＋ `0x80`），送不進 `Char`——在這裡轉成重製版的動作。
+		switch l.Key {
+		case 0x1B:
+			none.Action = input.ActionCancel
+		case render.KeyArrowUp:
+			none.Char = keyPrevPage // 清單上一頁（原版方向鍵上，也吃 `I`）
+		case render.KeyArrowDown:
+			none.Char = keyNextPage
+		case render.KeyPageUp:
+			none.Scroll = input.ScrollUp // 訊息視窗那一組
+		case render.KeyPageDown:
+			none.Scroll = input.ScrollDown
+		default:
+			none.Char = l.Key
+		}
+		return none, true
 	}
 	// 點到哪一格就送那一格上的字元——指令列與清單共用這一條規則，
 	// 所以中文版也對（熱鍵字母不跟著翻譯走，那一格本來就是 ASCII）。

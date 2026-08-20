@@ -173,3 +173,74 @@ func TestBoxLabelsAreButtons(t *testing.T) {
 		t.Errorf("點 ESC 應該送取消，得到 %+v ok=%v", in, ok)
 	}
 }
+
+// 每個畫面開哪幾個標籤照原版的遮罩（`docs/re/129` §4）：
+// 地圖是訊息視窗的兩個箭頭 ＋ `ROSTER ON`，名單模式是 `ESC` ＋ 各自那幾個，
+// **兩者都不會出現 `ROSTER OFF`**（那一筆只有「地圖把名單展開」時才開）。
+func TestBoxLabelsFollowTheScreenMask(t *testing.T) {
+	rom := openRom(t)
+	s, err := New(rom)
+	if err != nil {
+		t.Fatalf("開場失敗：%v", err)
+	}
+	has := func(want render.BoxLabel) bool {
+		for _, l := range s.boxLabels() {
+			if l.Col == want.Col && l.Row == want.Row {
+				return true
+			}
+		}
+		return false
+	}
+	if !has(render.LabelMsgUp) || !has(render.LabelMsgDown) {
+		t.Error("地圖畫面該有訊息視窗的上下箭頭")
+	}
+	if !has(render.LabelRosterOn) {
+		t.Error("地圖畫面該有 ROSTER ON")
+	}
+	if has(render.LabelListUp) {
+		t.Error("地圖畫面沒有清單，不該有清單的箭頭")
+	}
+
+	// 進商店：選人那一步只有 ESC。
+	if err := s.LoadMap(10, 30, 25); err != nil {
+		t.Fatalf("載入地圖 10 失敗：%v", err)
+	}
+	for _, k := range []byte{'i', 'Y'} {
+		if _, err := s.Update(input.Input{Char: k}); err != nil {
+			t.Fatalf("送 %q：%v", k, err)
+		}
+	}
+	if s.facility == nil {
+		t.Fatal("沒進到設施")
+	}
+	if has(render.LabelRosterOff) {
+		t.Error("設施畫面不該有 ROSTER OFF（實機 42-shop.png 的列 23 只有框線）")
+	}
+	if has(render.LabelPoolMoney) || has(render.LabelListUp) {
+		t.Error("「誰要進去？」那一步只有 ESC")
+	}
+	// 選人 → 買清單：箭頭與 POOL MONEY 都出來。
+	for _, k := range []byte{'1', 'B'} {
+		if _, err := s.Update(input.Input{Char: k}); err != nil {
+			t.Fatalf("送 %q：%v", k, err)
+		}
+	}
+	if !has(render.LabelPoolMoney) {
+		t.Error("買清單該有 POOL MONEY")
+	}
+	if !has(render.LabelListUp) || !has(render.LabelListDown) {
+		t.Error("買清單超過一頁，該有上下箭頭")
+	}
+
+	// 點箭頭送的是翻頁鍵，不是那個原版擴充碼。
+	click := func(col, row int) (input.Input, bool) {
+		return s.translateMouse(input.Mouse{
+			Left: true,
+			X:    (col*render.CharWidth + 1) * render.HiScale,
+			Y:    (row*render.CharHeight + 1) * render.HiScale,
+		})
+	}
+	if in, ok := click(render.LabelListDown.Col, render.LabelListDown.Row); !ok || in.Char != 'K' {
+		t.Errorf("點下箭頭應該送 K，得到 %+v ok=%v", in, ok)
+	}
+}
