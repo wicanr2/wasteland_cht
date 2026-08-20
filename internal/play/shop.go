@@ -7,6 +7,7 @@ package play
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/wicanr2/wasteland_cht/internal/game"
 	"github.com/wicanr2/wasteland_cht/internal/textlayout"
@@ -411,9 +412,19 @@ func nextAble(p *game.Party, from int) int {
 func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 	f.Lines, f.CJKLines = f.Lines[:0], f.CJKLines[:0]
 	// add 一次放一行：英文與中文並排，中文查不到就是 nil（那一行畫英文）。
+	//
+	// ⚠ **中文那一份可能是好幾行**：原版的字串裡有換行控制碼（`\x0D`），
+	// `textlayout.Render` 把它換成 `\n`。設施畫面是逐行畫的，不像訊息視窗
+	// 會自己斷行——不拆開的話那幾個 `\n` 會被當成字畫出來，
+	// 畫面上是「你要：」前後各一個方框（實機對拍看出來的，`docs/re/117` §4）。
 	add := func(en string, zh string) {
+		parts := splitLines(zh)
 		f.Lines = append(f.Lines, en)
-		f.CJKLines = append(f.CJKLines, zh)
+		f.CJKLines = append(f.CJKLines, parts[0])
+		for _, extra := range parts[1:] {
+			f.Lines = append(f.Lines, "")
+			f.CJKLines = append(f.CJKLines, extra)
+		}
 	}
 	num := func(n int) string { return fmt.Sprintf("%d", n) }
 	// ui 是重製版自己排的那幾行（清單的每一列、價格欄位的順序）。
@@ -530,4 +541,20 @@ func (f *FacilityScene) diseaseLabel(bit int) string {
 		}
 	}
 	return fmt.Sprintf("status bit %d", bit)
+}
+
+// splitLines 把一段可能多行的譯文拆成逐行，並**去掉頭尾的空行**。
+//
+// 頭尾的空行來自原版字串的換行控制碼：那些字串假設自己接在別人後面印，
+// 所以開頭先換一行。逐行畫的時候那一行就變成畫面上真的一列空白，
+// 選單會整個往下掉一格。
+func splitLines(s string) []string {
+	parts := strings.Split(s, "\n")
+	for len(parts) > 1 && parts[0] == "" {
+		parts = parts[1:]
+	}
+	for len(parts) > 1 && parts[len(parts)-1] == "" {
+		parts = parts[:len(parts)-1]
+	}
+	return parts
 }

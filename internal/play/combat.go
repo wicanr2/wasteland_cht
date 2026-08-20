@@ -39,26 +39,31 @@ const (
 
 // 中文名單的欄座標。**與英文那一套不同**，因為兩邊要塞的東西不一樣長。
 //
-// 數值欄各留三格就夠：`AMM` 是 `slot.Value & 0x3F`（0–63，兩位數封頂），
-// `AC` 與 `MAX` 實務上兩到三位數，而中文表頭全部是兩個字（`ui:combat.hdr*`）。
-// 英文那一套各留四格，省下來的四格連同尾巴那一格全部給武器欄。
+// 排法的優先序是**數字永遠不會黏在一起** > 名字看得完 > 武器名看得完：
+// 前兩者是資料（黏起來會讀成別的數字、名字被切會認不出是誰），
+// 武器名截掉只是少看到幾個字——**原版自己就是硬截的**（實機截圖上
+// `VP91Z 9mm pistol` 印成 `VP912 9`，只有 7 格）。
 //
-// 名字欄 12 格：原版的名字欄位只有 13 bytes（`internal/input.MaxName` 的說明），
-// 出廠隊伍最長的是 `Snake Vargas`（12）。
+// | 欄 | 格數 | 為什麼 |
+// |---|---|---|
+// | 序號 | 2 | `1>` |
+// | 名字 | 13 | 原版的名字欄位就是 13 bytes，出貨隊伍最長的 `Snake Vargas` 12 格 ＋ 一格間隔 |
+// | AC | 3 | 兩位數封頂 ＋ 一格 |
+// | AMM | 3 | `slot.Value & 0x3F` ＝ 0–63，兩位數封頂 |
+// | MAX／CON | 4 | **三位數 ＋ 一格**：`120` 與 `118` 擠在三格裡會變成 `120118` |
+// | 武器 | 11 | 剩下的全給它 |
 //
-// 武器欄 14 格是**量出來的**：`translations/zh-Hant/exe-skills-items.tsv`
-// 裡最長的單數名字是「M1989A1 北約突擊步槍」14 格。給 13 格的話它會變成
-// 「M1989A1 北約突擊步」——而畫面上看起來只是「這把武器叫這個名字」。
+// 中文表頭都是兩個字（`ui:combat.hdr*`），三格的間隔放得下。
 const (
 	cjkColName   = 2
-	cjkColAC     = 14
-	cjkColAmmo   = 17
-	cjkColMaxCON = 20
-	cjkColCON    = 23
-	cjkColWeapon = 26
+	cjkColAC     = 15
+	cjkColAmmo   = 18
+	cjkColMaxCON = 21
+	cjkColCON    = 25
+	cjkColWeapon = 29
 	// cjkRosterCols ＝ 40 ＝ 整個畫面的字元欄數（`render.ScreenWidth / CharWidth`）。
-	// 英文那一版停在 39，最後一格原版沒有用到；中文這一版用掉它，
-	// 武器欄才有 14 格。名單那幾列上沒有別的東西會被蓋到。
+	// 英文那一版停在 39，最後一格原版沒有用到；中文這一版用掉它。
+	// 名單那幾列上沒有別的東西會被蓋到。
 	cjkRosterCols = render.ScreenWidth / render.CharWidth
 )
 
