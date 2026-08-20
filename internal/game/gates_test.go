@@ -82,3 +82,53 @@ func TestUseKindFollowsKeyTable(t *testing.T) {
 			"得到 S=%d I=%d A=%d", UseSkill, UseItem, UseAttribute)
 	}
 }
+
+// 條件閘扣 CON 走的是傷害結算，所以**護甲會吸收**——除非記錄 `+0x00` 的
+// bit0 設著（`docs/re/122` §2、`docs/re/55` §1）。
+//
+// ⚠ 這一條擋的不是「有沒有扣血」而是「扣多少」。少了護甲那一段照樣編得過、
+// 測得過、玩得動，只是穿不穿護甲在全檔 105 筆閘上完全沒差別。
+func TestGatePenaltyGoesThroughArmour(t *testing.T) {
+	// 固定值 10 點、減；條件是難度 99 的技能檢定 —— 一定失敗。
+	rec := func(msg byte) []byte {
+		b := make([]byte, 0x20)
+		b[0x00] = msg
+		b[0x08] = 0x80 | 0x1D // CON、固定值
+		b[0x09] = 0x80 | 10   // 減 10
+		b[0x0A], b[0x0B] = 0<<5|31, 9
+		b[0x0C] = 0xFF
+		return b
+	}
+	// 護甲 20 顆 d6 —— 期望值 70，吸收一定蓋過 10 點。
+	newGuy := func() *Character {
+		return &Character{Name: "T", CON: 30, AC: 20, Skills: []Slot{{ID: 9, Value: 1}}}
+	}
+
+	// bit0 ＝ 0：照扣護甲 → 10 點被吸光，CON 不動。
+	c := newGuy()
+	p := &Party{Members: []*Character{c}}
+	out := p.EvalGate(rng.New(), rec(0x02), nil)
+	if len(out.Failed) != 1 {
+		t.Fatalf("難度 31 的檢定應該失敗一次，得到 %d 筆", len(out.Failed))
+	}
+	if c.CON != 30 {
+		t.Errorf("bit0 ＝ 0 時 20 點護甲該吸光 10 點傷害，CON 變成 %d", c.CON)
+	}
+	if out.Failed[0].Amount != 0 {
+		t.Errorf("全部被吸收時回報的量應該是 0，得到 %d", out.Failed[0].Amount)
+	}
+
+	// bit0 ＝ 1：跳過護甲 → 整整 10 點。
+	c = newGuy()
+	p = &Party{Members: []*Character{c}}
+	out = p.EvalGate(rng.New(), rec(0x03), nil)
+	if c.CON != 20 {
+		t.Errorf("bit0 ＝ 1 時護甲不吸收，CON 應該是 20，得到 %d", c.CON)
+	}
+	if out.Failed[0].Amount != -10 {
+		t.Errorf("跳過護甲時該扣滿 10 點，回報 %d", out.Failed[0].Amount)
+	}
+	if c.PreHurt != 30 {
+		t.Errorf("扣血前的值要留在 PreHurt，得到 %d", c.PreHurt)
+	}
+}

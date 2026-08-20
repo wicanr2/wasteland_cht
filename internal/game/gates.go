@@ -259,6 +259,24 @@ func applyGatePenalty(r *rng.State, c *Character, record []byte) (field byte, am
 	}
 	switch f & 0x7F {
 	case 0x1D: // CON，可以為負（docs/spec/09）
+		// ⚠ **扣 CON 走的是傷害結算，不是直接減**（`0x1422F` → `sub_157D6`）。
+		// 也就是說**護甲會吸收**，除非這一格記錄 `+0x00` 的 bit0 設著。
+		// 全檔 168 筆扣 CON 的條件閘裡 105 筆是照扣護甲的（`docs/re/122` §3）——
+		// 少了這一段，穿好裝備在那 105 格完全沒有用，而畫面上只是「扣得比較多」。
+		//
+		// 加的那一路沒有這一段（`loc_1426A` 直接加），所以只有負值走這裡。
+		if amount < 0 {
+			hurt := -amount
+			if !BypassesArmour(record) {
+				hurt -= absorbWith(r, c.AC)
+			}
+			if hurt <= 0 {
+				return f & 0x7F, 0 // 全部被吸收：不扣血也不留 PreHurt
+			}
+			c.PreHurt = c.CON
+			c.CON -= int16(hurt)
+			return f & 0x7F, -hurt
+		}
 		c.PreHurt = c.CON
 		c.CON += int16(amount)
 	case 0x15: // 金錢，24-bit，不會變負
@@ -273,6 +291,14 @@ func applyGatePenalty(r *rng.State, c *Character, record []byte) (field byte, am
 	}
 	// 其餘欄位還沒對上語意（docs/re/67 §4），照原版**不動**比亂改安全。
 	return f & 0x7F, amount
+}
+
+// absorbWith 是護甲吸收，沒有亂數源時回 0（無頭測試會這樣）。
+func absorbWith(r *rng.State, ac byte) int {
+	if r == nil {
+		return 0
+	}
+	return Absorb(r, ac)
 }
 
 // SkillBytes 是技能資料表的原始 bytes（36 筆 × 2），實作 SkillTable。
