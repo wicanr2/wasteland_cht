@@ -253,3 +253,40 @@ func TestScanUsesEachGroupOwnPosition(t *testing.T) {
 		}
 	}
 }
+
+// 接戰值的 0xFE 那條要三個條件都成立（`sub_13878`，docs/re/123 §2）：
+// 裝備了武器、類別在射程清單裡、**而且彈匣不是空的**。
+func TestEngageFarNeedsARangedWeaponWithAmmo(t *testing.T) {
+	items := ItemTable{
+		{Class: ClassMelee},  // 0：近戰
+		{Class: ClassPistol}, // 1：手槍（有射程）
+	}
+	c := &Character{Name: "T", CON: 20, Items: []Slot{{}, {ID: 1, Value: 6}}}
+
+	c.EquipIndex = 0
+	if EngageFarFor(c, items) {
+		t.Error("沒裝備武器不該拿到 EngageFar")
+	}
+	c.EquipIndex = 1
+	if !EngageFarFor(c, items) {
+		t.Error("裝了有子彈的手槍應該拿到 EngageFar")
+	}
+	c.Items[1].Value = 0
+	if EngageFarFor(c, items) {
+		t.Error("彈匣空了要退回 EngageClose（原版 sub_1391E）")
+	}
+	c.Items[1] = Slot{ID: 0, Value: 6}
+	if EngageFarFor(c, items) {
+		t.Error("那一格沒有物品不該拿到 EngageFar")
+	}
+	// 整組的接戰值 ＝ 成員的最大值。
+	c.Items[1] = Slot{ID: 1, Value: 6}
+	far := func(i int) bool { return EngageFarFor(c, items) }
+	if v := Engagement([]*Character{c}, far); v != EngageFar {
+		t.Errorf("整組應該拿到 EngageFar(%#x)，得到 %#x", EngageFar, v)
+	}
+	c.CON = 0
+	if v := Engagement([]*Character{c}, far); v != EngageNone {
+		t.Errorf("倒下的人不算，整組應該是 EngageNone，得到 %#x", v)
+	}
+}

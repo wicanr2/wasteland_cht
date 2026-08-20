@@ -47,7 +47,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 
 ## 統計
 
-筆記 **118** 份：已接 **112**、未接 **2**、不適用 **4**。
+筆記 **118** 份：已接 **113**、未接 **1**、不適用 **4**。
 
 | # | 筆記 | 狀態 | 接在哪／為什麼 |
 |---:|---|---|---|
@@ -173,4 +173,4 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 120 | [蓋氏計數器是輻射計量表 ＋ 逼近時的滴答聲](120-geiger-counter.md) | 未接 | 缺的是**外框那一層**：計量表畫在字元欄 38–39，而外框（欄 0–37）與它上面直排的 `RADIATION` 標籤 remake 都還沒畫，單獨浮一根管子沒有上下文。料件都在手上——`assets.Rom.FontColor()` 讀得到 `colorf.fnt` 的 `0x72`–`0x8B`，距離走既有的 `game.Distance`，音效 2 走 `docs/re/44` 的表。接的時候一起補：讀數 ＝ 視野內最近 nibble 9 格的距離、`0FFh` ＝ 不顯示、滴答間隔 `1d(距離＋1) ＋ 3` 個 tick |
 | 121 | [胖佛萊迪那一題答 No ＝ 毒氣，不是當場開打](121-fat-freddy-gas-trap.md) | 已接 | `internal/game/script.go`（`OpNeedItem` 的分支方向照 `0x1A6D4` 改正：**有人帶著走 `+0x03`**）、`internal/game/script_ops_test.go`。鏈上其他三層本來就接著：問答分支（`internal/play/question.go`）、nibble 1 收尾改寫、nibble 12 批次改寫。工具那兩個假零修在 `tools/scan_item_refs.py`（`array()` 的前導 0、腳本閘門）|
 | 122 | [血池那六格，與條件閘扣血到底吃不吃護甲](122-blood-pool-and-gate-armour.md) | 已接 | `internal/game/radiation.go`（`BypassesArmour` ＝ 記錄 `+0x00` 的 bit0，輻射與條件閘共用同一個判準）、`internal/game/gates.go`（`applyGatePenalty` 的 CON 那一路走傷害結算：扣護甲、全被吸收就不留 `PreHurt`）、`internal/game/gates_test.go`（`TestGatePenaltyGoesThroughArmour` 雙向：bit0 ＝ 0 吸光、bit0 ＝ 1 扣滿）。⚠ 血池那六格的 bit0 都是 1，所以**那裡護甲照樣沒用**——接上去改變的是另外 105 筆閘 |
-| 123 | [攻擊要有目標——同一張地圖、距離內、而且在地圖視窗裡](123-attack-target-range.md) | 未接 | 缺的是**玩家攻擊的目標篩選**：`sub_122E9` 的三個條件（同地圖／距離 < `ds:46CCh`／座標在 19 × 9 視窗內）remake 沒有，一組都不合格要印字串表 1 第 57 條。`MsgNoOneInRange` 已經存在，但只有雇用在用。接上之後「敵人的像沒出現就打不到」才會成立（攻略 M-14）|
+| 123 | [能不能打，由「這一組列不列得出來」決定](123-attack-target-range.md) | 已接 | `internal/game/encounterscan.go`（`EngageFarFor` ＝ `sub_13878` 的 `0xFE` 條件：武器有射程**而且彈匣非空**，填掉 `Engagement` 原本那個「由呼叫端給」的 `far`）、`internal/play/encounter.go`（`engageFar`）、`internal/game/encounterscan_test.go`（`TestEngageFarNeedsARangedWeaponWithAmmo`）。⚠ **還沒接的是 §1 的目標清單篩選**：remake 的遭遇只有一格、攻擊不問「哪一組」，所以「距離 ≥ 接戰值」與「不在 19 × 9 視窗內」這兩條還沒有消費端。要接的話是 `beginHirePick` 與攻擊指令共用一支「這一組列不列得出來」|
