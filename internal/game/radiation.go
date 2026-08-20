@@ -33,6 +33,15 @@ func BypassesArmour(rec []byte) bool {
 // RadiationBypassesArmour 是輻射格那條路的名字，語意與 BypassesArmour 相同。
 func RadiationBypassesArmour(rec []byte) bool { return BypassesArmour(rec) }
 
+// NibbleRadiation 是輻射區那個第 1 層 nibble（`docs/re/48` §2.1）。
+const NibbleRadiation = 9
+
+// ItemGeigerCounter 是蓋氏計數器的物品編號（`sub_17E42` 的 `mov al, 30h`）。
+//
+// ⚠ 它**不影響傷害**，只驅動地圖畫面右邊的計量表與逼近時的滴答聲
+// （`docs/re/120`）。擋輻射的是 `ItemRadSuit`。
+const ItemGeigerCounter = 48
+
 // ItemRadSuit 是 Rad suit 的物品編號（原版 0x14432 的 `cmp al, 29h`，
 // 物品表第 41 筆就叫 `Rad suit`）。
 //

@@ -23,6 +23,9 @@ import (
 type Scene struct {
 	rom   *assets.Rom
 	font  *assets.Font
+	// colorFont 是 `colorf.fnt`：外框、`RADIATION` 標籤與輻射計量表都用它
+	// （`docs/re/124`、`docs/re/120`）。載不到就整組不畫，遊戲照樣跑。
+	colorFont *assets.Font
 	gfx   *render.Graphics
 	world *game.World
 	save  *assets.Save
@@ -628,9 +631,13 @@ func New(rom *assets.Rom) (*Scene, error) {
 		return nil, err
 	}
 
+	// 彩色字型載不到不是錯誤——外框與計量表不畫而已（原版資料裡一定有）。
+	colorFont, _ := rom.FontColor()
+
 	s := &Scene{
-		rom:   rom,
-		font:  font,
+		rom:       rom,
+		font:      font,
+		colorFont: colorFont,
 		gfx:   &render.Graphics{Icons: icons, Masks: masks, Tiles: tiles},
 		world: game.NewWorld(block, party, rng.New()),
 		save:  save,
@@ -1799,6 +1806,10 @@ func (s *Scene) Frame() *render.Frame {
 		s.drawRoster(f)
 	default:
 		s.drawMap(f)
+		// 外框與右邊那一欄只在地圖畫面畫（原版 `sub_197BB` 的呼叫端只有
+		// 地圖畫面的設定 `sub_161C0`，`docs/re/124` §2）。
+		// 設施與戰鬥是另一套框，那一套還沒接。
+		s.drawBorder(f)
 	}
 	}
 	// 時鐘在外框上緣，不屬於地圖視窗——切模式不影響它（docs/re/27 §4）。
@@ -1849,6 +1860,57 @@ func (s *Scene) drawMap(f *render.Frame) {
 	if err := f.DrawParty(s.gfx); err != nil {
 		s.message = "ERROR: " + err.Error()
 	}
+}
+
+// drawBorder 畫外框、直排的 `WASTELAND` 與輻射計量表（`docs/re/124`、`docs/re/120`）。
+func (s *Scene) drawBorder(f *render.Frame) {
+	if s.colorFont == nil {
+		return
+	}
+	_ = f.DrawBorder(s.colorFont)
+	_ = f.DrawTitleLabel(s.colorFont)
+	_ = f.DrawGeigerMeter(s.colorFont, s.geigerReading(), s.partyHasGeiger())
+}
+
+// geigerReading 是「視野內最近的輻射格有多遠」（`ds:46EEh`，`docs/re/120` §2）。
+//
+// 原版在畫每一格時順手取最小值（`sub_18024`），重畫視窗前先設回 `0xFF`。
+// 這裡直接掃一次視窗——結果一樣，而且不必把讀數塞進繪圖路徑。
+//
+// ⚠ 距離用的是**原版那張表**（10 × 歐氏，`game.Distance`），不是格數。
+func (s *Scene) geigerReading() int {
+	best := render.MeterNoReading
+	if s.world == nil || s.world.Block == nil {
+		return best
+	}
+	px, py := int(s.world.Party.X), int(s.world.Party.Y)
+	for dy := 0; dy < render.ViewRows; dy++ {
+		for dx := 0; dx < render.ViewCols; dx++ {
+			x, y := s.world.ViewX+dx, s.world.ViewY+dy
+			nibble, _, _, err := s.world.Block.At(x, y)
+			if err != nil || nibble != game.NibbleRadiation {
+				continue
+			}
+			if d, ok := game.Distance(x-px, y-py); ok && d < best {
+				best = d
+			}
+		}
+	}
+	return best
+}
+
+// partyHasGeiger 回報隊上**有沒有人**帶著蓋氏計數器（`sub_17E42` 的迴圈，
+// `docs/re/120` §1）。一個人有就算數，與誰帶著無關。
+func (s *Scene) partyHasGeiger() bool {
+	if s.world == nil {
+		return false
+	}
+	for _, c := range s.world.Party.Members {
+		if c != nil && c.HasItem(game.ItemGeigerCounter) {
+			return true
+		}
+	}
+	return false
 }
 
 // drawPortrait 畫肖像框：一張圖 ＋ 一行說明（`docs/re/115`）。
