@@ -26,8 +26,9 @@ DATA_DIR=${WL_DATA:-$ROOT/workplace/orig/wastland}
 FONT_DIR=${WL_ETEN:-$ROOT/workplace/eten}
 MUSIC_DIR=${WL_MUSIC:-$ROOT/workplace/music}
 
-# 產物一律落在被 gitignore 的目錄——**原版素材絕不能因為打包而進版控**。
-OUT_ROOT="$ROOT/dist-platform/$MODE"
+# 產物一律落在被 gitignore 的 `dist-all/`——**原版素材絕不能因為打包而進版控**。
+# 所有交付物集中在同一棵樹底下（使用者定案 2026-08-20）。
+OUT_ROOT="$ROOT/dist-all/$MODE"
 mkdir -p "$OUT_ROOT"
 git -C "$ROOT" check-ignore -q "$OUT_ROOT" || { echo "輸出路徑沒有被 gitignore：$OUT_ROOT" >&2; exit 1; }
 
@@ -97,7 +98,7 @@ run() { # $1 image，其餘是指令
 
 STAMP=$(git -C "$ROOT" rev-parse --short=12 HEAD)
 PKG="wasteland-cht-${PLATFORM}-${MODE}-${STAMP}"
-CONTAINER_OUT="/src/dist-platform/$MODE"
+CONTAINER_OUT="/src/dist-all/$MODE"
 
 run "$BUILD_IMAGE" bash /src/tools/package_container.sh \
     "$MODE" "$PLATFORM" "$CONTAINER_OUT" "$INPUT" "$FONT_INPUT" "$MUSIC_INPUT"

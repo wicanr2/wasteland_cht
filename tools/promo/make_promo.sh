@@ -140,7 +140,7 @@ add() { # $1 png $2 秒
 : > "$TMP/list.txt"
 
 card "$TMP/p01.png" '荒野遊俠' 'WASTELAND · Interplay 1988' \
-    '逆向重製 · 繁體中文 · 連 1990 年的台灣說明書一起保存'
+    '逆向重製 · 繁體中文 · 連當年的台灣說明書與攻略一起保存'
 add "$TMP/p01.png" $PACE_CARD
 
 slide "$TMP/p02.png" title.png \
@@ -189,13 +189,20 @@ slide "$TMP/p12.png" 05-ending.png \
     '科奇斯基地的自毀倒數走完 240 步，然後是結局。'
 add "$TMP/p12.png" $PACE_SHOT
 
-stat5 "$TMP/p13.png" '42|張地圖全部解開' '100|份逆向筆記' \
-    '5,243|條文本譯成中文' '162|段劇本' '10|首自製配樂'
-add "$TMP/p13.png" $PACE_CARD
+# ⚠ 這一張是**與美國原版同年**的台灣一手史料（1988 年 12 月，Apple II 版）。
+# 擺在數據卡前面：先讓人看到當年就有人在寫，再報這一輪的帳。
+quote "$TMP/p13.png" \
+    '傲嘯荒漠　遊俠仗義江湖行\n浮萍半生　神鎗漂泊走天涯' \
+    '—— 精訊電腦〈遊騎兵手記〉，1988 年 12 月'
+add "$TMP/p13.png" $PACE_QUOTE
 
-card "$TMP/p14.png" '荒野遊俠' 'github.com/wicanr2/wasteland_cht' \
-    'Go / Ebiten 重製 · 原版資料與字型玩家自備 · 不散布任何原版素材'
+stat5 "$TMP/p14.png" '42|張地圖全部解開' '124|份逆向筆記' \
+    '5,243|條文本譯成中文' '162|段劇本' '10|首自製配樂'
 add "$TMP/p14.png" $PACE_CARD
+
+card "$TMP/p15.png" '荒野遊俠' 'github.com/wicanr2/wasteland_cht' \
+    'Go / Ebiten 重製 · 原版資料與字型玩家自備 · 不散布任何原版素材'
+add "$TMP/p15.png" $PACE_CARD
 
 # ═══ 接起來 ＋ 鋪配樂 ═══════════════════════════════════════════════════
 ffmpeg -y -loglevel error -f concat -safe 0 -i "$TMP/list.txt" \
