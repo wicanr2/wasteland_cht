@@ -107,7 +107,7 @@ func TestTrainerListMatchesOriginal(t *testing.T) {
 	}
 	var first string
 	for _, l := range lines {
-		if strings.HasPrefix(l, "1)") {
+		if strings.HasPrefix(l, "1>") {
 			first = l
 			break
 		}

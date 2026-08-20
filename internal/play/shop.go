@@ -582,7 +582,7 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 			if n := f.zhSkill(sk.ID); n != "" {
 				zh = ui("facility.skillrow", i+1, int(sk.Data.IQ), cost, lvl, string(n))
 			}
-			add(fmt.Sprintf("%d) %2d %3d %3d  %s",
+			add(fmt.Sprintf("%d> %2d %3d %3d  %s",
 				i+1, sk.Data.IQ, cost, lvl, f.skillLabel(sk.ID)), zh)
 		}
 		f.addMore(add, ui, to, len(f.Skills))
@@ -604,7 +604,7 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 			if name != "" {
 				zh = ui("facility.row", i+1, string(name))
 			}
-			add(fmt.Sprintf("%d) %s", i+1, f.diseaseLabel(bit)), zh)
+			add(fmt.Sprintf("%d> %s", i+1, f.diseaseLabel(bit)), zh)
 		}
 		f.addMore(add, ui, len(game.Diseases(c)), len(game.Diseases(c)))
 	case f.Facility.Kind == game.FacilityDoctor:
@@ -636,7 +636,7 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 			if n := f.zhItem(e.Item); n != "" {
 				zh = ui("facility.sellrow", i+1, mark, string(n))
 			}
-			add(fmt.Sprintf("%d)%s %s", i+1, mark, f.itemLabel(e.Item)), zh)
+			add(fmt.Sprintf("%d>%s %s", i+1, mark, f.itemLabel(e.Item)), zh)
 		}
 		f.addMore(add, ui, to, len(list))
 	case f.state.Step == StepBuy:
@@ -648,9 +648,10 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 			if n := f.zhItem(e.ID); n != "" {
 				zh = ui("facility.buyrow", i+1, int(e.Price), string(n))
 			}
-			// 版面照原版：價錢**右對齊**在 `PRICE` 那一欄底下，名字從第 13 欄起
-			// （實機截圖 `44-buy.png`）。原版沒有印 `$`。
-			add(fmt.Sprintf("%d) %8d  %s", i+1, e.Price, f.itemLabel(e.ID)), zh)
+			// 版面照原版：列號是 `N>`（不是 `N)`）、價錢**右對齊**在 `PRICE`
+			// 那一欄底下、名字從第 13 欄起（實機截圖 `44-zoom.png`）。
+			// 原版沒有印 `$`。
+			add(fmt.Sprintf("%d> %8d  %s", i+1, e.Price, f.itemLabel(e.ID)), zh)
 	}
 		f.addMore(add, ui, to, len(list))
 	default:
