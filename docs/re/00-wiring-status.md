@@ -47,7 +47,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 
 ## 統計
 
-筆記 **114** 份：已接 **110**、未接 **0**、不適用 **4**。
+筆記 **115** 份：已接 **110**、未接 **1**、不適用 **4**。
 
 | # | 筆記 | 狀態 | 接在哪／為什麼 |
 |---:|---|---|---|
@@ -170,3 +170,4 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 117 | [目前地圖存在全域狀態裡，以及設施畫面的實機版面](117-save-globals-and-facility-screen.md) | 已接 | §1 與 §3：`internal/play/play.go`（`StoreTo` 寫 `ds:4653h`／`4655h`／`4656h`、`New` 從 `ds:4655h` 取地圖）、`cmd/wl-save`（`-map` 兩個地方都寫）、`internal/play/savewrite_test.go`。§2 的版面也接了（`Frame`／`HiFrame` 的設施分支、`facilityLineAt`、`msgRect`）；`Who wants to enter?` ＋ 招呼語（`StepWho`、`FacilityScene.Greeting`）、`POOL MONEY`（`game.PoolMoney`）、`MORE!`（`addMore`）都接上了。⚠ 醫生與訓練師的 `P` 還沒對過實機 |
 | 118 | [物品表有四份，商店按記錄 `+0x06` 換一份](118-shop-stock-groups.md) | 已接 | `internal/play/itemstock.go`（`loadItemStock`／`itemStockFile`／`itemStockSlot`）、`internal/play/facility.go`（商店進場換組）、`internal/play/play.go`（開場載第 0 組）、`internal/play/panels.go`／`command.go`（寫回當時那一組）、`internal/play/itemstock_test.go` |
 | 119 | [醫生與訓練師的進場——招呼語的位移每一種設施不一樣，三種都要先選人](119-doctor-and-trainer-entry.md) | 已接 | `internal/play/facility.go`（`greetingAt`／`asksWho`／`trainableSkills` 跳過第 0 格）、`internal/play/shop.go`（`whoKey`／`whoPrompt`／`cantMessage`／醫生條件式選單／訓練師三欄／`wrapCells`）、`internal/play/doctortrainer_test.go` |
+| 120 | [蓋氏計數器是輻射計量表 ＋ 逼近時的滴答聲](120-geiger-counter.md) | 未接 | 缺的是**外框那一層**：計量表畫在字元欄 38–39，而外框（欄 0–37）與它上面直排的 `RADIATION` 標籤 remake 都還沒畫，單獨浮一根管子沒有上下文。料件都在手上——`assets.Rom.FontColor()` 讀得到 `colorf.fnt` 的 `0x72`–`0x8B`，距離走既有的 `game.Distance`，音效 2 走 `docs/re/44` 的表。接的時候一起補：讀數 ＝ 視野內最近 nibble 9 格的距離、`0FFh` ＝ 不顯示、滴答間隔 `1d(距離＋1) ＋ 3` 個 tick |
