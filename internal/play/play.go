@@ -1882,19 +1882,8 @@ func (s *Scene) drawRosterBox(f *render.Frame) {
 	// 上半那兩圈：左邊肖像、右邊選單區（`docs/re/127`）。
 	_ = f.DrawPortraitBox(s.colorFont)
 	_ = f.DrawMenuBox(s.colorFont)
-	// 名單框下緣那個按鈕（`docs/re/126` §2）。
-	_ = f.DrawBoxLabel(s.colorFont, render.LabelRosterOff)
-	// 選單框上緣的 `ESC`：戰鬥與設施都有（實機 `24-encyes.png`、`54-doc-menu.png`）。
-	_ = f.DrawBoxLabel(s.colorFont, render.LabelEsc)
-	switch {
-	case s.facility != nil:
-		// `POOL MONEY` 只有商店與醫生有——訓練師那一層沒有這個鍵（`docs/re/119`）。
-		if s.facility.HasPool() {
-			_ = f.DrawBoxLabel(s.colorFont, render.LabelPoolMoney)
-		}
-	case s.combat != nil:
-		// 戰鬥時選單框下緣印的是 `MAP`（實機 `24-encyes.png`）。
-		_ = f.DrawBoxLabel(s.colorFont, render.LabelMap)
+	for _, l := range s.boxLabels() {
+		_ = f.DrawBoxLabel(s.colorFont, l)
 	}
 	if !cjk {
 		total := s.groupCount() - 1
@@ -1913,8 +1902,36 @@ func (s *Scene) drawBorder(f *render.Frame) {
 	_ = f.DrawBorder(s.colorFont)
 	_ = f.DrawTitleLabel(s.colorFont)
 	_ = f.DrawGeigerMeter(s.colorFont, s.geigerReading(), s.partyHasGeiger())
-	// 地圖框下緣那個按鈕：名單收起來時是 `ROSTER ON`（`docs/re/126` §2）。
-	_ = f.DrawBoxLabel(s.colorFont, render.LabelRosterOn)
+	for _, l := range s.boxLabels() {
+		_ = f.DrawBoxLabel(s.colorFont, l)
+	}
+}
+
+// boxLabels 是**這個畫面上有哪幾個框邊標籤**（`docs/re/126` §2、`docs/re/127` §2）。
+//
+// ⚠ **繪製與滑鼠共用這一支。** 兩邊各列一份的話遲早會漂成「看得到但點不到」，
+// 而那種錯沒有任何症狀——與 `charAt` 那一條同一個道理。
+func (s *Scene) boxLabels() []render.BoxLabel {
+	if s.title || s.wipe.active || s.ending.active {
+		return nil
+	}
+	if s.combat == nil && s.facility == nil {
+		// 地圖畫面：名單收起來時按鈕是 `ROSTER ON`（在地圖框的下緣）。
+		return []render.BoxLabel{render.LabelRosterOn}
+	}
+	// 名單模式：上緣的 `ESC`、下緣的按鈕、名單框下緣的 `ROSTER OFF`。
+	out := []render.BoxLabel{render.LabelEsc, render.LabelRosterOff}
+	switch {
+	case s.facility != nil:
+		// `POOL MONEY` 只有商店與醫生有——訓練師那一層沒有這個鍵（`docs/re/119`）。
+		if s.facility.HasPool() {
+			out = append(out, render.LabelPoolMoney)
+		}
+	case s.combat != nil:
+		// 戰鬥時選單框下緣印的是 `MAP`（實機 `24-encyes.png`）。
+		out = append(out, render.LabelMap)
+	}
+	return out
 }
 
 // geigerReading 是「視野內最近的輻射格有多遠」（`ds:46EEh`，`docs/re/120` §2）。

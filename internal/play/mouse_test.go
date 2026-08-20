@@ -116,3 +116,52 @@ func TestMousePicksListItem(t *testing.T) {
 		t.Errorf("點清單的 1 之後在 %s，鍵盤按 1 之後在 %s", got, want)
 	}
 }
+
+// 框邊上的標籤是按鈕：點下去要送出它代表的按鍵（`docs/re/126` §3）。
+//
+// ⚠ 這一條同時擋「畫了但點不到」：`boxLabels` 是繪製與滑鼠共用的那一支，
+// 兩邊各列一份的話會漂成看得到卻沒反應，而那沒有任何症狀。
+func TestBoxLabelsAreButtons(t *testing.T) {
+	rom := openRom(t)
+	s, err := New(rom)
+	if err != nil {
+		t.Fatalf("開場失敗：%v", err)
+	}
+	click := func(col, row int) (input.Input, bool) {
+		return s.translateMouse(input.Mouse{
+			Left: true,
+			X:    (col*render.CharWidth + 1) * render.HiScale,
+			Y:    (row*render.CharHeight + 1) * render.HiScale,
+		})
+	}
+	// 地圖畫面：地圖框下緣的 `ROSTER ON`。
+	in, ok := click(render.LabelRosterOn.Col+1, render.LabelRosterOn.Row)
+	if !ok || in.Char != ' ' {
+		t.Errorf("點 ROSTER ON 應該送空白，得到 %+v ok=%v", in, ok)
+	}
+	// 地圖畫面上沒有 `POOL MONEY`：那一格在地圖視窗裡，點下去是走路不是按 `P`。
+	if in, _ := click(render.LabelPoolMoney.Col+1, render.LabelPoolMoney.Row); in.Char == 'P' {
+		t.Error("地圖畫面不該點得到 POOL MONEY")
+	}
+	// 進商店之後才有 `POOL MONEY` 與 `ESC`。
+	if err := s.LoadMap(10, 30, 25); err != nil {
+		t.Fatalf("載入地圖 10 失敗：%v", err)
+	}
+	if _, err := s.Update(input.Input{Dir: input.DirUp}); err != nil {
+		t.Fatalf("走進商店失敗：%v", err)
+	}
+	if _, err := s.Update(input.Input{Char: 'Y'}); err != nil {
+		t.Fatalf("回答 Y 失敗：%v", err)
+	}
+	if s.facility == nil {
+		t.Fatal("沒有進到設施")
+	}
+	in, ok = click(render.LabelPoolMoney.Col+1, render.LabelPoolMoney.Row)
+	if !ok || in.Char != 'P' {
+		t.Errorf("點 POOL MONEY 應該送 P，得到 %+v ok=%v", in, ok)
+	}
+	in, ok = click(render.LabelEsc.Col+1, render.LabelEsc.Row)
+	if !ok || in.Action != input.ActionCancel {
+		t.Errorf("點 ESC 應該送取消，得到 %+v ok=%v", in, ok)
+	}
+}
