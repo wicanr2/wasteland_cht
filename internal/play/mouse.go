@@ -43,6 +43,19 @@ func (s *Scene) translateMouse(m input.Mouse) (input.Input, bool) {
 	ox, oy := m.X/render.HiScale, m.Y/render.HiScale
 	col, row := ox/render.CharWidth, oy/render.CharHeight
 
+	// 框邊上的標籤是按鈕：點下去送它代表的按鍵（`docs/re/126` §3）。
+	// **這一條要排在 `charAt` 前面**——標籤畫在框線上，那幾格底下
+	// 沒有可點的字，落到 `charAt` 就什麼都不會發生。
+	for _, l := range s.boxLabels() {
+		if l.Hit(col, row) {
+			if l.Key == 0x1B {
+				none.Action = input.ActionCancel
+				return none, true
+			}
+			none.Char = l.Key
+			return none, true
+		}
+	}
 	// 點到哪一格就送那一格上的字元——指令列與清單共用這一條規則，
 	// 所以中文版也對（熱鍵字母不跟著翻譯走，那一格本來就是 ASCII）。
 	if c := s.charAt(col, row); c != 0 {

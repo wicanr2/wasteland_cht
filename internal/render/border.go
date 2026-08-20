@@ -410,6 +410,21 @@ func (f *Frame) DrawRosterBox(font *assets.Font, plainTop bool) error {
 type BoxLabel struct {
 	Col, Row int
 	Glyphs   []int
+	// Key 是這個標籤代表的按鍵（版面表的 `+0x03`）。
+	//
+	// 原版的標籤同時是滑鼠按鈕：熱區表 `ds:CAEBh` 的第 4–20 筆與版面表
+	// **一筆對一筆、順序相同**，共用同一支處理常式（`0x8BFF`），
+	// 那支做的事就是「送出這個按鍵」（`docs/re/126` §3）。
+	Key byte
+}
+
+// Hit 回答「這一格點得到這個標籤嗎」。
+//
+// **重製決策**：範圍取標籤自己占的格子。原版的熱區是像素矩形，
+// 與標籤差一兩格（`POOL MONEY` 的標籤是欄 21–32、熱區是欄 20–30），
+// 而重製版的滑鼠一律「功能等價就好」（`docs/spec/29`）。
+func (l BoxLabel) Hit(col, row int) bool {
+	return row == l.Row && col >= l.Col && col < l.Col+len(l.Glyphs)
 }
 
 // 字模編碼：`索引 ＝ (字元 & 0xDF) − 0x29`，空白 `0x33`，頭尾各一個蓋子
@@ -457,11 +472,11 @@ func labelGlyphs(text string) []int {
 // 按鈕在地圖框的下緣（列 17），名單開著時在名單框的下緣（列 23）。
 // 當成「同一個按鈕換字」會畫錯位置。
 var (
-	LabelRosterOn  = BoxLabel{Col: 15, Row: 17, Glyphs: labelGlyphs("ROSTER ON")}
-	LabelRosterOff = BoxLabel{Col: 15, Row: 23, Glyphs: labelGlyphs("ROSTER OFF")}
-	LabelEsc       = BoxLabel{Col: 17, Row: 0, Glyphs: labelGlyphs("ESC")}
-	LabelPoolMoney = BoxLabel{Col: 21, Row: 13, Glyphs: labelGlyphs("POOL MONEY")}
-	LabelMap       = BoxLabel{Col: 17, Row: 13, Glyphs: labelGlyphs("MAP")}
+	LabelRosterOn  = BoxLabel{Col: 15, Row: 17, Glyphs: labelGlyphs("ROSTER ON"), Key: ' '}
+	LabelRosterOff = BoxLabel{Col: 15, Row: 23, Glyphs: labelGlyphs("ROSTER OFF"), Key: ' '}
+	LabelEsc       = BoxLabel{Col: 17, Row: 0, Glyphs: labelGlyphs("ESC"), Key: 0x1B}
+	LabelPoolMoney = BoxLabel{Col: 21, Row: 13, Glyphs: labelGlyphs("POOL MONEY"), Key: 'P'}
+	LabelMap       = BoxLabel{Col: 17, Row: 13, Glyphs: labelGlyphs("MAP"), Key: ' '}
 )
 
 // DrawBoxLabel 把一個標籤畫在框線上。
