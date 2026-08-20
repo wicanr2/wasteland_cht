@@ -16,14 +16,22 @@ type RadiationHit struct {
 	Immune  bool // 穿著 Rad suit，整個跳過
 }
 
-// RadiationBypassesArmour 回報這一格的傷害無不無視護甲。
+// BypassesArmour 回報「這一格造成的這一次傷害要不要跳過護甲吸收」。
 //
-// ⚠ 判準是**記錄 +0x00（訊息編號）的 bit0**，不是輻射的通則——
-// 211 個輻射格裡 84 格無視、127 格照常吸收（docs/re/55 §2、§4）。
-// 為什麼是訊息編號的奇偶，原版沒有交代；**照抄，不要統一成其中一種**。
-func RadiationBypassesArmour(rec []byte) bool {
+// 判準是**這一格記錄 `+0x00` 的 bit0**：`sub_141FA` 在呼叫傷害結算之前
+// 把它抄進 `ds:46EFh`（`0x1423C`），非 0 就整個跳過 AC 顆 d6 的吸收
+// （`docs/re/55` §1）。
+//
+// ⚠ **這不是輻射專用的**。同一行程式碼服務所有「扣 CON」的來源——
+// 輻射格 211 格裡 84 格跳過、127 格照扣（`docs/re/55` §4），
+// 條件閘 168 筆扣 CON 的裡 63 筆跳過、105 筆照扣（`docs/re/122` §3）。
+// 為什麼綁在訊息編號的奇偶上，原版沒有交代；**照抄，不要統一成其中一種**。
+func BypassesArmour(rec []byte) bool {
 	return len(rec) > 0 && rec[0]&1 == 1
 }
+
+// RadiationBypassesArmour 是輻射格那條路的名字，語意與 BypassesArmour 相同。
+func RadiationBypassesArmour(rec []byte) bool { return BypassesArmour(rec) }
 
 // ItemRadSuit 是 Rad suit 的物品編號（原版 0x14432 的 `cmp al, 29h`，
 // 物品表第 41 筆就叫 `Rad suit`）。
