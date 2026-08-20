@@ -733,3 +733,11 @@ func wrapCells(s string, cols int) []string {
 	}
 	return out
 }
+
+// HasPool 回報這一層設施有沒有 `P`（集中金錢）。
+//
+// 商店與醫生有、**訓練師沒有**（`docs/re/119` §3：實機的訓練師畫面上
+// 外框下緣沒有 `POOL MONEY` 那個標籤）。
+func (f *FacilityScene) HasPool() bool {
+	return f.Facility.Kind != game.FacilityTrainer
+}

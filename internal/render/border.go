@@ -343,3 +343,76 @@ func (f *Frame) DrawRosterBox(font *assets.Font, plainTop bool) error {
 	}
 	return put(boxBottomRight, MsgBorderRight, RosterBoxBottomRow)
 }
+
+// 框邊上的標籤（`ds:CBBDh` 的版面表 ＋ `ds:CA70h` 的字模串，`docs/re/126`）。
+//
+// ⚠ 這一族字串在原版映像裡是**彩色字型的字模編號**，不是 ASCII——
+// 所以這裡也照字模編號存，不要換成 Go 字串再轉。
+type BoxLabel struct {
+	Col, Row int
+	Glyphs   []int
+}
+
+// 字模編碼：`索引 ＝ (字元 & 0xDF) − 0x29`，空白 `0x33`，頭尾各一個蓋子
+// （`sub_17451`，`docs/re/14` §3.1）。
+const (
+	labelCapLeft  = 0x17
+	labelCapRight = 0x28
+	labelSpace    = 0x33
+
+	// colourBankLo／colourBankHi 是**會換色的那一段**字模（`0x18`–`0x33`，
+	// A–Z 加六個符號）。overlay slot 19 在 `ds:722Fh` ＝ 0 時把索引 **＋0x1C**
+	// 換成冷色那一組（`docs/re/14` §3），而 `ds:722Fh` 的預設值就是 0。
+	//
+	// ⚠ 不補這 `0x1C` 的話標籤會畫成暖色（紅／黃），實機是藍的——
+	// 而畫面上只是「顏色不太一樣」，不像少了一步。
+	colourBankLo   = 0x18
+	colourBankHi   = 0x33
+	colourBankCool = 0x1C
+)
+
+// coolGlyph 把會換色的那一段字模換成冷色那一組。
+func coolGlyph(g int) int {
+	if g >= colourBankLo && g <= colourBankHi {
+		return g + colourBankCool
+	}
+	return g
+}
+
+func labelGlyphs(text string) []int {
+	out := make([]int, 0, len(text)+2)
+	out = append(out, coolGlyph(labelCapLeft))
+	for _, r := range text {
+		if r == ' ' {
+			out = append(out, coolGlyph(labelSpace))
+			continue
+		}
+		out = append(out, coolGlyph(int(byte(r)&0xDF)-0x29))
+	}
+	return append(out, coolGlyph(labelCapRight))
+}
+
+// 三個實機確認過位置的標籤（`docs/re/126` §2）。
+//
+// ⚠ **`ROSTER ON` 與 `ROSTER OFF` 是兩筆記錄，位置不同**：名單收起來時
+// 按鈕在地圖框的下緣（列 17），名單開著時在名單框的下緣（列 23）。
+// 當成「同一個按鈕換字」會畫錯位置。
+var (
+	LabelRosterOn  = BoxLabel{Col: 15, Row: 17, Glyphs: labelGlyphs("ROSTER ON")}
+	LabelRosterOff = BoxLabel{Col: 15, Row: 23, Glyphs: labelGlyphs("ROSTER OFF")}
+	LabelEsc       = BoxLabel{Col: 17, Row: 0, Glyphs: labelGlyphs("ESC")}
+	LabelPoolMoney = BoxLabel{Col: 21, Row: 13, Glyphs: labelGlyphs("POOL MONEY")}
+)
+
+// DrawBoxLabel 把一個標籤畫在框線上。
+func (f *Frame) DrawBoxLabel(font *assets.Font, l BoxLabel) error {
+	if font == nil {
+		return nil
+	}
+	for i, g := range l.Glyphs {
+		if err := f.DrawGlyph(font, g, l.Col+i, l.Row, 0, false); err != nil {
+			return err
+		}
+	}
+	return nil
+}

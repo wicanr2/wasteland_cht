@@ -1874,6 +1874,16 @@ func (s *Scene) drawRosterBox(f *render.Frame) {
 	}
 	cjk := s.eten != nil && len(rosterHeaderCJK(s.uiText)) > 0
 	_ = f.DrawRosterBox(s.colorFont, cjk)
+	// 名單框下緣那個按鈕（`docs/re/126` §2）。
+	_ = f.DrawBoxLabel(s.colorFont, render.LabelRosterOff)
+	if s.facility != nil {
+		// 設施畫面在選單框上緣印 `ESC`；`POOL MONEY` 只有商店與醫生有
+		// （訓練師那一層沒有這個鍵，`docs/re/119`）。
+		_ = f.DrawBoxLabel(s.colorFont, render.LabelEsc)
+		if s.facility.HasPool() {
+			_ = f.DrawBoxLabel(s.colorFont, render.LabelPoolMoney)
+		}
+	}
 	if !cjk {
 		total := s.groupCount() - 1
 		if total < 0 {
@@ -1891,6 +1901,8 @@ func (s *Scene) drawBorder(f *render.Frame) {
 	_ = f.DrawBorder(s.colorFont)
 	_ = f.DrawTitleLabel(s.colorFont)
 	_ = f.DrawGeigerMeter(s.colorFont, s.geigerReading(), s.partyHasGeiger())
+	// 地圖框下緣那個按鈕：名單收起來時是 `ROSTER ON`（`docs/re/126` §2）。
+	_ = f.DrawBoxLabel(s.colorFont, render.LabelRosterOn)
 }
 
 // geigerReading 是「視野內最近的輻射格有多遠」（`ds:46EEh`，`docs/re/120` §2）。

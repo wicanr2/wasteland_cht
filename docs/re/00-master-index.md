@@ -723,6 +723,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | `tools/ida/export_forced.py` | 強制把 IDA 漏掉的位址分析成程式碼再倒出 | 是 |
 | `tools/rng.py` | 亂數與擲骰的參考模型（附自我測試） | 否 |
 | `tools/unpack_exepack.py`／`apply_overlay.py` | 解包／合成分析映像 | 否 |
+| `tools/summarize_box_labels.py` | 框邊標籤的版面表與字模串（欄／列／長度／按鍵）| 否 |
 | `tools/summarize_gate_penalties.py` | 條件閘的獎懲參數逐筆（欄位／加減／量／吃不吃護甲）| 否 |
 | `tools/summarize_chests.py` | 42 個區塊的 nibble 5 逐格內容（已定物品／待擲類別／擲骰特例），含逐筆正對照 | 否 |
 | `tools/summarize_sfx.py` | `seg005` 的音高／音長／音效表 ＋ 九首位元組碼反組譯 | 否 |
@@ -794,6 +795,7 @@ D 只有 32（38 個地圖）與 64（4 個地圖）兩種。第 1 層取值 `su
 | [`123`](123-attack-target-range.md) | `sub_122E9` ＝「這一組列不列得出來」：同地圖 ＋ 距離 < 接戰值 `ds:46CCh` ＋ **座標在 19 × 9 的地圖視窗內**。接戰值由 `sub_13878` 算：`0x0F` 近戰／`0xFE` **有射程武器且彈匣非空**。「Which group?」清單（`sub_12262`）攻擊與雇用共用；`No one is within range.` 印在**雇用**那條路上 |
 | [`124`](124-screen-border-and-right-column.md) | 外框 ＝ `sub_19814` 的六個字模（左上／橫／右上／左直／右直／左下／右下）；地圖畫面多畫列 17 的兩個接頭與欄 38–39；右邊那一欄由上到下 ＝ 直排 `WASTELAND`（`ds:AA4Dh` 的 2 × 9 表）＋ 輻射計量表 ＋ 框線 |
 | [`125`](125-roster-box.md) | 名單框 ＝ 列 14–23、欄 0–39（`sub_16F70`）：列 14–15 是一條**雙倍高的橫幅**（兩張字模表 ＋ 執行期填的 `1<1`）、列 16–22 兩邊、列 23 下緣。**一行從欄 1 起**（`sub_1738A`），序號欄 1–2、名字欄 3；`AC` 以後是絕對欄 |
+| [`126`](126-box-labels.md) | 框邊標籤 ＝ `ds:CA70h` 的**字模串**（不是 ASCII，`(ch & 0xDF) − 0x29`）＋ `ds:CBBDh` 的版面表（17 筆 × 6：欄／列／長度／**代表的按鍵**／指標）。`ROSTER ON` 列 17、`ROSTER OFF` 列 23、`ESC` 列 0、`POOL MONEY` 欄 21 列 13 |
 | [`21`](21-attributes.md) | 七個屬性的記錄位移、屬性→修正值階梯、檢定骰、角色建立 |
 | [`22`](22-shop-and-items.md) | 商店、價格公式、物品資料表（95 筆 × 8 bytes） |
 | [`23`](23-picture-format.md) | 圖片格式：packed 4bpp ＋ 列間 XOR delta、82 張 `ALLPICS` |
