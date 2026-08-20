@@ -91,6 +91,9 @@ clc
 
 ## 5. 醫生的逐點治療（`0x1C375` 起的迴圈）
 
+> 進場那一段（招呼語、選人、條件式主選單、`POOL MONEY`）在
+> [`119`](119-doctor-and-trainer-entry.md)。
+
 ```
 al:dl ← MAXCON − CON            ; 16-bit：[+0x1B] − [+0x1D]，[+0x1C] sbb [+0x1E]
 sub_176D0 印那個數字
