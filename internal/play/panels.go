@@ -224,7 +224,7 @@ func (s *Scene) quitSave() error {
 		return err
 	}
 	if len(s.itemsRaw) > 0 {
-		if err := s.rom.SetItemTable(s.save.File, 0, s.itemsRaw); err != nil {
+		if err := s.rom.SetItemTable(itemStockFile(s.itemStock), itemStockSlot(s.itemStock), s.itemsRaw); err != nil {
 			return err
 		}
 	}

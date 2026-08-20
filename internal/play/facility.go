@@ -13,6 +13,9 @@ import (
 	"github.com/wicanr2/wasteland_cht/internal/textlayout"
 )
 
+// recStockGroup 是設施記錄裡「這家店賣哪一組東西」的位移（`0x1BEA2`）。
+const recStockGroup = 0x06
+
 // facilityPicture 是每個設施進場要載的 ALLPICS 圖（docs/re/29 §5.4 那張表）。
 //
 // ⚠ 第五種（FacilityEnding）**沒有圖**——原版那一支（0x1B4F0）連
@@ -157,6 +160,13 @@ func (s *Scene) EnterFacility(record []byte) *FacilityScene {
 	if f.Kind == game.FacilityEnding {
 		s.BeginEnding()
 		return nil
+	}
+	// 商店有自己的庫存表：記錄 `+0x06` 選第幾組（`docs/re/118`）。
+	// ⚠ **只有商店**——醫生的 `+0x06` 是每點治療費，拿去當庫存組會載到別的表。
+	if f.Kind == game.FacilityShop && len(record) > recStockGroup {
+		if err := s.loadItemStock(record[recStockGroup]); err != nil {
+			s.message = "ITEM TABLE: " + err.Error()
+		}
 	}
 	fs := &FacilityScene{
 		Facility: f,
