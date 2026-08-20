@@ -200,8 +200,13 @@ func (s *Script) Step() ScriptResult {
 		s.World.stashFirstMember(arg(0))
 
 	case OpNeedItem:
-		// 全隊掃物品 0x2F（`0x1A699`）：**沒有**的人 CON ← −5（舊值進 +0x26）。
-		// 只要有一個人帶著就走 +0x05，一個都沒有才走 +0x03。
+		// 全隊掃物品 0x2F（防毒面具，`0x1A699`）：**沒有**的人 CON ← −5
+		// （舊值進 +0x26）。**只要有一個人帶著就走 +0x03，一個都沒有才走 +0x05。**
+		//
+		// ⚠ 方向極易記反：原版的旗標 `ds:CF2Ch` **初值是 1**，掃到有的人才清成 0，
+		// 而 `0x1A6D4` 先寫死 `bl ← 3`、旗標**非 0**（＝ 一個都沒有）才改成 5。
+		// 資料端印證得很乾脆：胖佛萊迪那筆（資源 40 section 6 記錄 11）的
+		// `+0x03` 指向「戴上防毒面具的人及時戴上了」那句話（`docs/re/121` §3）。
 		anyHas := false
 		for _, c := range s.World.Party.Members {
 			if c == nil {
@@ -215,9 +220,9 @@ func (s *Script) Step() ScriptResult {
 			c.CON = needItemCON
 		}
 		if anyHas {
-			branch(5)
-		} else {
 			branch(3)
+		} else {
+			branch(5)
 		}
 
 	case OpPlace9, OpPlace9Param:
