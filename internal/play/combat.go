@@ -22,10 +22,15 @@ const (
 	ModeRoster ScreenMode = 1
 )
 
-// 名單一行的欄座標（docs/re/15 §4）。行首是序號 ＋ `>`，名字從欄 2 起。
+// 名單一行的欄座標（docs/re/15 §4、`docs/re/125`）。
+//
+// ⚠ **一行從欄 1 起，不是欄 0**：`sub_1738A` 設的游標是「列 ＝ 序號 ＋ 0x0F、
+// **欄 ＝ 1**」，所以序號在欄 1–2、名字從欄 3 起。欄 0 是名單框的左邊框線。
+// 少算這一欄的話整份名單往左移一格、壓在框線上。
+// `AC` 以後的欄座標是**絕對值**（`ds:4672h` 直接設），不跟著移。
 const (
-	colIndex   = 0 // 序號 ＋ `>`（`0x1709A`／`0x170A0`）
-	colName    = 2
+	colIndex   = 1 // 序號 ＋ `>`（`0x1709A`／`0x170A0`）
+	colName    = 3
 	colAC      = 0x11
 	colAmmo    = 0x15
 	colMaxCON  = 0x18
@@ -55,16 +60,18 @@ const (
 //
 // 中文表頭都是兩個字（`ui:combat.hdr*`），三格的間隔放得下。
 const (
-	cjkColName   = 2
-	cjkColAC     = 15
-	cjkColAmmo   = 18
-	cjkColMaxCON = 21
-	cjkColCON    = 25
-	cjkColWeapon = 29
-	// cjkRosterCols ＝ 40 ＝ 整個畫面的字元欄數（`render.ScreenWidth / CharWidth`）。
-	// 英文那一版停在 39，最後一格原版沒有用到；中文這一版用掉它。
-	// 名單那幾列上沒有別的東西會被蓋到。
-	cjkRosterCols = render.ScreenWidth / render.CharWidth
+	cjkColName   = 3
+	cjkColAC     = 16
+	cjkColAmmo   = 19
+	cjkColMaxCON = 22
+	cjkColCON    = 26
+	cjkColWeapon = 30
+	// cjkRosterCols ＝ 39：欄 0 與欄 39 是名單框的兩條邊（`docs/re/125`），
+	// 所以最右邊那一欄不能用。武器欄剩 9 格，中文四個字。
+	//
+	// ⚠ 這一版整套比原版的英文版右移一欄，理由與英文那一版一樣——
+	// 欄 0 讓給框線。
+	cjkRosterCols = render.ScreenWidth/render.CharWidth - 1
 )
 
 // rosterLayout 是一套欄座標。英文與中文各一套，繪製、表頭與反白範圍共用

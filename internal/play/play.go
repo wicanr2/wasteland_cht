@@ -1801,9 +1801,11 @@ func (s *Scene) Frame() *render.Frame {
 		// 右上選單區、底下名單、最後一列指令列。差別只在圖畫的是店主。
 		s.drawFacility(f)
 		s.drawRoster(f)
+		s.drawRosterBox(f)
 	case s.combat != nil:
 		s.drawPortrait(f)
 		s.drawRoster(f)
+		s.drawRosterBox(f)
 	default:
 		s.drawMap(f)
 		// 外框與右邊那一欄只在地圖畫面畫（原版 `sub_197BB` 的呼叫端只有
@@ -1859,6 +1861,25 @@ func (s *Scene) drawMap(f *render.Frame) {
 	// 隊伍圖示疊在地圖上（docs/re/47 §5 對拍抓出來的缺口）。
 	if err := f.DrawParty(s.gfx); err != nil {
 		s.message = "ERROR: " + err.Error()
+	}
+}
+
+// drawRosterBox 畫名單框（`sub_16F70`，`docs/re/125`）。
+//
+// 中文表頭是單倍高的，畫不出原版那條雙倍高的橫幅，所以有中文時列 14
+// 改畫一條普通的上緣（重製決策，記在接線表）。
+func (s *Scene) drawRosterBox(f *render.Frame) {
+	if s.colorFont == nil {
+		return
+	}
+	cjk := s.eten != nil && len(rosterHeaderCJK(s.uiText)) > 0
+	_ = f.DrawRosterBox(s.colorFont, cjk)
+	if !cjk {
+		total := s.groupCount() - 1
+		if total < 0 {
+			total = 0
+		}
+		_ = f.DrawRosterBanner(s.colorFont, s.groupID, total)
 	}
 }
 

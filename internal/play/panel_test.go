@@ -96,7 +96,8 @@ func TestCombatRosterShowsEveryone(t *testing.T) {
 	}
 }
 
-// 名單一行是 39 欄，行首是序號 ＋ `>`（`docs/re/103` §4 的實機截圖）。
+// 名單一行是 39 欄，**欄 0 空著給框線**、序號 ＋ `>` 在欄 1–2
+// （`sub_1738A` 設的游標是欄 1，`docs/re/125`）。
 func TestRosterLineWidthAndIndex(t *testing.T) {
 	r := RosterRow{Index: 1, Name: "Hell Razor", AC: "0", Ammo: "0",
 		MaxCON: "28", CON: "28", Weapon: "Crowbar"}
@@ -104,8 +105,8 @@ func TestRosterLineWidthAndIndex(t *testing.T) {
 	if len(line) != 39 {
 		t.Fatalf("一行應該是 39 欄，得到 %d", len(line))
 	}
-	if !strings.HasPrefix(line, "1>") {
-		t.Errorf("行首應該是序號 ＋ `>`，得到 %q", line[:4])
+	if !strings.HasPrefix(line, " 1>") {
+		t.Errorf("行首應該是一格空白 ＋ 序號 ＋ `>`，得到 %q", line[:4])
 	}
 	// ⚠ 武器欄從 0x20 起，39 − 32 ＝ 7 格：`Crowbar` 剛好整個放得下。
 	// 少一格會切成 `Crowba`，而那看起來只像「名字比較長」。

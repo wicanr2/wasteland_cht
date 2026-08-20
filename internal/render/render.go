@@ -366,9 +366,12 @@ func (f *Frame) RGBA() []byte {
 	return out
 }
 
-// RosterHeaderRow 是隊伍名單的表頭字元列（docs/re/25 §2.5、docs/re/40 §1）。
-// 成員行從 RosterHeaderRow+1 起，佔用地圖視窗那一塊。
-const RosterHeaderRow = 14
+// RosterHeaderRow 是隊伍名單的表頭字元列（`docs/re/40` §1、`docs/re/125`）。
+//
+// ⚠ **是 15 不是 14。** 原版的名單框從列 14 起，而列 14 與列 15 合起來是
+// 一條雙倍高的橫幅；成員從列 16 起（`sub_1738A` 的「列 ＝ 序號 ＋ 0x0F」）。
+// 少算一列的話整份名單往上移一格，而畫面上只是「名單貼著上面那一塊」。
+const RosterHeaderRow = 15
 
 // 設施畫面的版面（實機對拍量出來的，docs/re/54）。
 //
