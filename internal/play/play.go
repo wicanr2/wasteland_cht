@@ -510,8 +510,8 @@ func (s *Scene) drawHiTextLayer(h *render.HiFrame) {
 	if !s.hiText() {
 		return
 	}
-	// 時鐘：外框上緣，切模式不影響它（`docs/re/27` §4）。
-	if !s.ending.active && !s.wipe.active {
+	// 時鐘：**只有地圖畫面有**（名單模式那一列是選單框的上緣，`docs/re/127`）。
+	if !s.ending.active && !s.wipe.active && s.combat == nil && s.facility == nil {
 		c := s.world.Clock
 		s.drawASCIILine(h, fmt.Sprintf("%02d:%02d", c.Hour, c.Minute),
 			render.ClockCol, render.ClockRow)
@@ -1814,9 +1814,14 @@ func (s *Scene) Frame() *render.Frame {
 		s.drawBorder(f)
 	}
 	}
-	// 時鐘在外框上緣，不屬於地圖視窗——切模式不影響它（docs/re/27 §4）。
+	// 時鐘畫在**地圖畫面的外框上緣**（`docs/re/27` §4）。
+	//
+	// ⚠ **名單模式（戰鬥與設施）沒有時鐘**：那時候欄 14–39 的列 0 是選單框的
+	// 上緣，實機截圖上那條線是完整的（`24-encyes.png`、`54-doc-menu.png`）。
+	// 照畫的話數字會壓在框線上。
 	// **結局沒有時鐘也沒有指令列**：那時候已經不在遊戲裡了。
-	if !s.ending.active && !s.wipe.active && !s.hiText() {
+	if !s.ending.active && !s.wipe.active && !s.hiText() &&
+		s.combat == nil && s.facility == nil {
 		_ = f.DrawClock(s.font, int(s.world.Clock.Hour), int(s.world.Clock.Minute))
 	}
 
@@ -1874,15 +1879,22 @@ func (s *Scene) drawRosterBox(f *render.Frame) {
 	}
 	cjk := s.eten != nil && len(rosterHeaderCJK(s.uiText)) > 0
 	_ = f.DrawRosterBox(s.colorFont, cjk)
+	// 上半那兩圈：左邊肖像、右邊選單區（`docs/re/127`）。
+	_ = f.DrawPortraitBox(s.colorFont)
+	_ = f.DrawMenuBox(s.colorFont)
 	// 名單框下緣那個按鈕（`docs/re/126` §2）。
 	_ = f.DrawBoxLabel(s.colorFont, render.LabelRosterOff)
-	if s.facility != nil {
-		// 設施畫面在選單框上緣印 `ESC`；`POOL MONEY` 只有商店與醫生有
-		// （訓練師那一層沒有這個鍵，`docs/re/119`）。
-		_ = f.DrawBoxLabel(s.colorFont, render.LabelEsc)
+	// 選單框上緣的 `ESC`：戰鬥與設施都有（實機 `24-encyes.png`、`54-doc-menu.png`）。
+	_ = f.DrawBoxLabel(s.colorFont, render.LabelEsc)
+	switch {
+	case s.facility != nil:
+		// `POOL MONEY` 只有商店與醫生有——訓練師那一層沒有這個鍵（`docs/re/119`）。
 		if s.facility.HasPool() {
 			_ = f.DrawBoxLabel(s.colorFont, render.LabelPoolMoney)
 		}
+	case s.combat != nil:
+		// 戰鬥時選單框下緣印的是 `MAP`（實機 `24-encyes.png`）。
+		_ = f.DrawBoxLabel(s.colorFont, render.LabelMap)
 	}
 	if !cjk {
 		total := s.groupCount() - 1
