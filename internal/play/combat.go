@@ -114,6 +114,15 @@ type RosterRow struct {
 	// **但反白的是 `MAX` 欄**——`sub_1708B` 在印 MAXCON 之前開、之後就關。
 	CONInverse    bool
 	WeaponInverse bool
+
+	// IndexInverse 是**行首序號**（數字 ＋ `>`）要不要反白。
+	//
+	// 原版把它放在一個獨立的旗標 `ds:471Fh` 上，由 `sub_1708B` 開頭的
+	// `0x17094` 讀進反白暫存器、印完序號就在 `0x170A5` 關掉——所以反白的範圍
+	// **只有序號那兩格**，不是整行（`docs/re/128` §2）。
+	// 意思是「現在輪到／選中的是這個人」：戰鬥指令階段那個正在下令的人，
+	// 設施裡站在櫃檯前的那個人。
+	IndexInverse bool
 }
 
 // InverseAt 回答「這一行的第 col 欄要不要反白」。
@@ -131,6 +140,11 @@ type RosterRow struct {
 func (r RosterRow) InverseAt(lay rosterLayout, maxCON, weapon string) func(col int) bool {
 	type span struct{ lo, hi int }
 	var spans []span
+	if r.IndexInverse && r.Index > 0 {
+		// 序號與 `>` 都是半形，一個字元一格。
+		idx := fmt.Sprintf("%d>", r.Index)
+		spans = append(spans, span{colIndex, colIndex + len(idx)})
+	}
 	if r.CONInverse {
 		spans = append(spans, span{lay.maxCON, lay.maxCON + utf8.RuneCountInString(maxCON)})
 	}

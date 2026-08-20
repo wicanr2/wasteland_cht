@@ -156,6 +156,14 @@ func TestBoxLabelsAreButtons(t *testing.T) {
 	if s.facility == nil {
 		t.Fatal("沒有進到設施")
 	}
+	// ⚠ 「誰要進去？」那一步**還沒有** `POOL MONEY`——那個鍵屬於櫃檯前那個人
+	// （實機 `42-shop.png` 的框下緣是空的，`docs/re/128` §3）。
+	if in, _ := click(render.LabelPoolMoney.Col+1, render.LabelPoolMoney.Row); in.Char == 'P' {
+		t.Error("還沒選人就點得到 POOL MONEY")
+	}
+	if _, err := s.Update(input.Input{Char: '1'}); err != nil {
+		t.Fatalf("選人失敗：%v", err)
+	}
 	in, ok = click(render.LabelPoolMoney.Col+1, render.LabelPoolMoney.Row)
 	if !ok || in.Char != 'P' {
 		t.Errorf("點 POOL MONEY 應該送 P，得到 %+v ok=%v", in, ok)

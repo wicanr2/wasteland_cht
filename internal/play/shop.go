@@ -94,8 +94,11 @@ type shopState struct {
 	Page int // 目前這一頁的起始列（docs/re/53 §4）
 }
 
-// moreLabel 是清單還有下一頁時畫的那一個字（原版畫在外框下緣，
-// `docs/re/117` §2.2）。重製版沒有外框，所以接在清單後面當一行。
+// moreLabel 是清單還有下一頁時畫的那一個字（`docs/re/117` §2.2）。
+//
+// 原版把它畫在選單框內最後一列的左緣，而且套的是框邊標籤那套冷色字模
+// （實機 `47-buy2.png`）。這裡是接在清單後面當一行——**落點同一列**，
+// 只是字模走一般文字，還沒換成標籤那一套。
 const moreLabel = "MORE!"
 
 // PageRows 是一頁最多列幾件。
@@ -734,10 +737,29 @@ func wrapCells(s string, cols int) []string {
 	return out
 }
 
-// HasPool 回報這一層設施有沒有 `P`（集中金錢）。
+// Who 回報**站在櫃檯前的是第幾個人**（0 起算），以及現在有沒有人在櫃檯。
+//
+// 「誰要進去？」那一步回 false：那時候還沒有人被選中
+// （`docs/re/128` §3，實機 `42-shop.png` 名單上沒有反白的序號）。
+func (f *FacilityScene) Who() (int, bool) {
+	if f.state == nil || f.state.Step == StepWho {
+		return 0, false
+	}
+	return f.state.Who, true
+}
+
+// HasPool 回報這一層設施**現在**有沒有 `P`（集中金錢）。
 //
 // 商店與醫生有、**訓練師沒有**（`docs/re/119` §3：實機的訓練師畫面上
 // 外框下緣沒有 `POOL MONEY` 那個標籤）。
+//
+// ⚠ **「誰要進去？」那一步還沒有。** 實機截圖裡問話那一張
+// （`workplace/dosbox/shots/42-shop.png`）外框下緣是空的，選完人的下一張
+// （`43-menu.png`）才出現 `POOL MONEY`——那個鍵屬於櫃檯前那個人，
+// 還沒選人就還沒有人可以收錢。
 func (f *FacilityScene) HasPool() bool {
-	return f.Facility.Kind != game.FacilityTrainer
+	if f.Facility.Kind == game.FacilityTrainer {
+		return false
+	}
+	return f.state == nil || f.state.Step != StepWho
 }
