@@ -93,7 +93,7 @@
 | **滑鼠** | 規格 29。游標用原版 `CURS`（`internal/assets/curs.go`）並**跟著狀態換圖形**（`docs/re/112`：0 預設／1 可點／2–5 上下左右／6 中央方框，第 7 個原版選不到）。**控制走 remake 自己的路**：點到哪一格就送那一格的字元、點地圖往那個方向走、右鍵取消。點擊一律翻成與鍵盤等價的輸入再走同一條 `Update` |
 | **片頭** | `docs/re/113`。標題畫面按非 `S` 的鍵就放原版的六頁開場字幕（第 0 張字串表，每頁 255 個計時器刻），播完循環；按 `S` 照樣開始遊戲 |
 | **戰鬥指令 `H` 雇用** | `docs/re/110`、`114`、規格 17 §4。遭遇記錄 `+0x09` 的 bit1 ＝ **不敵對**、高 4 位 ＝ section 17 的 NPC 記錄編號 → 整筆 256 bytes 抄進隊伍 → 魅力對決 → 7 人上限。**出貨資料裡有 14 個雇得到的人**（FELICIA、ACE、JACKIE、CHRISTINA…），在 section 3；友善的那一組不會攻擊你，而**你一開槍就翻臉** |
-| **攻略斷言對照** | `docs/walkthrough/swm-005/mechanics-claims.md`：軟體世界攻略的 31 條機制斷言逐條拿逆向驗過（**相符 25、有出入 5、未定 1**）。未定的那一條（M-10）缺的只有「攻略說的『廢坑』是哪一張圖」|
+| **攻略斷言對照** | `docs/walkthrough/swm-005/mechanics-claims.md`：軟體世界攻略的 31 條機制斷言逐條拿逆向驗過（**相符 26、有出入 5、未定 0**）。最後一條（M-10）是靠傳送表收掉的：「廢坑」與「彈藥庫」是同一張圖（資源 31）|
 | **敵人的名字** | `docs/re/114` §6。原版印的是**這張地圖自己的明文名字表**（`Juveniles`、`Woman`、`City Slicker`），不是種類名；遭遇記錄 `+0x09` 的 bit0 決定走哪一條。328 條全部中文化（`translations/zh-Hant/monsters.tsv`）|
 | **肖像框** | `docs/re/115`。畫面左上那一塊是**一張圖 ＋ 一行 12 格置中的說明**，兩者都是跨畫面模式活著的全域（設施畫面用同一組）。戰鬥每回合挑一次：有敵人就是那一組的 `+0x07` 與名字，一組都挑不到就是遊俠（圖 8、`Ranger`）|
 | **設施畫面** | `docs/re/117` §2、`docs/re/118`。進店就切成**名單模式**：左邊肖像框（店主的圖 ＋ 招牌）、右上選單區（欄 15–38）、底下隊伍名單、指令列照留。流程是「招呼語 → 誰要進去？ → 買／賣」，`P` 是**集中金錢**（把其他隊員的錢全搬給櫃檯前這個人），清單一頁九行、滿了寫 `MORE!`。**每家店有自己的庫存表**（記錄 `+0x06` 選四份之一，四份只有庫存那一欄不同）|
@@ -172,7 +172,7 @@
 | [`docs/re/00-master-index.md`](docs/re/00-master-index.md) | **RE 總表**：位址換算、資料格式、結構佈局、位址表、關鍵函式、工具。**查已知事實先看這份** |
 | [`docs/re/00-remake-knowledge-gaps.md`](docs/re/00-remake-knowledge-gaps.md) | **RE 完成度檢查表**：remake 需要的每一項知識、狀態與入口 |
 | [`docs/re/00-function-index.md`](docs/re/00-function-index.md) | 函式索引（641 個，已分析 464）。讀任何 `sub_XXXXX` 前先查 |
-| [`docs/re/00-wiring-status.md`](docs/re/00-wiring-status.md) | **接線狀態**：108 份筆記的結論（已接 104、未接 0、不適用 4），remake 有沒有真的用上。`TestWiringStatus` 雙向守著（`CLAUDE.md` §0 的 G4）|
+| [`docs/re/00-wiring-status.md`](docs/re/00-wiring-status.md) | **接線狀態**：123 份筆記的結論（已接 119、未接 0、不適用 4），remake 有沒有真的用上。`TestWiringStatus` 雙向守著（`CLAUDE.md` §0 的 G4）|
 | [`docs/re/01-binary-identity.md`](docs/re/01-binary-identity.md) | 20 檔 SHA-256、`wl.exe` 的 MZ header、第一份資料庫與「不可用作證據」的結論 |
 | [`docs/re/02-exepack-unpack.md`](docs/re/02-exepack-unpack.md) | EXEPACK 格式、解包器、relocation 起點的坑、解包後基準資料庫 |
 | [`docs/re/03-boot-and-asset-loading.md`](docs/re/03-boot-and-asset-loading.md) | 開機序列、`info` 安裝資訊、檔名表、七個開機素材的載入位址、`TITLE.PIC` XOR 解碼 |
@@ -415,8 +415,7 @@
 
 > ⚠ 下表是**還沒解的**。**解完了還沒接上**的是另一回事，在
 > [`docs/re/00-wiring-status.md`](docs/re/00-wiring-status.md) 標「未接」——
-> **2026-08-20 起那一欄是空的**：最後三份（條件閘扣血的護甲吸收、接戰值、
-> 畫面外框與輻射計量表）都接上了。
+> **那一欄現在是空的**：新寫一份筆記就在同一輪登記，`TestWiringStatus` 雙向都會紅。
 
 | # | 還沒解的 | 為什麼不擋 |
 |---|---|---|
