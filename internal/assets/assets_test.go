@@ -3,6 +3,7 @@ package assets
 import (
 	"bytes"
 	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -592,5 +593,39 @@ func TestEndPicture(t *testing.T) {
 	// 解錯時分布很平（實測 6%）；真正的圖有大片背景。
 	if share < 20 {
 		t.Errorf("最多的顏色只佔 %.0f%%——解出來像雜訊不像圖", share)
+	}
+}
+
+// 每寫一次檔序號就 ＋1（原版 `0x18839`），否則讀檔時 `PickNewer` 可能挑到舊的
+// ——症狀是「存了卻讀回舊的」，而存檔當下畫面上一切正常。
+func TestWriteSaveBumpsSerial(t *testing.T) {
+	rom := openRom(t)
+	s, err := rom.LoadSave("game1")
+	if err != nil {
+		t.Fatalf("讀存檔失敗：%v", err)
+	}
+	before := s.Serial()
+	dir := t.TempDir()
+	// WriteSave 要有原始檔在旁邊才寫得出來（它只換存檔那一段）。
+	for _, name := range []string{"game1", "game2"} {
+		raw, err := rom.File(name)
+		if err != nil {
+			t.Skipf("沒有 %s：%v", name, err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, name), raw, 0o644); err != nil {
+			t.Fatalf("備份 %s 失敗：%v", name, err)
+		}
+	}
+	if err := rom.WriteSave(s, dir); err != nil {
+		t.Fatalf("寫檔失敗：%v", err)
+	}
+	if got := s.Serial(); got != before+1 {
+		t.Errorf("序號應該從 %d 變成 %d，得到 %d", before, before+1, got)
+	}
+	if err := rom.WriteSave(s, dir); err != nil {
+		t.Fatalf("第二次寫檔失敗：%v", err)
+	}
+	if got := s.Serial(); got != before+2 {
+		t.Errorf("第二次寫檔後序號應該是 %d，得到 %d", before+2, got)
 	}
 }

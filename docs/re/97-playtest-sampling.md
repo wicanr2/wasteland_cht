@@ -102,9 +102,10 @@ tools/go.sh run ./cmd/wl-play -script "map=2:25:6,up" -trace
 不報「存好了」。門檻：`TestSaveCommandWritesToDisk`（寫檔 → 重開 →
 位置與時鐘接得上）、`TestSaveWithoutDirSaysSo`。
 
-⚠ **寫回哪一份還沒 RE**：`GAME1`／`GAME2` 是兩份輪替、讀的時候比 32-bit
-序號取新的（`docs/re/09` §4、`docs/re/30` §5），但寫入端（`0x1A290`）
-挑哪一份、序號怎麼推進都還沒讀。現在寫回讀進來的那一份、序號不動。
+寫入端解在 `docs/re/30` §5.1（`sub_18801`）：**序號每次 ＋1**，
+寫回哪一份由磁碟旗標 `ds:9168h` 決定——也就是目前這張地圖住在哪一個檔案。
+remake 照抄序號那一半（`Save.BumpSerial`，`WriteSave` 每次先做），
+寫回的檔案則**固定是讀進來的那一份**（重製決策，理由在該節）。
 
 ### 3.5 設施進場是空的，要先按一個鍵選單才出現
 

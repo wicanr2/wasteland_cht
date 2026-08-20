@@ -125,9 +125,12 @@ func (s *Save) Bytes() []byte {
 // 不要指到那裡——`Open` 會驗 SHA-256，寫過就再也開不起來。
 //
 // ⚠ **原版寫哪一份還沒 RE**：`GAME1`／`GAME2` 是兩份輪替（`docs/re/09` §4、
-// `docs/re/30` §5），讀的時候比 32-bit 序號取新的，但寫入端（`0x1A290`）
-// 挑哪一份、序號怎麼推進都還沒讀。這裡先寫回**讀進來的那一份**，
-// 序號不動——猜一套輪替規則會讓兩個檔案的關係從此對不上。
+// `docs/re/30` §5、§6），讀的時候比 32-bit 序號取新的。
+//
+// **寫入端解出來了**（`sub_18801`）：序號每次 ＋1，寫回哪一份由磁碟旗標
+// `ds:9168h` 決定——也就是**目前這張地圖住在哪一個檔案**，
+// 不是「上次寫哪一份就換另一份」。所以「兩份輪替」是副作用不是排程。
+// 這一支照抄那個規則：呼叫端傳要寫的檔名，序號由 `BumpSerial` 推進。
 func (r *Rom) WriteSave(s *Save, dir string) error {
 	if s == nil {
 		return fmt.Errorf("沒有存檔可以寫")
@@ -136,6 +139,9 @@ func (r *Rom) WriteSave(s *Save, dir string) error {
 	if err != nil {
 		return err
 	}
+	// **序號先 ＋1**（原版 `0x18839`）：讀檔時兩份比序號取新的，
+	// 不推進的話新存的那一份可能輸給另一份（`docs/re/30` §6）。
+	s.BumpSerial()
 	body := s.Bytes()
 	if s.Offset+len(body) > len(raw) {
 		return fmt.Errorf("%s 放不下 %d bytes 的存檔（位移 %#x、檔長 %d）",
@@ -222,6 +228,20 @@ func (s *Save) Record(n int) ([]byte, error) {
 
 // Serial 是 32-bit 存檔序號；兩份輪替時比它，大的比較新。
 func (s *Save) Serial() uint32 { return le32(s.Plain, gblSerial) }
+
+// BumpSerial 把序號 ＋1（原版 `0x18839` 的 `inc ds:7226h` ＋ 進位再
+// `inc ds:7228h`，`docs/re/30` §6）。
+//
+// ⚠ **每次寫檔都要先做這一步。** 讀檔時兩份比序號取新的（`PickNewer`），
+// 序號不動的話新存的那一份可能輸給另一份，症狀是「存了卻讀回舊的」——
+// 而存檔當下畫面上一切正常。
+func (s *Save) BumpSerial() {
+	n := s.Serial() + 1
+	s.Plain[gblSerial] = byte(n)
+	s.Plain[gblSerial+1] = byte(n >> 8)
+	s.Plain[gblSerial+2] = byte(n >> 16)
+	s.Plain[gblSerial+3] = byte(n >> 24)
+}
 
 // Place 是地點名稱（明文 ASCII，NUL 結尾）。
 func (s *Save) Place() string {
