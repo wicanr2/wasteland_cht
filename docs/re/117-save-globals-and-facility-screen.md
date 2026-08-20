@@ -157,15 +157,15 @@ loop:
 | 存檔寫回 `ds:4655h`（目前地圖）| **已接**（`Scene.StoreTo`、`cmd/wl-save -map`）|
 | 開場從 `ds:4655h` 取地圖 | **已接**（`play.New`）|
 | 存檔寫回 `ds:4653h`／`ds:4656h`（人數與記錄編號）| **已接**（`Scene.StoreTo`）|
-| 設施畫面切成名單模式（選單區 ＋ 名單 ＋ 指令列）| **未接**：現在整個畫面只有圖與幾行字 |
-| 招牌畫在肖像框的說明位置 | **未接**：現在是圖底下的第一行 |
-| 進場問 `Who wants to enter?` | **未接**：直接用第一個人 |
-| `POOL MONEY`（`P`）| **未接** |
-| 買清單一頁九行 ＋ `MORE!` | 分頁**已接**（T11），`MORE!` 指示**未接** |
-| 買清單的內容 | **已修**：物品表有四份，商店按記錄 `+0x06` 換一份（[`118`](118-shop-stock-groups.md)）|
+| 設施畫面切成名單模式（選單區 ＋ 名單 ＋ 指令列）| **已接**（`Frame`／`HiFrame` 的設施分支、`msgRect`）|
+| 招牌畫在肖像框的說明位 | **已接**（`facilityLineAt`：第 0 行走 `captionCol`）|
+| 進場問 `Who wants to enter?` ＋ 招呼語 | **已接**（`StepWho`、`FacilityScene.Greeting`）|
+| `POOL MONEY`（`P`）| **已接**（`game.PoolMoney`）|
+| 買清單一頁九行 ＋ `MORE!` | **已接**（`PageRows` ＝ 9、`addMore`）|
+| 買清單的內容 | **已接**（每家店有自己的庫存表，[`118`](118-shop-stock-groups.md)）|
 
-⚠ 最後一列是**內容不是版面**，解在 [`118`](118-shop-stock-groups.md)：
-每一家店有自己的庫存表，remake 以前一律用第 0 組。
+⚠ 醫生與訓練師的 `P` **還沒對過實機**：remake 那兩支目前是「換下一個人」，
+商店那個 `P` 原本也是這樣記的，被截圖上的 `POOL MONEY` 六個字推翻。
 
 ## 5. 可重跑
 

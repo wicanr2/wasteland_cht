@@ -23,6 +23,8 @@ const (
 	strOutOfStock   = 1  // 7：`We are temporarily out of stock.`
 	strYouHave      = 4  // 7：`You have $`
 	strNothingWant  = 5  // 7：`You don't have anything they want!`
+	strWhoEnters    = 2  // 7：`Who wants to enter?`
+	strCantBuy      = 3  // 7：`\x0B can't buy anything.`
 	strBuyOrSell    = 6  // 7：`Do you want to:` ＋ Buy／Sell
 	strPriceItem    = 7  // 7：`   PRICE     ITEM`
 	strInvFull      = 8  // 7：`Your inventory is full.`
@@ -49,6 +51,9 @@ const (
 	StepSell                     // 賣的清單
 	StepHeal                     // 醫生：逐點治療
 	StepCure                     // 醫生：選一種病
+	// StepWho 是商店的「誰要進去？」（字串 7:2）。
+	// **隊伍只有一個人時不問**（`docs/re/42` §1），直接用他。
+	StepWho
 )
 
 // 商店與醫生的按鍵（docs/re/42 §1、§5）。原版比對的是靜態字母表，
@@ -56,6 +61,13 @@ const (
 const (
 	keyBuy      = 'B'
 	keySell     = 'S'
+	// keyPool 是商店的 `P`：**集中金錢**（畫面外框下緣就寫著 `POOL MONEY`，
+	// `sub_19B81`，`docs/re/117` §3）。
+	keyPool = 'P'
+	// keyNextChar 是醫生與訓練師的 `P`：換下一個人。
+	//
+	// ⚠ **這兩支還沒對過實機**——商店那個 `P` 原本也記成「換人」，
+	// 是截圖上的 `POOL MONEY` 六個字推翻的。要下結論之前先照 §5 的指令跑一次。
 	keyNextChar = 'P'
 	keyHeal     = 'H' // 醫生主選單的 Healing，也是治療迴圈的「Heal 1 point」
 	keyContinue = 'C' // 治療迴圈的 Continue
@@ -74,6 +86,10 @@ type shopState struct {
 	Page int // 目前這一頁的起始列（docs/re/53 §4）
 }
 
+// moreLabel 是清單還有下一頁時畫的那一個字（原版畫在外框下緣，
+// `docs/re/117` §2.2）。重製版沒有外框，所以接在清單後面當一行。
+const moreLabel = "MORE!"
+
 // PageRows 是一頁最多列幾件。
 //
 // ⚠ **原版沒有把它當成清單框架的常數**：`ds:469Eh` 全檔只有醫生的疾病表
@@ -91,16 +107,18 @@ func (f *FacilityScene) Key(k byte, p *game.Party, items game.ItemTable) bool {
 	}
 	st := f.state
 	if k == keyEscape {
-		if st.Step != StepMain {
+		// ⚠ **「誰要進去？」那一層的 ESC 是離開**（原版：選不到人就走人，
+		// `docs/re/42` §1），不是退回主迴圈——它本來就是最外面那一層。
+		if st.Step != StepMain && st.Step != StepWho {
 			st.Step = StepMain // 清單 → 主迴圈
 			f.refresh(p, items)
 			return true
 		}
-		return false // 主迴圈 → 離開設施
+		return false // 主迴圈（或選人那一層）→ 離開設施
 	}
 
-	// 翻頁對每一種清單都一樣（docs/re/53 §4）。
-	if st.Step != StepMain {
+	// 翻頁對每一種清單都一樣（docs/re/53 §4）。選人那一層沒有清單。
+	if st.Step != StepMain && st.Step != StepWho {
 		switch k {
 		case keyPrevPage:
 			if st.Page -= PageRows; st.Page < 0 {
@@ -134,9 +152,28 @@ func (f *FacilityScene) Key(k byte, p *game.Party, items game.ItemTable) bool {
 
 func (f *FacilityScene) shopKey(k byte, p *game.Party, items game.ItemTable) {
 	st := f.state
+	// 「誰要進去？」那一層只收號碼：選到不能行動的人要退回來重選
+	// （`sub_172BB` → 字串 3），其餘鍵一律不動。
+	if st.Step == StepWho {
+		if k < '1' || k > '9' {
+			return
+		}
+		n := int(k - '1')
+		if n >= len(p.Members) || p.Members[n] == nil {
+			return
+		}
+		if !game.CanCommand(p.Members[n]) {
+			f.setNote(p.Members[n].Name+" can't buy anything.",
+				exeTableShop, strCantBuy)
+			return
+		}
+		st.Who, st.Step = n, StepMain
+		return
+	}
 	switch k {
-	case keyNextChar:
-		st.Who = nextAble(p, st.Who)
+	case keyPool:
+		// 把其他隊員身上的錢全部搬給櫃檯前這個人（`sub_19B81`）。
+		game.PoolMoney(p, st.Who)
 	case keyBuy:
 		if _, ok := game.FirstEmptyItemSlot(f.member(p).Items); !ok {
 			f.setNote("Your inventory is full.", exeTableShop, strInvFull)
@@ -448,6 +485,20 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 		}
 		add(f.Facility.Name, zh)
 	}
+	// 招呼語：**地圖記錄 `+0x05` 指到這張地圖自己的字串**（`0x1BEB7` 把它
+	// 存進 `ds:DBF4h`），不是執行檔字串表——所以每家店的招呼詞不一樣。
+	if f.Greeting != "" {
+		add(f.Greeting, f.GreetingCJK)
+	}
+	if f.state.Step == StepWho {
+		// ⚠ **不列名字**：號碼與名字在底下的隊伍名單上（`1>`…`4>`），
+		// 原版就是靠那一份選人。在選單區再列一次會佔掉四行。
+		add("Who wants to enter?", f.zh(exeTableShop, strWhoEnters, textlayout.Options{}))
+		if f.note != "" {
+			add(f.note, f.noteCJK)
+		}
+		return
+	}
 	c := f.member(p)
 	if c == nil {
 		return
@@ -471,6 +522,7 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 			}
 			add(fmt.Sprintf("%d) %s  cost %d", i+1, f.skillLabel(sk.ID), cost), zh)
 		}
+		f.addMore(add, ui, to, len(f.Skills))
 	case f.Facility.Kind == game.FacilityDoctor && f.state.Step == StepHeal:
 		h := game.HealSession{Facility: f.Facility, Char: c}
 		add(fmt.Sprintf("%d points. You can:  Heal 1 point / Continue", h.Remaining()),
@@ -491,6 +543,7 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 			}
 			add(fmt.Sprintf("%d) %s", i+1, f.diseaseLabel(bit)), zh)
 		}
+		f.addMore(add, ui, len(game.Diseases(c)), len(game.Diseases(c)))
 	case f.Facility.Kind == game.FacilityDoctor:
 		price := int(f.Facility.Price(0x05))
 		add(fmt.Sprintf("Exam $%d / Healing / Curing", price),
@@ -512,6 +565,7 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 			}
 			add(fmt.Sprintf("%d)%s %s", i+1, mark, f.itemLabel(e.Item)), zh)
 		}
+		f.addMore(add, ui, to, len(list))
 	case f.state.Step == StepBuy:
 		add("   PRICE     ITEM", f.zh(exeTableShop, strPriceItem, textlayout.Options{}))
 		list := f.buyList(items)
@@ -521,8 +575,11 @@ func (f *FacilityScene) refresh(p *game.Party, items game.ItemTable) {
 			if n := f.zhItem(e.ID); n != "" {
 				zh = ui("facility.buyrow", i+1, int(e.Price), string(n))
 			}
-			add(fmt.Sprintf("%d) $%-6d %s", i+1, e.Price, f.itemLabel(e.ID)), zh)
-		}
+			// 版面照原版：價錢**右對齊**在 `PRICE` 那一欄底下，名字從第 13 欄起
+			// （實機截圖 `44-buy.png`）。原版沒有印 `$`。
+			add(fmt.Sprintf("%d) %8d  %s", i+1, e.Price, f.itemLabel(e.ID)), zh)
+	}
+		f.addMore(add, ui, to, len(list))
 	default:
 		add("Do you want to:  Buy / Sell",
 			f.zh(exeTableShop, strBuyOrSell, textlayout.Options{}))
@@ -557,4 +614,21 @@ func splitLines(s string) []string {
 		parts = parts[:len(parts)-1]
 	}
 	return parts
+}
+
+// addMore 在清單還有下一頁時補一行 `MORE!`（`docs/re/117` §2.2）。
+//
+// ⚠ **判斷用的是「這一頁畫到第幾列」與總數**，不是頁碼：
+// 拿頁碼算的話最後一頁剛好滿的時候也會冒出 `MORE!`，
+// 而畫面上看起來只是「還有東西」——按下去卻沒有下一頁。
+func (f *FacilityScene) addMore(add func(string, string), ui func(string, ...any) string,
+	shown, total int) {
+	if shown >= total {
+		return
+	}
+	var zh string
+	if ui != nil {
+		zh = ui("facility.more")
+	}
+	add(moreLabel, zh)
 }

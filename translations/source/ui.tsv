@@ -55,9 +55,10 @@ ui:facility.bought	Bought for $%d.
 ui:facility.sold	Sold for $%d.
 ui:facility.learned	Learned %s.
 ui:facility.row	%d) %s
+ui:facility.more	MORE!
 ui:facility.skillrow	%d) %s  cost %d
 ui:facility.sellrow	%d)%s %s
-ui:facility.buyrow	%d) $%-6d %s
+ui:facility.buyrow	%d) %8d  %s
 ui:help.title	KEYS
 ui:help.move	Move (arrow keys too)
 ui:help.cmdbar	Command bar / journal

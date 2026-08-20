@@ -48,9 +48,10 @@ ui:facility.bought	以 $%d 買下。
 ui:facility.sold	以 $%d 賣出。
 ui:facility.learned	學會了%s。
 ui:facility.row	%d) %s
+ui:facility.more	還有更多
 ui:facility.skillrow	%d) %s  費用 %d
 ui:facility.sellrow	%d)%s %s
-ui:facility.buyrow	%d) $%-6d %s
+ui:facility.buyrow	%d) %8d  %s
 ui:help.title	按鍵說明
 ui:help.move	移動（方向鍵也可以）
 ui:help.cmdbar	指令列與手札
