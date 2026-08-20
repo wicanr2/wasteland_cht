@@ -416,6 +416,14 @@ type BoxLabel struct {
 	// **一筆對一筆、順序相同**，共用同一支處理常式（`0x8BFF`），
 	// 那支做的事就是「送出這個按鍵」（`docs/re/126` §3）。
 	Key byte
+
+	// Vertical ＝ 字模往**下**疊而不是往右排。
+	//
+	// 版面表前四筆（四個箭頭）就是這一種：它們都在欄 39，而 39 已經是
+	// 最後一欄——橫著排會排到畫面外。原版的畫法是每畫一個字模就
+	// `inc 列 / dec 欄`（`0x18BD0`），後者正好抵銷繪製常式的欄前進
+	// （`docs/re/129` §3）。
+	Vertical bool
 }
 
 // Hit 回答「這一格點得到這個標籤嗎」。
@@ -424,6 +432,9 @@ type BoxLabel struct {
 // 與標籤差一兩格（`POOL MONEY` 的標籤是欄 21–32、熱區是欄 20–30），
 // 而重製版的滑鼠一律「功能等價就好」（`docs/spec/29`）。
 func (l BoxLabel) Hit(col, row int) bool {
+	if l.Vertical {
+		return col == l.Col && row >= l.Row && row < l.Row+len(l.Glyphs)
+	}
 	return row == l.Row && col >= l.Col && col < l.Col+len(l.Glyphs)
 }
 
@@ -477,6 +488,36 @@ var (
 	LabelEsc       = BoxLabel{Col: 17, Row: 0, Glyphs: labelGlyphs("ESC"), Key: 0x1B}
 	LabelPoolMoney = BoxLabel{Col: 21, Row: 13, Glyphs: labelGlyphs("POOL MONEY"), Key: 'P'}
 	LabelMap       = BoxLabel{Col: 17, Row: 13, Glyphs: labelGlyphs("MAP"), Key: ' '}
+	// `NEXT` 在選單框上緣的右半（訓練師的技能清單，`docs/re/129` §4 的 `0x1C8C2`）。
+	LabelNext = BoxLabel{Col: 31, Row: 0, Glyphs: labelGlyphs("NEXT"), Key: ' '}
+)
+
+// 四個捲動箭頭（版面表第 0–3 筆，`docs/re/129` §4）。
+//
+// 兩組：清單那一組在選單框右邊（列 3／10），訊息視窗那一組在畫面右下
+// （列 18／22）。**兩格高、沒有頭尾的蓋子**，欄一律 39。
+//
+// ⚠ 按鍵是原版的擴充碼（方向鍵與 PageUp／PageDown 的掃描碼 ＋ `0x80`），
+// 不是 ASCII——轉成重製版的動作在 `internal/play/mouse.go`。
+var (
+	LabelListUp   = BoxLabel{Col: 39, Row: 3, Glyphs: arrowUp, Key: KeyArrowUp, Vertical: true}
+	LabelListDown = BoxLabel{Col: 39, Row: 10, Glyphs: arrowDown, Key: KeyArrowDown, Vertical: true}
+	LabelMsgUp    = BoxLabel{Col: 39, Row: 18, Glyphs: arrowUp, Key: KeyPageUp, Vertical: true}
+	LabelMsgDown  = BoxLabel{Col: 39, Row: 22, Glyphs: arrowDown, Key: KeyPageDown, Vertical: true}
+)
+
+// 原版版面表 `+0x03` 給這四筆的按鍵碼（`generated/ida94/box-labels.md`）。
+const (
+	KeyArrowUp   = 0xC8
+	KeyArrowDown = 0xD0
+	KeyPageUp    = 0xC9
+	KeyPageDown  = 0xD1
+)
+
+// 箭頭的字模：字模串 `ds:CA70h`／`ds:CA73h` 各兩個，換色規則與其他標籤相同。
+var (
+	arrowUp   = []int{coolGlyph(0x1E), coolGlyph(0x1F)}
+	arrowDown = []int{coolGlyph(0x21), coolGlyph(0x22)}
 )
 
 // DrawBoxLabel 把一個標籤畫在框線上。
@@ -485,7 +526,11 @@ func (f *Frame) DrawBoxLabel(font *assets.Font, l BoxLabel) error {
 		return nil
 	}
 	for i, g := range l.Glyphs {
-		if err := f.DrawGlyph(font, g, l.Col+i, l.Row, 0, false); err != nil {
+		col, row := l.Col+i, l.Row
+		if l.Vertical {
+			col, row = l.Col, l.Row+i
+		}
+		if err := f.DrawGlyph(font, g, col, row, 0, false); err != nil {
 			return err
 		}
 	}

@@ -128,8 +128,14 @@ func (f *FacilityScene) Key(k byte, p *game.Party, items game.ItemTable) bool {
 		return false // 主迴圈（或選人那一層）→ 離開設施
 	}
 
-	// 翻頁對每一種清單都一樣（docs/re/53 §4）。選人那一層沒有清單。
-	if st.Step != StepMain && st.Step != StepWho {
+	// 翻頁對每一種清單都一樣（docs/re/53 §4）。
+	//
+	// ⚠ **判準是「現在有沒有清單」，不是「在哪一層」**：訓練師的技能清單掛在
+	// 主迴圈上（36 個技能、一頁九列），拿 `Step` 當判準的話第 10 個技能以後
+	// 永遠學不到，而畫面上只是「清單就這麼長」。原版的清單按鍵處理
+	// （`sub_16D34`）是三種設施共用的，訓練師的清單也有上下箭頭
+	// （`docs/re/129` §4 的 `0x1C8C2`）。
+	if st.Step != StepWho && f.rowCount(p, items) > 0 {
 		switch k {
 		case keyPrevPage:
 			if st.Page -= PageRows; st.Page < 0 {
@@ -735,6 +741,16 @@ func wrapCells(s string, cols int) []string {
 		out = append(out, string(cells))
 	}
 	return out
+}
+
+// Paged 回報畫面上現在有沒有一份**翻得了頁**的清單。
+//
+// 這決定選單框右邊那兩個上下箭頭畫不畫（`docs/re/129` §4）。
+func (f *FacilityScene) Paged(p *game.Party, items game.ItemTable) bool {
+	if f.state == nil || f.state.Step == StepWho {
+		return false
+	}
+	return f.rowCount(p, items) > PageRows
 }
 
 // Who 回報**站在櫃檯前的是第幾個人**（0 起算），以及現在有沒有人在櫃檯。

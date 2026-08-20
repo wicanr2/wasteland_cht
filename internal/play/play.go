@@ -1922,19 +1922,33 @@ func (s *Scene) boxLabels() []render.BoxLabel {
 		return nil
 	}
 	if s.combat == nil && s.facility == nil {
-		// 地圖畫面：名單收起來時按鈕是 `ROSTER ON`（在地圖框的下緣）。
-		return []render.BoxLabel{render.LabelRosterOn}
+		// 地圖畫面（`0x16BB8` 的 `0x40CA`）：訊息視窗右邊那兩個捲動箭頭，
+		// 加上地圖框下緣的 `ROSTER ON`。
+		return []render.BoxLabel{
+			render.LabelMsgUp, render.LabelMsgDown, render.LabelRosterOn,
+		}
 	}
-	// 名單模式：上緣的 `ESC`、下緣的按鈕、名單框下緣的 `ROSTER OFF`。
-	out := []render.BoxLabel{render.LabelEsc, render.LabelRosterOff}
+	// 名單模式：上緣的 `ESC` ＋ 各畫面自己那幾個。
+	//
+	// ⚠ **這裡沒有 `ROSTER OFF`。** 那一筆只有「地圖畫面把名單展開」時才開
+	// （`0x16BB8` 的 `0x200B`）；戰鬥與設施各自設自己的遮罩，兩張實機截圖
+	// （`24-encyes.png`、`42-shop.png`）的列 23 都只有框線（`docs/re/129` §4）。
+	out := []render.BoxLabel{render.LabelEsc}
 	switch {
 	case s.facility != nil:
 		// `POOL MONEY` 只有商店與醫生有——訓練師那一層沒有這個鍵（`docs/re/119`）。
 		if s.facility.HasPool() {
 			out = append(out, render.LabelPoolMoney)
 		}
+		if s.facility.Paged(s.world.Party, s.items) {
+			out = append(out, render.LabelListUp, render.LabelListDown)
+			// 訓練師的技能清單上緣多一個 `NEXT`（`0x1C8C2`）。
+			if s.facility.Facility.Kind == game.FacilityTrainer {
+				out = append(out, render.LabelNext)
+			}
+		}
 	case s.combat != nil:
-		// 戰鬥時選單框下緣印的是 `MAP`（實機 `24-encyes.png`）。
+		// 戰鬥時選單框下緣印的是 `MAP`（實機 `24-encyes.png`，遮罩 `0x12023`）。
 		out = append(out, render.LabelMap)
 	}
 	return out

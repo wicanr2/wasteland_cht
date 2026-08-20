@@ -396,3 +396,38 @@ func TestSellListSkipsUnknownItemsWithoutShiftingSelection(t *testing.T) {
 		t.Error("應該收到錢")
 	}
 }
+
+// 訓練師的技能清單掛在主迴圈上（`Step` 一直是 `StepMain`），
+// 所以翻頁的判準必須是「有沒有清單」而不是「在哪一層」——
+// 拿 `Step` 當判準的話第 10 個技能以後永遠學不到，
+// 而畫面上只是「清單就這麼長」（`docs/re/129` §4：訓練師清單也有上下箭頭）。
+func TestTrainerSkillListPages(t *testing.T) {
+	f, p, items := mkShop(t, game.FacilityTrainer)
+	f.Skills = nil
+	for i := 0; i < 20; i++ {
+		f.Skills = append(f.Skills, TrainableSkill{
+			ID: byte(i + 1), Data: game.SkillData{BaseCost: 1, IQ: 1}})
+	}
+	f.state = &shopState{Step: StepMain}
+	if !f.Paged(p, items) {
+		t.Fatal("20 個技能、一頁九列，應該翻得了頁")
+	}
+	f.Key(keyNextPage, p, items)
+	if f.state.Page != PageRows {
+		t.Fatalf("按下一頁之後起始列應該是 %d，得到 %d", PageRows, f.state.Page)
+	}
+	f.Key(keyPrevPage, p, items)
+	if f.state.Page != 0 {
+		t.Fatalf("按上一頁應該回到 0，得到 %d", f.state.Page)
+	}
+	// 第 10 個技能（第二頁的第 1 列）要學得到。
+	c := p.Members[0]
+	c.SkillPts = 5
+	c.Attributes[game.AttrIQ] = 20
+	c.Skills = make([]game.Slot, game.ItemSlots)
+	f.Key(keyNextPage, p, items)
+	f.Key('1', p, items)
+	if c.SkillLevel(10) != 1 {
+		t.Errorf("翻頁之後按 1 該學到第 10 個技能，得到等級 %d", c.SkillLevel(10))
+	}
+}

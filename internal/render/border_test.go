@@ -148,3 +148,40 @@ func TestLabelGlyphs(t *testing.T) {
 			LabelPoolMoney.Col, LabelPoolMoney.Row)
 	}
 }
+
+// 四個捲動箭頭是**直的**：欄 39 固定，字模往下疊（`docs/re/129` §3）。
+// 橫著排會排到畫面外——39 已經是最後一欄。
+func TestArrowLabelsStackDownwards(t *testing.T) {
+	up := LabelListUp
+	if len(up.Glyphs) != 2 {
+		t.Fatalf("上箭頭應該是兩個字模，得到 %d", len(up.Glyphs))
+	}
+	for _, c := range []struct {
+		col, row int
+		want     bool
+	}{
+		{39, 3, true}, {39, 4, true}, {39, 5, false}, {39, 2, false},
+		{38, 3, false}, {40, 3, false},
+	} {
+		if got := up.Hit(c.col, c.row); got != c.want {
+			t.Errorf("(%d,%d) 點得到 ＝ %v，預期 %v", c.col, c.row, got, c.want)
+		}
+	}
+	// 四筆都在欄 39，列是版面表寫死的。
+	for _, c := range []struct {
+		l   BoxLabel
+		row int
+	}{
+		{LabelListUp, 3}, {LabelListDown, 10},
+		{LabelMsgUp, 18}, {LabelMsgDown, 22},
+	} {
+		if c.l.Col != 39 || c.l.Row != c.row || !c.l.Vertical {
+			t.Errorf("箭頭位置錯了：%+v，預期欄 39 列 %d", c.l, c.row)
+		}
+	}
+	// 字模要換成冷色那一組，否則畫出來是暖色（`docs/re/126` §1）。
+	if LabelListUp.Glyphs[0] != 0x1E+colourBankCool {
+		t.Errorf("上箭頭第一個字模 ＝ %#x，預期換色後的 %#x",
+			LabelListUp.Glyphs[0], 0x1E+colourBankCool)
+	}
+}
