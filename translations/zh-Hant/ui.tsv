@@ -62,6 +62,8 @@ ui:settings.title	設定
 ui:settings.music	音樂：
 ui:settings.volume	音量：
 ui:settings.sfx	音效：
+ui:settings.retro	復古配樂
+ui:settings.modern	現代配樂
 ui:settings.on	開
 ui:settings.off	關
 ui:settings.close	ESC 關閉

@@ -98,9 +98,9 @@ AppImage 掛起來是唯讀的、`.app` 也不該被寫，而這個遊戲要寫�
 | public | linux-x64 | `.AppImage` | 6.5 MB |
 | public | windows-x64 | `.zip`（76 筆）| 4.2 MB |
 | public | macos-universal | `.zip`（85 筆，內含 `.app`）| 7.8 MB |
-| local-full | linux-x64 | `.AppImage` | 24 MB |
-| local-full | windows-x64 | `.zip`（121 筆）| 21 MB |
-| local-full | macos-universal | `.zip`（125 筆）| 25 MB |
+| local-full | linux-x64 | `.AppImage`（含三套美術與雙配樂）| 91 MB |
+| local-full | windows-x64 | `.zip`（3,411 筆、全數 UTF-8）| 107 MB |
+| local-full | macos-universal | `.zip`（3,415 筆、x86_64／arm64）| 111 MB |
 
 ## 6. 交付物集中在 dist-all
 
@@ -108,8 +108,8 @@ AppImage 掛起來是唯讀的、`.app` 也不該被寫，而這個遊戲要寫�
 dist-all/
   public/<平台>/      可散布的三個包
   local-full/<平台>/  不可散布的三個包
-  music/{midi,ogg}/   配樂（midi 可散布、ogg 不可）
-  promo/              推廣片
+  music/{retro,modern}/  復古／現代配樂與權利紀錄
+  promo/                 推廣片、兩模式實機來源與 metadata
   SHA256SUMS          全部檔案的校驗碼
 ```
 

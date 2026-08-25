@@ -66,7 +66,7 @@ exec "$APP/bin/wasteland" \
   -lang "$APP/translations/zh-Hant.cat" \
   -paragraphs "$APP/translations/paragraphs-zh-Hant.cat" \
   -refs "$APP/docs/re/generated/paragraph-refs.tsv" \
-  -font "$FONT" -music "$MUSIC" "$@"
+  -font "$FONT" -music "$MUSIC" -art-root "$APP/artpacks" "$@"
 EOF
 }
 
@@ -86,7 +86,7 @@ $howto
 要給別人的是公開版，那一份不含上面任何一項。
 
 按鍵：方向鍵走路，U E O D V S R 是指令列，P 開手札。
-F1 說明、F2 設定、F5／F9 快速存讀檔、F10 離開（會先問，也會先存檔）。
+F1 說明、F2 設定（V 切換原版／忠實高清／全面重構）、F5／F9 快速存讀檔、F10 離開（會先問，也會先存檔）。
 ESC 只取消、退一層，任何一層都不會結束遊戲。
 
 存檔與設定寫在你自己的資料目錄，不會動到包裡的東西。
@@ -109,7 +109,7 @@ $howto
 放進包旁邊的 eten/ 目錄，或用環境變數 WL_ETEN 指路。
 
 按鍵：方向鍵走路，U E O D V S R 是指令列，P 開手札。
-F1 說明、F2 設定、F5／F9 快速存讀檔、F10 離開（會先問，也會先存檔）。
+F1 說明、F2 設定（V 切換原版／忠實高清／全面重構）、F5／F9 快速存讀檔、F10 離開（會先問，也會先存檔）。
 ESC 只取消、退一層，任何一層都不會結束遊戲。
 
 存檔寫的是原版資料目錄的**副本**，你自己那一份不會被動到。
@@ -235,7 +235,7 @@ if not exist "%MUSIC%" set "MUSIC="
   -lang "%ROOT%translations\zh-Hant.cat" ^
   -paragraphs "%ROOT%translations\paragraphs-zh-Hant.cat" ^
   -refs "%ROOT%docs\re\generated\paragraph-refs.tsv" ^
-  -font "%FONT%" -music "%MUSIC%"
+  -font "%FONT%" -music "%MUSIC%" -art-root "%ROOT%artpacks"
 EOF
     } > "$STAGE/開始遊戲.bat"
     # batch 檔在 Windows 上要 CRLF，不然 `^` 續行與 `if` 區塊會被吃掉。
@@ -273,6 +273,7 @@ redistributable，也沒有第三方 DLL 可以夾帶。
 EOF
     } > "$STAGE/Windows-DLL說明.txt"
     python3 "$ROOT/tools/pack_zip.py" "$STAGE" "$OUT/$PKG.zip"
+    python3 "$ROOT/tools/verify_windows_zip.py" "$OUT/$PKG.zip"
     ;;
 
 macos-universal)

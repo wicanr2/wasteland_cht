@@ -88,6 +88,8 @@ func TestRosterBoxCorners(t *testing.T) {
 	}{
 		{0, RosterBoxTopRow, "上緣左角"},
 		{MsgBorderRight, RosterBoxTopRow, "上緣右角"},
+		{0, RosterBoxTopRow + 1, "中文單層上緣後的左邊框"},
+		{MsgBorderRight, RosterBoxTopRow + 1, "中文單層上緣後的右邊框"},
 		{0, RosterMemberRow, "左邊框"},
 		{MsgBorderRight, RosterMemberRow, "右邊框"},
 		{0, RosterBoxBottomRow, "下緣左角"},

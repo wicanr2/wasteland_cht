@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/wicanr2/wasteland_cht/internal/artpack"
 	"github.com/wicanr2/wasteland_cht/internal/assets"
 	"github.com/wicanr2/wasteland_cht/internal/game"
 	"github.com/wicanr2/wasteland_cht/internal/game/rng"
@@ -21,14 +22,14 @@ import (
 
 // Scene 是一個可以走的世界。
 type Scene struct {
-	rom   *assets.Rom
-	font  *assets.Font
+	rom  *assets.Rom
+	font *assets.Font
 	// colorFont 是 `colorf.fnt`：外框、`RADIATION` 標籤與輻射計量表都用它
 	// （`docs/re/124`、`docs/re/120`）。載不到就整組不畫，遊戲照樣跑。
 	colorFont *assets.Font
-	gfx   *render.Graphics
-	world *game.World
-	save  *assets.Save
+	gfx       *render.Graphics
+	world     *game.World
+	save      *assets.Save
 	// saveDir 是 `Save` 指令要寫回的資料目錄；空的就不寫檔（見 SetSaveDir）。
 	saveDir string
 	// longNames 是每個角色槽的完整名字（`internal/play/names.go`）。
@@ -99,7 +100,7 @@ type Scene struct {
 	placeIntro string
 
 	// title 為 true 時停在標題畫面的主選單（`docs/re/95`）。
-	title    bool
+	title bool
 	// attract 是標題畫面按過鍵之後那一段開場字幕（`docs/re/113`）。
 	attract  attractState
 	titlePic *assets.Indexed
@@ -166,6 +167,21 @@ type Scene struct {
 	facility *FacilityScene
 	// snapshot 是打之前每個角色的經驗值，收尾時相減用。
 	snapshot xpSnapshot
+
+	// faithfulPreview 只保留給舊的開發者垂直切片指令；玩家設定使用下面兩個
+	// 已通過完整 bundle gate 的正式 renderer。
+	faithfulPreview *artpack.FaithfulMap
+	faithful        *artpack.FaithfulComplete
+	reimagined      *artpack.ReimaginedComplete
+	artBundle       *artpack.Bundle
+	artMode         string
+	artRoot         string
+	artPartyDir     int // up/right/down/left = 0/1/2/3
+	artPartyFrame   int // 0/1/2；停止時回 1
+	artPartyTicks   int
+	artWidth        int
+	artHeight       int
+	artAnimFrame    int
 }
 
 // LoadJournal 載入段落手札：引用表（編譯期產物）與中文正文目錄。
@@ -312,6 +328,7 @@ func (s *Scene) HiFrame() *render.HiFrame {
 			if len(l) == 0 {
 				continue // 這一行沒有中文，由 drawFacility 畫英文
 			}
+			l = facilityDisplayLine(i, l)
 			col, row, ok := facilityLineAt(rect, i, len(s.facility.CJKLines), l)
 			if !ok {
 				continue
@@ -343,37 +360,12 @@ func (s *Scene) HiFrame() *render.HiFrame {
 	return h
 }
 
-// drawCursor 把滑鼠游標畫在高解畫布上。
+// drawCursor 不再把 DOS `CURS` 點陣疊在畫面上。
 //
-// ⚠ 游標是**唯一不對齊字元格的東西**：位置是像素。
-// 合成照疊圖那一套（`螢幕 ← (背景 AND 遮罩) OR 圖形`，`docs/re/57` §2）。
-func (s *Scene) drawCursor(h *render.HiFrame) {
-	if len(s.cursors) == 0 || (s.mouse.X == 0 && s.mouse.Y == 0) {
-		return
-	}
-	g := s.cursorGlyph(s.mouse)
-	if g < 0 || g >= len(s.cursors) {
-		g = CursorDefault
-	}
-	c := s.cursors[g] // 哪個圖形對應哪個狀態見 `docs/re/112` §5
-	for y := 0; y < assets.CursorSize; y++ {
-		for x := 0; x < assets.CursorSize; x++ {
-			i := y*assets.CursorSize + x
-			// 遮罩比圖形大一圈：先把背景清掉，再疊圖形。
-			px, py := s.mouse.X+x*render.HiScale, s.mouse.Y+y*render.HiScale
-			for dy := 0; dy < render.HiScale; dy++ {
-				for dx := 0; dx < render.HiScale; dx++ {
-					if c.Mask[i] {
-						h.Set(px+dx, py+dy, 0)
-					}
-					if v := c.Pix.Pix[i]; v != 0 {
-						h.Set(px+dx, py+dy, v)
-					}
-				}
-			}
-		}
-	}
-}
+// Ebitengine 已由作業系統繪製游標；再疊一次舊 16×16 游標，於高解畫布會
+// 放大成紅色圖塊並與系統游標重疊。CURS 的狀態判斷仍保留給滑鼠熱區測試，
+// 實際呈現統一只使用系統游標。
+func (s *Scene) drawCursor(_ *render.HiFrame) {}
 
 // rosterLastRow 是名單最後一列（含）。
 //
@@ -558,6 +550,7 @@ func (s *Scene) drawHiTextLayer(h *render.HiFrame) {
 			if i < len(s.facility.CJKLines) && len(s.facility.CJKLines[i]) > 0 {
 				continue
 			}
+			l = facilityDisplayLine(i, l)
 			col, row, ok := facilityLineAt(rect, i, len(s.facility.Lines), l)
 			if !ok {
 				continue
@@ -640,14 +633,17 @@ func New(rom *assets.Rom) (*Scene, error) {
 	colorFont, _ := rom.FontColor()
 
 	s := &Scene{
-		rom:       rom,
-		font:      font,
-		colorFont: colorFont,
-		gfx:   &render.Graphics{Icons: icons, Masks: masks, Tiles: tiles},
-		world: game.NewWorld(block, party, rng.New()),
-		save:  save,
-		dirty: true,
-		sound: -1,
+		rom:           rom,
+		font:          font,
+		colorFont:     colorFont,
+		gfx:           &render.Graphics{Icons: icons, Masks: masks, Tiles: tiles},
+		world:         game.NewWorld(block, party, rng.New()),
+		save:          save,
+		dirty:         true,
+		sound:         -1,
+		artPartyFrame: 1,
+		artMode:       "original",
+		artRoot:       "artpacks",
 	}
 	s.world.Clock = clock
 	// 手札預設是空的（沒有引用表、沒有正文），由呼叫端 LoadJournal 載入——
@@ -763,7 +759,26 @@ func (s *Scene) LoadMap(id int, x, y uint8) error {
 	if err != nil {
 		return err
 	}
+	var faithfulMap *artpack.FaithfulMap
+	if s.faithful != nil && s.artBundle != nil {
+		faithfulMap, err = artpack.LoadFaithfulBundleMap(s.artBundle, b.Tileset, len(tiles))
+		if err != nil {
+			return fmt.Errorf("準備新版地圖美術：%w", err)
+		}
+	} else if s.reimagined != nil && s.artBundle != nil {
+		faithfulMap, err = artpack.LoadReimaginedBundleMap(s.artBundle, b.Tileset, len(tiles))
+		if err != nil {
+			return fmt.Errorf("準備全面重構地圖美術：%w", err)
+		}
+	}
 	s.gfx.Tiles = tiles
+	if faithfulMap != nil {
+		if s.faithful != nil {
+			s.faithful.Map = faithfulMap
+		} else {
+			s.reimagined.Map = faithfulMap
+		}
+	}
 	s.world.EnterMap(b, x, y)
 	s.blockFile, s.blockID = b.Resource.File, b.Resource.ID
 	s.syncGroups()
@@ -1236,12 +1251,16 @@ func (s *Scene) updateMap(in input.Input) (bool, error) {
 	switch in.Dir {
 	case input.DirUp:
 		dir = game.Up
+		s.beginPartyArtStep(0)
 	case input.DirDown:
 		dir = game.Down
+		s.beginPartyArtStep(2)
 	case input.DirLeft:
 		dir = game.Left
+		s.beginPartyArtStep(3)
 	case input.DirRight:
 		dir = game.Right
+		s.beginPartyArtStep(1)
 	default:
 		// 不是方向就看是不是指令列的一項（`docs/re/91`）。
 		// **順序不能顛倒**：原版的 IKJL 是方向鍵，而指令的首字母
@@ -1800,24 +1819,24 @@ func (s *Scene) Frame() *render.Frame {
 	} else if s.ending.active {
 		s.drawEnding(f)
 	} else {
-	switch {
-	case s.facility != nil:
-		// 設施畫面 ＝ 戰鬥那一套版面（`docs/re/117` §2）：左邊肖像框、
-		// 右上選單區、底下名單、最後一列指令列。差別只在圖畫的是店主。
-		s.drawFacility(f)
-		s.drawRoster(f)
-		s.drawRosterBox(f)
-	case s.combat != nil:
-		s.drawPortrait(f)
-		s.drawRoster(f)
-		s.drawRosterBox(f)
-	default:
-		s.drawMap(f)
-		// 外框與右邊那一欄只在地圖畫面畫（原版 `sub_197BB` 的呼叫端只有
-		// 地圖畫面的設定 `sub_161C0`，`docs/re/124` §2）。
-		// 設施與戰鬥是另一套框，那一套還沒接。
-		s.drawBorder(f)
-	}
+		switch {
+		case s.facility != nil:
+			// 設施畫面 ＝ 戰鬥那一套版面（`docs/re/117` §2）：左邊肖像框、
+			// 右上選單區、底下名單、最後一列指令列。差別只在圖畫的是店主。
+			s.drawFacility(f)
+			s.drawRoster(f)
+			s.drawRosterBox(f)
+		case s.combat != nil:
+			s.drawPortrait(f)
+			s.drawRoster(f)
+			s.drawRosterBox(f)
+		default:
+			s.drawMap(f)
+			// 外框與右邊那一欄只在地圖畫面畫（原版 `sub_197BB` 的呼叫端只有
+			// 地圖畫面的設定 `sub_161C0`，`docs/re/124` §2）。
+			// 設施與戰鬥是另一套框，那一套還沒接。
+			s.drawBorder(f)
+		}
 	}
 	// 時鐘畫在**地圖畫面的外框上緣**（`docs/re/27` §4）。
 	//
@@ -2120,6 +2139,7 @@ func (s *Scene) drawFacility(f *render.Frame) {
 	}
 	rect := s.msgRect()
 	for i, l := range fs.Lines {
+		l = facilityDisplayLine(i, l)
 		// 有中文的那一行交給 HiFrame 畫——8 × 8 的字模畫不出中文，
 		// 先畫英文再蓋會留下殘影（與指令列同一條）。
 		if s.eten != nil && i < len(fs.CJKLines) && len(fs.CJKLines[i]) > 0 {
@@ -2198,6 +2218,15 @@ func facilityLineAt(rect textRect, i, total int, text string) (col, row int, ok 
 	}
 	row = rect.Row + (i - 1) - skip
 	return rect.Col, row, row >= rect.Row
+}
+
+// facilityDisplayLine 套用設施文字安全矩形。第 0 行只有肖像下方 12 格；
+// 地名譯文常帶「（英文原名）」而超寬，先保留完整中文名，再安全截限。
+func facilityDisplayLine(i int, text string) string {
+	if i != 0 {
+		return text
+	}
+	return fitCaption(text)
 }
 
 // doTeleport 執行一次傳送（docs/spec/07 §6.7）。

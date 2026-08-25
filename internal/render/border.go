@@ -326,10 +326,10 @@ var rosterBanner = [2][]int{
 
 // 橫幅裡那兩格組別指示的位置與字模起點。
 const (
-	bannerGroupAt  = 1
-	bannerTotalAt  = 3
-	bannerTopBase  = 0x57
-	bannerBotBase  = 0x95
+	bannerGroupAt = 1
+	bannerTotalAt = 3
+	bannerTopBase = 0x57
+	bannerBotBase = 0x95
 )
 
 // DrawRosterBanner 畫名單框頂上那條雙倍高的橫幅（列 14–15）。
@@ -384,7 +384,13 @@ func (f *Frame) DrawRosterBox(font *assets.Font, plainTop bool) error {
 			return err
 		}
 	}
-	for row := RosterMemberRow; row < RosterBoxBottomRow; row++ {
+	firstSideRow := RosterMemberRow
+	if plainTop {
+		// 英文雙層 banner 佔列 14–15，所以側框從 16 開始；中文只有
+		// 列 14 的單層上緣，列 15 已是第一筆名單，兩側必須立刻接上。
+		firstSideRow = RosterBoxTopRow + 1
+	}
+	for row := firstSideRow; row < RosterBoxBottomRow; row++ {
 		if err := put(boxLeft, 0, row); err != nil {
 			return err
 		}

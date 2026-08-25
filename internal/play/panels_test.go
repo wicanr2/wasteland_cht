@@ -46,36 +46,45 @@ func TestSettingsTogglesMusic(t *testing.T) {
 	if s.Mode() != "settings" {
 		t.Fatalf("F2 之後在 %s，預期 settings", s.Mode())
 	}
-	if on, _ := s.MusicSetting(); !on {
+	if on, _, variant := s.MusicSetting(); !on || variant != "retro" {
 		t.Fatal("音樂預設應該是開的")
 	}
 
 	step(t, s, input.Input{Dir: input.DirNone, Char: 'M'})
-	if on, _ := s.MusicSetting(); on {
+	if on, _, _ := s.MusicSetting(); on {
 		t.Error("按 M 沒有關掉音樂")
 	}
 	step(t, s, input.Input{Dir: input.DirNone, Char: 'm'})
-	if on, _ := s.MusicSetting(); !on {
+	if on, _, _ := s.MusicSetting(); !on {
 		t.Error("小寫 m 應該與大寫一樣")
 	}
 
-	_, vol0 := s.MusicSetting()
+	_, vol0, _ := s.MusicSetting()
 	step(t, s, input.Input{Dir: input.DirNone, Char: '-'})
-	if _, v := s.MusicSetting(); v != vol0-1 {
+	if _, v, _ := s.MusicSetting(); v != vol0-1 {
 		t.Errorf("按 - 之後音量 %d，預期 %d", v, vol0-1)
 	}
 	// 下限夾住：一直按不會變成負數。
 	for i := 0; i < 20; i++ {
 		step(t, s, input.Input{Dir: input.DirNone, Char: '-'})
 	}
-	if _, v := s.MusicSetting(); v != 0 {
+	if _, v, _ := s.MusicSetting(); v != 0 {
 		t.Errorf("按到底音量 %d，預期 0", v)
 	}
 	for i := 0; i < 20; i++ {
 		step(t, s, input.Input{Dir: input.DirNone, Char: '+'})
 	}
-	if _, v := s.MusicSetting(); v != 10 {
+	if _, v, _ := s.MusicSetting(); v != 10 {
 		t.Errorf("按到頂音量 %d，預期 10", v)
+	}
+
+	step(t, s, input.Input{Dir: input.DirNone, Char: 'B'})
+	if _, _, variant := s.MusicSetting(); variant != "modern" {
+		t.Errorf("按 B 之後配樂是 %q，預期 modern", variant)
+	}
+	step(t, s, input.Input{Dir: input.DirNone, Char: 'b'})
+	if _, _, variant := s.MusicSetting(); variant != "retro" {
+		t.Errorf("小寫 b 應切回 retro，得到 %q", variant)
 	}
 
 	ok, err := s.Update(input.Input{Dir: input.DirNone, Action: input.ActionCancel})

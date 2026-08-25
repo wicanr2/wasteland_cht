@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "id": "prototype-faithful-hd-001",
+  "mode": "faithful-hd",
+  "canvas": {
+    "width": 960,
+    "height": 600,
+    "responsive": false
+  },
+  "assets": [
+    {
+      "id": "prototype.scene.desert-settlement",
+      "kind": "prototype-scene",
+      "path": "prototype-faithful-hd.png",
+      "width": 960,
+      "height": 600,
+      "sha256": "e72e4c23b824c813c4c55559ed95f7b58049032c0b983dd17a82535957a2f92e"
+    }
+  ]
+}

@@ -30,29 +30,30 @@ shot() { # $1 檔名，其餘傳給 wl-shot
     (cd "$ROOT" && ./tools/go.sh run ./cmd/wl-shot -mode play "$@" -out "$REL/$name") | tail -1
 }
 
-# 標題畫面（玩家開機看到的那一張，不是資產檢視器的那張）
-shot title.png -title
+# 標題畫面與核心遊戲畫面改用正式新版美術包；仍由真正 play.Scene 合成。
+shot title.png -title -art-preview reimagined -art-root artpacks -art-width 1280 -art-height 720
 
 # 荒漠地圖：出廠存檔的起點附近
-shot 01-map.png -at 55,60
+shot 01-map.png -at 55,60 -art-preview reimagined -art-root artpacks -art-width 1280 -art-height 720
+shot faithful-map.png -at 55,60 -art-preview faithful-hd -art-root artpacks
 
 # 戰鬥：地圖 4 的 (18,2) 一定開得起來（`internal/play` 的肖像門檻用同一組）
-shot combat.png -map 4 -at 18,2 -keys E
+shot combat.png -map 4 -at 18,2 -fight -art-preview reimagined -art-root artpacks -art-width 1280 -art-height 720
 
 # 遊俠中心：從南邊走上去踩進設施格 (55,62)
-shot facility.png -at 55,63 -keys i
+shot facility.png -at 55,63 -keys i -art-preview faithful-hd -art-root artpacks
 
 # 技能清單：USE → 選第一個人 → S。英文那張只是載不到翻譯目錄
 shot 03-use.png   -keys U1S
 shot skills-en.png -keys U1S -lang no-such.cat
 
-# F1 說明面板（重製版自己加的）
+# F1 說明面板（保留原版模式，作為三模式之一的對照）
 shot help.png -fn help
 
 # 手札、問答、結局：沿用既有的截圖流程
 shot 02-journal.png -journal 1
 shot 07-question.png -map 1 -at 3,4 -keys i
-shot 05-ending.png -ending -ending-ticks 130
+shot 05-ending.png -ending -ending-ticks 130 -art-preview reimagined -art-root artpacks -art-width 1280 -art-height 720
 
 echo "---"
 echo "截圖在 $OUT"

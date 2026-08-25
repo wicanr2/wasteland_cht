@@ -88,13 +88,14 @@ func (s *Scene) updateHelp(in input.Input) (bool, error) {
 // 這一版只有音樂那一組——**原版沒有背景音樂**（九首 PC 喇叭音效而已，
 // `docs/re/44`），BGM 是重製版加的，所以「能關掉」是必要的禮貌。
 type settingsState struct {
-	MusicOn  bool
-	MusicVol int // 0–10
-	SFXOn    bool
+	MusicOn      bool
+	MusicVol     int // 0–10
+	MusicVariant string
+	SFXOn        bool
 }
 
 func defaultSettings() settingsState {
-	return settingsState{MusicOn: true, MusicVol: 6, SFXOn: true}
+	return settingsState{MusicOn: true, MusicVol: 6, MusicVariant: "retro", SFXOn: true}
 }
 
 // Settings 讓呈現層讀設定（音樂音量、開關）。
@@ -114,16 +115,21 @@ func (s *Scene) showSettings() {
 	}
 	mEN, mUI := onoff(s.settings.MusicOn)
 	xEN, xUI := onoff(s.settings.SFXOn)
-	s.message = fmt.Sprintf("SETTINGS\rM Music: %s\r- / + Volume: %d\rX Sound: %s\rESC close",
-		mEN, s.settings.MusicVol, xEN)
+	variantEN, variantUI := "RETRO", "settings.retro"
+	if s.settings.MusicVariant == "modern" {
+		variantEN, variantUI = "MODERN", "settings.modern"
+	}
+	s.message = fmt.Sprintf("SETTINGS\rM Music: %s / B Score: %s\r- / + Volume: %d\rX Sound: %s\rV Visual: %s\rESC close",
+		mEN, variantEN, s.settings.MusicVol, xEN, s.ArtMode())
 	var zh string
 	if t := s.uiText("settings.title"); len(t) > 0 {
 		zh += t
 		zh += "\r"
-		zh = appendUILine(zh, s.uiText("settings.music"), "M", s.uiText(mUI))
+		zh = appendUILine(zh, s.uiText("settings.music"), "M", s.uiText(mUI)+"　B "+s.uiText(variantUI))
 		zh = appendUILine(zh, s.uiText("settings.volume"), "- +",
 			fmt.Sprintf("%d", s.settings.MusicVol))
 		zh = appendUILine(zh, s.uiText("settings.sfx"), "X", s.uiText(xUI))
+		zh = appendUILine(zh, "美術：", "V", s.ArtMode())
 		zh += s.uiText("settings.close")
 		s.message = ""
 	}
@@ -154,8 +160,29 @@ func (s *Scene) updateSettings(in input.Input) (bool, error) {
 	switch input.Upper(in.Char) {
 	case 'M':
 		s.settings.MusicOn = !s.settings.MusicOn
+	case 'B':
+		if s.settings.MusicVariant == "modern" {
+			s.settings.MusicVariant = "retro"
+		} else {
+			s.settings.MusicVariant = "modern"
+		}
 	case 'X':
 		s.settings.SFXOn = !s.settings.SFXOn
+	case 'V':
+		next := "faithful-hd"
+		if s.ArtMode() == "faithful-hd" {
+			next = "reimagined"
+		} else if s.ArtMode() == "reimagined" {
+			next = "original"
+		}
+		if err := s.SelectArtMode(s.artRoot, next); err != nil {
+			// SelectArtMode 是原子切換：失敗時舊模式仍在。錯誤留在設定面板，
+			// 玩家可以直接關閉或繼續使用現行畫面。
+			s.message = "VISUAL MODE LOAD FAILED: " + err.Error()
+			s.cjk = "美術模式載入失敗：" + err.Error()
+			s.dirty = true
+			return true, nil
+		}
 	case '+', '=':
 		if s.settings.MusicVol < 10 {
 			s.settings.MusicVol++

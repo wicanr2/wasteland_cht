@@ -36,6 +36,23 @@ func TestChar(t *testing.T) {
 	}
 }
 
+// 中文輸入法啟用時 AppendInputChars 可能不送出 ASCII rune；實體 Y/N 鍵
+// 仍必須能回答「進入新地點？」等確認框。
+func TestPhysicalYesNoKeysWithoutRunes(t *testing.T) {
+	if in := Read([]Key{KeyY}, nil); in.Char != 'Y' {
+		t.Fatalf("實體 Y 鍵沒有產生 Y：%q", in.Char)
+	}
+	if in := Read([]Key{KeyN}, nil); in.Char != 'N' {
+		t.Fatalf("實體 N 鍵沒有產生 N：%q", in.Char)
+	}
+}
+
+func TestPhysicalVisualModeKeyWithoutRunes(t *testing.T) {
+	if in := Read([]Key{KeyV}, nil); in.Char != 'V' {
+		t.Fatalf("實體 V 鍵沒有產生 V：%q", in.Char)
+	}
+}
+
 // Page Up／Page Down 走 `Scroll`，**不碰 `Dir`**。
 //
 // ⚠ 兩者共用一個欄位的話，手札裡的一頁捲動在地圖上會變成走一步——

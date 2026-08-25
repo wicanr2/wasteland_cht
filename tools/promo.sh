@@ -22,15 +22,16 @@ ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 SHOTS="${1:-$ROOT/workplace/promo/shots}"
 OUT="${2:-$ROOT/workplace/promo/out}"
 MUSIC="$ROOT/workplace/music"
+GAMEPLAY="$ROOT/workplace/promo/gameplay"
 IMAGE=wasteland-media:latest
 
-for d in "$SHOTS" "$MUSIC"; do
+for d in "$SHOTS" "$MUSIC" "$GAMEPLAY"; do
     if [ ! -d "$d" ]; then
         echo "找不到 $d" >&2
         exit 1
     fi
 done
-if [ ! -f "$MUSIC/theme.ogg" ]; then
+if [ ! -f "$MUSIC/modern/theme.ogg" ] && [ ! -f "$MUSIC/theme.ogg" ]; then
     echo "沒有配樂：先跑 tools/render_music.sh" >&2
     exit 1
 fi
@@ -41,9 +42,11 @@ fi
 
 mkdir -p "$OUT"
 
-docker run --rm --cpus=2 --network none \
+docker run --rm --cpus=2 --memory=4g --pids-limit=512 --network none \
     --log-opt max-size=10m --log-opt max-file=3 \
+    -u "$(id -u):$(id -g)" -e HOME=/tmp \
     -v "$SHOTS:/shots:ro" -v "$MUSIC:/music:ro" -v "$OUT:/out" \
+    -v "$GAMEPLAY:/gameplay:ro" \
     -v "$ROOT/tools/promo/theme.sh:/theme.sh:ro" \
     -v "$ROOT/tools/promo/make_promo.sh:/make.sh:ro" \
     -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" \

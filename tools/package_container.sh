@@ -19,7 +19,7 @@ STAMP=$(git -C "$ROOT" rev-parse --short=12 HEAD)
 PKG="wasteland-cht-${PLATFORM}-${MODE}-${STAMP}"
 STAGE="$OUT_ROOT/.stage"; D="$STAGE/$PKG"
 rm -rf "$STAGE"
-mkdir -p "$D/bin" "$D/translations" "$D/docs/re/generated"
+mkdir -p "$D/bin" "$D/translations" "$D/docs/re/generated" "$D/artpacks"
 
 build() { # $1 輸出 $2 套件
     GOOS="$GOOS" GOARCH="$GOARCH" CGO_ENABLED="$CGO" \
@@ -43,6 +43,11 @@ if [ "${MAC:-0}" = 1 ]; then
         mac_build amd64 o64-clang  "/tmp/$1-amd64" "$2"
         mac_build arm64 oa64-clang "/tmp/$1-arm64" "$2"
         "$LIPO" -create -output "$D/bin/$1" "/tmp/$1-amd64" "/tmp/$1-arm64"
+        INFO=$("$LIPO" -info "$D/bin/$1")
+        case "$INFO" in
+            *x86_64*arm64*|*arm64*x86_64*) ;;
+            *) echo "$1 不是 x86_64 + arm64 universal：$INFO" >&2; exit 1 ;;
+        esac
     done
 else
     build "$D/bin/wasteland$EXE" ./cmd/wasteland
@@ -57,6 +62,11 @@ for d in manual manual-cht paragraphs walkthrough; do
     cp -r "$ROOT/docs/$d" "$D/docs/$d"
 done
 cp "$ROOT/README.md" "$D/docs/README-專案.md"
+
+# —— remake 自製新版美術（兩種包都可散布）——————————————————————
+# 這兩包不含玩家自備的 ROM／原版檔；啟動器以絕對路徑傳入，避免桌面啟動時
+# 工作目錄不同而只能看到 original。
+cp -a "$ROOT/artpacks/faithful-hd" "$ROOT/artpacks/reimagined" "$D/artpacks/"
 
 # —— local-full：原版素材 ————————————————————————————————————
 if [ "$MODE" = local-full ]; then
@@ -73,10 +83,29 @@ if [ "$MODE" = local-full ]; then
         "$D/bin/wl-setup" -rom "$D/data" -out "$D/build/wl.merged.exe"
     fi
     if [ -n "$FONT_INPUT" ]; then mkdir -p "$D/eten"; cp -a "$FONT_INPUT/." "$D/eten/"; fi
-    if [ -n "$MUSIC_INPUT" ]; then
-        mkdir -p "$D/music"
-        find "$MUSIC_INPUT" -maxdepth 1 -name '*.ogg' -exec cp {} "$D/music/" \;
-    fi
+	if [ -n "$MUSIC_INPUT" ]; then
+		mkdir -p "$D/music"
+		# 正式包只保留明確的 retro/、modern/，避免舊平面檔讓驗收誤判成
+		# 單一配樂。只有舊工作區沒有 retro/ 時才把平面檔遷入 retro/。
+		for variant in retro modern; do
+			if [ -d "$MUSIC_INPUT/$variant" ]; then
+				mkdir -p "$D/music/$variant"
+				cp -a "$MUSIC_INPUT/$variant/." "$D/music/$variant/"
+			fi
+		done
+		if [ ! -d "$D/music/retro" ]; then
+			mkdir -p "$D/music/retro"
+			find "$MUSIC_INPUT" -maxdepth 1 \( -name '*.ogg' -o -name '*.mid' \) \
+				-exec cp {} "$D/music/retro/" \;
+		fi
+		for variant in retro modern; do
+			count=$(find "$D/music/$variant" -maxdepth 1 -name '*.ogg' 2>/dev/null | wc -l)
+			[ "$count" -eq 10 ] || { echo "$variant 配樂應有 10 首，實際 $count" >&2; exit 1; }
+		done
+		[ -f "$D/music/modern/FluidR3-GM-LICENSE.txt" ] || {
+			echo 'modern 配樂缺少 FluidR3 GM 權利文件' >&2; exit 1;
+		}
+	fi
 fi
 
 printf 'Package: %s\nCommit: %s\nMode: %s\nPlatform: %s\nBuild image: %s\n' \

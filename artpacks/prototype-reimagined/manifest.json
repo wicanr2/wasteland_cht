@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "id": "prototype-reimagined-001",
+  "mode": "reimagined",
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "responsive": true,
+    "max_view_cols": 31,
+    "max_view_rows": 17
+  },
+  "assets": [
+    {
+      "id": "prototype.scene.desert-settlement",
+      "kind": "prototype-scene",
+      "path": "prototype-reimagined.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "0af3d6934acc29d5b76a3206e02fd60f550dadade139701f70c4a3c2b49597a7"
+    }
+  ]
+}

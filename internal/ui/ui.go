@@ -13,6 +13,7 @@ package ui
 
 import (
 	"fmt"
+	"image"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -62,6 +63,12 @@ func keyOf(k ebiten.Key) input.Key {
 		return input.KeyEnter
 	case ebiten.KeySpace:
 		return input.KeySpace
+	case ebiten.KeyY:
+		return input.KeyY
+	case ebiten.KeyN:
+		return input.KeyN
+	case ebiten.KeyV:
+		return input.KeyV
 	}
 	return input.KeyNone
 }
@@ -84,6 +91,15 @@ type Poller interface{ PollRNG() }
 // 把畫面放大三倍再疊字。場景實作了這個介面，整個視窗就走 960 × 600。
 type HiScene interface{ HiFrame() *render.HiFrame }
 
+// ArtScene 是可在執行中提供新版 RGBA 畫布的場景。原版仍走 HiScene；
+// 新版模式只在完整一幀成功合成後才交給呈現層。
+type ArtScene interface {
+	ArtMode() string
+	ArtFrame() (*image.RGBA, error)
+}
+
+type ArtViewport interface{ SetArtViewport(width, height int) }
+
 // Sounder 是會發出 PC 喇叭音效的場景。
 //
 // TakeSound 回這一幀要播的音效編號（0–8，`docs/re/44` §6），−1 表示沒有；
@@ -100,8 +116,6 @@ type Animator interface{ TickAnim() bool }
 // 而滴答**沒有觸發事件**——它是計時器自己走出來的，所以要有一個週期性的來源。
 type Geiger interface{ TickGeiger() }
 
-
-
 // animTicksPerFrame 是幾幀推一拍動畫。60 TPS ÷ 3 ＝ 20 Hz，
 // 是整數分頻裡最接近原版 18.2 Hz 的一檔。
 const animTicksPerFrame = 3
@@ -112,12 +126,17 @@ type Game struct {
 	img   *ebiten.Image
 	synth *wlaudio.Synth
 	// hi 非 nil 就走 640 × 400 的中文畫面。
-	hi HiScene
+	hi  HiScene
+	art ArtScene
 	// pix 是上色後那一幀，**重複用不重配**（見 Draw）。
-	pix []byte
+	pix   []byte
 	keys  []ebiten.Key
 	runes []rune
 	buf   []input.Key
+	// suppressRune 去除 X11／輸入法把同一次實體 Y／N／V 延遲到下一幀才送出的
+	// 文字事件；否則一顆 V 會偶爾切換兩次美術模式。
+	suppressRune  byte
+	suppressTicks int
 	// animTick 是動畫的分頻計數（見 animTicksPerFrame）。
 	animTick int
 	// mouse 是這一幀的滑鼠（`docs/spec/29`）。
@@ -137,6 +156,9 @@ func New(scene Scene) *Game {
 		g.img = ebiten.NewImage(render.HiScreenWidth, render.HiScreenHeight)
 	} else {
 		g.img = ebiten.NewImage(render.ScreenWidth, render.ScreenHeight)
+	}
+	if a, ok := scene.(ArtScene); ok {
+		g.art = a
 	}
 	return g
 }
@@ -165,17 +187,39 @@ func NewWithAudio(scene Scene, synth *wlaudio.Synth) (*Game, error) {
 func (g *Game) Update() error {
 	g.keys = inpututil.AppendJustPressedKeys(g.keys[:0])
 	g.runes = ebiten.AppendInputChars(g.runes[:0])
+	if g.suppressTicks > 0 {
+		g.runes = withoutASCII(g.runes, g.suppressRune)
+		g.suppressTicks--
+	}
 	g.buf = g.buf[:0]
+	var physicalASCII byte
 	for _, k := range g.keys {
 		if mapped := keyOf(k); mapped != input.KeyNone {
 			g.buf = append(g.buf, mapped)
+			switch mapped {
+			case input.KeyY:
+				physicalASCII = 'Y'
+			case input.KeyN:
+				physicalASCII = 'N'
+			case input.KeyV:
+				physicalASCII = 'V'
+			}
 		}
+	}
+	if physicalASCII != 0 {
+		g.runes = withoutASCII(g.runes, physicalASCII)
+		g.suppressRune, g.suppressTicks = physicalASCII, 2
 	}
 	// 滑鼠：Ebiten 的 CursorPosition 回的就是 Layout 的邏輯座標，
 	// 也就是高解畫布的像素——不必再除視窗放大倍率。
 	// **只送剛按下那一幀**（`inpututil` 的 JustPressed）：按住不放應該只算一次，
 	// 否則點一下會連走好幾格。
 	mx, my := ebiten.CursorPosition()
+	// faithful-hd 把既有 960×600 合成置中於 960×720；遊戲規則仍使用
+	// 原本的內容座標，因此先扣掉上下各 60 像素的黑邊。
+	if g.art != nil && (g.art.ArtMode() == "original" || g.art.ArtMode() == "faithful-hd") {
+		my -= 60
+	}
 	g.mouse = input.Mouse{
 		X: mx, Y: my,
 		Left:  inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft),
@@ -204,8 +248,8 @@ func (g *Game) Update() error {
 	}
 	// 背景音樂跟著場景走：換模式換曲、設定裡關掉就停。
 	if m, ok := g.scene.(Musical); ok && g.music != nil {
-		on, vol := m.MusicSetting()
-		g.music.Apply(m.MusicTrack(), on, vol)
+		on, vol, variant := m.MusicSetting()
+		g.music.Apply(m.MusicTrack(), variant, on, vol)
 	}
 
 	// 音效在輸入之後、Update 之前取：這一幀觸發的音效由下一幀送出，
@@ -227,12 +271,38 @@ func (g *Game) Update() error {
 	return nil
 }
 
+func withoutASCII(in []rune, ch byte) []rune {
+	out := in[:0]
+	for _, r := range in {
+		if r >= 'a' && r <= 'z' {
+			r -= 'a' - 'A'
+		}
+		if r != rune(ch) {
+			out = append(out, r)
+		}
+	}
+	return out
+}
+
 // Draw 把索引畫面上色送上螢幕。
 //
 // ⚠ **上色的緩衝區重複用**（`g.pix`）：`ToImage` 每幀配置 2.3 MB，
 // 一秒 60 幀就是 138 MB 的垃圾。畫面每一幀整張重畫，
 // 所以緩衝區裡的舊內容一定會被蓋掉，留著沒有風險。
 func (g *Game) Draw(screen *ebiten.Image) {
+	if g.art != nil && g.art.ArtMode() != "original" {
+		frame, err := g.art.ArtFrame()
+		if err == nil && frame != nil {
+			w, h := frame.Bounds().Dx(), frame.Bounds().Dy()
+			if g.img.Bounds().Dx() != w || g.img.Bounds().Dy() != h {
+				g.img = ebiten.NewImage(w, h)
+			}
+			g.img.WritePixels(frame.Pix)
+			screen.DrawImage(g.img, nil)
+			return
+		}
+		// 動態合成失敗時保留可玩的原版畫面，不讓一張圖中斷遊戲。
+	}
 	if g.hi != nil {
 		h := g.hi.HiFrame()
 		if h == nil {
@@ -244,8 +314,20 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		if !h.WriteRGBA(g.pix) {
 			return
 		}
+		// 美術模式可能剛從響應式全面重構切回固定 960×600。g.img 仍保留
+		// 上一模式的 backing size 時，WritePixels 會因 byte 數不符而 panic。
+		if g.img.Bounds().Dx() != render.HiScreenWidth ||
+			g.img.Bounds().Dy() != render.HiScreenHeight {
+			g.img = ebiten.NewImage(render.HiScreenWidth, render.HiScreenHeight)
+		}
 		g.img.WritePixels(g.pix)
-		screen.DrawImage(g.img, nil)
+		if g.art != nil && g.art.ArtMode() == "original" {
+			op := &ebiten.DrawImageOptions{}
+			op.GeoM.Translate(0, 60)
+			screen.DrawImage(g.img, op)
+		} else {
+			screen.DrawImage(g.img, nil)
+		}
 		return
 	}
 	frame := g.scene.Frame()
@@ -261,7 +343,30 @@ func (g *Game) Draw(screen *ebiten.Image) {
 //
 // ⚠ 滑鼠座標跟著這個走：`ebiten.CursorPosition` 回的就是這裡的座標系，
 // 所以 `internal/play` 收到的是高解畫布的像素，不是視窗像素。
-func (g *Game) Layout(int, int) (int, int) {
+func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
+	if g.art != nil && g.art.ArtMode() == "reimagined" {
+		w, h := outsideWidth, outsideHeight
+		if w <= 0 || h <= 0 {
+			w, h = 1280, 720
+		} else if w*9 <= h*16 {
+			h = w * 9 / 16
+		} else {
+			w = h * 16 / 9
+		}
+		if w < 960 || h < 540 {
+			w, h = 960, 540
+		}
+		if w > 1920 || h > 1080 {
+			w, h = 1920, 1080
+		}
+		if viewport, ok := g.scene.(ArtViewport); ok {
+			viewport.SetArtViewport(w, h)
+		}
+		return w, h
+	}
+	if g.art != nil && (g.art.ArtMode() == "original" || g.art.ArtMode() == "faithful-hd") {
+		return 960, 720
+	}
 	if g.hi != nil {
 		return render.HiScreenWidth, render.HiScreenHeight
 	}
@@ -301,7 +406,13 @@ func Run(scene Scene, title string, scale int, synth *wlaudio.Synth, musicDir st
 		defer m.Close()
 	}
 	w, h := g.Layout(0, 0)
+	if a, ok := scene.(ArtScene); ok && a.ArtMode() == "reimagined" {
+		// 全面重構本身已是 1280×720；沿用舊模式的整數倍會在預設值開成
+		// 2560×1440。這裡以原生尺寸起窗，之後由玩家自由拖曳。
+		scale = 1
+	}
 	ebiten.SetWindowSize(w*scale, h*scale)
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowTitle(title)
 	return ebiten.RunGame(g)
 }

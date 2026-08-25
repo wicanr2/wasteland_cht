@@ -1,12 +1,13 @@
 # 推廣片：怎麼重跑、為什麼長這樣
 
-82 秒、1280 × 720、十五段。素材全部由專案自己的工具產生，沒有開過剪輯軟體，
+約 92 秒、1280 × 720、十五段。素材全部由專案自己的工具產生，沒有開過剪輯軟體，
 整條路可重跑。
 
 ```bash
 docker build -f docker/media.Dockerfile -t wasteland-media .   # 一次就好
 tools/render_music.sh        # 配樂（需要自備 MT-32 ROM）
 tools/promo/shots.sh         # 十張截圖（wl-shot，無頭）
+tools/promo/record_gameplay.sh # 正式遊戲視窗：原版／全面重構各一段
 tools/promo.sh               # 合成 → workplace/promo/out/
 ```
 
@@ -19,8 +20,8 @@ tools/promo.sh               # 合成 → workplace/promo/out/
 
 | 段 | 腳本 | 產出 |
 |---|---|---|
-| 擷取 | `tools/promo/shots.sh` → `cmd/wl-shot` | `workplace/promo/shots/*.png`（640 × 400） |
-| 配樂 | `tools/render_music.sh` → `tools/make_music.py` ＋ munt | `workplace/music/theme.ogg` |
+| 擷取 | `tools/promo/shots.sh` ＋ `record_gameplay.sh` | 靜態佐證圖，以及 Xvfb 正式遊戲視窗的原版／新版操作 MP4 |
+| 配樂 | `tools/render_music.sh`／`tools/render_modern_music.sh` | 復古 MT-32 與現代 FluidR3 雙版本 |
 | 合成 | `tools/promo.sh` → `tools/promo/make_promo.sh` ＋ `theme.sh` | `workplace/promo/out/wasteland-cht-promo.mp4` |
 
 每一段的輸入輸出都是檔案，中間沒有手工步驟。截圖的座標、地圖編號、按鍵序列
@@ -77,14 +78,14 @@ convert shot.png -resize 100x100 -colors 8 -depth 8 -format %c histogram:info:- 
 | 1 | card | 荒野遊俠 / WASTELAND · Interplay 1988 |
 | 2 | slide | 標題畫面：1998 年，衛星從天上消失 |
 | 3 | quote | 說明書〈一、故事介紹〉：Desert Rangers 誕生了 |
-| 4 | slide | 荒漠地圖：走一步，時鐘跳四分鐘 |
+| 4 | live | 原版模式正式遊戲視窗：地圖行走與 F2 設定 |
 | 5 | slide | 戰鬥：公式從執行檔讀出來 |
 | 6 | compare2 | 技能清單的英文 ↔ 中文 |
 | 7 | slide | 問答：逐位元組比對 |
 | 8 | quote | CD 盒背面文案：拿起你的烏茲衝鋒槍 |
 | 9 | slide | 手札：162 段劇情，不移植防拷 |
 | 10 | slide | 設施：招牌、選單、清單都是中文 |
-| 11 | slide | F1／F2／F5／F9 與背景音樂 |
+| 11 | live | 全面重構正式遊戲視窗：主角隊伍、地圖行走與雙配樂切換 |
 | 12 | slide | 結局：自毀倒數 240 步 |
 | 13 | quote | 精訊電腦〈遊騎兵手記〉的標題聯，**1988 年 12 月**（與美國原版同年）|
 | 14 | stat5 | 42 張地圖 / 124 份逆向筆記 / 5,243 條文本 / 162 段 / 10 首配樂 |

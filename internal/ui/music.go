@@ -34,7 +34,7 @@ type musicTrack struct {
 // Music 是背景音樂播放器。零值可用，代表「沒有音樂」。
 type Music struct {
 	ctx     *audio.Context
-	tracks  map[string]musicTrack
+	tracks  map[string]map[string]musicTrack // variant → track → 音檔
 	player  *audio.Player
 	current string
 	vol     float64
@@ -49,23 +49,41 @@ func LoadMusic(ctx *audio.Context, dir string) (*Music, error) {
 	if ctx == nil || dir == "" {
 		return nil, nil
 	}
-	entries, err := os.ReadDir(dir)
-	if err != nil {
+	if _, err := os.Stat(dir); err != nil {
 		return nil, nil
 	}
-	m := &Music{ctx: ctx, tracks: map[string]musicTrack{}, vol: 0.6, on: true}
-	for _, e := range entries {
-		if e.IsDir() || !strings.HasSuffix(e.Name(), ".ogg") {
-			continue
-		}
-		raw, err := os.ReadFile(filepath.Join(dir, e.Name()))
+	m := &Music{ctx: ctx, tracks: map[string]map[string]musicTrack{}, vol: 0.6, on: true}
+	load := func(variant, from string) error {
+		list, err := os.ReadDir(from)
 		if err != nil {
-			return nil, fmt.Errorf("讀音樂 %s：%w", e.Name(), err)
+			return nil
 		}
-		name := strings.TrimSuffix(e.Name(), ".ogg")
-		m.tracks[name] = musicTrack{name: name, data: raw}
+		if m.tracks[variant] == nil {
+			m.tracks[variant] = map[string]musicTrack{}
+		}
+		for _, e := range list {
+			if e.IsDir() || !strings.HasSuffix(strings.ToLower(e.Name()), ".ogg") {
+				continue
+			}
+			raw, err := os.ReadFile(filepath.Join(from, e.Name()))
+			if err != nil {
+				return fmt.Errorf("讀音樂 %s：%w", e.Name(), err)
+			}
+			name := strings.TrimSuffix(e.Name(), filepath.Ext(e.Name()))
+			m.tracks[variant][name] = musicTrack{name: name, data: raw}
+		}
+		return nil
 	}
-	if len(m.tracks) == 0 {
+	// 舊版平面目錄仍是 retro；新目錄若有同名檔則覆蓋它。
+	if err := load("retro", dir); err != nil {
+		return nil, err
+	}
+	for _, variant := range []string{"retro", "modern"} {
+		if err := load(variant, filepath.Join(dir, variant)); err != nil {
+			return nil, err
+		}
+	}
+	if len(m.tracks["retro"]) == 0 && len(m.tracks["modern"]) == 0 {
 		return nil, nil
 	}
 	return m, nil
@@ -76,9 +94,11 @@ func (m *Music) Tracks() []string {
 	if m == nil {
 		return nil
 	}
-	out := make([]string, 0, len(m.tracks))
-	for k := range m.tracks {
-		out = append(out, k)
+	var out []string
+	for variant, tracks := range m.tracks {
+		for name := range tracks {
+			out = append(out, variant+"/"+name)
+		}
 	}
 	return out
 }
@@ -87,7 +107,7 @@ func (m *Music) Tracks() []string {
 //
 // 每幀叫一次。**只有變了才動**——每幀重開播放器會一直從頭播，
 // 而症狀是「音樂一直卡在第一秒」。
-func (m *Music) Apply(track string, on bool, vol int) {
+func (m *Music) Apply(track, variant string, on bool, vol int) {
 	if m == nil {
 		return
 	}
@@ -112,10 +132,11 @@ func (m *Music) Apply(track string, on bool, vol int) {
 	if !m.on {
 		return
 	}
-	if track == m.current && m.player != nil {
+	key := variant + "/" + track
+	if key == m.current && m.player != nil {
 		return
 	}
-	m.play(track)
+	m.play(track, variant)
 }
 
 func (m *Music) stop() {
@@ -126,10 +147,18 @@ func (m *Music) stop() {
 	m.current = ""
 }
 
-func (m *Music) play(track string) {
-	t, ok := m.tracks[track]
+func (m *Music) play(track, variant string) {
+	requested := variant + "/" + track
+	if variant != "modern" {
+		variant = "retro"
+	}
+	t, ok := m.tracks[variant][track]
+	if !ok && variant != "retro" {
+		// 新版是可選資產：缺一首時退回同一場景的復古版，不沿用上一場景。
+		t, ok = m.tracks["retro"][track]
+	}
 	if !ok {
-		// 沒有這一首就維持現況（比突然靜音好）。曲目缺一首不該讓別的也停。
+		m.stop()
 		return
 	}
 	m.stop()
@@ -145,7 +174,8 @@ func (m *Music) play(track string) {
 	}
 	pl.SetVolume(m.vol)
 	pl.Play()
-	m.player, m.current = pl, track
+	// current 記玩家要求而非實際退回來源，避免缺 modern 時每幀重播 retro。
+	m.player, m.current = pl, requested
 }
 
 // Close 收掉播放器。
@@ -161,5 +191,5 @@ type Musical interface {
 	// MusicTrack 是這一幀該播的曲名（空字串 ＝ 不播）。
 	MusicTrack() string
 	// MusicSetting 是玩家在設定裡選的開關與音量（0–10）。
-	MusicSetting() (on bool, vol int)
+	MusicSetting() (on bool, vol int, variant string)
 }

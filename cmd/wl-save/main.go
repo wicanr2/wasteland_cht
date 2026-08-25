@@ -77,8 +77,9 @@ func run(dir string, check bool, at string, hour, mapID int) error {
 			return fmt.Errorf("%s 的存檔 round-trip 不一致：%d／%d 個 byte 不同",
 				name, n, len(got))
 		}
-		fmt.Printf("%s：round-trip 相同（%d bytes，序號 %d，地點 %q）\n",
-			name, len(span), sv.Serial(), sv.Place())
+		group := sv.SlotGroups()[0]
+		fmt.Printf("%s：round-trip 相同（%d bytes，序號 %d，地點 %q，隊伍座標 %d,%d，地圖 %d）\n",
+			name, len(span), sv.Serial(), sv.Place(), group.X, group.Y, group.MapID)
 
 		if check {
 			continue

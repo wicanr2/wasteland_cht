@@ -29,6 +29,9 @@ const (
 	KeySpace
 	KeyPageUp
 	KeyPageDown
+	KeyY
+	KeyN
+	KeyV
 )
 
 // Mouse 是這一幀的滑鼠狀態（`docs/spec/29`）。
@@ -158,6 +161,18 @@ func Read(justPressed []Key, runes []rune) Input {
 		case KeyEnter, KeySpace:
 			if in.Action == ActionNone {
 				in.Action = ActionConfirm
+			}
+		case KeyY:
+			if in.Char == 0 {
+				in.Char = 'Y'
+			}
+		case KeyN:
+			if in.Char == 0 {
+				in.Char = 'N'
+			}
+		case KeyV:
+			if in.Char == 0 {
+				in.Char = 'V'
 			}
 		}
 	}

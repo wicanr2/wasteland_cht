@@ -3,6 +3,10 @@
 *.rar
 workplace/
 
+# AI 新版美術的大型來源與中間產物；manifest、提示詞與驗收紀錄仍進版控
+artwork/source/
+artwork/work/
+
 # IDA 產物
 *.i64
 *.idb

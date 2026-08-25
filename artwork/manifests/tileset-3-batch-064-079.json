@@ -1,0 +1,119 @@
+{
+  "schema": 1,
+  "id": "faithful-hd-tileset-3-064-079",
+  "created_local": "2026-08-21",
+  "timezone": "Asia/Taipei",
+  "generator": "OpenAI image generation via Codex",
+  "source_prompt": "artwork/prompts/tileset-faithful-hd.md",
+  "reference": "workplace/art-reference/tileset-3-batch-064-079-8x.png",
+  "reference_distribution": "local-only",
+  "source": {
+    "path": "artwork/source/accepted/tileset-3-batch-064-079-source.png",
+    "sha256": "c61d1af8ab2f011f7bb045f6f3c2fe93fc5935abb86aadb620f3845293ed4bc7"
+  },
+  "processing": {
+    "slice": "tools/art/slice_grid.py",
+    "edge_harmonizer": "tools/art/harmonize_edges.py",
+    "atlas": "tools/art/assemble_atlas.py",
+    "cell": "48x48"
+  },
+  "status": "accepted-candidate",
+  "coverage": {
+    "tileset": 3,
+    "indices": "64-79",
+    "count": 16,
+    "required_total": 107
+  },
+  "atlas": {
+    "path": "artpacks/faithful-hd/assets/tileset-3/atlas-064-079.png",
+    "sha256": "d273596afbb8789207c196c67a66de5788ae961e83a0fb1ab1ae07a78b224543"
+  },
+  "tiles": [
+    {
+      "index": 64,
+      "path": "artpacks/faithful-hd/assets/tileset-3/064.png",
+      "sha256": "02fa4767d1b087807c17c6fd47d158f9a56f19b8b7eb0bb220ac130146e595cc"
+    },
+    {
+      "index": 65,
+      "path": "artpacks/faithful-hd/assets/tileset-3/065.png",
+      "sha256": "fad7cbbc5f1125a72880b3ecfc8ae9be86e9fd3c5f9e76347f0878f58a285cbf"
+    },
+    {
+      "index": 66,
+      "path": "artpacks/faithful-hd/assets/tileset-3/066.png",
+      "sha256": "8749f2b208e230d7fa420c9f8937e8b5dc4aa91c1cf68140bda31bad657bad6f"
+    },
+    {
+      "index": 67,
+      "path": "artpacks/faithful-hd/assets/tileset-3/067.png",
+      "sha256": "068a740868929706c46bfa816063a169bad1de3b414e66e47ac1133365486624"
+    },
+    {
+      "index": 68,
+      "path": "artpacks/faithful-hd/assets/tileset-3/068.png",
+      "sha256": "f030a48cc15b38f94a3c8fea9acc5214e4a6b82dd5a3a9bee1d73d59d15062a6"
+    },
+    {
+      "index": 69,
+      "path": "artpacks/faithful-hd/assets/tileset-3/069.png",
+      "sha256": "abc29a51f90366282e1695419f14a99b8190398c392b0b1f7379e0ce252618b5"
+    },
+    {
+      "index": 70,
+      "path": "artpacks/faithful-hd/assets/tileset-3/070.png",
+      "sha256": "899d50c13acc863a2cc7beaecae57da6056853015bf0af5284dc73e0e477501f"
+    },
+    {
+      "index": 71,
+      "path": "artpacks/faithful-hd/assets/tileset-3/071.png",
+      "sha256": "938fff4cd9bcffe8ffa99b311bf921e17f67b4da8e90f3a6c0240e825b1e5799"
+    },
+    {
+      "index": 72,
+      "path": "artpacks/faithful-hd/assets/tileset-3/072.png",
+      "sha256": "5889dcdf515d9b74eae37a77dcfe130d23f053e393c1bc91f133e8d339451f68"
+    },
+    {
+      "index": 73,
+      "path": "artpacks/faithful-hd/assets/tileset-3/073.png",
+      "sha256": "9ff7d0d8fb16f35e5534bf2c5742602a14d08b475c1961afdd407ef2b12f97fd"
+    },
+    {
+      "index": 74,
+      "path": "artpacks/faithful-hd/assets/tileset-3/074.png",
+      "sha256": "3759bf74364af85a8f2914ef4bc3ba680cdb4ece0c973cf541466baf335dccc4"
+    },
+    {
+      "index": 75,
+      "path": "artpacks/faithful-hd/assets/tileset-3/075.png",
+      "sha256": "6a7461178eb34e158aa784dc7ecaabcda4c1745f7f8f36c480c26d3e53397aa0"
+    },
+    {
+      "index": 76,
+      "path": "artpacks/faithful-hd/assets/tileset-3/076.png",
+      "sha256": "f5512de1ed42ffb5a7af174cd31304546cc868c7791b1d4271a44007b00ca3cf"
+    },
+    {
+      "index": 77,
+      "path": "artpacks/faithful-hd/assets/tileset-3/077.png",
+      "sha256": "959db8a73163e6e392a290aa2d4d509048fe3a8a5a7665a9451ad995478712a2"
+    },
+    {
+      "index": 78,
+      "path": "artpacks/faithful-hd/assets/tileset-3/078.png",
+      "sha256": "ae4373d3a24087d5f53b747fa5328b31d2964442d7cde5eb541765095d8eaef3"
+    },
+    {
+      "index": 79,
+      "path": "artpacks/faithful-hd/assets/tileset-3/079.png",
+      "sha256": "92943ccfa2b76bf6af7ae18fbd0bf6117829b6d70265cfceb13ec5ac4015f845"
+    }
+  ],
+  "gates": {
+    "grid_count": "pass",
+    "dimensions": "pass",
+    "index_order_visual_review": "pass",
+    "same-state_map_review": "pass-with-wip-original-icons"
+  }
+}

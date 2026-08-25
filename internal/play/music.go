@@ -82,6 +82,6 @@ func (s *Scene) mapTrack() string {
 }
 
 // MusicSetting 是玩家在 F2 設定裡選的開關與音量（`ui.Musical`）。
-func (s *Scene) MusicSetting() (bool, int) {
-	return s.settings.MusicOn, s.settings.MusicVol
+func (s *Scene) MusicSetting() (bool, int, string) {
+	return s.settings.MusicOn, s.settings.MusicVol, s.settings.MusicVariant
 }

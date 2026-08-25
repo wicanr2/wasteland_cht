@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "id": "rejected-tileset-0-atlas-attempt-001",
+  "created_local": "2026-08-21",
+  "generator": "OpenAI image generation via Codex",
+  "source_sha256": "f2c6c09b85fd9a741061e8c042de85c71e68b56df85fe9c4be294ea61a4e11c2",
+  "status": "rejected",
+  "reasons": [
+    "要求 16 欄但生成結果約為 12 欄，無法維持 0–65 索引",
+    "部分格位缺漏",
+    "尾端透明區被畫成棋盤底而非 alpha"
+  ]
+}

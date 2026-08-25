@@ -7,7 +7,7 @@
 #
 #	dist-all/public/<平台>/      **可散布**：引擎、翻譯、文件、wl-setup
 #	dist-all/local-full/<平台>/  **不可散布**：上面全部 ＋ 原版資料、字型、音樂
-#	dist-all/music/              配樂：midi/（可散布）與 ogg/（不可散布）
+#	dist-all/music/              復古／現代兩套配樂與權利紀錄
 #	dist-all/promo/              推廣片
 #
 # 三平台的包由 `tools/package.sh` 產生（做法見 `docs/packaging.md`），
@@ -45,10 +45,14 @@ fi
 # 換音源重算。`.mid` 與 `.ogg` 的散布條件不一樣，所以分開放並在 README 講明。
 echo "== 收配樂"
 MUSICSRC="${WL_MUSIC:-$ROOT/workplace/music}"
-rm -rf "$OUT/music"; mkdir -p "$OUT/music/ogg" "$OUT/music/midi"
-find "$MUSICSRC" -maxdepth 1 -name '*.ogg' -exec cp {} "$OUT/music/ogg/" \; 2>/dev/null || true
-find "$MUSICSRC" -maxdepth 1 -name '*.mid' -exec cp {} "$OUT/music/midi/" \; 2>/dev/null || true
-if [ -z "$(ls -A "$OUT/music/ogg" 2>/dev/null)" ]; then
+rm -rf "$OUT/music"; mkdir -p "$OUT/music/retro" "$OUT/music/modern"
+for variant in retro modern; do
+    [ -d "$MUSICSRC/$variant" ] && cp -a "$MUSICSRC/$variant/." "$OUT/music/$variant/"
+done
+# 舊平面目錄視為 retro，讓尚未重跑新版工具鏈的工作區仍可交付。
+find "$MUSICSRC" -maxdepth 1 \( -name '*.ogg' -o -name '*.mid' \) \
+    -exec cp {} "$OUT/music/retro/" \; 2>/dev/null || true
+if [ -z "$(find "$OUT/music" -name '*.ogg' -print -quit 2>/dev/null)" ]; then
     echo "   略過配樂（$MUSICSRC 是空的，先跑 tools/render_music.sh）"
 fi
 
@@ -72,17 +76,18 @@ cat > "$OUT/music/README.md" <<'MUSICNOTE'
 | `combat` | 戰鬥 |
 | `ending` | 結局 |
 
-## 兩個目錄的散布條件不一樣
+## 兩個配樂版本
 
-- **`midi/`（可散布）**：譜本身，我們自己寫的。由 `tools/make_music.py` 產生，
-  純標準函式庫、不含任何第三方素材。想換音源就拿這個去算。
-- **`ogg/`（不可散布）**：用 Roland MT-32／CM-32L 算出來的波形。
-  曲子是我們的，但**取樣是 Roland 的韌體**——與倚天字型、原版遊戲資料同一個政策。
+- **`retro/`**：專案自作 MIDI 與 MT-32／CM-32L 算出的 OGG；OGG 波形含
+  Roland 韌體取樣，不公開散布。
+- **`modern/`**：同一批專案自作主題的現代重新配器；以 MIT 授權的 FluidR3 GM
+  產生，目錄內附權利文字與可重現 metadata。
 
 要自己算一份：
 
 ```bash
 tools/render_music.sh <輸出目錄> <你的 MT-32 ROM 目錄>
+tools/render_modern_music.sh <輸出目錄>
 ```
 
 ## 音源為什麼選 MT-32
@@ -100,6 +105,20 @@ copy_if() { # $1 來源 $2 目的 $3 說明
 }
 copy_if "$ROOT/workplace/promo/out/wasteland-cht-promo.mp4" \
     "$OUT/promo/wasteland-cht-promo.mp4" "推廣片"
+copy_if "$ROOT/workplace/promo/out/promo-metadata.json" \
+    "$OUT/promo/promo-metadata.json" "推廣片驗收 metadata"
+if [ -d "$ROOT/workplace/promo/gameplay" ]; then
+    mkdir -p "$OUT/promo/gameplay"
+    for stem in original-live reimagined-live; do
+        copy_if "$ROOT/workplace/promo/gameplay/$stem.mp4" \
+            "$OUT/promo/gameplay/$stem.mp4" "$stem 實機錄影"
+        copy_if "$ROOT/workplace/promo/gameplay/$stem.json" \
+            "$OUT/promo/gameplay/$stem.json" "$stem 錄影 metadata"
+    done
+fi
+for frame in "$ROOT"/workplace/promo/out/frame-*.png; do
+    [ -f "$frame" ] && cp "$frame" "$OUT/promo/"
+done
 copy_if "$ROOT/docs/promo-video.md" "$OUT/promo/怎麼重跑.md" "推廣片說明"
 
 # ── 檢查：public/ 不准混進不可散布的東西 ─────────────────────────────────
@@ -117,10 +136,6 @@ if [ -n "$bad" ]; then
 fi
 echo "   ✓ 只有包本身"
 
-echo "== 校驗碼"
-( cd "$OUT" && find . -type f ! -name SHA256SUMS -print0 | sort -z |
-    xargs -0 sha256sum > SHA256SUMS )
-
 cat > "$OUT/README.md" <<TOP
 # dist-all —— 交付物
 
@@ -130,8 +145,8 @@ cat > "$OUT/README.md" <<TOP
 |---|---|---|
 | \`public/\` | **可以** | 三平台的包（AppImage／zip／.app）。不含任何原版素材，玩家自備原版與字型；第一次啟動時包裡的 \`wl-setup\` 會產生合成映像 |
 | \`local-full/\` | **不可以** | 同樣三個平台，另外含原版資料、倚天字型、背景音樂與合成映像。自己留檔用 |
-| \`music/\` | 分兩半 | 十首配樂。\`midi/\` 是我們寫的譜（**可以**），\`ogg/\` 是 MT-32 算的波形（**不可以**）|
-| \`promo/\` | 看情況 | 推廣片。畫面是原版的、配樂是自己寫的，公開前先想清楚 |
+| \`music/\` | 依子目錄 | \`retro/\` 是專案自作 MIDI 與 MT-32 波形；\`modern/\` 是同主題的現代重新配器，附 FluidR3 GM 權利與重現紀錄 |
+| \`promo/\` | 看情況 | 推廣片、原始／新版正式遊戲實機錄影及驗收 metadata；畫面含原版素材，公開前仍須確認權利 |
 
 ⚠ 三個「不可以」的理由都不是潔癖：原版資料與倚天字型有授權，
 MT-32 算出來的波形裡有 Roland 的 PCM 取樣。譜與程式碼是我們自己的，那些可以給。
@@ -141,6 +156,11 @@ MT-32 算出來的波形裡有 Roland 的 PCM 取樣。譜與程式碼是我們�
 重跑：\`tools/dist.sh\`（只想重收音樂與影片就 \`tools/dist.sh --skip-packages\`）
 封裝的做法與每個決定的理由：\`docs/packaging.md\`
 TOP
+
+# README 也屬於交付物；必須最後才算，否則接著重寫 README 會讓清單當場過期。
+echo "== 校驗碼"
+( cd "$OUT" && find . -type f ! -name SHA256SUMS -print0 | sort -z |
+    xargs -0 sha256sum > SHA256SUMS )
 
 echo
 du -sh "$OUT"/* 2>/dev/null || true

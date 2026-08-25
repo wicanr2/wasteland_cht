@@ -63,7 +63,7 @@ var facilityPicture = [game.FacilityCount]int{
 	game.FacilityShop:    1,
 	game.FacilityTrainer: 2,
 	game.FacilityRoster:  3,
-	game.FacilityEnding: -1,
+	game.FacilityEnding:  -1,
 }
 
 // FacilityScene 是一個設施畫面的狀態。
@@ -101,7 +101,7 @@ type FacilityScene struct {
 	// Str 查原版字串表的**原文**、CJK 查譯文、UI 查重製版自己的介面文字。
 	// 三個都可以是 nil——那時設施畫面就是英文字面，遊戲照跑。
 	Str func(table, n int) string
-	CJK      func(table, n int, opt textlayout.Options) string
+	CJK func(table, n int, opt textlayout.Options) string
 	UI  func(name string) string
 
 	// Greeting／GreetingCJK 是這家店的招呼語（地圖記錄 `+0x05` 指到的
@@ -366,12 +366,18 @@ func (s *Scene) LeaveFacility() {
 // 這裡收到一次就推一拍，呼叫端自己決定多久叫一次。
 // 回報畫面有沒有變，沒變就不必重畫。
 func (s *Scene) TickAnim() bool {
+	changed := s.tickPartyArt()
+	if s.reimagined != nil && (s.facility != nil || s.combat != nil) {
+		s.artAnimFrame = (s.artAnimFrame + 1) % 12
+		s.dirty = true
+		changed = true
+	}
 	if s.facility == nil || s.player == nil {
-		return false
+		return changed
 	}
 	elems := s.player.Tick()
 	if len(elems) == 0 {
-		return false
+		return changed
 	}
 	render.XorInto(s.animMask, render.FacilityPicWidth, elems)
 	s.dirty = true

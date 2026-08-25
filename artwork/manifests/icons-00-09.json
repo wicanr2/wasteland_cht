@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "id": "faithful-hd-icons-00-09",
+  "created_local": "2026-08-21",
+  "timezone": "Asia/Taipei",
+  "generator": "OpenAI image generation via Codex",
+  "reference": "workplace/art-reference/icons-5x2-8x.png",
+  "reference_distribution": "local-only",
+  "source": {
+    "path": "artwork/source/accepted/icons-00-09-source.png",
+    "sha256": "3782b0a7c6cd15e9dfe1b64d4c5e6400a466024fcb892404337733c064522e20"
+  },
+  "processing": [
+    "tools/art/remove_checkerboard.py",
+    "tools/art/slice_grid.py --cols 5 --rows 2 --cell 48",
+    "tools/art/fit_sprites.py --max 40",
+    "tools/art/assemble_atlas.py"
+  ],
+  "status": "accepted-candidate",
+  "semantics": [
+    "transparent-black", "robot", "cyborg", "mutant", "humanoid",
+    "loot", "animal", "party", "radiation", "other-party"
+  ],
+  "sha256": [
+    "805d5875611b6849294386ec70abff2a865ba0dba0973b6789b2693948ecba59",
+    "2ee81dcd87f13c748121d77cb2a83907ce8b872c41295ccd98ede715c55a5156",
+    "3286398f39c0ef7cddf03b5db1cd589439779c600b1c30f027146b75a97233d1",
+    "2c324e88a226830a2041e87d495d2ccba3c4a52f3d74e2332a8d3782067a9fc9",
+    "43daf9a6df005e744b284c212b32d3693c539314dddb853cbaf36c33ef3e6658",
+    "ccbc7111e88418f77b8335e28682ffef1617c479798e93feb97cd1670c8cfcfd",
+    "6d3e3bbc80f4d1bda7a0fe621f1807f74a1c478967af5795d106ddfff1c281eb",
+    "40299dbdcd4a37d8f1b7ab2fde235bd46e7c9af97a5109708246276bfd9a3b58",
+    "c6adb5537ac2584224c3123e37b2e89b91eabf48bdb3a214025c594d5a6ba3af",
+    "cc5be386aad34d35c63a0645694843aee24fb47f5c043376d5301875f63eb24f"
+  ],
+  "atlas_sha256": "8f3766bf90908ae5e75f60780f278443a7d584d63d86515907e496758d7dbcab",
+  "gates": {
+    "count": "pass",
+    "dimensions": "pass",
+    "icon0_fully_transparent": "pass",
+    "icons1_9_nonempty": "pass",
+    "transparent_border": "pass",
+    "play_scene_map0_review": "pass"
+  }
+}

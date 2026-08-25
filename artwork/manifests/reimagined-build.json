@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "id": "wasteland-reimagined-v1",
+  "date": "2026-08-21",
+  "generator": "tools/art/build_reimagined.py",
+  "generator_sha256": "7b578306b7da5346d99c533eae6c416a53af88894f44a918b3e3023e9b6d9a4d",
+  "source_bundle": "artpacks/faithful-hd/manifest.json",
+  "source_bundle_sha256": "e09f5b8891de509d1dd8753bfb328627bf08f68ff829edfbd2efa9428d89ccb0",
+  "output_bundle": "artpacks/reimagined/manifest.json",
+  "output_bundle_sha256": "297e803bd84310096272afea1c756b07a4bd95ffee7c82740014ce53eb787c95",
+  "method": "deterministic AI-directed 3/4 reprojection, color grading, wide-scene composition, character identity tinting, pose synthesis, and alpha weapon layering",
+  "counts": {
+    "terrain": 1051,
+    "icons": 10,
+    "scenes": 82,
+    "fullscreen": 2,
+    "character_frames": 728,
+    "weapon_layers": 32,
+    "total": 1905
+  },
+  "character_contract": {
+    "party_slots": 7,
+    "directions": 8,
+    "states": {
+      "idle": 1,
+      "walk": 4,
+      "attack": 3,
+      "hurt": 2,
+      "down": 1,
+      "interact": 2
+    },
+    "weapons": ["rifle", "pistol", "blade", "launcher"]
+  },
+  "verification": "Per-file dimensions and SHA-256 are authoritative in the output bundle manifest."
+}
