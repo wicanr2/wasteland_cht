@@ -34,6 +34,10 @@ shot 07-question.png -map 1 -at 3,4 -keys i
 # 戰鬥：`ENC` 在有敵人的地方直接開打。面板在右上、名單在下半、
 # 指令列照留——版面照原版（`docs/re/105` §2）。
 shot 08-combat.png   -map 4 -at 18,2 -keys E
+# 名單展開（空白鍵 ＝ 原版 ds:46B9h；引號要包進參數，go.sh 的 sh -c 會攤平引號）
+shot 09-roster.png   -keys '"' '"'
+# 角色畫面：地圖按 1 開第一個人的資料頁（docs/re/131）
+shot 10-charview.png -keys 1
 shot 05-ending.png   -ending
 shot 06-epilogue.png -ending -ending-ticks 300
 

@@ -50,6 +50,9 @@ shot skills-en.png -keys U1S -lang no-such.cat
 # F1 說明面板（保留原版模式，作為三模式之一的對照）
 shot help.png -fn help
 
+# 角色畫面：地圖按 1 開第一個人（docs/re/131）——裝備／裝填／交給隊友的入口
+shot charview.png -keys 1
+
 # 手札、問答、結局：沿用既有的截圖流程
 shot 02-journal.png -journal 1
 shot 07-question.png -map 1 -at 3,4 -keys i
