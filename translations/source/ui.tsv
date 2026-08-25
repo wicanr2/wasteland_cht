@@ -48,6 +48,8 @@ ui:roster.menu	CREATE  DELETE  PLAY   (C/D/P)
 ui:roster.name	Name: 
 ui:roster.nobody	Nobody to delete.
 ui:roster.joined	%s joins the Rangers.
+ui:loot.take	%s, take an item
+ui:roster.stats	ST %d IQ %d LK %d SP %d\x0DAG %d DX %d CH %d CON %d
 ui:roster.gone	%s is gone.
 ui:facility.examined	Examined.
 ui:facility.cured	Cured.

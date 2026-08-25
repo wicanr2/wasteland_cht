@@ -29,6 +29,10 @@ type rosterState struct {
 	naming bool // 正在輸入名字
 	entry  input.TextEntry
 	del    bool // 正在選要刪誰
+	// keep 為 true 時停在 `Keep this char?` 上（原版 `sub_1C6C9` 的重擲迴圈，
+	// `docs/re/21` §5）：cand 是剛擲出來還沒寫進記錄的候選角色。
+	keep bool
+	cand *game.Character
 }
 
 // recRosterUsed 是角色記錄「這一格有沒有人」的旗標位移（`docs/re/21` §5）。
@@ -37,6 +41,7 @@ const recRosterUsed = 0x29
 // 角色管理用到的原版字串編號（**字串表 3**，不是表 1）。
 const (
 	strNoMoreChars = 1 // `You cannot create any more characters.`
+	strKeepChar    = 3 // `Keep this char?  Yes / No`
 	strDeleteWho   = 5 // `Which player do you want to delete?`
 )
 
@@ -68,19 +73,75 @@ func (s *Scene) freeRecord() (int, bool) {
 	return 0, false
 }
 
-// createCharacter 建一個角色並放進目前這一組。
-func (s *Scene) createCharacter(name string) error {
-	slot, ok := s.freeRecord()
-	if !ok {
-		return fmt.Errorf("you cannot create any more characters")
-	}
+// rollCandidate 擲一個候選角色並停在 `Keep this char?` 上
+// （原版 `sub_1C6C9` 的重擲迴圈，`docs/re/21` §5：答 No 就整組重擲，
+// 答 Yes 才寫進記錄）。
+func (s *Scene) rollCandidate(name string) {
 	kits, err := s.rom.StartingKits()
 	if err != nil {
-		return fmt.Errorf("起始裝備清單：%w", err)
+		s.message = "ERROR: 起始裝備清單：" + err.Error()
+		s.dirty = true
+		return
 	}
 	c := game.CreateCharacter(s.world.RNG, name, game.StartingKits{
 		Pistol45: kits[0], Pistol9: kits[1], Common: kits[2],
 	}, s.items)
+	s.roster.keep, s.roster.cand = true, c
+	s.showCandidate()
+}
+
+// showCandidate 把擲出來的屬性印給玩家看，接原版的 `Keep this char?`（exe:3:3）。
+//
+// 原版這一步畫的是整張角色畫面；訊息視窗只有六行，這裡把七個屬性與
+// MAXCON 排成兩行（重製決策，屬性值本身照 `docs/re/21` §5.1 的擲法）。
+func (s *Scene) showCandidate() {
+	c := s.roster.cand
+	a := c.Attributes
+	s.sayT(exeTableRoster, strKeepChar, textlayout.Options{})
+	stats := fmt.Sprintf("ST %d IQ %d LK %d SP %d\rAG %d DX %d CH %d CON %d\r",
+		a[0], a[1], a[2], a[3], a[4], a[5], a[6], c.MaxCON)
+	if s.cjk != "" {
+		if zh := s.uiText("roster.stats"); zh != "" {
+			s.cjk = fmt.Sprintf(zh,
+				a[0], a[1], a[2], a[3], a[4], a[5], a[6], c.MaxCON) + "\r" + s.cjk
+		}
+	} else {
+		s.message = stats + s.message
+	}
+	s.dirty = true
+}
+
+// updateRosterKeep 收 `Keep this char?` 的 Y／N。
+func (s *Scene) updateRosterKeep(in input.Input) (bool, error) {
+	if in.Action == input.ActionCancel {
+		// ESC 一律只取消這一層：丟掉候選，回 CREATE DELETE PLAY。
+		s.roster.keep, s.roster.cand = false, nil
+		s.sayEN(rosterMenu, "roster.menu")
+		return true, nil
+	}
+	switch input.Upper(in.Char) {
+	case 'Y':
+		c := s.roster.cand
+		s.roster.keep, s.roster.cand = false, nil
+		if err := s.commitCharacter(c); err != nil {
+			s.message = "ERROR: " + err.Error()
+		} else {
+			s.message = c.Name + " joins the Rangers."
+			s.cjkFmt("roster.joined", c.Name)
+		}
+		s.dirty = true
+	case 'N':
+		s.rollCandidate(s.roster.cand.Name) // 整組重擲
+	}
+	return true, nil
+}
+
+// commitCharacter 把候選角色寫進記錄並放進目前這一組。
+func (s *Scene) commitCharacter(c *game.Character) error {
+	slot, ok := s.freeRecord()
+	if !ok {
+		return fmt.Errorf("you cannot create any more characters")
+	}
 
 	raw, err := s.save.Record(slot)
 	if err != nil {
@@ -153,6 +214,9 @@ func (s *Scene) updateRoster(in input.Input) (bool, error) {
 	// 名字輸入優先——它會吃掉所有字元。
 	if s.roster.naming {
 		return s.updateNaming(in)
+	}
+	if s.roster.keep {
+		return s.updateRosterKeep(in)
 	}
 	if s.roster.del {
 		return s.updateRosterDelete(in)
@@ -228,12 +292,7 @@ func (s *Scene) updateNaming(in input.Input) (bool, error) {
 			s.sayEN(rosterMenu, "roster.menu")
 			break
 		}
-		if err := s.createCharacter(name); err != nil {
-			s.message = "ERROR: " + err.Error()
-		} else {
-			s.message = name + " joins the Rangers."
-			s.cjkFmt("roster.joined", name)
-		}
+		s.rollCandidate(name)
 	default:
 		s.showName()
 	}

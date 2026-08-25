@@ -46,6 +46,13 @@ func TestCreateCharacterWithChineseName(t *testing.T) {
 	if s.roster.naming {
 		t.Fatal("Enter 之後還在輸入")
 	}
+	// Enter 之後停在 `Keep this char?`（docs/re/21 §5），答 Y 才寫進記錄。
+	if !s.roster.keep {
+		t.Fatal("Enter 之後應該停在 Keep this char? 上")
+	}
+	if _, err := s.Update(input.Input{Dir: input.DirNone, Char: 'Y'}); err != nil {
+		t.Fatal(err)
+	}
 	if n := len(s.World().Party.Members); n != before+1 {
 		t.Fatalf("隊伍應該多一個人：%d → %d", before, n)
 	}
@@ -138,6 +145,9 @@ func TestCreateWritesRecordSlot(t *testing.T) {
 		}
 	}
 	if _, err := s.Update(input.Input{Dir: input.DirNone, Action: input.ActionConfirm}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Update(key('Y')); err != nil { // Keep this char? → Yes
 		t.Fatal(err)
 	}
 	raw, err := s.Save().Record(slot)
