@@ -41,6 +41,12 @@ type Character struct {
 	AC         byte            // +0x1A，＝ 裝備護甲的 Dice（docs/re/45 §3.4）
 	EquipIndex byte            // +0x1F，裝備武器的物品槽
 	ArmorIndex byte            // +0x25，裝備護甲的物品槽
+	// RecordUsed 是 +0x29：非 0 ＝ 記錄槽有人；同時是「這個人會拒絕交易」
+	// 的閘（0 ＝ 交易不用檢定，docs/re/131 §7）。
+	RecordUsed byte
+	// Grudge 是 +0x2E 的交易難度計數：拒絕 +1（上限 10）、成功 1/20 −1、
+	// 0xFF ＝ 一律拒絕（docs/re/131 §7）。
+	Grudge byte
 	SkillPts   byte            // +0x20
 	XP         uint32          // +0x21–+0x23，24-bit
 	Level      byte            // +0x24
