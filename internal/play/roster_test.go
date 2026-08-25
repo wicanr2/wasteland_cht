@@ -17,14 +17,28 @@ func runeIn(s string) input.Input {
 // 角色建立要能打**中文名字**（重製版的擴充；原版只收 ASCII）。
 //
 // 名字欄是 13 bytes，中文一個字 2 bytes ＝ 放得下 6 個字。
+
+// deleteOneForCreate 先刪掉一個出廠隊員——原版的上限是 4 個自建 PC
+// （docs/re/133 §1），出廠已滿，要先騰位子才建得了新角色。
+func deleteOneForCreate(t *testing.T, s *Scene) {
+	t.Helper()
+	if _, err := s.Update(key('D')); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Update(key('4')); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestCreateCharacterWithChineseName(t *testing.T) {
 	rom := openRom(t)
 	s, err := New(rom)
 	if err != nil {
 		t.Fatal(err)
 	}
-	before := len(s.World().Party.Members)
 	s.beginRoster()
+	deleteOneForCreate(t, s)
+	before := len(s.World().Party.Members)
 	if _, err := s.Update(key('C')); err != nil {
 		t.Fatal(err)
 	}
@@ -85,6 +99,7 @@ func TestChineseNameRespectsLimit(t *testing.T) {
 		t.Fatal(err)
 	}
 	s.beginRoster()
+	deleteOneForCreate(t, s)
 	if _, err := s.Update(key('C')); err != nil {
 		t.Fatal(err)
 	}
@@ -131,11 +146,12 @@ func TestCreateWritesRecordSlot(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	s.beginRoster()
+	deleteOneForCreate(t, s)
 	slot, ok := s.freeRecord()
 	if !ok {
 		t.Skip("沒有空的記錄槽")
 	}
-	s.beginRoster()
 	if _, err := s.Update(key('C')); err != nil {
 		t.Fatal(err)
 	}
@@ -154,8 +170,8 @@ func TestCreateWritesRecordSlot(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if raw[recRosterUsed] == 0 {
-		t.Error("記錄槽沒有被標成有人")
+	if raw[0x29] != 0 {
+		t.Error("自建 PC 的 +0x29 必須是 0（NPC 旗標，docs/re/133 §1）")
 	}
 	if !strings.HasPrefix(string(raw[:3]), "ABC") {
 		t.Errorf("記錄裡的名字不對：%q", raw[:8])

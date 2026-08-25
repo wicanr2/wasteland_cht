@@ -23,7 +23,7 @@ const (
 	recArmor      = 0x25 // 護甲的裝備索引（`sub_1949E`，docs/re/131 §6）
 	recPreHurt    = 0x26 // 16-bit
 	recStatus     = 0x28
-	recUsed       = 0x29 // 非 0 ＝ 這一格有人；同時是「會拒絕交易」的閘（docs/re/131 §7）
+	recNPC        = 0x29 // **NPC 旗標**（PC ＝ 0）：非 0 才會拒絕交易／出手（docs/re/133 §1）
 	recGrudge     = 0x2E // 交易難度計數（拒絕 +1 上限 10、成功 1/20 −1；0xFF ＝ 一律拒絕）
 	recRank       = 0x32
 	// recRankEnd 是階級字串的邊界。**原版的寫入迴圈沒有長度檢查**
@@ -84,7 +84,7 @@ func LoadCharacter(raw []byte) *Character {
 		Nation:     raw[recNation],
 		EquipIndex: raw[recEquip],
 		ArmorIndex: raw[recArmor],
-		RecordUsed: raw[recUsed],
+		NPCFlag:    raw[recNPC],
 		Grudge:     raw[recGrudge],
 		Rank:       cstring(raw[recRank:recRankEnd]),
 		Mission:    raw[recMission]&1 != 0,
@@ -112,7 +112,7 @@ func (c *Character) StoreTo(raw []byte) {
 	put16(raw, recCON, uint16(c.CON))
 	raw[recEquip] = c.EquipIndex
 	raw[recArmor] = c.ArmorIndex
-	raw[recUsed] = c.RecordUsed
+	raw[recNPC] = c.NPCFlag
 	raw[recGrudge] = c.Grudge
 	raw[recSkillPts] = c.SkillPts
 	put24(raw, recXP, c.XP)

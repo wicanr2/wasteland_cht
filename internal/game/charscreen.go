@@ -44,9 +44,10 @@ func TradeRefused(r *rng.State, giver, receiver *Character) bool {
 }
 
 // TradeNeedsCheck 回報這一次交給要不要跑拒絕檢定（0x192E7 與 0x192EF）：
-// 給的人 +0x29 非 0 而且還能行動才會拒絕——倒下的人擋不了你拿他的東西。
+// 給的人是 NPC（+0x29 非 0，docs/re/133 §1）而且還能行動才會拒絕——
+// 自己建的角色不會拒絕你，倒下的 NPC 也擋不了你拿他的東西。
 func TradeNeedsCheck(giver *Character) bool {
-	return giver.RecordUsed != 0 && !giver.Down()
+	return giver.NPCFlag != 0 && !giver.Down()
 }
 
 // TradeItem 把給的人第 slot 格搬給收的人（0x19313 之後那一段）。
@@ -155,4 +156,79 @@ func DivideCash(p *Party, who int) {
 		}
 	}
 	p.Members[who].Money += rem
+}
+
+// 技能 25 ＝ Medic、32 ＝ Doctor（docs/re/133 §2）。
+const (
+	SkillMedic  byte = 25
+	SkillDoctor byte = 32
+)
+
+// FirstAidResult 是急救的結果。
+type FirstAidResult int
+
+const (
+	FirstAidNotDown FirstAidResult = iota // 目標沒倒（CON ≥ 0）或已死，救不了
+	FirstAidOK                            // 成功：負血折半靠向 0，印字串 10
+	FirstAidFail                          // 失敗（fumble 或不夠）：印字串 9
+)
+
+// FirstAid 對倒下的隊員急救（loc_13D82，docs/re/133 §2）：
+//
+//	目標 CON ＝ 0（死亡）或 ≥ 0（沒倒）→ 救不了
+//	難度 ＝ |CON 低 byte| >> 2（Medic）或 >> 3（Doctor）
+//	檢定 ＝ 2d6 續擲（< 5 fumble）＋ 檢定屬性 ＋ 技能×3 ≥ 5×難度＋15
+//	成功 ＝ CON（有號）右移一位；施用者照一般規則有機率技能 +1，**不給經驗值**
+func (healer *Character) FirstAid(r *rng.State, target *Character,
+	skill byte, tbl SkillTable) FirstAidResult {
+	if target.CON >= 0 || target.Dead() {
+		return FirstAidNotDown
+	}
+	shift := 2
+	if skill == SkillDoctor {
+		shift = 3
+	}
+	// 難度取 CON 低 byte 的絕對值再右移（0x13DBF–0x13DD4）。
+	low := int(int8(byte(target.CON)))
+	if low < 0 {
+		low = -low
+	}
+	difficulty := low >> shift
+	data, ok := SkillData{}, false
+	if tbl != nil {
+		data, ok = tbl.Skill(skill)
+	}
+	if !ok {
+		return FirstAidFail
+	}
+	// awardXP ＝ false：sub_18146 不加經驗值（docs/re/133 §2）。
+	if !healer.SkillCheck(r, skill, data, difficulty, false).OK {
+		return FirstAidFail
+	}
+	target.CON >>= 1 // 負數的有號右移 ＝ 折半靠向 0（0x13DE4 的 rcr）
+	return FirstAidOK
+}
+
+// ReorderItems 照 order 給的槽號順序重排物品陣列（0x193AE，docs/re/134）：
+// 挑走的順位就是新位置，裝備索引（+0x1F／+0x25 存的是槽號＋1）跟著搬。
+// order 必須涵蓋所有非空槽——原版就是「一件一件點到點完」。
+func (c *Character) ReorderItems(order []int) {
+	out := make([]Slot, slotCount)
+	var newEquip, newArmor byte
+	n := 0
+	for _, slot := range order {
+		if slot < 0 || slot >= len(c.Items) || c.Items[slot].ID == 0 {
+			continue
+		}
+		out[n] = c.Items[slot]
+		if c.EquipIndex == byte(slot)+1 {
+			newEquip = byte(n) + 1
+		}
+		if c.ArmorIndex == byte(slot)+1 {
+			newArmor = byte(n) + 1
+		}
+		n++
+	}
+	c.Items = out
+	c.EquipIndex, c.ArmorIndex = newEquip, newArmor
 }

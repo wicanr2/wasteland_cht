@@ -27,6 +27,7 @@ const (
 	useStageKind            // S／I／A
 	useStagePick            // 選技能／物品／屬性
 	useStageDir             // 問方向——**地圖與戰鬥都有**（`docs/re/132` §1、`108` §2）
+	useStageHealWho         // Medic／Doctor 的目標（`docs/re/133` §2，remake 改成明確選人）
 )
 
 // nameTable 是技能與物品名那張表（`ds:B270h`）在 `ExeStrings()` 裡的編號。
@@ -332,10 +333,43 @@ const itemNameBase = 36
 // applyUse 選好要用什麼之後，**地圖與戰鬥都先問方向**（`docs/re/132` §1：
 // `sub_13AE4` 的尾巴三條路都匯進 `sub_125BD`）。差別在戰鬥不當場施用——
 // 把「選項＋方向」記成指令參數，動作在結算階段。
+//
+// 例外：地圖上的 Medic／Doctor 是急救特例（`docs/re/133` §2），目標是
+// **倒下的隊員**不是格子——原版把方向值硬當記錄編號用（§2.1 的粗糙處），
+// remake 改成明確選人（重製決策）。
 func (s *Scene) applyUse(o useOption) {
+	if !s.use.combat && s.use.kind == game.UseSkill &&
+		(o.id == game.SkillMedic || o.id == game.SkillDoctor) {
+		s.use.pending = o
+		s.use.stage = useStageHealWho
+		s.message = "On whom? " + s.memberMenu()
+		if zh := s.cjkExe(exeTable1, 15, textlayout.Options{}); zh != "" {
+			s.cjk = zh + " " + s.memberMenu()
+			s.message = ""
+		}
+		s.dirty = true
+		return
+	}
 	s.use.pending = o
 	s.use.stage = useStageDir
 	s.showUseDirection()
+}
+
+// applyFirstAid 對選中的隊員急救（loc_13D82；訊息 ＝ 表 1 的 9／10）。
+func (s *Scene) applyFirstAid(o useOption, target int) {
+	healer := s.world.Party.Members[s.use.member]
+	tgt := s.world.Party.Members[target]
+	s.use = useState{}
+	s.message, s.cjk = "", ""
+	switch healer.FirstAid(s.world.RNG, tgt, o.id, s.world.Skills) {
+	case game.FirstAidOK:
+		s.sayT2NameAt(exeTable1, 10, tgt.Name) // ` is improving.`
+	case game.FirstAidFail:
+		s.sayT2NameAt(exeTable1, 9, tgt.Name) // `You didn't help .`
+	default:
+		// 目標沒倒（或已死）：原版靜靜回地圖（0x13DB2）。
+	}
+	s.dirty = true
 }
 
 // applyUseAt 對方向指到的那一格施用（原版 `sub_164E0` 設目標、
@@ -456,6 +490,13 @@ func (s *Scene) updateUse(in input.Input) (bool, error) {
 			// ⚠ 數字是**這一頁的第幾項**，不是整份清單的第幾項。
 			if i := s.use.page*usePageSize + int(ch-'1'); i < len(s.use.options) {
 				s.applyUse(s.use.options[i])
+			}
+		}
+	case useStageHealWho:
+		if ch >= '1' && ch <= '9' {
+			i := int(ch - '1')
+			if i < len(s.world.Party.Members) && s.world.Party.Members[i] != nil {
+				s.applyFirstAid(s.use.pending, i)
 			}
 		}
 	case useStageDir:

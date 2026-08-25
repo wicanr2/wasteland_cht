@@ -34,6 +34,7 @@ const (
 	strCVFull     = 150 // `\x0B can't carry any more.`
 	strCVItemHdr  = 151 // `    ITEM`
 	strCVSkillHdr = 153 // `   LVL   SKILL`
+	strCVReorderHdr = 168 // ` REORDER`
 	strCVGenderT  = 162
 	strCVUnjamOK  = 160 // `\x0B unjammed the weapon.`
 	strCVUnjamNo  = 161 // `\x0B can't unjam the weapon.`
@@ -53,6 +54,7 @@ const (
 	cvSkills
 	cvAction // 選了一件物品，等 D／T／E（或 Reload?／Unjam? 的 Y／N）
 	cvTradeWho
+	cvReorder // 重排：照想要的順序把物品一件一件點走（docs/re/134）
 )
 
 // charView 是角色畫面的狀態。
@@ -63,6 +65,8 @@ type charView struct {
 	sel    int // 選中的物品槽（cvAction／cvTradeWho 用）
 	// ask 是 cvAction 停在哪個問句。
 	ask cvAsk
+	// picks 是重排模式已點走的槽號，照點的順序（docs/re/134 §2）。
+	picks []int
 }
 
 // beginCharView 開第 i 個人的角色畫面（原版 sub_12760 → sub_19130）。
@@ -271,6 +275,55 @@ func (s *Scene) cvAskFrom(step cvAsk) {
 	s.sayT(nameTable, strCVDoWhat, textlayout.Options{})
 }
 
+// showCVReorder 畫重排清單：還沒點走的照原槽序列出，點一件排一件。
+func (s *Scene) showCVReorder() {
+	c := s.cvChar()
+	picked := map[int]bool{}
+	for _, p := range s.charView.picks {
+		picked[p] = true
+	}
+	var en, zh strings.Builder
+	enHdr, zhHdr := s.exePair(strCVReorderHdr, c.Name)
+	fmt.Fprintf(&en, "%s %d\r", strings.TrimSpace(enHdr), len(s.charView.picks))
+	fmt.Fprintf(&zh, "%s %d\r", strings.TrimSpace(zhHdr), len(s.charView.picks))
+	n := 0
+	for _, slot := range s.cvItemRows() {
+		if picked[slot] {
+			continue
+		}
+		if n >= cvPageSize {
+			break // 一頁五項；點走前面的，後面的自然浮上來
+		}
+		fmt.Fprintf(&en, "%d) %s\r", n+1, s.itemName(c.Items[slot].ID))
+		name := s.itemNameCJK(c.Items[slot].ID)
+		if name == "" {
+			name = s.itemName(c.Items[slot].ID)
+		}
+		fmt.Fprintf(&zh, "%d) %s\r", n+1, name)
+		n++
+	}
+	s.message, s.cjk = en.String(), ""
+	if s.eten != nil {
+		s.message, s.cjk = "", zh.String()
+	}
+	s.dirty = true
+}
+
+// cvReorderRemaining 是還沒點走的槽（照原槽序）。
+func (s *Scene) cvReorderRemaining() []int {
+	picked := map[int]bool{}
+	for _, p := range s.charView.picks {
+		picked[p] = true
+	}
+	var out []int
+	for _, slot := range s.cvItemRows() {
+		if !picked[slot] {
+			out = append(out, slot)
+		}
+	}
+	return out
+}
+
 // updateCharView 是角色畫面的按鍵。
 func (s *Scene) updateCharView(in input.Input) (bool, error) {
 	cv := &s.charView
@@ -280,7 +333,10 @@ func (s *Scene) updateCharView(in input.Input) (bool, error) {
 
 	if in.Action == input.ActionCancel {
 		switch cv.stage {
-		case cvAction, cvTradeWho:
+		case cvAction, cvTradeWho, cvReorder:
+			// 重排的 ESC ＝ 整包不動（採技能清單那一種取消政策，
+			// docs/re/134 §3——原版物品那條不能中斷是易誤觸的粗糙處）。
+			cv.picks = nil
 			cv.stage = cvItems
 			s.showCVItems()
 		default:
@@ -320,6 +376,11 @@ func (s *Scene) updateCharView(in input.Input) (bool, error) {
 		case (ch == 'K' || in.Dir == input.DirDown) && cv.page+1 < pages:
 			cv.page++
 			s.showCVItems()
+		case ch == 'R':
+			// Ctrl+R 是原版的重排鍵（docs/re/134 §1）；remake 用 R。
+			cv.stage = cvReorder
+			cv.picks = nil
+			s.showCVReorder()
 		case ch >= '1' && ch <= '9':
 			// 數字是**這一頁的第幾項**（與 USE 的清單同一條規則）。
 			if n := int(ch - '1'); n < cvPageSize {
@@ -341,6 +402,23 @@ func (s *Scene) updateCharView(in input.Input) (bool, error) {
 			if i != cv.member && i < len(s.world.Party.Members) &&
 				s.world.Party.Members[i] != nil {
 				s.cvTrade(i)
+			}
+		}
+	case cvReorder:
+		if ch >= '1' && ch <= '9' {
+			rest := s.cvReorderRemaining()
+			if n := int(ch - '1'); n < cvPageSize && n < len(rest) {
+				cv.picks = append(cv.picks, rest[n])
+				if len(cv.picks) == len(s.cvItemRows()) {
+					// 全部點完 ＝ 新順序定案（0x1541F 收尾那一段）。
+					c.ReorderItems(cv.picks)
+					cv.picks = nil
+					cv.page = 0
+					cv.stage = cvItems
+					s.showCVItems()
+					return true, nil
+				}
+				s.showCVReorder()
 			}
 		}
 	}
