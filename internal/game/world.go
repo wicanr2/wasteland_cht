@@ -213,8 +213,16 @@ func (w *World) Step(dir Direction) (StepResult, error) {
 	}
 	w.confirmed = false
 	// 條件閘：真的要走過去時才判定一次（會擲骰、會消耗物品）。
+	// 收尾照原版（docs/re/69 §2 的 0x1406F）：**通過或擋住都改寫這一格**——
+	// 開過的門要真的變成通道，下一次才不用重擲。訊息（通過 +0x02、
+	// 沒過且沒人受罰 +0x03）放在 res.Gate 帶回呈現層。
+	gateDone := false
 	if need, rec := w.gateNeedsCheck(nx, ny); need {
-		if g := w.Party.EvalGate(w.RNG, rec, w.Skills); g.Blocked {
+		g := w.Party.EvalGate(w.RNG, rec, w.Skills)
+		res.Gate = g
+		w.applyCellPatch(nx, ny, rec, g.PatchAt)
+		gateDone = true
+		if g.Blocked {
 			if len(rec) > 1 {
 				res.Blocked = int(rec[1])
 			}
@@ -253,8 +261,13 @@ func (w *World) Step(dir Direction) (StepResult, error) {
 		// 而沙漠那 163 格是 0xE1——bit7 設所以走得過去，bit6 設所以踩上去有事。
 		if res.Event.Kind == EventGate && len(res.Event.Data) > 0 &&
 			res.Event.Data[0]&0x40 != 0 {
-			res.Gate = w.Party.EvalGate(w.RNG, res.Event.Data, w.Skills)
-			w.applyCellPatch(nx, ny, res.Event.Data, res.Gate.PatchAt)
+			// 移動閘已經跑過的格子（bit7 沒設）不再跑一次——原版是
+			// **同一支** sub_13EC9，一步只評一次；重跑會重複擲骰、
+			// 重複消耗鑰匙，失敗側還會多罰一輪。
+			if !gateDone {
+				res.Gate = w.Party.EvalGate(w.RNG, res.Event.Data, w.Skills)
+				w.applyCellPatch(nx, ny, res.Event.Data, res.Gate.PatchAt)
+			}
 			break
 		}
 		if res.Event.PatchAt <= 0 {

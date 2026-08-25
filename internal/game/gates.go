@@ -158,16 +158,19 @@ loop:
 		if flags&GateWholeParty != 0 {
 			// 0x14010：**全隊**每個人各套一次懲罰（sub_14296），然後直接收尾。
 			for j, m := range p.Members {
-				field, amount := applyGatePenalty(r, m, record)
-				out.Failed = append(out.Failed,
-					GateHurt{Member: j, Field: field, Amount: amount})
+				if field, amount := applyGatePenalty(r, m, record); field != 0 {
+					out.Failed = append(out.Failed,
+						GateHurt{Member: j, Field: field, Amount: amount})
+				}
 			}
 			break loop
 		}
-		// 0x13FBC：+0x08 是 0 就完全不罰（連 ds:A5D2h 都不加）。
-		field, amount := applyGatePenalty(r, c, record)
-		out.Failed = append(out.Failed,
-			GateHurt{Member: i, Field: field, Amount: amount})
+		// 0x13FBC：+0x08 是 0 就完全不罰——**連 ds:A5D2h（受罰人數）都不加**，
+		// 所以 Failed 也不記，收尾才印得出 +0x03（0x1402D 只看 A5D2h）。
+		if field, amount := applyGatePenalty(r, c, record); field != 0 {
+			out.Failed = append(out.Failed,
+				GateHurt{Member: i, Field: field, Amount: amount})
+		}
 		if flags&GateEachMember == 0 {
 			break loop // 0x13FEB → 0x14028
 		}

@@ -62,6 +62,8 @@ func CommandFor(ch byte) Command {
 
 // runCommand 執行指令列的一項。回傳 false 表示要離開遊戲。
 func (s *Scene) runCommand(c Command) (bool, error) {
+	// 指令幾乎都會印訊息或換畫面：照實機行為把展開的名單關回去。
+	s.rosterOn = false
 	switch c {
 	case CmdSave:
 		return s.cmdSave()

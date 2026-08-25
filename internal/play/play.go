@@ -70,8 +70,16 @@ type Scene struct {
 	// roster 是 Ranger Center 角色管理畫面的狀態（`docs/re/72` §3）。
 	roster rosterState
 
+	// rosterOn 是地圖畫面把隊伍名單展開（原版 `ds:46B9h`，空白鍵切換，
+	// `docs/re/126` §2、`129` §4）。實機行為：名單框（列 14–23）蓋在地圖
+	// 下緣與訊息視窗上，**一有新訊息要印就自動關回去**（91–97 那批截圖）。
+	rosterOn bool
+
 	// disband 為 true 時停在「誰要離隊」的選擇上。
 	disband bool
+
+	// loot 是寶箱撿拾的狀態（nibble 5，`docs/re/130`）。
+	loot lootState
 
 	// encAsk 非 0 時停在 `ENC` 的「別組要不要打」Y／N 上，值 ＝ 組號 ＋ 1。
 	encAsk int
@@ -271,6 +279,13 @@ func (s *Scene) cjkVisible() bool { return s.eten != nil && len(s.cjk) > 0 }
 // （8 × 8 放大的筆劃比 24 點的粗，蓋不乾淨）。
 func (s *Scene) hiText() bool { return s.eten != nil && s.eten.HasASCII() }
 
+// mapRosterShown 回報地圖畫面的名單現在有沒有展開著（`ds:46B9h` ＝ 1 那一種）。
+// 名單框蓋著訊息視窗，這個狀態下訊息不畫（實機 `91-roster-on.png`）。
+func (s *Scene) mapRosterShown() bool {
+	return s.rosterOn && s.combat == nil && s.facility == nil &&
+		!s.title && !s.wipe.active && !s.ending.active
+}
+
 // drawASCIILine 在高解畫面上畫一整行純 ASCII。
 func (s *Scene) drawASCIILine(h *render.HiFrame, text string, col, row int) {
 	for i := 0; i < len(text); i++ {
@@ -307,11 +322,13 @@ func (s *Scene) HiFrame() *render.HiFrame {
 		}
 	}
 	// 戰鬥名單的表頭：原版是寫死的 ASCII，中文走 `ui:combat.hdr*`
-	// （與指令列同一條路，8 × 8 的字模畫不出中文）。
-	if s.combat != nil || s.facility != nil {
+	// （與指令列同一條路，8 × 8 的字模畫不出中文）。地圖展開的名單共用。
+	if s.combat != nil || s.facility != nil || s.mapRosterShown() {
 		if hdr := rosterHeaderCJK(s.uiText); len(hdr) > 0 {
 			s.drawCJKLine(h, hdr, 0, render.RosterHeaderRow)
 		}
+	}
+	if s.combat != nil || s.facility != nil {
 		// 肖像框的說明（`docs/re/115` §3）：置中在 12 格裡。
 		if en, zh := s.portraitCaption(); zh != "" {
 			zh = fitCaption(zh)
@@ -344,7 +361,8 @@ func (s *Scene) HiFrame() *render.HiFrame {
 		return h
 	}
 	s.drawHiTextLayer(h)
-	if len(s.cjk) == 0 {
+	if len(s.cjk) == 0 || s.mapRosterShown() {
+		// 名單展開時訊息視窗被名單框蓋著，中文正文也不畫。
 		return h
 	}
 	// 英文訊息占掉第一行時，中文從第二行起——不要疊上去。
@@ -373,7 +391,7 @@ func (s *Scene) drawCursor(_ *render.HiFrame) {}
 // 訊息視窗那 6 列是空的。照地圖那條 `MsgRow-1` 算的話只放得下三個人，
 // **第四個隊員會直接看不到**——而畫面上看起來只像「隊伍只有三個人」。
 func (s *Scene) rosterLastRow() int {
-	if s.combat != nil || s.facility != nil {
+	if s.combat != nil || s.facility != nil || s.rosterOn {
 		return render.CmdRow - 1
 	}
 	return render.MsgRow - 1
@@ -512,9 +530,10 @@ func (s *Scene) drawHiTextLayer(h *render.HiFrame) {
 		s.drawASCIILine(h, fmt.Sprintf("%02d:%02d", c.Hour, c.Minute),
 			render.ClockCol, render.ClockRow)
 	}
-	// 名單那幾行（戰鬥與設施共用同一套版面，`docs/re/117` §2）。
+	// 名單那幾行（戰鬥與設施共用同一套版面，`docs/re/117` §2；
+	// 地圖展開的名單也走這裡）。
 	// 狀態字與武器名有中文就走中文，查不到就整行畫英文。
-	if s.combat != nil || s.facility != nil {
+	if s.combat != nil || s.facility != nil || s.mapRosterShown() {
 		for i, m := range s.world.Party.Members {
 			if m == nil {
 				continue
@@ -559,7 +578,8 @@ func (s *Scene) drawHiTextLayer(h *render.HiFrame) {
 		}
 	}
 	// 訊息視窗的英文。有中文正文時只留第一行當標題（與 `Frame` 同一條規則）。
-	if s.message == "" {
+	// 名單展開時訊息視窗被名單框蓋著，不畫（實機 `91-roster-on.png`）。
+	if s.message == "" || s.mapRosterShown() {
 		return
 	}
 	rect := s.msgRect()
@@ -956,6 +976,9 @@ func (s *Scene) Update(in input.Input) (bool, error) {
 	if s.use.stage != useStageOff {
 		return s.updateUse(in)
 	}
+	if s.loot.active {
+		return s.updateLoot(in)
+	}
 	if s.question.active {
 		return s.updateQuestion(in)
 	}
@@ -1265,7 +1288,15 @@ func (s *Scene) updateMap(in input.Input) (bool, error) {
 		// 不是方向就看是不是指令列的一項（`docs/re/91`）。
 		// **順序不能顛倒**：原版的 IKJL 是方向鍵，而指令的首字母
 		// （U E O D V S R）與它們不重疊，所以先問方向再問指令。
+		if in.Char == ' ' {
+			// 空白鍵 ＝ 地圖↔名單（原版 `ds:46B9h`；`ROSTER ON`／`OFF`
+			// 標籤的按鍵就是空白，`docs/re/126` §2）。
+			s.rosterOn = !s.rosterOn
+			s.dirty = true
+			return true, nil
+		}
 		if input.Upper(in.Char) == JournalKey {
+			s.rosterOn = false // 手札用訊息視窗那一塊，名單先收
 			s.openJournal(s.journalAt)
 			return true, nil
 		}
@@ -1342,6 +1373,17 @@ func (s *Scene) exeStringN(table, n int) string {
 
 // walk 真正走一步並處理結果。
 func (s *Scene) walk(dir game.Direction) (bool, error) {
+	// 名單開著時一有新訊息就關回去（實機 94–97 截圖：印訊息的那一步
+	// 標籤變回 `ROSTER ON`、訊息視窗取回畫面，名單不自動回來）。
+	if s.rosterOn {
+		prevMsg, prevCJK := s.message, s.cjk
+		defer func() {
+			if (s.message != prevMsg || s.cjk != prevCJK) &&
+				(s.message != "" || s.cjk != "") {
+				s.rosterOn = false
+			}
+		}()
+	}
 	res, err := s.world.Step(dir)
 	if err != nil {
 		return true, err
@@ -1378,6 +1420,11 @@ func (s *Scene) walk(dir game.Direction) (bool, error) {
 	// 踩上 nibble 8 就進問答（密語、暗號、控制面板，`docs/re/46` §4）。
 	if res.Moved && res.Event.Kind == game.EventMenu {
 		s.beginQuestion(res.Event.Data)
+	}
+
+	// 踩上寶箱（nibble 5）就進撿拾流程（`docs/re/130`）。
+	if res.Moved && res.Event.Kind == game.EventChest {
+		s.beginLoot(int(s.world.Party.X), int(s.world.Party.Y), res.Event.Data)
 	}
 
 	// 走一步的點擊聲（音效 1，`0x16575` 在 `sub_1656D` 裡，docs/re/44 §6）。
@@ -1836,6 +1883,9 @@ func (s *Scene) Frame() *render.Frame {
 			// 地圖畫面的設定 `sub_161C0`，`docs/re/124` §2）。
 			// 設施與戰鬥是另一套框，那一套還沒接。
 			s.drawBorder(f)
+			if s.rosterOn {
+				s.drawMapRoster(f)
+			}
 		}
 	}
 	// 時鐘畫在**地圖畫面的外框上緣**（`docs/re/27` §4）。
@@ -1858,7 +1908,7 @@ func (s *Scene) Frame() *render.Frame {
 		_ = f.DrawLineAt(s.font, commandBar(), 0, render.CmdRow)
 	}
 
-	if s.message != "" && !s.hiText() {
+	if s.message != "" && !s.hiText() && !s.mapRosterShown() {
 		rect := s.msgRect()
 		out, err := textlayout.Layout([]byte(s.message), textlayout.Options{Width: rect.Width})
 		if err == nil {
@@ -1892,6 +1942,37 @@ func (s *Scene) drawMap(f *render.Frame) {
 	if err := f.DrawParty(s.gfx); err != nil {
 		s.message = "ERROR: " + err.Error()
 	}
+}
+
+// drawMapRoster 畫地圖畫面展開的名單（原版 `ds:46B9h` ＝ 1，`sub_16F70`）。
+//
+// 實機對照（`workplace/dosbox/shots/91-roster-on.png`）：名單框（列 14–23）
+// 直接蓋在地圖視窗下緣與訊息視窗上，地圖其餘部分照畫、時鐘照留；
+// 標籤只剩 `ROSTER OFF`（`0x16BAB` 的遮罩 `0x200B`，`docs/re/129` §4）。
+func (s *Scene) drawMapRoster(f *render.Frame) {
+	// 名單框那十列（14–23）先清黑——地圖視窗畫到 y ＝ 135，
+	// 不清的話表頭與第一行會疊在地圖上（原版切模式是整塊重畫）。
+	for y := render.RosterBoxTopRow * 8; y < render.ScreenHeight; y++ {
+		for x := 0; x < render.ScreenWidth; x++ {
+			f.Set(x, y, 0)
+		}
+	}
+	if s.colorFont != nil {
+		cjk := s.eten != nil && len(rosterHeaderCJK(s.uiText)) > 0
+		_ = f.DrawRosterBox(s.colorFont, cjk)
+		if !cjk {
+			total := s.groupCount() - 1
+			if total < 0 {
+				total = 0
+			}
+			_ = f.DrawRosterBanner(s.colorFont, s.groupID, total)
+		}
+		// drawBorder 先畫的標籤被框蓋掉了，`ROSTER OFF` 要在框之後補畫。
+		for _, l := range s.boxLabels() {
+			_ = f.DrawBoxLabel(s.colorFont, l)
+		}
+	}
+	s.drawRoster(f)
 }
 
 // drawRosterBox 畫名單框（`sub_16F70`，`docs/re/125`）。
@@ -1941,6 +2022,11 @@ func (s *Scene) boxLabels() []render.BoxLabel {
 		return nil
 	}
 	if s.combat == nil && s.facility == nil {
+		if s.rosterOn {
+			// 地圖（名單展開）只有 `ROSTER OFF`（`0x16BAB` 的 `0x200B`，
+			// `docs/re/129` §4）。
+			return []render.BoxLabel{render.LabelRosterOff}
+		}
 		// 地圖畫面（`0x16BB8` 的 `0x40CA`）：訊息視窗右邊那兩個捲動箭頭，
 		// 加上地圖框下緣的 `ROSTER ON`。
 		return []render.BoxLabel{

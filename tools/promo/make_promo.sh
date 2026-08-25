@@ -176,7 +176,7 @@ slide "$TMP/p05.png" combat.png \
 add "$TMP/p05.png" $PACE_SHOT
 
 compare2 "$TMP/p06.png" skills-en.png 03-use.png '螢幕上的字都換過了' \
-    '5,248 條譯文，連敵人名字與店家招牌這種不在字串表裡的都補上了。'
+    '5,250 條譯文，連敵人名字與店家招牌這種不在字串表裡的都補上了。'
 add "$TMP/p06.png" $PACE_CARD
 
 slide "$TMP/p07.png" 07-question.png \
@@ -210,7 +210,7 @@ quote "$TMP/p13.png" \
 add "$TMP/p13.png" $PACE_QUOTE
 
 stat5 "$TMP/p14.png" '42|張地圖全部解開' '124|份逆向筆記' \
-    '5,248|條文本譯成中文' '162|段劇本' '20|十場景雙配樂'
+    '5,250|條文本譯成中文' '162|段劇本' '20|十場景雙配樂'
 add "$TMP/p14.png" $PACE_CARD
 
 card "$TMP/p15.png" '荒野遊俠' 'github.com/wicanr2/wasteland_cht' \

@@ -41,6 +41,8 @@ ui:roster.menu	C建立  D刪除  P開始遊戲
 ui:roster.name	名字：
 ui:roster.nobody	沒有人可以刪除。
 ui:roster.joined	%s 加入了遊俠。
+ui:loot.take	%s，拿一件物品
+ui:roster.stats	力量%d 智力%d 幸運%d 速度%d\x0D敏捷%d 靈巧%d 魅力%d 體力%d
 ui:roster.gone	%s 已經離開。
 ui:facility.examined	檢查完畢。
 ui:facility.cured	已經治好。
