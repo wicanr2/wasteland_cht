@@ -77,6 +77,23 @@ type CellPatch struct {
 	Skip    bool // 第一個 byte 的 bit7：這一支什麼都不改
 }
 
+// CellPatchRewrote 回報這個改寫對會不會**真的動到格子**——原版 `sub_17CFF`
+// 回傳的 CF（`docs/re/132` §4）：bit7 設（不改）與 `0xFD`（沿用但回報沒改）
+// 是 0，其餘（含 `0xFE`）是 1。`USE` 成功後「要不要走過去」看的就是它。
+func CellPatchRewrote(record []byte, at int) bool {
+	if at < 0 || at+1 >= len(record) {
+		return false
+	}
+	first := record[at]
+	if first == 0xFD {
+		return false
+	}
+	if first == 0xFE {
+		return true
+	}
+	return first&0x80 == 0
+}
+
 // ParseCellPatch 從記錄的指定位移拆出兩個 byte。
 //
 // `0xFE`／`0xFD` 是特例：改用**上一次被改寫的那一格改寫前的值**

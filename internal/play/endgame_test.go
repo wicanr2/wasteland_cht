@@ -153,6 +153,11 @@ func useItemOn(t *testing.T, s *Scene, id byte) {
 		t.Fatalf("物品 %d 排在第 %d 項，超出數字鍵能選的範圍", id, idx+1)
 	}
 	step(t, s, input.Input{Dir: input.DirNone, Char: byte('1' + idx)})
+	// 選完會問方向（docs/re/132）：圓柱在腳下，答「原地」。
+	if s.use.stage != useStageDir {
+		t.Fatalf("選完物品應該問方向，stage=%d", int(s.use.stage))
+	}
+	step(t, s, input.Input{Dir: input.DirNone, Char: ' '})
 }
 
 // answerAt 走到 (x, y) 打開那一題，然後按一個鍵回答。

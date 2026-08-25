@@ -62,8 +62,14 @@ func TestUseWalksAllThreeBranches(t *testing.T) {
 		}
 		t.Logf("%s：%d 項——%s", tc.name, len(s.use.options), s.Message())
 
-		// 選第一項 → 判定跑完、狀態歸零。
+		// 選第一項 → 問方向（docs/re/132）→ 原地施用 → 狀態歸零。
 		if _, err := s.Update(key('1')); err != nil {
+			t.Fatal(err)
+		}
+		if s.use.stage != useStageDir {
+			t.Fatalf("%s：選完應該問方向，stage=%d", tc.name, s.use.stage)
+		}
+		if _, err := s.Update(key(' ')); err != nil {
 			t.Fatal(err)
 		}
 		if s.use.stage != useStageOff {

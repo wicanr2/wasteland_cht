@@ -81,6 +81,9 @@ type Scene struct {
 	// loot 是寶箱撿拾的狀態（nibble 5，`docs/re/130`）。
 	loot lootState
 
+	// charView 是角色畫面的狀態（地圖數字鍵，`docs/re/131`）。
+	charView charView
+
 	// encAsk 非 0 時停在 `ENC` 的「別組要不要打」Y／N 上，值 ＝ 組號 ＋ 1。
 	encAsk int
 
@@ -979,6 +982,9 @@ func (s *Scene) Update(in input.Input) (bool, error) {
 	if s.loot.active {
 		return s.updateLoot(in)
 	}
+	if s.charView.stage != cvOff {
+		return s.updateCharView(in)
+	}
 	if s.question.active {
 		return s.updateQuestion(in)
 	}
@@ -1293,6 +1299,12 @@ func (s *Scene) updateMap(in input.Input) (bool, error) {
 			// 標籤的按鍵就是空白，`docs/re/126` §2）。
 			s.rosterOn = !s.rosterOn
 			s.dirty = true
+			return true, nil
+		}
+		if in.Char >= '1' && in.Char <= '7' {
+			// 數字鍵 ＝ 開那個人的角色畫面（`0x16BFC` → `sub_12760`，
+			// 超過人數就當沒按，`docs/re/131` §1）。
+			s.beginCharView(int(in.Char - '1'))
 			return true, nil
 		}
 		if input.Upper(in.Char) == JournalKey {

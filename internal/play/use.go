@@ -26,7 +26,7 @@ const (
 	useStageMember          // 挑人
 	useStageKind            // S／I／A
 	useStagePick            // 選技能／物品／屬性
-	useStageDir             // **戰鬥限定**：問方向（`docs/re/108` §2）
+	useStageDir             // 問方向——**地圖與戰鬥都有**（`docs/re/132` §1、`108` §2）
 )
 
 // nameTable 是技能與物品名那張表（`ds:B270h`）在 `ExeStrings()` 裡的編號。
@@ -329,15 +329,18 @@ func (s *Scene) itemName(id byte) string {
 // （手槍變 `RPG-7`、彈匣變 `Meson cannon`），而**畫面上看起來完全正常**。
 const itemNameBase = 36
 
-// applyUse 拿選中的東西去試腳下那一格的條件閘。
+// applyUse 選好要用什麼之後，**地圖與戰鬥都先問方向**（`docs/re/132` §1：
+// `sub_13AE4` 的尾巴三條路都匯進 `sub_125BD`）。差別在戰鬥不當場施用——
+// 把「選項＋方向」記成指令參數，動作在結算階段。
 func (s *Scene) applyUse(o useOption) {
-	// 戰鬥那條路不當場施用：先問方向，再把「選項＋方向」記成指令參數。
-	if s.use.combat {
-		s.use.pending = o
-		s.use.stage = useStageDir
-		s.showUseDirection()
-		return
-	}
+	s.use.pending = o
+	s.use.stage = useStageDir
+	s.showUseDirection()
+}
+
+// applyUseAt 對方向指到的那一格施用（原版 `sub_164E0` 設目標、
+// `sub_13C58` 施用，`docs/re/132`）。d ＝ 九向表的前五格（4 ＝ 原地）。
+func (s *Scene) applyUseAt(o useOption, d byte) {
 	m := s.world.Party.Members[s.use.member]
 	kind := s.use.kind
 	s.use = useState{}
@@ -358,7 +361,10 @@ func (s *Scene) applyUse(o useOption) {
 		s.cjkFmt(uiName, m.Name, zhLabel)
 	}
 
-	rec, _, err := s.world.Block.CellRecord(int(s.world.Party.X), int(s.world.Party.Y))
+	// 目標是**方向指到的那一格**（原地就是腳下，`docs/re/132` §3）。
+	dx, dy := useDirDelta(d)
+	tx, ty := int(s.world.Party.X)+dx, int(s.world.Party.Y)+dy
+	rec, _, err := s.world.Block.CellRecord(tx, ty)
 	if err != nil || len(rec) == 0 {
 		say("%s uses %s. Nothing happens.", "use.nothinghappens")
 		s.dirty = true
@@ -374,11 +380,18 @@ func (s *Scene) applyUse(o useOption) {
 	default:
 		say("%s uses %s. It fails.", "use.fails")
 	}
-	// **收尾要改寫腳下那一格**（`0x13D23`／`0x13D7C` 的 `sub_17CFF`）。
+	// **收尾要改寫目標格**（`0x13D23`／`0x13D7C` 的 `sub_17CFF`）。
 	// 這一步以前沒接：黑色圓柱插了黑星鑰匙會說 It works!，但下一根圓柱
 	// 永遠不會出現，科奇斯基地的啟動序列就停在第一站（`docs/re/100` §3）。
-	s.world.PatchHere(rec, res.PatchAt)
+	walked := game.CellPatchRewrote(rec, res.PatchAt)
+	s.world.PatchCell(tx, ty, rec, res.PatchAt)
 	s.dirty = true
+	// **真的改寫了就往那個方向走一步**（`sub_17CFF` 的 CF ＝ 1 →
+	// `sub_1651A(方向)`，`docs/re/132` §4）——鑰匙開了門，人跟著過去。
+	// 沒改寫只重畫（`sub_1652D` 那條），原地施用也不走。
+	if walked && d != useDirStay {
+		_, _ = s.walk(game.Direction(d))
+	}
 }
 
 // updateUse 是 `USE` 進行中的按鍵。
@@ -447,7 +460,11 @@ func (s *Scene) updateUse(in input.Input) (bool, error) {
 		}
 	case useStageDir:
 		if d, ok := useDirection(ch, in.Dir); ok {
-			s.commitCombatUse(d)
+			if s.use.combat {
+				s.commitCombatUse(d)
+			} else {
+				s.applyUseAt(s.use.pending, d)
+			}
 		}
 	}
 	return true, nil

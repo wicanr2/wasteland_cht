@@ -41,7 +41,10 @@ func CreateCharacter(r *rng.State, name string, kits StartingKits, tbl ItemTable
 	if len(name) > recAttributes {
 		name = name[:recAttributes]
 	}
-	c := &Character{Name: name, Level: 1, Rank: "PRIVATE"}
+	c := &Character{Name: name, Level: 1, Rank: "PRIVATE",
+		// +0x29 非 0 ＝ 這一格有人（freeRecord 的判準），
+		// 同時讓交易檢定生效（docs/re/131 §7）。
+		RecordUsed: 1}
 	// 技能與物品陣列是**固定 30 格**（記錄 +0x80／+0xBD，`docs/re/15`）——
 	// 原版整筆清零之後那些格子就在那裡，不是動態長出來的。
 	c.Skills = make([]Slot, slotCount)

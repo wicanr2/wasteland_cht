@@ -68,6 +68,16 @@ func (s *Scene) translateMouse(m input.Mouse) (input.Input, bool) {
 		}
 		return none, true
 	}
+	// 名單展開時點名片行 ＝ 送那個人的數字鍵（原版 `0x18C4C`：
+	// 送 `'0' ＋ 列號`，`docs/re/112`）——開角色畫面就是這樣點出來的。
+	if s.mapRosterShown() {
+		i := row - (render.RosterHeaderRow + 1)
+		if i >= 0 && i < len(s.world.Party.Members) &&
+			s.world.Party.Members[i] != nil && i < 7 {
+			none.Char = byte('1' + i)
+			return none, true
+		}
+	}
 	// 點到哪一格就送那一格上的字元——指令列與清單共用這一條規則，
 	// 所以中文版也對（熱鍵字母不跟著翻譯走，那一格本來就是 ASCII）。
 	if c := s.charAt(col, row); c != 0 {

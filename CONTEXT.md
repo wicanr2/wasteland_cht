@@ -329,6 +329,8 @@
 | [`docs/re/128-roster-index-inverse.md`](docs/re/128-roster-index-inverse.md) | `ds:471Fh` 是「這一行的序號要反白」——三個進入點共用一個名片行 |
 | [`docs/re/129-label-masks.md`](docs/re/129-label-masks.md) | 哪一個畫面畫哪幾個標籤——`ds:7DF3h` 是一個 32-bit 的熱區遮罩 |
 | [`docs/re/130-chest-loot-pickup.md`](docs/re/130-chest-loot-pickup.md) | 寶箱的撿拾流程：誰要撿 → 逐件拿 → 拿完用位移 0 改寫；現金 3 bytes、`0x00` 是空格不是結束 |
+| [`docs/re/131-character-screen.md`](docs/re/131-character-screen.md) | 角色畫面：地圖數字鍵、裝備／裝填／卸卡彈／交給隊友，與 `+0x25`、`+0x2E` |
+| [`docs/re/132-use-direction.md`](docs/re/132-use-direction.md) | 地圖 `USE` 也問方向：目標格、`ds:A5D9h` 與成功後走一步 |
 | [`docs/spec/00-index.md`](docs/spec/00-index.md) | **規格索引與閘門狀態**：哪些可以動工、其餘擋在什麼上 |
 | [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
 | [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |
@@ -404,8 +406,10 @@
 人工試玩回報的處理結果」）：地圖名單切換（空白鍵，實機對拍）、創角
 `Keep this char?` 重擲、寶箱撿拾（新筆記 `docs/re/130`）、移動閘通過後的
 改寫收尾都補上了；「創角不配技能」「地圖 `USE` 不問方向」「多數門不用開鎖」
-查證為**原版行為**。還沒做的兩項要先 RE：地圖上點隊員開角色畫面（含裝備）、
-`USE` 成功後的移動段（`docs/re/92` §4.2 的方向參數未解）。
+查證為**原版行為**。第二輪把剩下兩項也做完：**角色畫面**（地圖 `1`–`7` 或
+點名片行；裝備／裝填／卸卡彈／交給隊友，含 `+0x25`、`+0x2E` 兩個新解欄位，
+`docs/re/131`）與 **地圖 `USE` 問方向**（目標 ＝ 方向那一格，成功真的改寫
+就走一步，`docs/re/132`——先前「地圖 USE 不問方向」是筆記漏讀）。
 
 **抽樣試玩第一輪已做**（`docs/re/97`）：七段流程各走一遍，
 建角色、遇敵打完、商店買賣、`USE` 開閘、讀段落、存檔重開都通了。
