@@ -196,6 +196,10 @@ slide "$TMP/p10.png" facility.png \
     '遊俠中心、商店、醫生、訓練師——招牌、選單、清單都是中文。'
 add "$TMP/p10.png" $PACE_SHOT
 
+slide "$TMP/p10b.png" charview.png \
+    '隊伍管理：裝備、裝填、卸卡彈、把東西交給隊友——他偶爾會不肯。'
+add "$TMP/p10b.png" $PACE_SHOT
+
 addlive reimagined-live.mp4 10 '全面重構 · 響應式實機操作'
 
 slide "$TMP/p12.png" 05-ending.png \
@@ -209,7 +213,7 @@ quote "$TMP/p13.png" \
     '—— 精訊電腦〈遊騎兵手記〉，1988 年 12 月'
 add "$TMP/p13.png" $PACE_QUOTE
 
-stat5 "$TMP/p14.png" '42|張地圖全部解開' '124|份逆向筆記' \
+stat5 "$TMP/p14.png" '42|張地圖全部解開' '132|份逆向筆記' \
     '5,250|條文本譯成中文' '162|段劇本' '20|十場景雙配樂'
 add "$TMP/p14.png" $PACE_CARD
 
