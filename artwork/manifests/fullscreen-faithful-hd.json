@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "id": "faithful-hd-fullscreen",
+  "created_local": "2026-08-21",
+  "timezone": "Asia/Taipei",
+  "generator": "OpenAI image generation via Codex",
+  "source_prompt": "artwork/prompts/scenes-faithful-hd.md",
+  "reference_distribution": "local-only",
+  "processing": {
+    "fit": "tools/art/fit_banner.py",
+    "size": "864x384"
+  },
+  "status": "accepted-candidate",
+  "assets": [
+    {
+      "id": "fullscreen.title",
+      "reference": "workplace/art-reference/title.png",
+      "reference_sha256": "ebfc36049916b9ace7cf6ff3771d6686e2f01e92d9625edf9bb598e8090fed49",
+      "source": "artwork/source/accepted/fullscreen/title-source.png",
+      "source_sha256": "e993b9de027c3f61efcb942e48b4bf0a3b460b4f824d1fe743ea419103cd04ae",
+      "path": "artpacks/faithful-hd/assets/fullscreen/title.png",
+      "sha256": "dd3d79faf3d3501c317e8d4fe0a852e426403b74821dfef139bcd261521eafab"
+    },
+    {
+      "id": "fullscreen.ending",
+      "reference": "workplace/art-reference/ending.png",
+      "reference_sha256": "a0ed480ff28c8eef5f906fe2353b93c225b19d298456aef12904bd1dce062c45",
+      "source": "artwork/source/accepted/fullscreen/ending-source.png",
+      "source_sha256": "11bbf0fdfa44a7ecb4b6a615d30db664cec9d238bb5a640b73b4e336e6cc28a5",
+      "path": "artpacks/faithful-hd/assets/fullscreen/ending.png",
+      "sha256": "31653be19279f09f5aefd2f52b33d4a1f13ce5f00aaaaef14724dfe8dc825b1b"
+    }
+  ],
+  "gates": {
+    "dimensions": "pass",
+    "semantic_reference_review": "pass",
+    "title_text_review": "pass",
+    "false_affordance_review": "pass",
+    "in_game_review": "pending"
+  }
+}

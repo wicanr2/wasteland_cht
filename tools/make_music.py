@@ -70,6 +70,20 @@ MT32 = {
     "square": 47,     # 48 SquareWave
 }
 
+MODERN_GM = {
+    "strings": 48, "strings2": 49, "cello": 42, "contrabass": 43,
+    "horn": 60, "trombone": 57, "trumpet": 56, "brass": 61,
+    "bass": 32, "fretless": 35, "synbass": 38, "synbass3": 39,
+    "synbrass": 62, "atmos": 99, "soundtrack": 97, "fantasy": 88,
+    "chorale": 91, "warmbell": 14, "icerain": 96, "glasses": 98,
+    "harp": 46, "guitar": 24, "elecgtr": 29, "epiano": 4,
+    "organ": 18, "vibe": 11, "tubebell": 14, "flute": 73,
+    "sax": 66, "oboe": 68, "timpani": 47, "orchehit": 55,
+    "square": 80,
+}
+
+PROFILE = "retro"
+
 # 節奏鍵位：**量出來的**，不是 GM 的慣例（見檔頭與 tools/mt32_probe.py）。
 #
 #   鍵 30  過零率 313／RMS 1136  最低最響 → 大鼓
@@ -80,6 +94,18 @@ MT32 = {
 KICK, SNARE, HAT, CRASH = 30, 27, 43, 75
 TOM_LO, TOM_MID, TOM_HI = 53, 52, 31
 RIDE = 61   # 過零 5340／尾 0.55：比腳踏鈸暗、比碎音鈸短
+
+
+def configure_profile(profile):
+    """切換配器表；旋律、和聲、速度與循環長度保持同一份來源。"""
+    global PROFILE, MT32, KICK, SNARE, HAT, CRASH, TOM_LO, TOM_MID, TOM_HI, RIDE
+    PROFILE = profile
+    if profile == "modern":
+        MT32 = dict(MODERN_GM)
+        KICK, SNARE, HAT, CRASH = 36, 38, 42, 49
+        TOM_LO, TOM_MID, TOM_HI, RIDE = 45, 47, 50, 51
+    elif profile != "retro":
+        raise SystemExit(f"未知配器 profile：{profile}")
 
 # 量出來**沒有指派**的鍵（CM-32L，`docs/mt32-rhythm-probe.md`）。
 # 用到這裡面任何一個都會安靜地沒聲音，所以開跑前擋一次——
@@ -210,6 +236,10 @@ def setup(name, ch, timbre, vol, pan=64):
     t.volume(0, vol)
     t.pan(0, pan)
     t.expression(0, 127)
+    if PROFILE == "modern":
+        # GM 音源上的空間與微量 chorus；復古 MT-32 路徑完全不受影響。
+        t.cc(0, 91, 46)
+        t.cc(0, 93, 14)
     return t
 
 
@@ -686,10 +716,15 @@ TUNES = {
 
 
 def main():
-    if len(sys.argv) != 2:
+    args = sys.argv[1:]
+    profile = "retro"
+    if len(args) == 3 and args[0] == "--profile":
+        profile, args = args[1], args[2:]
+    if len(args) != 1:
         print(__doc__)
         return 1
-    out = sys.argv[1]
+    configure_profile(profile)
+    out = args[0]
     os.makedirs(out, exist_ok=True)
     for name, fn in TUNES.items():
         tracks, bpm = fn()
@@ -698,7 +733,7 @@ def main():
         ticks = max(e[0] for t in tracks for e in t.events)
         bars = ticks / W
         secs = ticks / TPQ * 60 / bpm
-        print(f"{name:9s} {bpm:3d} BPM  {bars:5.1f} 小節  {secs:5.1f} 秒  "
+        print(f"{profile:6s} {name:9s} {bpm:3d} BPM  {bars:5.1f} 小節  {secs:5.1f} 秒  "
               f"{len(tracks)} 軌  {size:6d} bytes")
     return 0
 

@@ -7,7 +7,7 @@
 # 建置（這一步會連網裝套件，之後 tools/go.sh 仍然 --network none）：
 #
 #   docker build --network host \
-#     -t wasteland-go:1.24-x11 -f docker/wasteland-go.Dockerfile docker/
+#     -t wasteland-go:1.24-x11-record-r1 -f docker/wasteland-go.Dockerfile docker/
 #
 # 版本刻意寫死：換版本就換 tag，不要覆蓋既有 tag（`CLAUDE.md` §1.1 的做法）。
 FROM golang:1.24-bookworm
@@ -21,5 +21,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libxxf86vm-dev \
         libgl1-mesa-dev \
         libasound2-dev \
+        xvfb \
+        xdotool \
+        ffmpeg \
+        fluxbox \
         pkg-config \
     && rm -rf /var/lib/apt/lists/*

@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "id": "faithful-hd-party-walk-4dir",
+  "created_local": "2026-08-21",
+  "timezone": "Asia/Taipei",
+  "generator": "OpenAI image generation via Codex",
+  "reference": "workplace/art-reference/party-icon-8x.png",
+  "source": {
+    "path": "artwork/source/accepted/party-walk-4dir-source.png",
+    "sha256": "6f84988249ca7f6eddbc02537d7504b7d8161b509fc6bbdf17989a5b1b7f2610"
+  },
+  "layout": {
+    "rows": ["up", "right", "down", "left"],
+    "columns": ["left-step", "idle", "right-step"],
+    "cell": "48x48"
+  },
+  "processing": [
+    "tools/art/remove_checkerboard.py",
+    "tools/art/slice_grid.py --cols 3 --rows 4 --cell 48",
+    "tools/art/fit_sprites.py --max 40",
+    "tools/art/assemble_atlas.py"
+  ],
+  "status": "accepted-candidate",
+  "sha256": [
+    "f96719d63ad3c3b5d6d30809fa69d90d6be1d5748019fdb5df89788ac8d73e90",
+    "f59df5e06082ef54d69ebaa25b4089942237b703b7ea64c3cab69518b230b13d",
+    "2e02c23f142263b40100ddf36377909fe6b5e8ce1340046096450438fec1ec9c",
+    "fba7ef52b0b13e04ab783b3e5983184b49ef7749186dc8ccf9af1084b51f3566",
+    "f333f528cc2b76c3b2badc89c55137e69d7c7631c053eef32c5899808e0dc671",
+    "c6f67981b041cd12bb9b475a30a921c272981e3861f87f35b95c91f9be18cd93",
+    "557d46f4e937e3e3958a1a8f9650afe4071f78bdd3d06cde1afc702e8393f3fc",
+    "75f452fe025b30fd89031a1509942c8f75ed19b0c0a987dcd7e6a5170b895f78",
+    "8ea71c9629ff26bc1a130e7081ace2f8b976ca2c40b01074141fdf9293ce7337",
+    "f326e4dcf75cb5694a93f71f40b5e454f33ea07861c8bb300da962803a456fe9",
+    "22ae78ca0f616438b72fe524820fefa2bbb862b32ff2088e90103f60201f6909",
+    "57efed84ea09df991184ab835b93a9aa32c47030a2faeb37ebff5adf98569ed1"
+  ],
+  "atlas_sha256": "02cc6c6b9310c276961c407d93b71f2071615360eb6ac3c28c7c73cf9b8e4230",
+  "gates": {
+    "count": "pass",
+    "dimensions": "pass",
+    "alpha_nonempty": "pass",
+    "transparent_border": "pass",
+    "per_direction_motion": "pass",
+    "play_scene_tick_wiring": "pass"
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "id": "faithful-hd-tileset-1-128-140",
+  "created_local": "2026-08-21",
+  "timezone": "Asia/Taipei",
+  "generator": "OpenAI image generation via Codex",
+  "source_prompt": "artwork/prompts/tileset-faithful-hd.md",
+  "reference": "workplace/art-reference/tileset-1-batch-128-140-8x.png",
+  "reference_distribution": "local-only",
+  "source": {
+    "path": "artwork/source/accepted/tileset-1-batch-128-140-source.png",
+    "sha256": "e24ed6cec2ff7497273b0397286a23f1c7cccebc9b7640ced96baaf1484d0db1"
+  },
+  "processing": {
+    "slice": "tools/art/slice_grid.py",
+    "edge_harmonizer": "tools/art/harmonize_edges.py",
+    "atlas": "tools/art/assemble_atlas.py",
+    "cell": "48x48"
+  },
+  "status": "accepted-candidate",
+  "coverage": {
+    "tileset": 1,
+    "indices": "128-140",
+    "count": 13,
+    "required_total": 141
+  },
+  "atlas": {
+    "path": "artpacks/faithful-hd/assets/tileset-1/atlas-128-140.png",
+    "sha256": "af3813aea4415b36d0ad713b3d824b29c45877f78d97fcf1c4a2ff93ca50d9db"
+  },
+  "tiles": [
+    {
+      "index": 128,
+      "path": "artpacks/faithful-hd/assets/tileset-1/128.png",
+      "sha256": "da77dccec47333b8f06543d8de651d2915b04f57f3ad3633556259ff3eb8714e"
+    },
+    {
+      "index": 129,
+      "path": "artpacks/faithful-hd/assets/tileset-1/129.png",
+      "sha256": "87e60530970b9d9e1d5b81594eeb3aed292a34df0f23c95d3d6bb7567bb105c9"
+    },
+    {
+      "index": 130,
+      "path": "artpacks/faithful-hd/assets/tileset-1/130.png",
+      "sha256": "6fad0b4d5800f312506b912ff1158ad58f7a119275ab415acf3b6d37dcc403e6"
+    },
+    {
+      "index": 131,
+      "path": "artpacks/faithful-hd/assets/tileset-1/131.png",
+      "sha256": "060b4f15d60da1e636fb5ca0e797c1059e63a4e0bbf34fdd4e40d28da4d8e98a"
+    },
+    {
+      "index": 132,
+      "path": "artpacks/faithful-hd/assets/tileset-1/132.png",
+      "sha256": "8e308ae19b87ed498347092998e91788e8872a1d8ce47c307bce20fa601d060e"
+    },
+    {
+      "index": 133,
+      "path": "artpacks/faithful-hd/assets/tileset-1/133.png",
+      "sha256": "078c651a584fe0d0c6dc48696f3a802b8d35e2aa2d9f13fcad4ae19f1e1294ee"
+    },
+    {
+      "index": 134,
+      "path": "artpacks/faithful-hd/assets/tileset-1/134.png",
+      "sha256": "8b38a39f82a750d250db95c9119679b58ea954d5aa9bc5551897586535e7fe18"
+    },
+    {
+      "index": 135,
+      "path": "artpacks/faithful-hd/assets/tileset-1/135.png",
+      "sha256": "6284d633f5b524bebfaadc9a364005cb64dd2658f43642ff3c359dea816ac9d7"
+    },
+    {
+      "index": 136,
+      "path": "artpacks/faithful-hd/assets/tileset-1/136.png",
+      "sha256": "465e60b3ec4c03541782296380418fdd1fd6267bdb0cee267aec0b9394bb5e72"
+    },
+    {
+      "index": 137,
+      "path": "artpacks/faithful-hd/assets/tileset-1/137.png",
+      "sha256": "6612841ea36c615c3435c2593c5f1ea5c9d2f14606446065b5d729d4c9785136"
+    },
+    {
+      "index": 138,
+      "path": "artpacks/faithful-hd/assets/tileset-1/138.png",
+      "sha256": "141d734058a02fd30d67215c67e3d8b4697479968d3d9ba232c3936af17f29ab"
+    },
+    {
+      "index": 139,
+      "path": "artpacks/faithful-hd/assets/tileset-1/139.png",
+      "sha256": "0dfdc450c968ecdefe4518cc8d6215fac9ab8ca857e633de0f2fda2358078835"
+    },
+    {
+      "index": 140,
+      "path": "artpacks/faithful-hd/assets/tileset-1/140.png",
+      "sha256": "e643b0ed4f964dd68490036519d63340d1e187db68928d3e9db6195721c18e65"
+    }
+  ],
+  "gates": {
+    "grid_count": "pass",
+    "dimensions": "pass",
+    "index_order_visual_review": "pass",
+    "same-state_map_review": "pass-with-wip-original-icons"
+  }
+}

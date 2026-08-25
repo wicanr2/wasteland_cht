@@ -201,6 +201,7 @@ var uiCatalogueKeys = []string{
 	"help.title", "help.move", "help.cmdbar",
 	"help.panels", "help.f5f9", "help.quit",
 	"settings.title", "settings.music", "settings.volume", "settings.sfx",
+	"settings.retro", "settings.modern",
 	"settings.on", "settings.off", "settings.close",
 	"quit.ask", "quit.savefailed",
 	"quick.saved", "quick.loaded", "quick.savefailed", "quick.loadfailed",

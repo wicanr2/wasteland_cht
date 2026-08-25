@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "id": "faithful-hd-tileset-2-160-162",
+  "created_local": "2026-08-21",
+  "timezone": "Asia/Taipei",
+  "generator": "OpenAI image generation via Codex",
+  "source_prompt": "artwork/prompts/tileset-faithful-hd.md",
+  "reference": "workplace/art-reference/tileset-2-batch-160-162-8x.png",
+  "reference_distribution": "local-only",
+  "source": {
+    "path": "artwork/source/accepted/tileset-2-batch-160-162-source.png",
+    "sha256": "c10625bfe372a41ea843eeeb7f67a69d2956926e23a5841c7a32efb688ac0302"
+  },
+  "processing": {
+    "slice": "tools/art/slice_grid.py",
+    "edge_harmonizer": "tools/art/harmonize_edges.py",
+    "atlas": "tools/art/assemble_atlas.py",
+    "cell": "48x48"
+  },
+  "status": "accepted-candidate",
+  "coverage": {
+    "tileset": 2,
+    "indices": "160-162",
+    "count": 3,
+    "required_total": 163
+  },
+  "atlas": {
+    "path": "artpacks/faithful-hd/assets/tileset-2/atlas-160-162.png",
+    "sha256": "935b045801bd932f6f3502ecfd1504f98040367f1ad6da1d91d74d7b7c8bb12c"
+  },
+  "tiles": [
+    {
+      "index": 160,
+      "path": "artpacks/faithful-hd/assets/tileset-2/160.png",
+      "sha256": "62c11305dff4b750f5cf38802ae3b7ff051e20edbc6592096b1f3ca04c30daf6"
+    },
+    {
+      "index": 161,
+      "path": "artpacks/faithful-hd/assets/tileset-2/161.png",
+      "sha256": "c24e17d85ec71f0827b01ff1d99363a611b5292837a6a2fe9b17d3d1e55568b6"
+    },
+    {
+      "index": 162,
+      "path": "artpacks/faithful-hd/assets/tileset-2/162.png",
+      "sha256": "6767bf67158833948710099bc04d3084427b61b134f411c804d30186a47bc3d0"
+    }
+  ],
+  "gates": {
+    "grid_count": "pass",
+    "dimensions": "pass",
+    "index_order_visual_review": "pass",
+    "same-state_map_review": "pass-with-wip-original-icons"
+  }
+}

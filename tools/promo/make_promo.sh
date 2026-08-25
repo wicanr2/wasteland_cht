@@ -14,7 +14,7 @@ set -eu
 
 . /theme.sh
 
-SHOT=/shots; MUSIC=/music; OUT=/out; TMP=/tmp/promo
+SHOT=/shots; GAMEPLAY=/gameplay; MUSIC=/music; OUT=/out; TMP=/tmp/promo
 mkdir -p "$TMP" "$OUT"
 
 # ── 素材：掃描線圖磚（母題）─────────────────────────────────────────────
@@ -127,6 +127,17 @@ clip() { # $1 png $2 mp4 $3 秒
         -threads 2 -c:v libx264 -preset veryfast -pix_fmt yuv420p "$2"
 }
 
+# 真正遊戲視窗錄影，不以靜態截圖冒充。來源由 record_gameplay_container.sh
+# 在 Xvfb 中啟動正式 cmd/wasteland、送鍵盤事件，再用 x11grab 擷取。
+liveclip() { # $1 輸入 mp4 $2 輸出 mp4 $3 秒 $4 模式標籤
+    fo=$(awk "BEGIN{print $3-0.5}")
+    ffmpeg -y -loglevel error -i "$GAMEPLAY/$1" -t "$3" \
+        -vf "drawbox=x=22:y=18:w=390:h=52:color=black@0.68:t=fill,
+drawtext=fontfile=$FB:text='$4':fontcolor=$SAND:fontsize=28:x=42:y=30,
+fade=t=in:st=0:d=0.4,fade=t=out:st=$fo:d=0.5,format=yuv420p" \
+        -an -r $FPS -threads 2 -c:v libx264 -preset veryfast -pix_fmt yuv420p "$2"
+}
+
 # ═══ 分鏡 ═══════════════════════════════════════════════════════════════
 # 敘事骨架：**保存敘事** —— 世界觀 → 一手史料 → 玩得到的東西 → 這些字怎麼來的 → 結局 → 帳。
 
@@ -135,6 +146,12 @@ add() { # $1 png $2 秒
     n=$((n + 1))
     id=$(printf %02d $n)
     clip "$1" "$TMP/v$id.mp4" "$2"
+    echo "file '$TMP/v$id.mp4'" >> "$TMP/list.txt"
+}
+addlive() { # $1 mp4 $2 秒 $3 標籤
+    n=$((n + 1))
+    id=$(printf %02d $n)
+    liveclip "$1" "$TMP/v$id.mp4" "$2" "$3"
     echo "file '$TMP/v$id.mp4'" >> "$TMP/list.txt"
 }
 : > "$TMP/list.txt"
@@ -152,16 +169,14 @@ quote "$TMP/p03.png" \
     '—— 軟體世界中文說明書〈一、故事介紹〉，1990'
 add "$TMP/p03.png" $PACE_QUOTE
 
-slide "$TMP/p04.png" 01-map.png \
-    '四個沙漠遊俠，一張 64 × 64 的荒漠。在野外走一步，時鐘跳四分鐘。'
-add "$TMP/p04.png" $PACE_SHOT
+addlive original-live.mp4 10 '原版模式 · 正式遊戲實機操作'
 
 slide "$TMP/p05.png" combat.png \
     '命中、傷害、護甲、行動順序——公式全部從 1988 年的執行檔裡讀出來。'
 add "$TMP/p05.png" $PACE_SHOT
 
 compare2 "$TMP/p06.png" skills-en.png 03-use.png '螢幕上的字都換過了' \
-    '5,243 條譯文，連敵人名字與店家招牌這種不在字串表裡的都補上了。'
+    '5,248 條譯文，連敵人名字與店家招牌這種不在字串表裡的都補上了。'
 add "$TMP/p06.png" $PACE_CARD
 
 slide "$TMP/p07.png" 07-question.png \
@@ -181,9 +196,7 @@ slide "$TMP/p10.png" facility.png \
     '遊俠中心、商店、醫生、訓練師——招牌、選單、清單都是中文。'
 add "$TMP/p10.png" $PACE_SHOT
 
-slide "$TMP/p11.png" help.png \
-    '畫面拉到 960 × 600：中文換 24 × 24，英數用倚天同高的半形字。'
-add "$TMP/p11.png" $PACE_SHOT
+addlive reimagined-live.mp4 10 '全面重構 · 響應式實機操作'
 
 slide "$TMP/p12.png" 05-ending.png \
     '科奇斯基地的自毀倒數走完 240 步，然後是結局。'
@@ -197,11 +210,11 @@ quote "$TMP/p13.png" \
 add "$TMP/p13.png" $PACE_QUOTE
 
 stat5 "$TMP/p14.png" '42|張地圖全部解開' '124|份逆向筆記' \
-    '5,243|條文本譯成中文' '162|段劇本' '10|首自製配樂'
+    '5,248|條文本譯成中文' '162|段劇本' '20|十場景雙配樂'
 add "$TMP/p14.png" $PACE_CARD
 
 card "$TMP/p15.png" '荒野遊俠' 'github.com/wicanr2/wasteland_cht' \
-    'Go / Ebiten 重製 · 原版資料與字型玩家自備 · 不散布任何原版素材'
+    '三種美術 · 復古／現代雙配樂 · Linux / Windows / macOS'
 add "$TMP/p15.png" $PACE_CARD
 
 # ═══ 接起來 ＋ 鋪配樂 ═══════════════════════════════════════════════════
@@ -214,7 +227,9 @@ AFO=$(awk "BEGIN{print $DUR-4}")
 # ⚠ **不要用 `-shortest`。** 配樂比影片短的時候它會以音軌為準，
 # 把結尾整張卡截掉——症狀是 ffprobe 出來視訊長度變成配樂長度。
 # 先 `aloop` 無限循環再 `atrim` 剪到影片長度，兩軌自然等長。
-ffmpeg -y -loglevel error -i "$TMP/silent.mp4" -i "$MUSIC/theme.ogg" \
+THEME="$MUSIC/modern/theme.ogg"
+[ -f "$THEME" ] || THEME="$MUSIC/theme.ogg"
+ffmpeg -y -loglevel error -i "$TMP/silent.mp4" -i "$THEME" \
     -filter_complex "[1:a]aloop=loop=-1:size=2000000000,atrim=0:$DUR,\
 afade=t=in:st=0:d=2,afade=t=out:st=$AFO:d=4[a]" \
     -map 0:v -map '[a]' -threads 2 \

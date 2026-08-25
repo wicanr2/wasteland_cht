@@ -40,6 +40,8 @@
 | [`25-facility-menus.md`](25-facility-menus.md) | **READY**（已實作） | `internal/play` ✅ | 每列回呼的參數怎麼傳未解（`docs/re/53` §5）|
 | [`26-picture-animation.md`](26-picture-animation.md) | **READY**（已實作） | `internal/assets`／`internal/render` ✅ | 一拍多長沒與實機錄影對過（§5）|
 | [`27-remake-ui-additions.md`](27-remake-ui-additions.md) | **READY**（已實作） | `internal/play`／`internal/ui` ✅ | **原版沒有的東西**：功能鍵、快速存檔、背景音樂。不引用 IDA 位址，也不得被別份規格當成逆向結論 |
+| [`30-modern-art-themes.md`](30-modern-art-themes.md) | **READY（第一階段）** | `internal/artpack`（進行中） | **原版沒有的東西**：三模式新版美術、原子切換、重構模式響應式畫布與 AI 來源紀錄 |
+| [`31-dual-score.md`](31-dual-score.md) | **READY** | `internal/ui`／`internal/play`／配樂工具 | 復古 MT-32／現代雙配樂、F2 即時切換、逐曲安全退回 |
 
 **二十六份 READY 規格涵蓋資產層、呈現層、亂數、規則層十一塊、戰鬥畫面、段落手札、中文排版與翻譯管線**——
 走一步、遊戲時鐘、體力隨時間恢復、事件分派，以及**從視野掃出遭遇、生怪、下指令、

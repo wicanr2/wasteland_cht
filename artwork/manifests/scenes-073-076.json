@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "id": "faithful-hd-scenes-073-076",
+  "created_local": "2026-08-21",
+  "timezone": "Asia/Taipei",
+  "generator": "OpenAI image generation via Codex",
+  "source_prompt": "artwork/prompts/scenes-faithful-hd.md",
+  "reference_distribution": "local-only",
+  "processing": {
+    "fit": "tools/art/fit_scene.py",
+    "size": "288x252"
+  },
+  "status": "accepted-candidate",
+  "scenes": [
+    {
+      "index": 73,
+      "reference": "workplace/art-reference/scenes-8x/073.png",
+      "reference_sha256": "68d932002bc400af8dddb6b1bd3e732d4d24c67f2b14a38ae5dab3d86b2ed055",
+      "source": "artwork/source/accepted/scenes/073-source.png",
+      "source_sha256": "a456f512999b52c129abbf46c5ccd5448b22467f3b2a706a04b6e55c8ddbf61c",
+      "path": "artpacks/faithful-hd/assets/scenes/073.png",
+      "sha256": "c42b16a5c56b2500f1fb425691d3452bc0058445c7241d934b59fe406ece1718"
+    },
+    {
+      "index": 74,
+      "reference": "workplace/art-reference/scenes-8x/074.png",
+      "reference_sha256": "cf34a7153c5f61c14b4e686c6f55aff6f010b6ddba871bd971c1152a03836b91",
+      "source": "artwork/source/accepted/scenes/074-source.png",
+      "source_sha256": "c383526b2e95cb94f04099e70f49b2c867541cb50906d77655c31fe989093803",
+      "path": "artpacks/faithful-hd/assets/scenes/074.png",
+      "sha256": "db9f8b882abecff6b18463166f01364097d1532a0c51e199582f721b1418ce15"
+    },
+    {
+      "index": 75,
+      "reference": "workplace/art-reference/scenes-8x/075.png",
+      "reference_sha256": "0ec0343a386173c16f0c4b189202702f379b9aa12caf6ba340b09eea603a5f6a",
+      "source": "artwork/source/accepted/scenes/075-source.png",
+      "source_sha256": "4eebc5de8c71171a40ee97e8c33bbf0e85a4340fe2b4c250538086c3e60d0a45",
+      "path": "artpacks/faithful-hd/assets/scenes/075.png",
+      "sha256": "0b96f3fe8655ca76dc8efbf6ef48c7a41bb584a3f9dba64dd2837fc96daae1fb"
+    },
+    {
+      "index": 76,
+      "reference": "workplace/art-reference/scenes-8x/076.png",
+      "reference_sha256": "8c3e15965fc725aacd438a0720250e6a87278920dfcf8bd55b570ce75398fe84",
+      "source": "artwork/source/accepted/scenes/076-source.png",
+      "source_sha256": "6625560c712a4345e0d6400d0a75a5600429fcc355cbd7c17d429fd0568e8498",
+      "path": "artpacks/faithful-hd/assets/scenes/076.png",
+      "sha256": "bf2749cc82c6b1f75197696bcb1274ff8667579b2b7634d039ce8694c2952c2a"
+    }
+  ],
+  "gates": {
+    "dimensions": "pass",
+    "semantic_reference_review": "pass",
+    "false_affordance_review": "pass",
+    "in_game_review": "pending"
+  }
+}

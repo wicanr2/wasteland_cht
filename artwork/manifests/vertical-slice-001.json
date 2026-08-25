@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "id": "vertical-slice-001",
+  "created_local": "2026-08-21",
+  "timezone": "Asia/Taipei",
+  "generator": "OpenAI image generation via Codex",
+  "prompt": "artwork/prompts/vertical-slice-001.md",
+  "status": "prototype-only",
+  "outputs": [
+    {
+      "path": "artpacks/prototype-faithful-hd/prototype-faithful-hd.png",
+      "sha256": "e72e4c23b824c813c4c55559ed95f7b58049032c0b983dd17a82535957a2f92e"
+    },
+    {
+      "path": "artpacks/prototype-reimagined/prototype-reimagined.png",
+      "sha256": "0af3d6934acc29d5b76a3206e02fd60f550dadade139701f70c4a3c2b49597a7"
+    }
+  ],
+  "notes": [
+    "不計入正式 tileset、sprite 或 82 張場景覆蓋率",
+    "沒有使用原版像素或特定第三方 IP 圖像作輸入"
+  ]
+}

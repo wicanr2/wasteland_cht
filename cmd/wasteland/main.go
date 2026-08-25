@@ -51,6 +51,8 @@ func main() {
 	// 背景音樂目錄。**原版沒有 BGM**，這是重製版加的；曲子要自己跑
 	// `tools/render_music.sh` 算出來（ogg 不入版控）。載不到就靜靜沒有音樂。
 	musicDir := flag.String("music", "workplace/music", "背景音樂目錄（*.ogg，空 ＝ 不播）")
+	artMode := flag.String("art-mode", "original", "美術模式：original｜faithful-hd｜reimagined")
+	artRoot := flag.String("art-root", "artpacks", "新版美術包根目錄")
 	flag.Parse()
 
 	rom, err := assets.Open(*romDir)
@@ -68,6 +70,10 @@ func main() {
 			if err == nil {
 				s.SetSaveDir(*saveDir)
 				s.SetQuickSavePath(*quickSave)
+				s.SetArtRoot(*artRoot)
+				if aerr := s.SelectArtMode(*artRoot, *artMode); aerr != nil {
+					err = fmt.Errorf("載入美術模式：%w", aerr)
+				}
 				if *saveDir == "" {
 					fmt.Fprintln(os.Stderr,
 						"提示：沒給 -save-dir，指令列的 Save 只會更新記憶體、不寫檔")

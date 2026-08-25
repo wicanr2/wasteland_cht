@@ -39,9 +39,9 @@ func TestPortraitCaptionCentered(t *testing.T) {
 func TestFitCaption(t *testing.T) {
 	for _, tc := range []struct{ in, want string }{
 		{"變種人", "變種人"},
-		{"變種人（Mutant）", "變種人（Mutant）"}, // 11 格，剛好放得下
-		{"掠奪者（Marauder）", "掠奪者"},        // 13 格 → 退成中文那一段
-		{"一二三四五六七八九十一二", "一二三四五六七八九十一二"}, // 剛好 12 格
+		{"變種人（Mutant）", "變種人（Mutant）"},    // 11 格，剛好放得下
+		{"掠奪者（Marauder）", "掠奪者"},          // 13 格 → 退成中文那一段
+		{"一二三四五六七八九十一二", "一二三四五六七八九十一二"},  // 剛好 12 格
 		{"一二三四五六七八九十一二三", "一二三四五六七八九十一二"}, // 沒有括號 → 截
 	} {
 		if got := fitCaption(tc.in); got != tc.want {
@@ -50,6 +50,19 @@ func TestFitCaption(t *testing.T) {
 		if n := utf8.RuneCountInString(fitCaption(tc.in)); n > portraitCaptionCells {
 			t.Errorf("%q 之後還是 %d 格", tc.in, n)
 		}
+	}
+}
+
+func TestFacilityNameUsesCaptionSafeRect(t *testing.T) {
+	got := facilityDisplayLine(0, "遊俠中心（Ranger Center.）")
+	if got != "遊俠中心" {
+		t.Fatalf("設施招牌 = %q，預期保留框內中文名", got)
+	}
+	if n := utf8.RuneCountInString(got); n > portraitCaptionCells {
+		t.Fatalf("設施招牌仍佔 %d 格，超過 %d", n, portraitCaptionCells)
+	}
+	if got := facilityDisplayLine(1, "C建立  D刪除  P開始遊戲"); got != "C建立  D刪除  P開始遊戲" {
+		t.Fatalf("選單列不應被招牌規則修改：%q", got)
 	}
 }
 

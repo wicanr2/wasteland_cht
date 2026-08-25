@@ -43,6 +43,7 @@ func main() {
 	journal := flag.Int("journal", 0, "play 模式：打開手札停在這一頁（1 起算，0 ＝ 不開）")
 	ending := flag.Bool("ending", false, "play 模式：直接進結局")
 	endingTicks := flag.Int("ending-ticks", 130, "結局播到第幾個 tick 再截圖")
+	fight := flag.Bool("fight", false, "play 模式：在目前位置開始遭遇（驗收截圖用）")
 	// 功能鍵不是字元，`-keys` 送不出去（那一支收的是 ASCII）。
 	fn := flag.String("fn", "", "play 模式：`-keys` 之後送的功能鍵，逗號分隔（help｜settings｜quit）")
 	// ⚠ 原版的亂數靠鍵盤輪詢推進（`docs/re/13`），無頭預設不推是為了可重現。
@@ -51,13 +52,20 @@ func main() {
 	poll := flag.Int("poll", 0, "play 模式：每個按鍵之前推進亂數 N 次")
 	titleScreen := flag.Bool("title", false, "play 模式：停在標題畫面（玩家開機看到的那一張）")
 	cursor := flag.String("cursor", "", "play 模式：把滑鼠游標畫在 x,y（高解畫布的像素）")
+	artPreview := flag.String("art-preview", "", "play 模式：faithful-hd｜reimagined（完整美術包同狀態驗證）")
+	artRoot := flag.String("art-root", "artpacks", "新版美術包根目錄")
+	artWidth := flag.Int("art-width", 1280, "reimagined 截圖邏輯寬度")
+	artHeight := flag.Int("art-height", 720, "reimagined 截圖邏輯高度")
 	flag.Parse()
 
 	opt := shotOptions{
 		lang: *langFile, font: *fontDir, refs: *refsFile,
 		paragraphs: *paraFile, keys: *keys, mapID: *mapID,
 		journal: *journal, ending: *ending, endingTicks: *endingTicks,
-		fn: *fn, poll: *poll, title: *titleScreen, cursor: *cursor,
+		fight: *fight,
+		fn:    *fn, poll: *poll, title: *titleScreen, cursor: *cursor,
+		artPreview: *artPreview, artRoot: *artRoot,
+		artWidth: *artWidth, artHeight: *artHeight,
 	}
 	if err := run(*romDir, *imagePath, *mode, *block, *pic, *out, *at, *hour, opt); err != nil {
 		fmt.Fprintln(os.Stderr, "錯誤：", err)
@@ -97,11 +105,14 @@ type shotOptions struct {
 	mapID                        int
 	journal                      int
 	ending                       bool
+	fight                        bool
 	endingTicks                  int
 	fn                           string
 	poll                         int
 	title                        bool
 	cursor                       string
+	artPreview, artRoot          string
+	artWidth, artHeight          int
 }
 
 // sendFn 送一個面板類的功能鍵。
@@ -213,7 +224,31 @@ func run(romDir, imagePath, mode string, blockID, picID int,
 				return err
 			}
 		}
-		if hasFont {
+		if opt.fight {
+			combat, ferr := scene.StartEncounter()
+			if ferr != nil {
+				return ferr
+			}
+			if combat == nil {
+				return fmt.Errorf("目前位置沒有可開始的遭遇")
+			}
+		}
+		if opt.artPreview != "" {
+			if opt.artPreview != "faithful-hd" && opt.artPreview != "reimagined" {
+				return fmt.Errorf("-art-preview 只接受 faithful-hd｜reimagined")
+			}
+			if err := scene.SelectArtMode(opt.artRoot, opt.artPreview); err != nil {
+				return err
+			}
+			if opt.artPreview == "reimagined" {
+				scene.SetArtViewport(opt.artWidth, opt.artHeight)
+			}
+			img, err = scene.ArtFrame()
+			if err != nil {
+				return err
+			}
+			w, h = img.Bounds().Dx(), img.Bounds().Dy()
+		} else if hasFont {
 			// 有字型就走 640 × 400 的中文畫面（`docs/spec/10`）。
 			img = scene.HiFrame().ToImage()
 			w, h = render.HiScreenWidth, render.HiScreenHeight

@@ -69,6 +69,8 @@ ui:settings.title	SETTINGS
 ui:settings.music	Music:
 ui:settings.volume	Volume:
 ui:settings.sfx	Sound:
+ui:settings.retro	Retro score
+ui:settings.modern	Modern score
 ui:settings.on	ON
 ui:settings.off	OFF
 ui:settings.close	ESC close

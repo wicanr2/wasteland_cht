@@ -25,6 +25,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/wicanr2/wasteland_cht/internal/artpack"
 	"github.com/wicanr2/wasteland_cht/internal/game"
 	"github.com/wicanr2/wasteland_cht/internal/game/rng"
 	"github.com/wicanr2/wasteland_cht/internal/input"
@@ -183,8 +184,27 @@ func (s *Scene) reloadFromSave() error {
 	if err != nil {
 		return err
 	}
+	var faithfulMap *artpack.FaithfulMap
+	if s.faithful != nil && s.artBundle != nil {
+		faithfulMap, err = artpack.LoadFaithfulBundleMap(s.artBundle, block.Tileset, len(tiles))
+		if err != nil {
+			return fmt.Errorf("準備新版地圖美術：%w", err)
+		}
+	} else if s.reimagined != nil && s.artBundle != nil {
+		faithfulMap, err = artpack.LoadReimaginedBundleMap(s.artBundle, block.Tileset, len(tiles))
+		if err != nil {
+			return fmt.Errorf("準備全面重構地圖美術：%w", err)
+		}
+	}
 	skills := s.world.Skills
 	s.gfx.Tiles = tiles
+	if faithfulMap != nil {
+		if s.faithful != nil {
+			s.faithful.Map = faithfulMap
+		} else {
+			s.reimagined.Map = faithfulMap
+		}
+	}
 	s.world = game.NewWorld(block, party, rng.New())
 	s.world.Clock = loadClock(s.save)
 	s.world.Skills = skills
