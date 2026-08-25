@@ -164,9 +164,10 @@ jnb  失敗
 印 `'Create a character.'`／`'Keep this char?'` 的那一支（789 bytes、1 個呼叫端）。
 
 ```
-找空槽                      掃隊伍，rec[+0x29] ＝ 0 的算空；滿 4 個就印
+數 PC                       掃隊伍，數 rec[+0x29] ＝ 0 的人（＝ 玩家自建的 PC，
+                            **+0x29 是 NPC 旗標**，docs/re/133 §1）；滿 4 個就印
                             'You cannot create any more characters.'
-整筆清零                    rec[0..255] ← 0
+整筆清零                    rec[0..255] ← 0（新記錄編號取自 ds:4656h 總人數計數）
 性別                        roll(1..2) → 決定拿哪一把起始手槍（§5.1）
 七個屬性                    bl 從 0x0E 跑到 0x14，每格 ＝ sub_1CAD1()
 MAXCON ＝ CON               sub_1CAD1() ＋ 18，兩者寫成同一個值

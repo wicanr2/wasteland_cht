@@ -134,7 +134,7 @@ func TestCharViewTrade(t *testing.T) {
 		t.Fatal(err)
 	}
 	giver := s.World().Party.Members[0]
-	giver.RecordUsed = 0 // 跳過拒絕檢定，讓結果可預期
+	// 出廠 Ranger 是 PC（+0x29 ＝ 0，docs/re/133），本來就不跑拒絕檢定。
 	if _, err := s.Update(key('1')); err != nil {
 		t.Fatal(err)
 	}

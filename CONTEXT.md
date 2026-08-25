@@ -331,6 +331,8 @@
 | [`docs/re/130-chest-loot-pickup.md`](docs/re/130-chest-loot-pickup.md) | 寶箱的撿拾流程：誰要撿 → 逐件拿 → 拿完用位移 0 改寫；現金 3 bytes、`0x00` 是空格不是結束 |
 | [`docs/re/131-character-screen.md`](docs/re/131-character-screen.md) | 角色畫面：地圖數字鍵、裝備／裝填／卸卡彈／交給隊友，與 `+0x25`、`+0x2E` |
 | [`docs/re/132-use-direction.md`](docs/re/132-use-direction.md) | 地圖 `USE` 也問方向：目標格、`ds:A5D9h` 與成功後走一步 |
+| [`docs/re/133-medic-doctor-and-npc-flag.md`](docs/re/133-medic-doctor-and-npc-flag.md) | Medic／Doctor 急救特例；`+0x29` ＝ NPC 旗標（推翻「槽有人」）|
+| [`docs/re/134-item-reorder.md`](docs/re/134-item-reorder.md) | 物品重排：Ctrl+R、裝備索引重對應、兩張清單相反的取消政策 |
 | [`docs/spec/00-index.md`](docs/spec/00-index.md) | **規格索引與閘門狀態**：哪些可以動工、其餘擋在什麼上 |
 | [`docs/spec/01-assets-and-formats.md`](docs/spec/01-assets-and-formats.md) | READY：資源定址、解密、Huffman、5-bit 文字、字型、圖片、圖磚、地圖三層 ＋ Go 介面草案 |
 | [`docs/spec/02-rng-and-dice.md`](docs/spec/02-rng-and-dice.md) | READY：進位鏈亂數與四支擲骰，含驗收數列 |
@@ -406,10 +408,11 @@
 人工試玩回報的處理結果」）：地圖名單切換（空白鍵，實機對拍）、創角
 `Keep this char?` 重擲、寶箱撿拾（新筆記 `docs/re/130`）、移動閘通過後的
 改寫收尾都補上了；「創角不配技能」「地圖 `USE` 不問方向」「多數門不用開鎖」
-查證為**原版行為**。第二輪把剩下兩項也做完：**角色畫面**（地圖 `1`–`7` 或
-點名片行；裝備／裝填／卸卡彈／交給隊友，含 `+0x25`、`+0x2E` 兩個新解欄位，
-`docs/re/131`）與 **地圖 `USE` 問方向**（目標 ＝ 方向那一格，成功真的改寫
-就走一步，`docs/re/132`——先前「地圖 USE 不問方向」是筆記漏讀）。
+查證為**原版行為**。第二、三輪把追加項也做完：**角色畫面**（`docs/re/131`）、
+**地圖 `USE` 問方向**（`docs/re/132`）、**Medic／Doctor 急救**與
+**物品重排**（`docs/re/133`／`134`）。過程中推翻一條舊斷言：
+`+0x29` 是 **NPC 旗標**不是「槽有人」（出廠 Ranger 全是 0）——
+會拒絕交易／出手的只有 NPC，自建 PC 上限 4 照 `sub_1C6C9`。
 
 **抽樣試玩第一輪已做**（`docs/re/97`）：七段流程各走一遍，
 建角色、遇敵打完、商店買賣、`USE` 開閘、讀段落、存檔重開都通了。

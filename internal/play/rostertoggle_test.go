@@ -69,6 +69,7 @@ func TestCreateKeepLoopRerolls(t *testing.T) {
 		t.Fatal(err)
 	}
 	s.beginRoster()
+	deleteOneForCreate(t, s)
 	if _, err := s.Update(key('C')); err != nil {
 		t.Fatal(err)
 	}

@@ -35,8 +35,9 @@ type rosterState struct {
 	cand *game.Character
 }
 
-// recRosterUsed 是角色記錄「這一格有沒有人」的旗標位移（`docs/re/21` §5）。
-const recRosterUsed = 0x29
+// maxCreatedPCs 是自建 PC 的上限（原版 `sub_1C6C9` 數隊伍裡 `+0x29` ＝ 0
+// 的人數，滿 4 個就拒絕，`docs/re/133` §1）。
+const maxCreatedPCs = 4
 
 // 角色管理用到的原版字串編號（**字串表 3**，不是表 1）。
 const (
@@ -56,21 +57,39 @@ func (s *Scene) beginRoster() {
 	s.dirty = true
 }
 
-// freeRecord 找一個空的角色記錄槽。
+// freeRecord 找一個沒被任何一組隊伍槽表引用的角色記錄。
 //
 // 記錄 0 是全域狀態，角色從 1 起（`docs/spec/05` §2）。
-// 空的判準照原版：`+0x29` ＝ 0。
+// ⚠ **不能拿 `+0x29` 當「槽有人」**——那是 NPC 旗標，出廠 Ranger 的值
+// 是 0，拿它判空會把 Hell Razor 的記錄當成空槽蓋掉（`docs/re/133` §1）。
+// 原版的配置走總人數計數（`ds:4656h`）；這裡等價地掃四組槽表。
 func (s *Scene) freeRecord() (int, bool) {
-	for n := 1; n < 8; n++ {
-		raw, err := s.save.Record(n)
-		if err != nil {
-			break
+	used := map[byte]bool{}
+	for _, g := range s.save.SlotGroups() {
+		tab := s.save.Plain[g.RawIndex : g.RawIndex+14]
+		for i := 0; i < 8; i++ {
+			if tab[i] != 0 {
+				used[tab[i]] = true
+			}
 		}
-		if len(raw) > recRosterUsed && raw[recRosterUsed] == 0 {
-			return n, true
+	}
+	for n := byte(1); n < 8; n++ {
+		if !used[n] {
+			return int(n), true
 		}
 	}
 	return 0, false
+}
+
+// canCreatePC 照原版數自建 PC（`+0x29` ＝ 0）的人數，滿 4 個就不能再建。
+func (s *Scene) canCreatePC() bool {
+	n := 0
+	for _, m := range s.world.Party.Members {
+		if m != nil && m.NPCFlag == 0 {
+			n++
+		}
+	}
+	return n < maxCreatedPCs
 }
 
 // rollCandidate 擲一個候選角色並停在 `Keep this char?` 上
@@ -152,8 +171,7 @@ func (s *Scene) commitCharacter(c *game.Character) error {
 	for i := range raw {
 		raw[i] = 0
 	}
-	c.StoreTo(raw)
-	raw[recRosterUsed] = 1 // 這一格有人了
+	c.StoreTo(raw) // +0x29 保持 0：PC 不是 NPC（docs/re/133 §1）
 
 	// 放進目前這一組的隊伍槽表的第一個空格。
 	groups := s.save.SlotGroups()
@@ -229,7 +247,7 @@ func (s *Scene) updateRoster(in input.Input) (bool, error) {
 	}
 	switch input.Upper(in.Char) {
 	case 'C':
-		if _, ok := s.freeRecord(); !ok {
+		if _, ok := s.freeRecord(); !ok || !s.canCreatePC() {
 			s.sayT(exeTableRoster, strNoMoreChars, textlayout.Options{})
 			return true, nil
 		}

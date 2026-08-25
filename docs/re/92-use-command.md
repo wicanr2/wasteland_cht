@@ -205,8 +205,10 @@ remake 這一側以前只印訊息、不改寫，於是**鑰匙插進去會說 `
 ## 5. 還沒解的
 
 - 匯合段的 `sub_13E85`／`sub_14175`／`sub_142E2`／`sub_142B1`。
-- `loc_13D82`（Medic／Doctor）那條特例。
 - `ds:472Ch` 旗標的語意。
+
+（`loc_13D82` 的 Medic／Doctor 特例已解在 [`133`](133-medic-doctor-and-npc-flag.md)：
+對 CON < 0 的隊員急救，成功把負血折半。）
 
 （`loc_13D16`／`loc_13D3F` 的收尾與 `sub_1652D`／`sub_1651A` 的方向來源
 已解在 [`132`](132-use-direction.md)：方向是玩家在 `Which way?` 選的，

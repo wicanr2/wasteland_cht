@@ -54,17 +54,17 @@ func TestTradeRefused(t *testing.T) {
 
 // 倒下的人不會拒絕；+0x29 ＝ 0 也不檢定。
 func TestTradeNeedsCheck(t *testing.T) {
-	up := &Character{RecordUsed: 1, CON: 10}
+	up := &Character{NPCFlag: 1, CON: 10}
 	if !TradeNeedsCheck(up) {
-		t.Error("站著的隊員應該要檢定")
+		t.Error("站著的 NPC 應該要檢定")
 	}
-	down := &Character{RecordUsed: 1, CON: 0}
+	down := &Character{NPCFlag: 1, CON: 0}
 	if TradeNeedsCheck(down) {
-		t.Error("倒下的人不該拒絕")
+		t.Error("倒下的 NPC 不該拒絕")
 	}
-	npc := &Character{RecordUsed: 0, CON: 10}
-	if TradeNeedsCheck(npc) {
-		t.Error("+0x29 ＝ 0 不檢定")
+	pc := &Character{NPCFlag: 0, CON: 10}
+	if TradeNeedsCheck(pc) {
+		t.Error("PC（+0x29 ＝ 0）不檢定——自己人不會拒絕你")
 	}
 }
 
@@ -158,5 +158,74 @@ func TestCellPatchRewrote(t *testing.T) {
 		if got := CellPatchRewrote(rec, tc.at); got != tc.want {
 			t.Errorf("位移 %d：want %v got %v", tc.at, tc.want, got)
 		}
+	}
+}
+
+// 急救（loc_13D82，docs/re/133 §2）：只救 CON < 0 未死的人；成功負血折半。
+func TestFirstAid(t *testing.T) {
+	// 合成技能表：Medic（25）的檢定屬性 ＝ IQ（+0x0F）。
+	tbl := make(SkillBytes, 72)
+	tbl[int(SkillMedic)*2+1] = 0x0F
+	r := rng.New()
+	pumpRNG(r, 55)
+
+	healer := &Character{Skills: make([]Slot, 30)}
+	healer.Attributes[AttrIQ] = 25
+	healer.Skills[0] = Slot{ID: SkillMedic, Value: 3}
+
+	// 沒倒的救不了（原版靜靜收場）。
+	up := &Character{CON: 5}
+	if got := healer.FirstAid(r, up, SkillMedic, tbl); got != FirstAidNotDown {
+		t.Fatalf("CON 5 不該能急救，得到 %d", got)
+	}
+	dead := &Character{CON: 0}
+	if got := healer.FirstAid(r, dead, SkillMedic, tbl); got != FirstAidNotDown {
+		t.Fatalf("死人不該能急救，得到 %d", got)
+	}
+
+	// CON −8 → Medic 難度 ＝ 2、門檻 25：高 IQ＋技能多試必中；成功 −8 → −4。
+	okSeen := false
+	for i := 0; i < 40 && !okSeen; i++ {
+		down := &Character{CON: -8}
+		if healer.FirstAid(r, down, SkillMedic, tbl) == FirstAidOK {
+			okSeen = true
+			if down.CON != -4 {
+				t.Fatalf("成功要把 CON 折半靠向 0：−8 → %d", down.CON)
+			}
+		}
+	}
+	if !okSeen {
+		t.Fatal("40 次一次都沒成功——公式接錯了")
+	}
+	// Doctor 的難度比 Medic 低一半（>>3 vs >>2）：同一傷勢門檻更低。
+	if m, d := 5*(8>>2)+15, 5*(8>>3)+15; !(d < m) {
+		t.Fatalf("Doctor 門檻應該比 Medic 低：%d vs %d", d, m)
+	}
+}
+
+// 重排（docs/re/134）：挑走的順位＝新位置，裝備索引跟著搬。
+func TestReorderItems(t *testing.T) {
+	c := &Character{Items: make([]Slot, 30)}
+	c.Items[0] = Slot{ID: 13, Value: 7} // 手槍（裝備中）
+	c.Items[1] = Slot{ID: 30, Value: 1} // 彈匣
+	c.Items[3] = Slot{ID: 38, Value: 0} // 皮夾克（護甲，裝備中）
+	c.EquipIndex = 1                    // 槽 0 ＋ 1
+	c.ArmorIndex = 4                    // 槽 3 ＋ 1
+
+	c.ReorderItems([]int{3, 1, 0}) // 夾克、彈匣、手槍
+	want := []byte{38, 30, 13}
+	for i, id := range want {
+		if c.Items[i].ID != id {
+			t.Fatalf("槽 %d 應該是 %d，得到 %d", i, id, c.Items[i].ID)
+		}
+	}
+	if c.Items[3].ID != 0 {
+		t.Error("原槽 3 應該清空")
+	}
+	if c.ArmorIndex != 1 {
+		t.Errorf("護甲索引應該跟到新位置 1，得到 %d", c.ArmorIndex)
+	}
+	if c.EquipIndex != 3 {
+		t.Errorf("武器索引應該跟到新位置 3，得到 %d", c.EquipIndex)
 	}
 }
