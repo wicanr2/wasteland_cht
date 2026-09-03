@@ -452,6 +452,11 @@ tools/render_music.sh                             # → workplace/music/*.ogg
 
 ## 版權
 
+程式碼、文件、逆向筆記、譯文與工具採 **RRSAL-1.0**（復古重製 source-available 授權條款，
+SPDX `LicenseRef-RRSAL-1.0`）：非商業用途免費（含修改與再散布）；實況、影片、報導與平台分潤
+明示允許，但要署名；商業用途需事先書面授權（wicanr2@gmail.com，歡迎來談）。這不是開放原始碼
+授權，對外稱 source-available。條款全文、不涵蓋的原版素材與第三方元件見 [`LICENSE`](LICENSE)。
+
 不散布原版執行檔、資料檔、美術、音樂、說明書掃描與字型。
 本專案公開的只有引擎程式碼、工具與翻譯文本，玩家需自備合法原版。
 上面的畫面截圖僅供展示重製進度。
