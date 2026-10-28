@@ -25,12 +25,16 @@ func (s *Scene) SelectArtMode(root, mode string) error {
 		s.dirty = true
 		return nil
 	}
-	if mode != string(artpack.ModeFaithfulHD) && mode != string(artpack.ModeReimagined) {
+	if mode != string(artpack.ModeFaithfulHD) && mode != string(artpack.ModeReimagined) && mode != "hd2-a" && mode != "hd2-b" {
 		return fmt.Errorf("尚未提供美術模式 %q 的 renderer", mode)
 	}
 	bundle, err := artpack.Load(filepath.Join(root, mode))
 	if err != nil {
 		return err
+	}
+	if (mode == "hd2-a" || mode == "hd2-b") &&
+		(bundle.Manifest.ID != mode || bundle.Manifest.Mode != artpack.ModeFaithfulHD) {
+		return fmt.Errorf("HD2 美術包身分不匹配：%s", mode)
 	}
 	if mode == string(artpack.ModeReimagined) {
 		prepared, err := artpack.LoadReimaginedComplete(bundle, s.world.Block.Tileset, len(s.gfx.Tiles))
@@ -71,7 +75,7 @@ func (s *Scene) ArtFrame() (*image.RGBA, error) {
 	if s.ArtMode() == string(artpack.ModeReimagined) {
 		return s.reimaginedFrame()
 	}
-	if s.faithful == nil || s.ArtMode() != string(artpack.ModeFaithfulHD) {
+	if s.faithful == nil || (s.ArtMode() != string(artpack.ModeFaithfulHD) && s.ArtMode() != "hd2-a" && s.ArtMode() != "hd2-b") {
 		return nil, fmt.Errorf("目前不是 faithful-hd 模式")
 	}
 	content := s.HiFrame().ToImage()

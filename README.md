@@ -1,5 +1,8 @@
 # Wasteland 荒野遊俠 — 逆向、重製與繁體中文化
 
+目前修正與限制見 [CONTEXT.md](CONTEXT.md)，工作歷程見 [WORKLOG.md](WORKLOG.md)。
+舊 HD 已移出玩家選單，HD2 A／B 正在製作，尚未提供完整美術包。
+
 1988 年，Interplay 做出了《Wasteland》。核廢土、變種人、一支叫 Desert Rangers 的
 巡守隊——後來《異塵餘生》的血緣從這裡開始。1990 年前後它進了台灣，
 軟體世界替它印了一本中文說明書，把它譯成《荒野遊俠》。

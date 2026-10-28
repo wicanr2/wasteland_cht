@@ -56,6 +56,7 @@ func (s *Scene) checkWipe() {
 
 // beginWipe 進死亡畫面。
 func (s *Scene) beginWipe() {
+	s.resetModes()
 	s.wipe = wipeState{active: true}
 	// 兩段文字從映像直讀——它們是原版的字，不是我們編的。
 	if s.rom != nil {
@@ -66,8 +67,6 @@ func (s *Scene) beginWipe() {
 			s.wipe.text = strings.TrimRight(cutAtNUL(string(b)), "\r ")
 		}
 	}
-	s.resetModes()
-	s.wipe.active = true // resetModes 會清掉所有模式，這一個要留著
 	s.message = s.wipe.text
 	if zh := s.uiText("wipe.message"); len(zh) > 0 {
 		s.message, s.cjk = "", zh
@@ -96,16 +95,27 @@ func (s *Scene) wipePlaceCJK() string { return s.uiText("wipe.place") }
 // updateWipe 是死亡畫面的按鍵：**任何鍵都回標題畫面**。
 //
 // ⚠ 原版按鍵之後回到哪裡還沒讀出來（`sub_18E90` 之後那一段沒追），
-// 回標題是重製版的決定。原版沒有遊戲內的重新開始——重來要離開遊戲跑
-// `SETUP.EXE`（`docs/re/99` §1），重製版不假裝有那個選項，
-// 玩家自己決定要不要按 F9 讀快速存檔。
+// 回標題與重建隊伍是重製版決策（規格 28 的 2026-10-28 修正）。
+// 原版重來要離開遊戲跑 `SETUP.EXE`；F9 仍可直接讀取快速存檔。
 func (s *Scene) updateWipe(in input.Input) (bool, error) {
 	if in.Dir == input.DirNone && in.Action == input.ActionNone &&
 		in.Char == 0 && in.Fn == input.FnNone {
 		return true, nil
 	}
-	s.wipe = wipeState{}
-	s.message, s.cjk = "", ""
+	// 保留字型、美術、設定與快速存檔路徑，只重建這一局的資料。
+	fresh, err := New(s.rom)
+	if err != nil {
+		return true, err
+	}
+	next := *s
+	next.save, next.maps = fresh.save, fresh.maps
+	next.groupID = 0
+	if err := next.reloadFromSave(); err != nil {
+		return true, err
+	}
+	next.items, next.itemsRaw, next.itemStock = fresh.items, fresh.itemsRaw, fresh.itemStock
+	next.rosterOn = false
+	*s = next
 	s.BeginTitle()
 	return true, nil
 }

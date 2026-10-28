@@ -65,6 +65,10 @@ func TestSaveCommandWritesToDisk(t *testing.T) {
 	}
 	wantX, wantY := s.World().Party.X, s.World().Party.Y
 	wantClock := s.World().Clock
+	if err := s.world.Block.SetCell(1, 1, 0, 0); err != nil {
+		t.Fatal(err)
+	}
+	s.world.Block.Graphic[1+s.world.Block.Dim] = 10
 	confirmed(t, s, 'S')
 	if got := s.Message(); got != "Game saved." {
 		t.Fatalf("存檔訊息是 %q，預期 \"Game saved.\"", got)
@@ -81,6 +85,11 @@ func TestSaveCommandWritesToDisk(t *testing.T) {
 	s2, err := New(rom2)
 	if err != nil {
 		t.Fatalf("從寫出去的存檔開場失敗：%v", err)
+	}
+	s2.SetSaveDir(dir)
+	terrain, record, graphic, err := s2.world.Block.At(1, 1)
+	if err != nil || terrain != 0 || record != 0 || graphic != 10 {
+		t.Fatalf("一般存檔遺失地圖改動：%d/%d/%d, %v", terrain, record, graphic, err)
 	}
 	if x, y := s2.World().Party.X, s2.World().Party.Y; x != wantX || y != wantY {
 		t.Errorf("重開後在 (%d,%d)，存檔時是 (%d,%d)", x, y, wantX, wantY)

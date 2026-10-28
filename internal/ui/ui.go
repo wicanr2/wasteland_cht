@@ -217,7 +217,7 @@ func (g *Game) Update() error {
 	mx, my := ebiten.CursorPosition()
 	// faithful-hd 把既有 960×600 合成置中於 960×720；遊戲規則仍使用
 	// 原本的內容座標，因此先扣掉上下各 60 像素的黑邊。
-	if g.art != nil && (g.art.ArtMode() == "original" || g.art.ArtMode() == "faithful-hd") {
+	if g.art != nil && g.art.ArtMode() != "reimagined" {
 		my -= 60
 	}
 	g.mouse = input.Mouse{
@@ -364,7 +364,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 		}
 		return w, h
 	}
-	if g.art != nil && (g.art.ArtMode() == "original" || g.art.ArtMode() == "faithful-hd") {
+	if g.art != nil && g.art.ArtMode() != "reimagined" {
 		return 960, 720
 	}
 	if g.hi != nil {

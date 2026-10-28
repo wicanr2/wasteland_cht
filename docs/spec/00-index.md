@@ -13,6 +13,7 @@
 
 | 規格 | 狀態 | 對應的 `internal/` | 擋住它的東西 |
 |---|---|---|---|
+| [32-hd2.md](32-hd2.md) | 模式接點 READY，素材 DRAFT | `internal/play`、`artpacks` | A／B 方向已確認，城市樣張與正式資產待驗 |
 | [`01-assets-and-formats.md`](01-assets-and-formats.md) | **READY**（已實作） | `internal/assets` ✅ | — |
 | [`02-rng-and-dice.md`](02-rng-and-dice.md) | **READY**（已實作） | `internal/game/rng` ✅ | — |
 | [`03-screen-and-text.md`](03-screen-and-text.md) | **READY**（已實作） | `internal/textlayout` ✅、`internal/render` ✅、`internal/ui` ✅ | — |

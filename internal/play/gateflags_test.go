@@ -45,6 +45,63 @@ func nibble2Records(t *testing.T) [][]byte {
 //
 // 四條分支都有記錄會走到——**沒有一條是死碼**，所以四條都得實作
 // （docs/re/69）。數字寫進測試，解析出問題會直接紅。
+func TestUnmetItemAndSkillGatesBlockMovement(t *testing.T) {
+	rom := openRom(t)
+	resources, err := rom.Resources()
+	if err != nil {
+		t.Fatal(err)
+	}
+	checked := 0
+	for _, res := range resources {
+		b, err := rom.BlockByID(res.ID)
+		if err != nil {
+			t.Fatal(err)
+		}
+		seen := map[byte]bool{}
+		for y := 1; y < b.Dim-1; y++ {
+			for x := 1; x < b.Dim-1; x++ {
+				nibble, idx, _, _ := b.At(x, y)
+				if nibble != 2 || seen[idx] {
+					continue
+				}
+				seen[idx] = true
+				rec, err := b.SectionRecord(2, int(idx))
+				if err != nil || len(rec) == 0 || rec[0]&0xC0 != 0x40 {
+					continue
+				}
+				gates := game.ParseGates(rec)
+				onlyItemsAndSkills := len(gates) > 0
+				for _, g := range gates {
+					if g.Type == game.GateAttribute || g.Type == game.GatePartySize || g.Type == game.GateMoney {
+						onlyItemsAndSkills = false
+					}
+				}
+				if !onlyItemsAndSkills {
+					continue
+				}
+				s := newScene(t)
+				if err := s.LoadMap(res.ID, uint8(x-1), uint8(y)); err != nil {
+					t.Fatal(err)
+				}
+				// 控制條件：沒有技能與物品。仍由正常方向鍵走移動入口。
+				for _, c := range s.world.Party.Members {
+					c.Items = make([]game.Slot, len(c.Items))
+					c.Skills = make([]game.Slot, len(c.Skills))
+				}
+				step(t, s, input.Input{Dir: input.DirRight})
+				if int(s.world.Party.X) != x-1 || int(s.world.Party.Y) != y {
+					t.Fatalf("未滿足條件卻穿過：map=%d, cell=(%d,%d), record=%d", res.ID, x, y, idx)
+				}
+				checked++
+			}
+		}
+	}
+	if checked == 0 {
+		t.Fatal("沒有抽查到移動條件閘")
+	}
+	t.Logf("已驗證 %d 筆實際技能／物品移動閘", checked)
+}
+
 func TestGateFlagsAppearInShippedData(t *testing.T) {
 	recs := nibble2Records(t)
 	if len(recs) != 424 {

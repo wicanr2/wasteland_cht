@@ -63,10 +63,13 @@ for d in manual manual-cht paragraphs walkthrough; do
 done
 cp "$ROOT/README.md" "$D/docs/README-專案.md"
 
-# —— remake 自製新版美術（兩種包都可散布）——————————————————————
-# 這兩包不含玩家自備的 ROM／原版檔；啟動器以絕對路徑傳入，避免桌面啟動時
-# 工作目錄不同而只能看到 original。
-cp -a "$ROOT/artpacks/faithful-hd" "$ROOT/artpacks/reimagined" "$D/artpacks/"
+# —— HD2 候選；舊 HD 已取消，不再加入新封包 ———————————————————
+# 正式完整包尚未建立時只交付 original，不借用舊 HD。
+for art in hd2-a hd2-b; do
+    if [ -f "$ROOT/artpacks/$art/manifest.json" ]; then
+        cp -a "$ROOT/artpacks/$art" "$D/artpacks/"
+    fi
+done
 
 # —— local-full：原版素材 ————————————————————————————————————
 if [ "$MODE" = local-full ]; then

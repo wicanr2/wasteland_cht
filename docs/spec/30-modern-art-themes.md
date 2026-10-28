@@ -1,5 +1,9 @@
 # 30：新版美術主題與動態畫布規格 — **IMPLEMENTED**
 
+> 2026-10-28：使用者取消現有 `faithful-hd`／`reimagined`。兩者移出玩家選單與
+> 啟動選項；原始候選保留供追溯，不當作 HD2。後續決策見
+> [32-hd2.md](32-hd2.md)。下文保存舊版契約。
+
 > 本規格是 remake 自訂功能，不是原版逆向結論。原版資產身分與幾何仍以
 > [`01-assets-and-formats.md`](01-assets-and-formats.md) 及 `docs/re/23`、`24` 為準。
 

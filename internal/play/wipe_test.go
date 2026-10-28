@@ -75,6 +75,11 @@ func TestWipeShowsDeathScreen(t *testing.T) {
 	if s.Mode() != "title" {
 		t.Errorf("按鍵之後停在 %s，預期回標題", s.Mode())
 	}
+	step(t, s, input.Input{Dir: input.DirNone, Char: 'S'})
+	step(t, s, input.Input{Dir: input.DirNone})
+	if s.Mode() != "map" || !s.partyCanAct() {
+		t.Fatalf("重開後仍無法遊玩：mode=%s, canAct=%v", s.Mode(), s.partyCanAct())
+	}
 }
 
 // TestWipeSwitchesPartyWhenSalvageable：全倒但救得回來 → 自動換隊。

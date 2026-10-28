@@ -133,6 +133,10 @@ func (s *Scene) doSave() (bool, error) {
 			s.cjk = ""
 			break
 		}
+		if err := s.storeWorldState(s.saveDir); err != nil {
+			s.message, s.cjk = "SAVE FAILED: "+err.Error(), ""
+			break
+		}
 		// 長名字的側車檔（`internal/play/names.go`）。
 		// ⚠ **寫不出來不算存檔失敗**——原版存檔已經寫成功了，
 		// 遊戲進度都在；掉的只有超過 13 bytes 的那截名字。

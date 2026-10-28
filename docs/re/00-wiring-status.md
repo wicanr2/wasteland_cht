@@ -101,7 +101,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 | 48 | [`IC0_9.WLF` 十張疊圖各自是什麼](48-map-icons.md) | 已接 | `internal/assets/rom.go`、`internal/game/mapicons.go`（共 7 處） |
 | 49 | [存檔改寫的實機驗收](49-save-roundtrip-on-hardware.md) | 已接 | `internal/assets/assets_test.go` |
 | 50 | [物品 70／71／72 為什麼沒有名字](50-unnamed-items.md) | 不適用 | 物品 70／71／72 的身分考證——這份 DOS 版問不出更多，資料原樣 round-trip |
-| 51 | [遭遇驅動器——地圖與戰鬥之間那一層](51-encounter-driver.md) | 已接 | `internal/play/encounter.go`、`internal/play/play.go`（共 3 處） |
+| 51 | [遭遇驅動器——地圖與戰鬥之間那一層](51-encounter-driver.md) | 已接 | `internal/play/encounter.go`、`internal/play/play.go`；2026-10-28 補接 `sub_135C6` 的存活數、空組型別與清場改寫，並修正目前分隊入口。場景回歸通過，未做本輪原版動態對拍 |
 | 52 | [技能訓練師的流程](52-trainer-facility.md) | 已接 | `internal/play/facility.go`、`internal/play/shop.go`（共 3 處） |
 | 53 | [清單框架（`sub_16DB4` ／ `sub_16D34`）](53-list-framework.md) | 已接 | `internal/play/shop.go`、`internal/play/shop_test.go` |
 | 54 | [設施畫面的版面](54-facility-screen-layout.md) | 已接 | `internal/play/play.go`、`internal/render/render.go`（共 5 處） |

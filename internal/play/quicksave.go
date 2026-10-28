@@ -26,6 +26,7 @@ import (
 	"path/filepath"
 
 	"github.com/wicanr2/wasteland_cht/internal/artpack"
+	"github.com/wicanr2/wasteland_cht/internal/assets"
 	"github.com/wicanr2/wasteland_cht/internal/game"
 	"github.com/wicanr2/wasteland_cht/internal/game/rng"
 	"github.com/wicanr2/wasteland_cht/internal/input"
@@ -33,7 +34,7 @@ import (
 
 const (
 	quickMagic   = "WLQS"
-	quickVersion = 1
+	quickVersion = 2
 )
 
 // DefaultQuickSavePath 是沒指定時快速存檔放哪。
@@ -75,7 +76,11 @@ func (s *Scene) QuickSave() error {
 	buf = binary.LittleEndian.AppendUint16(buf, quickVersion)
 	buf = append(buf, byte(len(s.save.File)))
 	buf = append(buf, s.save.File...)
-	for _, part := range [][]byte{s.save.Plain, s.save.Tail, s.itemsRaw} {
+	world, err := s.encodeWorldState()
+	if err != nil {
+		return err
+	}
+	for _, part := range [][]byte{s.save.Plain, s.save.Tail, s.itemsRaw, world} {
 		buf = binary.LittleEndian.AppendUint32(buf, uint32(len(part)))
 		buf = append(buf, part...)
 	}
@@ -115,19 +120,31 @@ func (s *Scene) QuickLoad() error {
 	if file != s.save.File {
 		return fmt.Errorf("快速存檔來自 %s，目前載入的是 %s", file, s.save.File)
 	}
-	copy(s.save.Plain, parts[0])
-	copy(s.save.Tail, parts[1])
-	if len(parts[2]) > 0 {
-		s.itemsRaw = parts[2]
-		s.items = game.ParseItemTable(parts[2])
+	// 在候選場景完成驗證與重建，再一次提交。
+	next := *s
+	save := *s.save
+	save.Plain, save.Tail = parts[0], parts[1]
+	next.save = &save
+	next.maps, err = next.decodeWorldState(parts[3])
+	if err != nil {
+		return err
 	}
-	return s.reloadFromSave()
+	next.restoreWorldMetadata(parts[3])
+	if len(parts[2]) > 0 {
+		next.itemsRaw = parts[2]
+		next.items = game.ParseItemTable(parts[2])
+	}
+	if err := next.reloadFromSave(); err != nil {
+		return err
+	}
+	*s = next
+	return nil
 }
 
-func parseQuick(raw []byte) (parts [3][]byte, file string, err error) {
+func parseQuick(raw []byte) (parts [4][]byte, file string, err error) {
 	at := 0
 	take := func(n int) ([]byte, error) {
-		if at+n > len(raw) {
+		if n < 0 || n > len(raw)-at {
 			return nil, fmt.Errorf("快速存檔在第 %d byte 就沒了", len(raw))
 		}
 		b := raw[at : at+n]
@@ -141,7 +158,8 @@ func parseQuick(raw []byte) (parts [3][]byte, file string, err error) {
 	if string(head[:4]) != quickMagic {
 		return parts, "", fmt.Errorf("這不是快速存檔（magic ＝ %q）", head[:4])
 	}
-	if v := binary.LittleEndian.Uint16(head[4:]); v != quickVersion {
+	v := binary.LittleEndian.Uint16(head[4:])
+	if v != 1 && v != quickVersion {
 		return parts, "", fmt.Errorf("快速存檔版本 %d，這一版讀 %d", v, quickVersion)
 	}
 	n, err := take(1)
@@ -152,7 +170,11 @@ func parseQuick(raw []byte) (parts [3][]byte, file string, err error) {
 	if err != nil {
 		return parts, "", err
 	}
-	for i := range parts {
+	count := len(parts)
+	if v == 1 {
+		count = 3
+	}
+	for i := 0; i < count; i++ {
 		l, err := take(4)
 		if err != nil {
 			return parts, "", err
@@ -163,6 +185,12 @@ func parseQuick(raw []byte) (parts [3][]byte, file string, err error) {
 		}
 		parts[i] = append([]byte(nil), b...)
 	}
+	if at != len(raw) {
+		return parts, "", fmt.Errorf("快速存檔尾端有多餘資料")
+	}
+	if v == quickVersion && len(parts[3]) == 0 {
+		return parts, "", fmt.Errorf("新版快速存檔缺少地圖狀態")
+	}
 	return parts, string(name), nil
 }
 
@@ -172,11 +200,15 @@ func parseQuick(raw []byte) (parts [3][]byte, file string, err error) {
 // **所有子模式要清掉**：讀檔時可能正停在戰鬥或設施畫面上，
 // 留著會拿舊世界的指標去畫新世界。
 func (s *Scene) reloadFromSave() error {
-	party, mapID, err := loadParty(s.save)
+	party, _, err := loadPartyGroup(s.save, s.groupID)
 	if err != nil {
 		return err
 	}
-	block, err := s.rom.BlockByID(mapID)
+	mapID, err := s.rom.ResolveMapID(s.save.Globals()[gblCurMap])
+	if err != nil {
+		return err
+	}
+	block, err := s.sessionBlock(int(mapID))
 	if err != nil {
 		return fmt.Errorf("載入地圖 %d：%w", mapID, err)
 	}
@@ -209,8 +241,15 @@ func (s *Scene) reloadFromSave() error {
 	s.world.Clock = loadClock(s.save)
 	s.world.Skills = skills
 	s.blockFile, s.blockID = block.Resource.File, block.Resource.ID
-	g := s.save.SlotGroups()[0]
+	if s.maps == nil {
+		s.maps = make(map[int]*assets.Block)
+	}
+	s.maps[block.Resource.ID] = block
+	s.placeIntro = s.save.Place()
+	g := s.save.SlotGroups()[s.groupID]
 	s.back = game.Return{X: g.BackX, Y: g.BackY, MapID: g.BackMap}
+	s.syncGroups()
+	s.applyLongNames()
 	s.resetModes()
 	s.dirty = true
 	return nil
@@ -219,6 +258,13 @@ func (s *Scene) reloadFromSave() error {
 // resetModes 把所有子模式關掉，回到地圖模式。
 func (s *Scene) resetModes() {
 	s.combat, s.facility = nil, nil
+	s.snapshot = nil
+	s.wipe = wipeState{}
+	s.confirm = confirmState{}
+	s.loot = lootState{}
+	s.charView = charView{}
+	s.title, s.titlePic = false, nil
+	s.attract = attractState{}
 	s.roster = rosterState{}
 	s.order = orderState{}
 	s.use = useState{}

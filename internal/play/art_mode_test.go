@@ -119,17 +119,18 @@ func TestReimaginedArtModeIsResponsiveAndComplete(t *testing.T) {
 	}
 }
 
-func TestVisualSettingCyclesAllThreeModes(t *testing.T) {
+func TestVisualSettingDoesNotSelectCancelledHD(t *testing.T) {
 	s := openScene(t)
 	s.SetArtRoot("../../artpacks")
 	s.openSettings()
-	for _, want := range []string{"faithful-hd", "reimagined", "original"} {
+	// HD2 尚未完成時保留 original，禁止偷偷退回已取消的舊 HD。
+	for i := 0; i < 3; i++ {
 		keep, err := s.updateSettings(input.Input{Char: 'V'})
 		if err != nil || !keep {
-			t.Fatalf("切到 %s：keep=%v err=%v", want, keep, err)
+			t.Fatalf("切換：keep=%v err=%v", keep, err)
 		}
-		if got := s.ArtMode(); got != want {
-			t.Fatalf("V 循環模式 = %q，預期 %q", got, want)
+		if got := s.ArtMode(); got != "original" {
+			t.Fatalf("缺少 HD2 卻選取 %q", got)
 		}
 	}
 }

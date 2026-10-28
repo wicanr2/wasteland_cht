@@ -169,10 +169,10 @@ func (s *Scene) updateSettings(in input.Input) (bool, error) {
 	case 'X':
 		s.settings.SFXOn = !s.settings.SFXOn
 	case 'V':
-		next := "faithful-hd"
-		if s.ArtMode() == "faithful-hd" {
-			next = "reimagined"
-		} else if s.ArtMode() == "reimagined" {
+		next := "hd2-a"
+		if s.ArtMode() == "hd2-a" {
+			next = "hd2-b"
+		} else if s.ArtMode() == "hd2-b" {
 			next = "original"
 		}
 		if err := s.SelectArtMode(s.artRoot, next); err != nil {
@@ -255,7 +255,10 @@ func (s *Scene) quitSave() error {
 			return err
 		}
 	}
-	return s.rom.WriteSave(s.save, s.saveDir)
+	if err := s.rom.WriteSave(s.save, s.saveDir); err != nil {
+		return err
+	}
+	return s.storeWorldState(s.saveDir)
 }
 
 // cjkFmtText 是 cjkFmt 的「回傳而不是寫進 s.cjk」版本。

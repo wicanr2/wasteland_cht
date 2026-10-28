@@ -30,6 +30,8 @@ type Scene struct {
 	gfx       *render.Graphics
 	world     *game.World
 	save      *assets.Save
+	// maps 屬於這一局，換圖沿用，重新開始／讀檔時整組替換。
+	maps map[int]*assets.Block
 	// saveDir 是 `Save` 指令要寫回的資料目錄；空的就不寫檔（見 SetSaveDir）。
 	saveDir string
 	// longNames 是每個角色槽的完整名字（`internal/play/names.go`）。
@@ -710,6 +712,7 @@ func New(rom *assets.Rom) (*Scene, error) {
 	s.asking = input.DirNone // 零值是 DirUp，會被誤判成「正在問」
 	s.settings = defaultSettings()
 	s.blockFile, s.blockID = block.Resource.File, block.Resource.ID
+	s.maps = map[int]*assets.Block{block.Resource.ID: block}
 	// 回程從存檔的隊伍槽表讀（+0x0B–+0x0D，docs/re/60 §3）。
 	g := save.SlotGroups()[0]
 	s.back = game.Return{X: g.BackX, Y: g.BackY, MapID: g.BackMap}
@@ -774,7 +777,7 @@ func loadPartyGroup(save *assets.Save, n int) (*game.Party, int, error) {
 // 要驗戰鬥流程得換到有的那幾張（`docs/re/51`）。
 func (s *Scene) LoadMap(id int, x, y uint8) error {
 	// **用 ID 不是切片索引**：遊戲裡的地圖編號是資源目錄的 ID（docs/re/63）。
-	b, err := s.rom.BlockByID(id)
+	b, err := s.sessionBlock(id)
 	if err != nil {
 		return err
 	}
@@ -803,6 +806,10 @@ func (s *Scene) LoadMap(id int, x, y uint8) error {
 		}
 	}
 	s.world.EnterMap(b, x, y)
+	if s.maps == nil {
+		s.maps = make(map[int]*assets.Block)
+	}
+	s.maps[id] = b
 	s.blockFile, s.blockID = b.Resource.File, b.Resource.ID
 	s.syncGroups()
 	s.dirty = true
@@ -1114,6 +1121,7 @@ func (s *Scene) updateCombat(in input.Input) (bool, error) {
 			s.message, s.cjk = s.combatOverMessage(res.Won, out)
 			return true, nil
 		}
+		s.syncEncounter()
 		// 敵人在地圖上移動（`docs/re/116`）：結算之後執行這一回合的計畫，
 		// 再替**下一回合**算一份——原版的順序是「算計畫 → 下令與結算 →
 		// 執行」，所以下一回合的命中基礎值用的是下一回合的計畫。
@@ -1787,6 +1795,12 @@ func (s *Scene) setStock(id, v byte) {
 // 之後才設目錄的話這一輪的名字仍然是存檔裡那 13 bytes（下次讀檔才對）。
 func (s *Scene) SetSaveDir(dir string) {
 	s.saveDir = dir
+	if dir != "" {
+		if err := s.loadWorldState(dir); err != nil {
+			s.message, s.cjk = "WORLD LOAD FAILED: "+err.Error(), ""
+			s.dirty = true
+		}
+	}
 	s.longNames = loadLongNames(dir)
 	// 目錄設得比隊伍晚時，把已經載進來的角色名字補上。
 	s.applyLongNames()

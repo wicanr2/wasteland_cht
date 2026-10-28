@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "date": "2026-10-28",
+  "status": "styles-approved-city-previews-pending",
+  "tool": "image_gen__imagegen",
+  "model_version": "not_reported_by_tool",
+  "scope": "disposable style and city-map mockups, not production tiles or parity evidence",
+  "sources": [
+    {"path": "workplace/art-reference/scenes/000.png", "sha256": "f0f31a021c02849d71a9799c96e3ed2760c053c6b80127762690315924313a30"},
+    {"path": "workplace/art-reference/tileset-1.png", "sha256": "2f107c635b37785dc9d60340d15b5c9844797239c96bf710627c70ed8bb2c1f3"},
+    {"path": "workplace/art-preview/hd2-original-city.png", "sha256": "be15763cd4e016bad39dc3aef08db876f768796c5e3da6bbc53f8d71530543e8", "state": "map 1, position 16/16, original, layout-only screenshot"}
+  ],
+  "outputs": [
+    {"path": "artwork/source/accepted/hd2-direction-ab.png", "sha256": "9e6799ac1bc6c3b2488f008ff0a1044f7294b7ad4352ecf79f0d86a18c44a122", "decision": "support both styles; cancel old HD"},
+    {"path": "artwork/source/accepted/hd2-city-a-preview.png", "sha256": "7386ae939170b478ebc87b86cbd120359dfeb136eae223c72e4160f51edce20d", "decision": "pending"},
+    {"path": "artwork/source/accepted/hd2-city-b-preview.png", "sha256": "3de2070d799cff4f97f8eae422c85a5fc4f15cfcf4100c8be3b7b0805dd9d75c", "decision": "pending"}
+  ],
+  "prompt_summaries": {
+    "direction": "Compare A crisp higher-resolution pixel art and B hand-painted 1980s illustrated adventure restoration. Preserve original doctor identity, pose, turquoise clothing and source terrain colors and meanings.",
+    "city_a": "Transform only the map viewport of the actual original city screenshot into deliberate crisp pixel clusters. Preserve building footprints, road widths, doors, terrain boundaries, central party marker and HUD. Orthographic top-down, no invented doors or NPCs.",
+    "city_b": "Repaint only the original city map into clean high-resolution hand-painted 1980s adventure art. Preserve topology, footprints, doorways, colors, party location and HUD. No isometric projection, invented objects or added doors."
+  },
+  "known_limits": ["AI mockups require per-tile geometry review before implementation", "HUD text and shapes in these generated images are not an implementation contract", "Original-derived references and preview PNGs remain in the existing local-only source directory; metadata is versioned"]
+}

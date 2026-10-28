@@ -37,7 +37,7 @@ type xpSnapshot map[string]uint32
 func (s *Scene) StartEncounter() (*CombatScene, error) {
 	groups := s.scanGroups()
 	scan := s.world.ScanEncounters(groups)
-	entry, ok := scan.Queue.Nearest(0)
+	entry, ok := scan.Queue.Nearest(s.groupID)
 	if !ok {
 		return nil, nil
 	}
@@ -161,7 +161,6 @@ func (s *Scene) enemyNamesCJK() [6]string {
 	return out
 }
 
-
 // takeXP 抄一份每個角色的經驗值。
 func (s *Scene) takeXP() xpSnapshot {
 	out := make(xpSnapshot, len(s.world.Party.Members))
@@ -174,8 +173,9 @@ func (s *Scene) takeXP() xpSnapshot {
 // FinishEncounter 收尾：算經驗值差、切回地圖。
 //
 // 原版最後是 `sub_18350`（重新載入地圖）＋ `jmp sub_163C4`（重畫），
-// 座標、時鐘、地圖都不變——所以這裡只切模式，不動世界狀態。
+// 座標、時鐘與地圖編號不變；存活數與清場改寫則在 syncEncounter 寫回。
 func (s *Scene) FinishEncounter() EncounterResult {
+	s.syncEncounter()
 	res := EncounterResult{Fought: s.combat != nil, XPGained: map[string]uint32{}}
 	for _, m := range s.world.Party.Members {
 		before, wasHere := s.snapshot[m.Name]
@@ -202,6 +202,32 @@ func (s *Scene) FinishEncounter() EncounterResult {
 	s.snapshot = nil
 	s.dirty = true
 	return res
+}
+
+// syncEncounter 寫回存活數及空組型別，按 +0x0A 改寫全空的遭遇格。
+// 原版資料流：sub_135C6 / sub_157AD / sub_13762（docs/re/51 補充）。
+func (s *Scene) syncEncounter() {
+	c := s.combat
+	if c == nil || c.Battle == nil || len(c.EncRecord) < 9 {
+		return // 空地 ENC 沒有來源遭遇記錄。
+	}
+	total := 0
+	for group := 0; group < game.EnemyGroups; group++ {
+		n := 0
+		for i := 0; i < game.EnemiesPerGroup; i++ {
+			if e := c.Battle.Enemy(group*game.EnemiesPerGroup + i); e != nil && e.HP > 0 {
+				n++
+			}
+		}
+		c.EncRecord[4+2*group] = byte(n)
+		if n == 0 {
+			c.EncRecord[3+2*group] = 0
+		}
+		total += n
+	}
+	if total == 0 && len(c.EncRecord) > 0x0B && c.EncRecord[0x0A]&0x80 == 0 {
+		s.world.PatchCell(c.EncX, c.EncY, c.EncRecord, 0x0A)
+	}
 }
 
 // InCombat 回報現在是不是在戰鬥畫面。
