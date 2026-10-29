@@ -4,16 +4,22 @@
 # 一輪合成大半時間花在安裝上（KB game-promo-video-ffmpeg 雷 #2）。建一次、之後零安裝。
 #
 #   docker build -f docker/media.Dockerfile -t wasteland-media:latest .
+# 現代音樂可只建既有工具鏈的 modern stage，省去不需要的 MT-32 編譯：
+#   docker build --target modern -f docker/media.Dockerfile -t wasteland-media:bookworm-modern-r1 .
 #
 # munt 不在 Debian 套件庫，從原始碼編 mt32emu_smf2wav（SMF → WAV）。
 # **ROM 不進 image**：MT-32／CM-32L ROM 是 Roland 的韌體，執行時唯讀掛載進來。
-FROM debian:bookworm-slim
+FROM debian:bookworm-slim@sha256:99c0b25c46d0214d5a2091092e7908907dcaecd6a962cde0ac700acee222b6f3 AS modern
 
 RUN apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends \
-        ca-certificates git cmake g++ make pkg-config \
+        ca-certificates git cmake g++ make pkg-config python3 \
         ffmpeg imagemagick fonts-noto-cjk vorbis-tools \
         fluidsynth fluid-soundfont-gm \
     && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /work
+
+FROM modern AS full
 
 # mt32emu_smf2wav 要 GLIB2（CMakeLists.txt 的 find_package(GLIB2)）與 libsndfile。
 RUN apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends \

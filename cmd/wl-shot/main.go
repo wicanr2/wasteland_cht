@@ -52,7 +52,8 @@ func main() {
 	poll := flag.Int("poll", 0, "play 模式：每個按鍵之前推進亂數 N 次")
 	titleScreen := flag.Bool("title", false, "play 模式：停在標題畫面（玩家開機看到的那一張）")
 	cursor := flag.String("cursor", "", "play 模式：把滑鼠游標畫在 x,y（高解畫布的像素）")
-	artPreview := flag.String("art-preview", "", "play 模式：faithful-hd｜reimagined（完整美術包同狀態驗證）")
+	artPreview := flag.String("art-preview", "", "play 模式：hd2-a｜hd2-b（完整包；舊模式僅作歷史驗證）")
+	tilePreview := flag.String("tile-preview", "", "開發者 WIP：單組新地形根目錄；圖示沿用原版，不是正式美術模式")
 	artRoot := flag.String("art-root", "artpacks", "新版美術包根目錄")
 	artWidth := flag.Int("art-width", 1280, "reimagined 截圖邏輯寬度")
 	artHeight := flag.Int("art-height", 720, "reimagined 截圖邏輯高度")
@@ -64,7 +65,7 @@ func main() {
 		journal: *journal, ending: *ending, endingTicks: *endingTicks,
 		fight: *fight,
 		fn:    *fn, poll: *poll, title: *titleScreen, cursor: *cursor,
-		artPreview: *artPreview, artRoot: *artRoot,
+		artPreview: *artPreview, artRoot: *artRoot, tilePreview: *tilePreview,
 		artWidth: *artWidth, artHeight: *artHeight,
 	}
 	if err := run(*romDir, *imagePath, *mode, *block, *pic, *out, *at, *hour, opt); err != nil {
@@ -112,6 +113,7 @@ type shotOptions struct {
 	title                        bool
 	cursor                       string
 	artPreview, artRoot          string
+	tilePreview                  string
 	artWidth, artHeight          int
 }
 
@@ -233,9 +235,22 @@ func run(romDir, imagePath, mode string, blockID, picID int,
 				return fmt.Errorf("目前位置沒有可開始的遭遇")
 			}
 		}
-		if opt.artPreview != "" {
-			if opt.artPreview != "faithful-hd" && opt.artPreview != "reimagined" {
-				return fmt.Errorf("-art-preview 只接受 faithful-hd｜reimagined")
+		if opt.tilePreview != "" {
+			if opt.artPreview != "" {
+				return fmt.Errorf("-tile-preview 與完整 -art-preview 不能同時使用")
+			}
+			if err := scene.LoadHD2TilePreview(opt.tilePreview); err != nil {
+				return err
+			}
+			img, err = scene.FaithfulPreviewFrame()
+			if err != nil {
+				return err
+			}
+			w, h = img.Bounds().Dx(), img.Bounds().Dy()
+			fmt.Println("WIP：新地形由 play.Scene 拼接，圖示與隊伍仍為原版；未啟用玩家美術模式")
+		} else if opt.artPreview != "" {
+			if opt.artPreview != "faithful-hd" && opt.artPreview != "reimagined" && opt.artPreview != "hd2-a" && opt.artPreview != "hd2-b" {
+				return fmt.Errorf("未知的 -art-preview 模式")
 			}
 			if err := scene.SelectArtMode(opt.artRoot, opt.artPreview); err != nil {
 				return err

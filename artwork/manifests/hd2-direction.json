@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "date": "2026-10-28",
-  "status": "styles-approved-city-previews-pending",
+  "status": "styles-and-city-previews-approved",
   "tool": "image_gen__imagegen",
   "model_version": "not_reported_by_tool",
   "scope": "disposable style and city-map mockups, not production tiles or parity evidence",
@@ -12,8 +12,8 @@
   ],
   "outputs": [
     {"path": "artwork/source/accepted/hd2-direction-ab.png", "sha256": "9e6799ac1bc6c3b2488f008ff0a1044f7294b7ad4352ecf79f0d86a18c44a122", "decision": "support both styles; cancel old HD"},
-    {"path": "artwork/source/accepted/hd2-city-a-preview.png", "sha256": "7386ae939170b478ebc87b86cbd120359dfeb136eae223c72e4160f51edce20d", "decision": "pending"},
-    {"path": "artwork/source/accepted/hd2-city-b-preview.png", "sha256": "3de2070d799cff4f97f8eae422c85a5fc4f15cfcf4100c8be3b7b0805dd9d75c", "decision": "pending"}
+    {"path": "artwork/source/accepted/hd2-city-a-preview.png", "sha256": "7386ae939170b478ebc87b86cbd120359dfeb136eae223c72e4160f51edce20d", "decision": "approved 2026-10-29 continue"},
+    {"path": "artwork/source/accepted/hd2-city-b-preview.png", "sha256": "3de2070d799cff4f97f8eae422c85a5fc4f15cfcf4100c8be3b7b0805dd9d75c", "decision": "approved 2026-10-29 continue"}
   ],
   "prompt_summaries": {
     "direction": "Compare A crisp higher-resolution pixel art and B hand-painted 1980s illustrated adventure restoration. Preserve original doctor identity, pose, turquoise clothing and source terrain colors and meanings.",

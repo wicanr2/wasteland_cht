@@ -6,9 +6,10 @@ package ui
 // 與 `internal/audio` 那台方波引擎是兩件不同的東西——
 // 音效走原版的位元組碼直譯器，音樂走這裡的 ogg。
 //
-// 曲子由 `tools/make_music.py` 譜、`tools/render_music.sh` 用 Roland MT-32
-// 算成 ogg。**檔案不入版控**（波形裡有 MT-32 的 PCM 取樣），
-// 載不到就整條關掉，遊戲照跑——與字型、翻譯目錄同一個原則。
+// 復古版由 tools/make_music.py 譜曲、tools/render_music.sh 以 MT-32 渲染。
+// 現代版由 tools/make_uplifting_music.py 重編，tools/render_modern_music.sh
+// 以 FluidR3 GM 渲染；來源與權利見規格 31。波形留在本機素材目錄，
+// 載不到就關掉音樂，遊戲照常運行。
 
 import (
 	"bytes"

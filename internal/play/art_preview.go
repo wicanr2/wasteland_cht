@@ -3,6 +3,7 @@ package play
 import (
 	"fmt"
 	"image"
+	"path/filepath"
 
 	"github.com/wicanr2/wasteland_cht/internal/artpack"
 	"github.com/wicanr2/wasteland_cht/internal/render"
@@ -14,6 +15,38 @@ func (s *Scene) LoadFaithfulPreview(root string) error {
 	set, err := artpack.LoadFaithfulMap(root, s.world.Block.Tileset, len(s.gfx.Tiles))
 	if err != nil {
 		return err
+	}
+	s.faithfulPreview = set
+	return nil
+}
+
+// LoadHD2TilePreview 接回真正 Scene 的地形垂直切片。
+// 圖示／隊伍仍用來源素材作 WIP 提示，不寫入候選資產或完整 bundle。
+func (s *Scene) LoadHD2TilePreview(root string) error {
+	tiles, err := artpack.LoadTilePreview(filepath.Join(root,
+		fmt.Sprintf("tileset-%d", s.world.Block.Tileset)), len(s.gfx.Tiles))
+	if err != nil {
+		return err
+	}
+	set := &artpack.FaithfulMap{Tiles: tiles}
+	for i, icon := range s.gfx.Icons {
+		src := icon.RGBA()
+		dst := image.NewRGBA(image.Rect(0, 0, 48, 48))
+		for y := 0; y < 48; y++ {
+			for x := 0; x < 48; x++ {
+				n := (y/3)*icon.Width + x/3
+				// 保留明確黑色；只有遮罩保留背景且來源為 0 才透明。
+				if i < len(s.gfx.Masks) && n < len(s.gfx.Masks[i]) &&
+					s.gfx.Masks[i][n] && icon.Pix[n] == 0 {
+					continue
+				}
+				dst.Set(x, y, src.At(x/3, y/3))
+			}
+		}
+		set.Icons = append(set.Icons, dst)
+	}
+	for i := 0; i < 12; i++ {
+		set.PartyWalk = append(set.PartyWalk, set.Icons[7])
 	}
 	s.faithfulPreview = set
 	return nil

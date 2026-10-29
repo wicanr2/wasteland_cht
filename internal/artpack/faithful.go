@@ -133,6 +133,11 @@ func LoadFaithfulMap(root string, tileset, tileCount int) (*FaithfulMap, error) 
 	return &FaithfulMap{Tiles: tiles, Icons: icons, PartyWalk: party}, nil
 }
 
+// LoadTilePreview 只供開發者檢視完整單組地形，不代表完整玩家美術包。
+func LoadTilePreview(dir string, count int) ([]image.Image, error) {
+	return loadIndexedPNGs(dir, count)
+}
+
 func loadIndexedPNGs(dir string, count int) ([]image.Image, error) {
 	out := make([]image.Image, 0, count)
 	for i := 0; i < count; i++ {
