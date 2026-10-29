@@ -2,15 +2,16 @@
 
 版號必須完整指定為 `v.<主>.<次>.<修訂>-YYYYMMDD`。
 `v.1.0.0-20261029` 是先前本機測試包。本輪依同日新提交的版號契約升為
-`v.1.0.1-20261029`，加入已確認的新介面，不建立 tag，也不上傳或發布。
+`v.1.0.1-20261029`，加入已確認的新介面。接續的 v2.0 依使用者指定採
+`v.2.0.0-20261029`，加入繁簡切換及重錄影片，不建立 tag，也不上傳或發布。
 舊版交付目錄保留，不作為新版入口。
 
 ```bash
-tools/package.sh v.1.0.1-20261029 patch linux-x64
-tools/package.sh v.1.0.1-20261029 full-local windows-x64
-tools/package.sh v.1.0.1-20261029 full-local macos-universal
+tools/package.sh v.2.0.0-20261029 patch linux-x64
+tools/package.sh v.2.0.0-20261029 full-local windows-x64
+tools/package.sh v.2.0.0-20261029 full-local macos-universal
 # 依序建立全部六包，再驗證並產生交付清單
-tools/dist.sh v.1.0.1-20261029
+tools/dist.sh v.2.0.0-20261029
 ```
 
 同版本同平台的包已存在時會拒絕覆寫。修正後另定新版號，或在尚未交付前明確保留
@@ -74,6 +75,8 @@ Linux 為 AppImage，非 glibc 的直接相依放入私有 `usr/lib`。Windows Z
 `patch` 第一次啟動需要玩家的合法原版，透過包內 `wl-setup` 建立合成映像。
 倚天字型與 HD2 衍生圖片不在公開包中。`full-local` 可直接使用包內來源。
 兩類包均內建源泉圓體與 Noto，預設 18 像素新介面，不需要倚天。
+v2.0 兩類包均包含繁體／簡體的一般及手札目錄，設定 F2 的語言按鈕或 L 可切換。
+推廣片另依 [影片入口](promo-video.md)重新錄製，不沿用舊版錄影。
 原始字型與授權 SHA-256、包內 `UI: rounded-v1` 標記均由內容驗證器核對。
 
 實際封包的 GUI 抽測使用 [check_package_gui.sh](../tools/check_package_gui.sh)，必須在既有

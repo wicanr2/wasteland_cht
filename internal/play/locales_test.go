@@ -2,6 +2,7 @@ package play
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -132,5 +133,22 @@ func TestLocaleLoadFailureIsAtomicAndClassicIsExplicit(t *testing.T) {
 	classic := newScene(t)
 	if err := classic.LoadLanguages("../../translations", "../../translations", "zh-Hans"); err == nil {
 		t.Fatal("classic claims Hans support")
+	}
+}
+
+func TestLocaleSettingsFitAllApprovedStyles(t *testing.T) {
+	s := multilingualScene(t)
+	for _, locale := range []string{"zh-Hant", "zh-Hans"} {
+		if err := s.SelectLocale(locale); err != nil {
+			t.Fatal(err)
+		}
+		for family := 0; family < 2; family++ {
+			for _, pixels := range []int{16, 18, 20} {
+				s.modern.family, s.modern.pixels = family, pixels
+				s.openSettings()
+				modernShot(t, s, fmt.Sprintf("locale-settings-%s-%d-%d", locale, family, pixels))
+				step(t, s, input.Input{Dir: input.DirNone, Action: input.ActionCancel})
+			}
+		}
 	}
 }

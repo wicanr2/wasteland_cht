@@ -63,6 +63,19 @@ def finalize(version):
         runtime_checks[label] = check
     runtime_checks["Windows 原生實機"] = {"status": "not-run"}
     runtime_checks["macOS 原生實機"] = {"status": "not-run"}
+    promo = {"status": "not-run"}
+    promo_receipt = out / "promo/metadata.json"
+    if promo_receipt.is_file():
+        p = json.loads(promo_receipt.read_text())
+        assert p["status"] == "passed" and p["version"] == version and p["manual_frame_review"] is True
+        assert sha(promo_receipt.parent / p["file"]) == p["sha256"]
+        actual = next(x for x in packages if x["mode"] == "full-local" and x["platform"] == "linux-x64")
+        assert p["package_sha256"] == actual["sha256"]
+        assert sha(promo_receipt.parent / "capture.json") == p["capture_manifest_sha256"]
+        assert sha(promo_receipt.parent / "render-driver.py") == p["renderer_sha256"]
+        capture = json.loads((promo_receipt.parent / "capture.json").read_text())
+        assert sha(promo_receipt.parent / "record-driver.sh") == capture["driver_sha256"]
+        promo = {"status": "passed", "receipt": "promo/metadata.json", "sha256": sha(promo_receipt), "file": "promo/"+p["file"]}
     lines = [f"# Wasteland 荒野遊俠 {version}", "", "本機測試交付，未上傳或發布。", "",
              "| 平台 | 引擎與翻譯 | 本機完整版 |", "|---|---|---|"]
     for platform in ("linux-x64", "windows-x64", "macos-universal"):
@@ -86,6 +99,8 @@ def finalize(version):
         lines += ["", "[HD2 A／B 實際遊戲畫面](smoke/hd2-ab-final.png)", ""]
     if (smoke / "rounded-ui-review.png").is_file():
         lines += ["", "[新介面實際操作截圖](smoke/rounded-ui-review.png)", ""]
+    if promo["status"] == "passed":
+        lines += ["", f"[新版推廣影片]({promo['file']})，73 秒，僅供本機使用。", ""]
     (out / "README.md").write_text("\n".join(lines))
     inputs = [REPO / p for p in ("tools/package.sh", "tools/package_container.sh", "tools/pack_wrap.sh",
               "tools/verify_package.py", "tools/finalize_dist.py", "cmd/wasteland/main.go",
@@ -97,6 +112,8 @@ def finalize(version):
     inputs += [REPO / p for p in ("internal/play/locales.go", "tools/build_lang.py", "tools/build_paragraphs.py",
                "tools/make_zh_hans.py", "tools/localization-inputs.json", "translations/zh-Hans.cat",
                "translations/paragraphs-zh-Hant.cat", "translations/paragraphs-zh-Hans.cat")]
+    inputs += [REPO / p for p in ("tools/promo.sh", "tools/promo/record_packaged.sh",
+               "tools/promo/record_packaged_container.sh", "tools/promo/render_packaged.py")]
     inputs += sorted((REPO / "internal/presentation/fonts").iterdir())
     inputs += [REPO / "artpacks" / m / "manifest.json" for m in ("hd2-a", "hd2-b")]
     files = [{"path": str(p.relative_to(out)), "bytes": p.stat().st_size, "sha256": sha(p)}
@@ -106,7 +123,7 @@ def finalize(version):
                 "validation_commit": subprocess.check_output(["git", "-C", str(REPO), "rev-parse", "HEAD"], text=True).strip(),
                 "validation_tracked_changes": subprocess.run(["git", "-C", str(REPO), "diff", "--quiet"]).returncode != 0,
                 "packages": packages, "files": files,
-                "runtime_checks": runtime_checks,
+                "runtime_checks": runtime_checks, "promo": promo,
                 "inputs": [{"path": str(p.relative_to(REPO)), "sha256": sha(p)} for p in inputs],
                 "tool_images": {key: os.environ.get(key, "not supplied") for key in
                                 ("WL_GO_IMAGE_ID", "WL_OSXCROSS_IMAGE_ID", "WL_PKG_IMAGE_ID", "WL_WINE_IMAGE_ID")}}

@@ -1,56 +1,23 @@
 #!/usr/bin/env bash
-# 合成推廣片。
-#
-#	tools/promo.sh [截圖目錄] [輸出目錄]
-#
-# 預設讀 workplace/promo/shots/、寫 workplace/promo/out/。
-# 需要先跑過 `tools/render_music.sh`（配樂）與 `docker build -f docker/media.Dockerfile`。
-#
-# 截圖從哪來：`cmd/wl-shot` 無頭產生（見 `tools/promo/shots.sh`）。
-#
-# ⚠ **產物不進版控**：影片裡有原版的畫面與 MT-32 算出來的聲音，
-# 與原版資料、倚天字型同一個政策。腳本進版控、成品不進。
-#
-# 邊界寫在腳本本體：--rm、--network none、限 2 核、截圖與配樂唯讀掛載、
-# 退出前把產物 chown 回使用者。
-
+# Versioned actual-package capture and local trailer. Host only orchestrates Docker.
 set -euo pipefail
-
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-
-SHOTS="${1:-$ROOT/workplace/promo/shots}"
-OUT="${2:-$ROOT/workplace/promo/out}"
-MUSIC="$ROOT/workplace/music"
-GAMEPLAY="$ROOT/workplace/promo/gameplay"
-IMAGE=wasteland-media:latest
-
-for d in "$SHOTS" "$MUSIC" "$GAMEPLAY"; do
-    if [ ! -d "$d" ]; then
-        echo "找不到 $d" >&2
-        exit 1
-    fi
-done
-if [ ! -f "$MUSIC/modern/theme.ogg" ] && [ ! -f "$MUSIC/theme.ogg" ]; then
-    echo "沒有配樂：先跑 tools/render_music.sh" >&2
-    exit 1
+ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+VERSION=${1:?完整版本}
+[[ "$VERSION" =~ ^v\.[0-9]+\.[0-9]+\.[0-9]+-[0-9]{8}$ ]]
+IMAGE=san1-go:1.26.7-ebiten2.9.9-r1
+if [ "${2:-}" != --render-only ]; then
+    bash "$ROOT/tools/promo/record_packaged.sh" "$VERSION"
 fi
-if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
-    echo "先建工具 image：docker build -f docker/media.Dockerfile -t $IMAGE ." >&2
-    exit 1
-fi
-
-mkdir -p "$OUT"
-
-docker run --rm --cpus=2 --memory=4g --pids-limit=512 --network none \
-    --log-opt max-size=10m --log-opt max-file=3 \
-    -u "$(id -u):$(id -g)" -e HOME=/tmp \
-    -v "$SHOTS:/shots:ro" -v "$MUSIC:/music:ro" -v "$OUT:/out" \
-    -v "$GAMEPLAY:/gameplay:ro" \
-    -v "$ROOT/tools/promo/theme.sh:/theme.sh:ro" \
-    -v "$ROOT/tools/promo/make_promo.sh:/make.sh:ro" \
-    -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" \
-    "$IMAGE" bash /make.sh
-
-echo "---"
-echo "產出在 $OUT（不入版控，見檔頭）"
+RAW="$ROOT/workplace/promo/$VERSION/gameplay"
+VERSION_ROOT="$ROOT/dist-all/$VERSION"
+test -d "$RAW" && test -f "$RAW/capture.json" && test -d "$VERSION_ROOT"
+timeout 30 docker run --rm --name wasteland-promo-output-prepare --network none --memory 256m --cpus 1 --pids-limit 64 \
+    --log-opt max-size=3m --log-opt max-file=1 --user "$(id -u):$(id -g)" \
+    -v "$VERSION_ROOT:/version" --entrypoint python3 "$IMAGE" -c \
+    'from pathlib import Path; p=Path("/version/promo"); p.mkdir(exist_ok=True); assert p.stat().st_uid!=0'
+OUT="$VERSION_ROOT/promo"
+test -d "$OUT"
+timeout 600 docker run --rm --name wasteland-promo-render --network none --memory 2g --cpus 2 --pids-limit 256 \
+    --log-opt max-size=3m --log-opt max-file=1 --user "$(id -u):$(id -g)" \
+    -v "$ROOT:/src:ro" -v "$RAW:/raw:ro" -v "$OUT:/out" -w /src --entrypoint python3 "$IMAGE" \
+    tools/promo/render_packaged.py "$VERSION"
