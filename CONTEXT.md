@@ -16,6 +16,7 @@
 | 清怪後重刷 | 已實作，場景回歸通過 | 結算寫回、換圖保留、跨場景存讀檔；未做原版動態對拍 |
 | 空地按 E | 原版行為，維持 | `re/105`、`enc_test.go`；確認後執行空回合，不生成敵人 |
 | 門鎖與 NPC | 原回報仍未定位；分隊遭遇接線已修 | 16 筆實際技能／物品閘不能穿過；JACKIE 鍵盤雇用通過，不能代表所有 NPC |
+| 文字、邊框與工具列 | 新需求；可比較草稿已完成，待使用者選定 | 使用者要求較小、圓潤的 Noto 方向與 mm3 類工具列；字型、草稿與未接入項目見下方 §0.3，不算正式遊戲完成 |
 | 地圖存檔 | 使用者同意且已實作 | WLQS v2 可讀 v1；一般 S 使用匹配的地圖側車檔；分隊讀回通過 |
 | HD2 | A／B 各 1,157 張，已納入本機測試包 | 九組地形、42 地圖／82 場景整合通過；最終 Linux 與 Windows Wine 正常 GUI 的 original／A／B 實際畫面、存讀檔與退出通過 |
 | 現代配樂振奮版 | 十首已重編並納入本機測試包 | 主題／戰鬥方向已獲採用；十首解碼、定位、接點與 F2 路由通過，復古版保留；未宣稱逐首人耳驗收 |
@@ -51,6 +52,30 @@ macOS 兩架構都核對為 Go 1.24.13／最低 11.0，尚未做原生 Windows�
 既有專案自作、MT-32 算音的十首稱「復古版」，同一批自作曲重新配器與現代混音的
 版本稱「現代版」。F2 可即時切換，原版 PC 喇叭音效仍是獨立開關；設定不寫進
 原版存檔。檔案契約、退回行為與權利邊界見 [`docs/spec/31-dual-score.md`](docs/spec/31-dual-score.md)。
+
+## 0.3 介面排版草稿（2026-10-29，尚未定案）
+
+使用者要求縮小文字、採 Noto 的圓潤方向，調整邊框並參考 `~/cht/mm33` 的工具列。
+該路徑不存在，同層實際為 `~/cht/mm3`；目前依它的一列深色工具列製作可撤回草稿，
+尚未將來源專案的其他產品決定套用至本作。
+
+草稿入口為 [`tools/prototype_ui_redesign.py`](tools/prototype_ui_redesign.py)，產物沿用
+`workplace/art-preview/`。可在本機開啟
+[`ui-redesign-preview.html`](workplace/art-preview/ui-redesign-preview.html)，比較原版／A／B 美術、
+Noto Sans CJK TC／源泉圓體 TW，以及 16／18／20 像素內文。工具列試排 16 像素，
+內文建議 18 像素，細邊框與常駐工具列均仍待使用者確認。
+
+- [前後對照](workplace/art-preview/ui-redesign-before-after.png)與
+  [字型樣本](workplace/art-preview/ui-redesign-font-samples.png)只證明排版方向。
+- [字型來源](workplace/art-preview/ui-redesign-font-inputs.json)保存固定上游提交、SHA-256
+  與 SIL OFL 1.1 原文；圓體如實標示為源泉圓體，不冒稱 Noto 原生圓體。
+- [草稿收據](workplace/art-preview/ui-redesign-review.json)驗證 702 個文字安全範圍，
+  864×384 地圖與已驗 GUI 來源逐像素一致。字體、字級及美術獨立比較。
+- [瀏覽器收據](workplace/art-preview/ui-redesign-browser-check.json)記錄 Chromium 的實際滑鼠
+  點擊、字型切換、16／20 上下限與原版／A／B 預覽；存讀檔及音訊按鈕尚未接入。
+
+正式遊戲、存檔、既有六個交付包均未變更。下一步是取得草稿選擇，收攏 READY 規格後
+再實作字型、版面與工具列，並補正常玩家路徑驗證。
 
 ---
 
