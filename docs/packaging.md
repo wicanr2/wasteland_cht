@@ -72,6 +72,9 @@ Linux 為 AppImage，非 glibc 的直接相依放入私有 `usr/lib`。Windows Z
 `patch` 第一次啟動需要玩家的合法原版，透過包內 `wl-setup` 建立合成映像。
 倚天字型與 HD2 衍生圖片不在公開包中。`full-local` 可直接使用包內來源。
 一般 S 與 F5／F9 的存檔入口不同，WLQS v2 的相容性見專案存檔規格。
+F5／F9 沿用 `DefaultQuickSavePath`：未設 `XDG_DATA_HOME` 時使用
+`<使用者家目錄>/.local/share/wasteland-cht/quicksave.wlq`，Windows 也是如此。
+不要把它與上表的一般 S 存檔副本目錄混為一談。
 
 ## 驗證入口
 
@@ -87,5 +90,8 @@ python3 tools/finalize_dist.py <版本>
 ```
 
 上述 Python 命令在封裝容器內執行。完整建置與檢查不是原生平台試玩的替代品。
+清單工具只在 GUI 收據的封包雜湊、實際圖片雜湊與模式驗證旗標相符時列為通過；
+沒有收據時列為未執行。最終腳本與收據入口見 `workplace/art-preview/v100-package-gui.sh`、
+`v100-wine-server.sh`、`v100-wine-client.sh` 與該版 `smoke/`。
 本機 Linux GUI、Wine 的 Windows 補充檢查與 macOS 結構驗證分開記錄，未執行的
 原生 Windows／macOS 實機項目不得標成通過。每輪結果見 [WORKLOG](../WORKLOG.md)。
