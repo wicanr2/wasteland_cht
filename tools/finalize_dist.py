@@ -51,6 +51,7 @@ def finalize(version):
             assert data["exit_code"] == 0 and data["quick_save"]["version"] == 2
             assert data.get("load_restores_exact_crop"), receipt
             assert data["package_sha256"] == package["sha256"], receipt
+            assert data.get("modern_ui_verified") is True, receipt
             if needs_visual:
                 assert data.get("visual_modes_verified") is True, receipt
             for screenshot in data["screenshots"]:
@@ -65,15 +66,16 @@ def finalize(version):
         rows = [next(p for p in packages if p["platform"] == platform and p["mode"] == m)
                 for m in ("patch", "full-local")]
         lines.append(f"| {platform} | [patch]({rows[0]['path']}) | [full-local]({rows[1]['path']}) |")
-    lines += ["", "full-local 含原版、字型、HD2 衍生圖片與本機配樂，只供本機使用，不可散布。",
-              "patch 不含上述素材，玩家須自備合法原版。舊 HD 已移除，完整版支援 HD2 A／B。",
+    lines += ["", "full-local 含原版、倚天字型、HD2 衍生圖片與本機配樂，只供本機使用，不可散布。",
+              "patch 內建已授權圓體與 Noto，不含原版、倚天、HD2 圖片或配樂，玩家須自備合法原版。",
+              "預設使用 18 像素圓體、細邊框與工具列；美術與字型可獨立切換。舊 HD 已移除。",
               "", "六包均完成內容、架構、版本與雜湊驗證。實際啟動檢查與畫面見 smoke/。",
               "Linux 容器／Wine 與原生 Windows／macOS 實機驗收分開記錄，不把交叉建置當成實機通過。",
               "", "| 實際啟動檢查 | 狀態 |", "|---|---|"]
     for label, check in runtime_checks.items():
         lines.append(f"| {label} | {'通過' if check['status'] == 'passed' else '未執行'} |")
-    lines += ["", "遊戲中按 F2 開啟設定，V 切換 original／hd2-a／hd2-b，B 選擇現代配樂。",
-              "HD2 首次切換需要載入整包素材，按 V 後請等待畫面更新，避免連按。",
+    lines += ["", "工具列可選原版／A／B、圓體／Noto、16／18／20 字級、配樂及音量，並可直接存讀檔。",
+              "F2／V／B 的既有熱鍵仍可使用；HD2 首次切換請等待畫面更新，避免連按。",
               "macOS 包包含 x86_64／arm64，部署目標 11.0；尚未做 Mac 實機驗收。",
               "", "來源與重現入口：專案 docs/packaging.md、tools/dist.sh、tools/finalize_dist.py。", ""]
     if (smoke / "hd2-ab-final.png").is_file():
@@ -83,6 +85,10 @@ def finalize(version):
               "tools/verify_package.py", "tools/finalize_dist.py", "cmd/wasteland/main.go",
               "cmd/wl-setup/main.go", "internal/artpack/artpack.go", "internal/artpack/artpack_test.go",
               "internal/play/panels.go", "translations/zh-Hant.cat", "artwork/manifests/hd2-production.json", "LICENSE")]
+    inputs += [REPO / p for p in ("internal/play/presentation.go", "internal/presentation/canvas.go",
+               "internal/render/hires.go", "internal/ui/ui.go", "artwork/manifests/ui-rounded-approved.json",
+               "tools/check_package_gui.sh", "tools/check_package_wine_server.sh")]
+    inputs += sorted((REPO / "internal/presentation/fonts").iterdir())
     inputs += [REPO / "artpacks" / m / "manifest.json" for m in ("hd2-a", "hd2-b")]
     files = [{"path": str(p.relative_to(out)), "bytes": p.stat().st_size, "sha256": sha(p)}
              for p in sorted(out.rglob("*")) if p.is_file() and p.name != "SHA256SUMS.json"]

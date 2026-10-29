@@ -103,6 +103,18 @@ def verify(package, version, mode, platform):
         result["source_commit"] = commit.group(1)
         assert "LicenseRef-RRSAL-1.0" in (root / "LICENSE").read_text()
         result["build_manifest"] = manifest
+        assert "UI: rounded-v1\n" in manifest, "Missing current UI identity"
+        result["ui"] = "rounded-v1"
+        font_sources = root / "docs/font-sources.json"
+        assert sha(font_sources) == sha(REPO / "internal/presentation/fonts/sources.json")
+        fonts = json.loads(font_sources.read_text())
+        for source in fonts["sources"]:
+            if source["embedded_path"].endswith(".txt"):
+                license_file = root / "docs" / Path(source["embedded_path"]).name
+                assert sha(license_file) == source["sha256"], license_file
+        font_doc = (root / "docs/font-licenses.md").read_text()
+        assert "../internal/presentation/fonts/" not in font_doc
+        result["licensed_ui_fonts"] = {s["label"]: s["sha256"] for s in fonts["sources"] if s["file"].endswith(".otf")}
         suffix = ".exe" if platform == "windows-x64" else ""
         result["architectures"] = {}
         result["macos_builds"] = {}

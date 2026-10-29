@@ -71,6 +71,7 @@ cp "$ROOT/LICENSE" "$D/LICENSE"
 sed -e 's|../internal/presentation/fonts/GenSen-OFL.txt|GenSen-OFL.txt|g' \
     -e 's|../internal/presentation/fonts/Noto-OFL.txt|Noto-OFL.txt|g' \
     -e 's|../internal/presentation/fonts/sources.json|font-sources.json|g' \
+    -e 's|\[規格 33\](spec/33-rounded-ui.md)|原始碼的 docs/spec/33-rounded-ui.md|g' \
     "$ROOT/docs/font-licenses.md" > "$D/docs/font-licenses.md"
 cp "$ROOT/internal/presentation/fonts/GenSen-OFL.txt" "$ROOT/internal/presentation/fonts/Noto-OFL.txt" "$D/docs/"
 cp "$ROOT/internal/presentation/fonts/sources.json" "$D/docs/font-sources.json"
@@ -127,6 +128,7 @@ fi
 printf 'Version: %s\nPackage: %s\nCommit: %s\nMode: %s\nPlatform: %s\nBuild image: %s\n' \
     "$VERSION" "$PKG" "$SOURCE_COMMIT" "$MODE" "$PLATFORM" "${WL_BUILD_IMAGE:-unknown}" \
     > "$D/PACKAGE-MANIFEST.txt"
+printf 'UI: rounded-v1\nLicensed fonts: GenSen Rounded TW R; Noto Sans CJK TC Regular\n' >> "$D/PACKAGE-MANIFEST.txt"
 if [ "${MAC:-0}" = 1 ]; then
     printf 'SDK: %s\nArchitectures: x86_64 arm64 (lipo universal)\n' "$SDK" >> "$D/PACKAGE-MANIFEST.txt"
 fi

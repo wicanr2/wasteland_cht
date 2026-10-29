@@ -29,7 +29,7 @@ PKG="wasteland-cht-${VERSION}-${PLATFORM}-${MODE}"
 SOURCE_COMMIT=$(git -C "$ROOT" rev-parse HEAD)
 
 # 先在既有工作樹掛載中建立明確輸出目錄，避免 dockerd 以 root 建立缺少的來源。
-timeout 30s docker run --rm --network none --memory 256m --cpus 1 --pids-limit 64 \
+timeout 30s docker run --rm --name "wasteland-package-$VERSION-$MODE-$PLATFORM-prepare" --network none --memory 256m --cpus 1 --pids-limit 64 \
     --log-opt max-size=10m --log-opt max-file=3 --user "$(id -u):$(id -g)" \
     -v "$ROOT:/src" "${READONLY_INPUTS[@]}" -w /src --entrypoint /bin/bash "$PACK_IMAGE" -c '
         set -eu
@@ -41,10 +41,12 @@ timeout 30s docker run --rm --network none --memory 256m --cpus 1 --pids-limit 6
 
 run() {
     local image=$1; shift
-    timeout "${WL_PACKAGE_TIMEOUT:-900}s" docker run --rm --network none \
+    local phase=build
+    [ "$1" != /src/tools/pack_wrap.sh ] || phase=wrap
+    timeout "${WL_PACKAGE_TIMEOUT:-900}s" docker run --rm --name "wasteland-package-$VERSION-$MODE-$PLATFORM-$phase" --network none \
         --log-opt max-size=10m --log-opt max-file=3 \
         --cpus "${WL_GO_CPUS:-2}" --memory "${WL_GO_MEM:-3g}" --pids-limit 512 \
-        --user "$(id -u):$(id -g)" -e HOME=/tmp \
+        --user "$(id -u):$(id -g)" \
         -e GOCACHE=/gocache -e GOMODCACHE=/gomod -e GOPROXY=off -e GOFLAGS=-buildvcs=false \
         -e WL_RELEASE_VERSION="$VERSION" -e WL_BUILD_IMAGE="$BUILD_IMAGE" -e WL_SOURCE_COMMIT="$SOURCE_COMMIT" \
         -v "$ROOT:/src:ro" -v "$ROOT/workplace/gocache/build:/gocache" -v "$ROOT/workplace/gocache/mod:/gomod" \

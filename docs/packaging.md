@@ -1,15 +1,16 @@
 # 三平台本機封裝
 
-版號必須完整指定為 `v.<主>.<次>.<修訂>-YYYYMMDD`。使用者已採用
-`v.1.0.0-20261029` 作為本輪本機測試包，不建立 tag，也不上傳或發布。
+版號必須完整指定為 `v.<主>.<次>.<修訂>-YYYYMMDD`。
+`v.1.0.0-20261029` 是先前本機測試包。本輪依同日新提交的版號契約升為
+`v.1.0.1-20261029`，加入已確認的新介面，不建立 tag，也不上傳或發布。
 舊版交付目錄保留，不作為新版入口。
 
 ```bash
-tools/package.sh v.1.0.0-20261029 patch linux-x64
-tools/package.sh v.1.0.0-20261029 full-local windows-x64
-tools/package.sh v.1.0.0-20261029 full-local macos-universal
+tools/package.sh v.1.0.1-20261029 patch linux-x64
+tools/package.sh v.1.0.1-20261029 full-local windows-x64
+tools/package.sh v.1.0.1-20261029 full-local macos-universal
 # 依序建立全部六包，再驗證並產生交付清單
-tools/dist.sh v.1.0.0-20261029
+tools/dist.sh v.1.0.1-20261029
 ```
 
 同版本同平台的包已存在時會拒絕覆寫。修正後另定新版號，或在尚未交付前明確保留
@@ -21,7 +22,7 @@ tools/dist.sh v.1.0.0-20261029
 
 | 目錄 | 內容與邊界 |
 |---|---|
-| `dist-all/<版本>/patch/<平台>/` | 引擎、`wl-setup`、翻譯、文件與 RRSAL-1.0；不含原版資料、字型、音樂或 HD2 圖片 |
+| `dist-all/<版本>/patch/<平台>/` | 引擎、`wl-setup`、翻譯、內建開放字型與授權；不含原版資料、倚天、音樂或 HD2 圖片 |
 | `dist-all/<版本>/full-local/<平台>/` | 另含本機合法原版、倚天字型、兩套十首配樂及完整 HD2 A／B；不散布、不加入 Git |
 | `dist-all/<版本>/smoke/` | 逐包內容／架構收據、啟動畫面與實測限制 |
 | `dist-all/<版本>/SHA256SUMS.json` | 六包與驗證收據的大小、SHA-256、版本及權利分類 |
@@ -55,7 +56,7 @@ AppImage runtime 已封存在 `workplace/appimage/runtime-x86_64`，SHA-256 為
 
 兩個執行檔都由 linker 注入同一完整版本，`-version` 可查詢；遊戲視窗標題也會顯示。
 封包檔名、包內 manifest 與交付根目錄使用相同版號。macOS 的數值欄位分別保存
-`1.0.0` 與建置日期，`WastelandReleaseVersion` 保存完整版本字串。
+版本核心與建置日期，`WastelandReleaseVersion` 保存完整版本字串。
 
 Linux 為 AppImage，非 glibc 的直接相依放入私有 `usr/lib`。Windows ZIP 的每一筆
 中央與區域檔頭都設 UTF-8 旗標，批次檔使用 CRLF。macOS 分別編出 x86_64／arm64，
@@ -71,6 +72,14 @@ Linux 為 AppImage，非 glibc 的直接相依放入私有 `usr/lib`。Windows Z
 
 `patch` 第一次啟動需要玩家的合法原版，透過包內 `wl-setup` 建立合成映像。
 倚天字型與 HD2 衍生圖片不在公開包中。`full-local` 可直接使用包內來源。
+兩類包均內建源泉圓體與 Noto，預設 18 像素新介面，不需要倚天。
+原始字型與授權 SHA-256、包內 `UI: rounded-v1` 標記均由內容驗證器核對。
+
+實際封包的 GUI 抽測使用 [check_package_gui.sh](../tools/check_package_gui.sh)，必須在既有
+Go／X11 Docker 工具映像內執行，參數為模式、完整版本及平台。Linux 直接啟動 AppImage；
+Windows 使用 [Wine 伺服器](../tools/check_package_wine_server.sh)從實際中文批次檔開場，
+兩個容器只共用本輪 X11 socket，Wine 前綴隔離。全尺寸視窗與 960×720 邏輯圖同時保存，
+滑鼠位置由實際視窗尺寸換算。收據綁定封包雜湊、字型工具列、A／B、存讀檔與正常退出。
 一般 S 與 F5／F9 的存檔入口不同，WLQS v2 的相容性見專案存檔規格。
 F5／F9 沿用 `DefaultQuickSavePath`：未設 `XDG_DATA_HOME` 時使用
 `<使用者家目錄>/.local/share/wasteland-cht/quicksave.wlq`，Windows 也是如此。
