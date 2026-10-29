@@ -7,6 +7,10 @@ workplace/
 artwork/source/
 artwork/work/
 
+# HD2 原版衍生素材僅供本機使用，製作台帳與提示詞另存 artwork/
+/artpacks/hd2-a/
+/artpacks/hd2-b/
+
 # IDA 產物
 *.i64
 *.idb

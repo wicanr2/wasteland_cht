@@ -60,7 +60,7 @@ func (s *Scene) ArtMode() string {
 	return s.artMode
 }
 
-// SetArtRoot 設定三種美術包的共同根目錄；空字串恢復專案預設值。
+// SetArtRoot 設定美術包根目錄；空字串恢復專案預設值。
 func (s *Scene) SetArtRoot(root string) {
 	if root == "" {
 		root = "artpacks"

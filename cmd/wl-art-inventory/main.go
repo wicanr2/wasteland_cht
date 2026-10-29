@@ -146,6 +146,24 @@ func run(romDir, imagePath, out, contacts string) error {
 	inv.Title = AssetGroup{Count: 1, Width: 288, Height: 128}
 	inv.Ending = AssetGroup{Count: 1, Width: 288, Height: 128}
 	if contacts != "" {
+		masks, err := rom.Masks()
+		if err != nil {
+			return err
+		}
+		if len(masks) != len(icons) {
+			return fmt.Errorf("疊圖與遮罩數量不符：%d / %d", len(icons), len(masks))
+		}
+		for index, icon := range icons {
+			im := icon.RGBA()
+			for n, keep := range masks[index] {
+				if keep && icon.Pix[n] == 0 {
+					im.SetRGBA(n%icon.Width, n/icon.Width, color.RGBA{})
+				}
+			}
+			if err := writePNG(filepath.Join(contacts, "icons", fmt.Sprintf("%03d.png", index)), im); err != nil {
+				return err
+			}
+		}
 		title, err := rom.Title()
 		if err != nil {
 			return err

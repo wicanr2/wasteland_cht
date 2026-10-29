@@ -17,7 +17,7 @@
 | 空地按 E | 原版行為，維持 | `re/105`、`enc_test.go`；確認後執行空回合，不生成敵人 |
 | 門鎖與 NPC | 原回報仍未定位；分隊遭遇接線已修 | 16 筆實際技能／物品閘不能穿過；JACKIE 鍵盤雇用通過，不能代表所有 NPC |
 | 地圖存檔 | 使用者同意且已實作 | WLQS v2 可讀 v1；一般 S 使用匹配的地圖側車檔；分隊讀回通過 |
-| HD2 | 第 0、1、2、3 組共 954 張 A／B 候選，其他組待補 | 各 477 張；已用真正 renderer 抽查，完整包未完成 |
+| HD2 | A／B 完整本機候選包各 1,157 張，已接入 F2／V | 九組地形、42 地圖／82 場景整合與正常 GUI 切換、存讀檔、退出通過；藍色平面仍有材質接縫，未重打三平台封包 |
 | 現代配樂振奮版 | 十首已重編、渲染與安裝到開發版 | 使用者採用主題／戰鬥方向；十首解碼、定位、接點與 F2 路由通過，復古版保留；未重打發行包 |
 
 工作歷程見 [WORKLOG.md](WORKLOG.md)。HD2 比較稿入口：
@@ -30,7 +30,13 @@
 兩種風格的城市樣張保存於 `artwork/source/accepted/hd2-city-*-preview.png`，
 2026-10-29 已獲使用者繼續授權；這些是構圖參考，不是實際 renderer 或碰撞驗證收據。
 契約見 [規格 32](docs/spec/32-hd2.md)，來源見
-[HD2 manifest](artwork/manifests/hd2-direction.json)。完整正式包仍未完成。
+[HD2 manifest](artwork/manifests/hd2-direction.json)。完整本機候選包已建立於
+`artpacks/hd2-a/`、`artpacks/hd2-b/`，各含 1,051 圖塊、10 圖示、12 隊伍影格、
+82 場景及標題／結局。第 49 張人物兩版均依使用者確認採紅色工作服。
+現行來源與完整提示詞見 [製作台帳](artwork/manifests/hd2-production.json)，
+驗證收據為 `workplace/art-preview/hd2-renderer-review.json`，內含圖片與輸入雜湊。
+舊四組 WIP 收據只作歷史。新版來源與衍生 PNG 不入 Git，也未建立新版發行包。
+藍色平面的跨批材質接縫屬可選美術修整，不宣稱新圖逐像素等同原版。
 
 ## 0.2 復古／現代雙配樂（使用者定案 2026-08-21）
 

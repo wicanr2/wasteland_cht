@@ -1,10 +1,16 @@
 package play
 
 import (
+	"bytes"
+	"encoding/json"
+	"image/color"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/wicanr2/wasteland_cht/internal/game"
 	"github.com/wicanr2/wasteland_cht/internal/input"
+	"github.com/wicanr2/wasteland_cht/internal/render"
 )
 
 func TestFaithfulArtModeSwitchIsAtomicAndFollowsMap(t *testing.T) {
@@ -121,9 +127,9 @@ func TestReimaginedArtModeIsResponsiveAndComplete(t *testing.T) {
 
 func TestVisualSettingDoesNotSelectCancelledHD(t *testing.T) {
 	s := openScene(t)
-	s.SetArtRoot("../../artpacks")
+	s.SetArtRoot(t.TempDir())
 	s.openSettings()
-	// HD2 尚未完成時保留 original，禁止偷偷退回已取消的舊 HD。
+	// 缺少完整 HD2 包時保留 original，禁止偷偷退回已取消的舊 HD。
 	for i := 0; i < 3; i++ {
 		keep, err := s.updateSettings(input.Input{Char: 'V'})
 		if err != nil || !keep {
@@ -131,6 +137,102 @@ func TestVisualSettingDoesNotSelectCancelledHD(t *testing.T) {
 		}
 		if got := s.ArtMode(); got != "original" {
 			t.Fatalf("缺少 HD2 卻選取 %q", got)
+		}
+	}
+}
+
+func TestHD2SettingsAndCompleteSceneAssets(t *testing.T) {
+	root := "../../artpacks"
+	for _, mode := range []string{"hd2-a", "hd2-b"} {
+		if _, err := os.Stat(filepath.Join(root, mode, "manifest.json")); os.IsNotExist(err) {
+			t.Skipf("本機 HD2 候選包不存在：%s", mode)
+		} else if err != nil {
+			t.Fatal(err)
+		}
+	}
+	s := openScene(t)
+	s.SetArtRoot(root)
+	w := s.World()
+	raw := append([]byte(nil), w.Block.Raw...)
+	clock := w.Clock
+	party, err := json.Marshal(w.Party)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// 真正的 F2 與 V 輸入路徑：原版 → A → B → 原版。
+	if _, err := s.Update(input.Input{Dir: input.DirNone, Fn: input.FnSettings}); err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"hd2-a", "hd2-b", "original"} {
+		if _, err := s.Update(input.Input{Dir: input.DirNone, Char: 'V'}); err != nil {
+			t.Fatal(err)
+		}
+		if s.ArtMode() != want {
+			t.Fatalf("F2 / V：得到 %s，預期 %s", s.ArtMode(), want)
+		}
+		after, err := json.Marshal(w.Party)
+		if err != nil || s.World() != w || !bytes.Equal(raw, w.Block.Raw) || clock != w.Clock || !bytes.Equal(party, after) {
+			t.Fatalf("美術切換改變遊戲狀態：%s，err=%v", want, err)
+		}
+	}
+	if _, err := s.Update(input.Input{Dir: input.DirNone, Fn: input.FnSettings}); err != nil {
+		t.Fatal(err)
+	}
+	// 以下為 renderer 整合抽樣，不代替各設施／結局的正常玩家流程。
+	for _, mode := range []string{"hd2-a", "hd2-b"} {
+		s := openScene(t)
+		if err := s.SelectArtMode(root, mode); err != nil {
+			t.Fatal(err)
+		}
+		resources, err := s.rom.Resources()
+		if err != nil {
+			t.Fatal(err)
+		}
+		seen := map[int]bool{}
+		for _, resource := range resources {
+			if err := s.LoadMap(resource.ID, 1, 1); err != nil {
+				t.Fatalf("%s 地圖 %d：%v", mode, resource.ID, err)
+			}
+			seen[s.world.Block.Tileset] = true
+			frame, err := s.ArtFrame()
+			if err != nil || frame.Bounds().Dx() != 960 || frame.Bounds().Dy() != 720 {
+				t.Fatalf("%s 地圖 %d 畫面：%v", mode, resource.ID, err)
+			}
+		}
+		if len(resources) != 42 || len(seen) != 9 {
+			t.Fatalf("%s：maps=%d tilesets=%d", mode, len(resources), len(seen))
+		}
+		for picture := 0; picture < 82; picture++ {
+			s.facility = &FacilityScene{Picture: picture}
+			frame, err := s.ArtFrame()
+			if err != nil {
+				t.Fatal(err)
+			}
+			want := color.RGBAModel.Convert(s.faithful.Scenes[picture].At(144, 126)).(color.RGBA)
+			got := frame.RGBAAt(render.FacilityPicX*render.HiScale+144,
+				faithfulContentY+render.FacilityPicY*render.HiScale+126)
+			if got != want {
+				t.Fatalf("%s 場景 %d 沒有呈現新素材：%v / %v", mode, picture, got, want)
+			}
+		}
+		s.facility = nil
+		if err := s.LoadMap(4, 18, 2); err != nil {
+			t.Fatal(err)
+		}
+		if combat, err := s.StartEncounter(); err != nil || combat == nil {
+			t.Fatalf("%s 戰鬥：%v", mode, err)
+		}
+		if _, err := s.ArtFrame(); err != nil {
+			t.Fatal(err)
+		}
+		s.combat = nil
+		s.BeginEnding()
+		if _, err := s.ArtFrame(); err != nil {
+			t.Fatal(err)
+		}
+		s.BeginTitle()
+		if _, err := s.ArtFrame(); err != nil {
+			t.Fatal(err)
 		}
 	}
 }
