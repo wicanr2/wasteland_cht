@@ -16,6 +16,11 @@ else
 fi
 evidence=/evidence/$folder
 mkdir -p "$evidence/window" /tmp/wl-package-runtime
+if [ "$platform" = windows-x64 ]; then
+    cp /src/tools/check_package_gui.sh "$evidence/check_package_gui.sh"
+else
+    cp /src/tools/check_package_gui.sh "$evidence/driver.sh"
+fi
 chmod 700 /tmp/wl-package-runtime
 export DISPLAY=:99 LANG=C.utf8 LC_ALL=C.utf8
 export XDG_RUNTIME_DIR=/tmp/wl-package-runtime XDG_DATA_HOME=/tmp/wl-package-data XDG_CONFIG_HOME=/tmp/wl-package-config
@@ -65,6 +70,28 @@ click() {
     xdotool mousemove --window "$window" "$(( $1*window_width/960 ))" "$(( $2*window_height/720 ))"
     xdotool mousedown 1; sleep .18; xdotool mouseup 1; sleep .4
 }
+# Package windows use the launcher's default 2x scale. Under software rendering
+# a completed X11 click does not imply that the next game frame is available.
+# Acknowledge every transition from the actual window before sending more input.
+wait_frame() {
+    local reference=$1 current=$2 relation=$3 rect=$4 ready=0
+    for n in $(seq 1 120); do
+        shot "$current"
+        ready=$(python3 - "$evidence/$reference.png" "$evidence/$current.png" "$relation" "$rect" <<'PY'
+from PIL import Image,ImageChops
+import sys
+r=tuple(map(int,sys.argv[4].split(',')))
+a,b=[Image.open(p).convert('RGB').crop(r) for p in sys.argv[1:3]]
+same=ImageChops.difference(a,b).getbbox() is None
+print(int(same if sys.argv[3]=='equal' else not same))
+PY
+)
+        [ "$ready" != 1 ] || break
+        sleep .15
+    done
+    printf '%(%s)T frame %s %s %s attempts=%s\n' -1 "$reference" "$relation" "$current" "$n" >> "$evidence/input.log"
+    test "$ready" = 1
+}
 for n in $(seq 1 120); do
     shot 00-title
     ready=$(convert "$evidence/00-title.png" -format '%[fx:mean>0.002]' info:)
@@ -90,61 +117,81 @@ PY
     test "$changed" = 1
 }
 click 480 565
-shot 01-original
+wait_frame 00-title 01-original different 352,542,608,590
 click 250 22
-shot 02-noto
+wait_frame 01-original 02-noto different 212,6,316,38
 click 340 22
-shot 03-noto-16
+wait_frame 02-noto 03-noto-16 different 324,6,436,38
 click 420 22
+wait_frame 03-noto-16 03-noto-18 different 324,6,436,38
 click 420 22
-shot 04-noto-20
+wait_frame 03-noto-18 04-noto-20 different 324,6,436,38
 click 340 22
+wait_frame 02-noto 04-noto-18 equal 324,6,436,38
 click 250 22
+wait_frame 01-original 04-rounded-18 equal 212,6,316,38
 click 140 22
 if [ "$mode" = full-local ]; then
     wait_art 01-original 05-art-a
     click 178 22
     wait_art 05-art-a 06-art-b-modern
     click 500 22
-    shot 06-art-b-modern
+    wait_frame 05-art-a 06-art-b-modern different 444,6,564,38
 else
-    shot 05-missing-hd2
+    wait_frame 04-rounded-18 05-missing-hd2 different 16,486,948,654
     send Escape
+    wait_frame 01-original 06-original-restored equal 24,84,888,468
 fi
 click 730 22
-shot 07-saved
+if [ "$mode" = full-local ]; then
+    wait_frame 06-art-b-modern 07-saved different 16,486,948,654
+else
+    wait_frame 06-original-restored 07-saved different 16,486,948,654
+fi
 send Up
-shot 08-moved
+wait_frame 07-saved 08-moved different 24,84,888,468
 click 820 22
-shot 09-loaded
+wait_frame 07-saved 09-loaded equal 24,84,888,468
 send Up
+wait_frame 09-loaded 09-ranger-approach different 24,84,888,468
 send Down
+wait_frame 09-ranger-approach 09-ranger-ask different 16,486,948,654
 send y
-shot 10-ranger-center
+wait_frame 09-ranger-ask 10-ranger-center different 24,84,888,468
 send p
-shot 11-ranger-return
+wait_frame 10-ranger-center 11-ranger-return different 24,84,888,468
 send F9
+# Facing is presentation state, retained by QuickLoad rather than serialized.
+# After the facility round trip it is Down instead of the initial Up. The first
+# save/load above still requires equality of the entire map, including the party.
+wait_frame 11-ranger-return 11-reloaded different 16,486,948,654
 send 1
-shot 12-character
+wait_frame 11-reloaded 12-character different 16,154,948,654
 send Return
-shot 13-items
+wait_frame 12-character 13-items different 32,222,924,626
 click 38 264
-shot 14-item-action
+wait_frame 13-items 14-item-action different 32,222,924,626
 send Escape
+wait_frame 14-item-action 14-item-return different 32,222,924,626
 send Escape
+wait_frame 11-reloaded 14-map-return equal 24,84,888,468
 send p
-shot 15-journal
+wait_frame 14-map-return 15-journal different 16,154,948,654
 send Escape
+wait_frame 14-map-return 15-journal-return equal 24,84,888,468
 click 908 22
-shot 16-settings
+wait_frame 15-journal-return 16-settings different 16,154,948,654
 send Escape
+wait_frame 14-map-return 16-settings-return equal 24,84,888,468
 send F10
-shot 17-quit
+wait_frame 16-settings-return 17-quit different 16,154,948,654
 click 250 22
 click 730 22
 shot 18-quit-owned
 send n
+wait_frame 16-settings-return 18-quit-cancel equal 24,84,888,468
 send F10
+wait_frame 18-quit-cancel 19-quit different 16,154,948,654
 send y
 if [ "$platform" = linux-x64 ]; then
     for n in $(seq 1 120); do kill -0 "$game_pid" 2>/dev/null || break; sleep .1; done

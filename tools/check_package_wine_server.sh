@@ -9,6 +9,7 @@ export ALSA_CONFIG_PATH=/tmp/wl-package-alsa.conf
 printf 'pcm.!default { type null }\n' > "$ALSA_CONFIG_PATH"
 evidence=/evidence/full-local-windows-wine
 mkdir -p "$evidence"
+cp /src/tools/check_package_wine_server.sh "$evidence/check_package_wine_server.sh"
 game_pid= xvfb_pid=
 cleanup() {
     [ -z "$game_pid" ] || kill "$game_pid" 2>/dev/null || true

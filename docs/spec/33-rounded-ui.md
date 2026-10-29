@@ -43,7 +43,8 @@
 
 遊戲規則、亂數、地圖、物品、存檔 schema 與舊交付包維持。新介面不是原版逐像素還原。
 FreeType 草稿與 Go 字型光柵器的抗鋸齒可不同，但字型、尺寸、幾何與配色不能自行另改。
-新包版號與公開發布不在本輪決定內；驗證先使用工作區開發產物。
+本規格不決定版號或公開發布。後續本機封裝依 [封裝說明](../packaging.md)，
+開發產物與實際封包的驗證分開保存。
 
 ## 驗收
 
@@ -68,3 +69,10 @@ Windows x64 與 macOS x64／arm64 已交叉編譯，Mac 最低版本仍為 11.0�
 驗證入口為 [GUI 腳本](../../tools/check_rounded_ui_gui.sh)及
 [定版核對工具](../../tools/verify_rounded_ui.py)，收據與同狀態比較在
 `workplace/art-preview/ui-implementation-review.json`、`ui-implemented-vs-approved.png`。
+
+後續 `v.1.0.1-20261029` 六個本機包已加入本介面，內容、架構、字型授權與雜湊通過。
+Linux patch／full-local 及 Windows Wine 完整包均從實際啟動器進標題，完成字型／字級、
+三種美術、設施往返、人物／物品、手札、存讀檔與退出抽測；patch 以缺包提示代替 HD2。
+原生 Windows／macOS 的限制維持。封包來源為 `e122d7b`，收據在該版 `smoke/`，
+由 [版本參數化 GUI 工具](../../tools/check_package_gui.sh)及
+[清單工具](../../tools/finalize_dist.py)核對實際封包與腳本雜湊。

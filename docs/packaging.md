@@ -42,6 +42,7 @@ tools/dist.sh v.1.0.1-20261029
 |---|---|---|
 | Linux／Windows 建置與封裝 | `san1-go:1.26.7-ebiten2.9.9-r1` | Go 1.26.7、X11／GL、squashfs、Python、Xvfb |
 | macOS 交叉編譯 | `cok-osxcross:go1.24.13-sdk15.5-r1` | 專案指定的 Go 1.24.13、osxcross、MacOSX15.5 SDK、lipo，明確設定 macOS 11 |
+| Windows 補充試玩 | `cok-wine-verify:noble-r1` | Wine、Xvfb；僅用本輪專屬前綴與 X11 socket |
 
 可用 `WL_GO_IMAGE`、`WL_PKG_IMAGE`、`WL_OSXCROSS_IMAGE` 指定相容工具映像。
 包內 manifest 記錄實際建置映像，交付清單另記映像 ID。所有工作均使用
@@ -80,6 +81,24 @@ Go／X11 Docker 工具映像內執行，參數為模式、完整版本及平台�
 Windows 使用 [Wine 伺服器](../tools/check_package_wine_server.sh)從實際中文批次檔開場，
 兩個容器只共用本輪 X11 socket，Wine 前綴隔離。全尺寸視窗與 960×720 邏輯圖同時保存，
 滑鼠位置由實際視窗尺寸換算。收據綁定封包雜湊、字型工具列、A／B、存讀檔與正常退出。
+證據目錄另保存當次使用的腳本，交付清單核對副本與收據中的腳本雜湊。
+每次操作後先確認實際視窗更新，再送下一個輸入；避免軟體渲染下固定延遲造成漏按或截到舊畫面。
+GUI 工作依序執行。容器掛載如下，來源須先確認存在：
+
+| 容器路徑 | 來源與權限 |
+|---|---|
+| `/src` | 專案根目錄，唯讀 |
+| `/evidence` | `dist-all/<版本>/smoke/`，UID/GID 對應的使用者可寫 |
+| `/pkg` | Windows ZIP 的實際解壓根目錄，唯讀；僅 Wine 伺服器使用 |
+| `/wine` | 本輪專屬 Wine 前綴，伺服器可寫、操作容器唯讀 |
+| `/tmp/.X11-unix` | 本輪專屬 socket 目錄，伺服器可寫、操作容器唯讀 |
+
+Linux 在 Go 映像內執行 `bash tools/check_package_gui.sh full-local <版本> linux-x64`，
+`patch` 以同一入口另跑。Windows 先在 Wine 映像執行
+`bash tools/check_package_wine_server.sh <版本>`，再於 Go 映像執行
+`bash tools/check_package_gui.sh full-local <版本> windows-x64`。
+兩個 Windows 容器使用相同的 `/evidence` 與專屬 socket，伺服器採 `C.utf8` locale。
+容器須另加網路隔離、資源限制、UID/GID、`--rm` 及外層逾時；完成後移除專用前綴與 socket。
 一般 S 與 F5／F9 的存檔入口不同，WLQS v2 的相容性見專案存檔規格。
 F5／F9 沿用 `DefaultQuickSavePath`：未設 `XDG_DATA_HOME` 時使用
 `<使用者家目錄>/.local/share/wasteland-cht/quicksave.wlq`，Windows 也是如此。
@@ -100,7 +119,7 @@ python3 tools/finalize_dist.py <版本>
 
 上述 Python 命令在封裝容器內執行。完整建置與檢查不是原生平台試玩的替代品。
 清單工具只在 GUI 收據的封包雜湊、實際圖片雜湊與模式驗證旗標相符時列為通過；
-沒有收據時列為未執行。最終腳本與收據入口見 `workplace/art-preview/v100-package-gui.sh`、
-`v100-wine-server.sh`、`v100-wine-client.sh` 與該版 `smoke/`。
+沒有收據時列為未執行。新版使用上述兩份版本參數化腳本與該版 `smoke/`；
+`workplace/art-preview/v100-*.sh` 只重現先前版本，不作新版入口。
 本機 Linux GUI、Wine 的 Windows 補充檢查與 macOS 結構驗證分開記錄，未執行的
 原生 Windows／macOS 實機項目不得標成通過。每輪結果見 [WORKLOG](../WORKLOG.md)。

@@ -52,6 +52,8 @@ def finalize(version):
             assert data.get("load_restores_exact_crop"), receipt
             assert data["package_sha256"] == package["sha256"], receipt
             assert data.get("modern_ui_verified") is True, receipt
+            driver = receipt.parent / ("check_package_gui.sh" if platform == "windows-x64" else "driver.sh")
+            assert sha(driver) == data["driver_sha256"], driver
             if needs_visual:
                 assert data.get("visual_modes_verified") is True, receipt
             for screenshot in data["screenshots"]:
@@ -80,6 +82,8 @@ def finalize(version):
               "", "來源與重現入口：專案 docs/packaging.md、tools/dist.sh、tools/finalize_dist.py。", ""]
     if (smoke / "hd2-ab-final.png").is_file():
         lines += ["", "[HD2 A／B 實際遊戲畫面](smoke/hd2-ab-final.png)", ""]
+    if (smoke / "rounded-ui-review.png").is_file():
+        lines += ["", "[新介面實際操作截圖](smoke/rounded-ui-review.png)", ""]
     (out / "README.md").write_text("\n".join(lines))
     inputs = [REPO / p for p in ("tools/package.sh", "tools/package_container.sh", "tools/pack_wrap.sh",
               "tools/verify_package.py", "tools/finalize_dist.py", "cmd/wasteland/main.go",
