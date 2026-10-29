@@ -76,6 +76,7 @@ ui:settings.modern	Modern score
 ui:settings.on	ON
 ui:settings.off	OFF
 ui:settings.close	ESC close
+ui:settings.visualunavailable	HD2 art pack unavailable.\x0DKeep current art mode.\x0DESC close
 ui:quit.ask	Quit? It will save first.  Y / N
 ui:quit.savefailed	Save failed: %s
 ui:quick.saved	Quick saved.

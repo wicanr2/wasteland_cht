@@ -6,6 +6,7 @@ import (
 	"image/color"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/wicanr2/wasteland_cht/internal/game"
@@ -138,6 +139,24 @@ func TestVisualSettingDoesNotSelectCancelledHD(t *testing.T) {
 		if got := s.ArtMode(); got != "original" {
 			t.Fatalf("缺少 HD2 卻選取 %q", got)
 		}
+	}
+}
+
+func TestMissingHD2ShowsLocalizedMessageWithoutFilesystemDetails(t *testing.T) {
+	s := openScene(t)
+	s.SetArtRoot(t.TempDir())
+	if err := s.LoadCatalogue("../../translations/zh-Hant.cat"); err != nil {
+		t.Fatal(err)
+	}
+	s.openSettings()
+	if _, err := s.Update(input.Input{Dir: input.DirNone, Char: 'V'}); err != nil {
+		t.Fatal(err)
+	}
+	if s.ArtMode() != "original" || s.message != "" || !strings.Contains(s.cjk, "HD2") {
+		t.Fatalf("缺包時未保留原版與單一在地化提示：mode=%s message=%q cjk=%q", s.ArtMode(), s.message, s.cjk)
+	}
+	if strings.Contains(s.cjk, s.artRoot) || strings.Contains(s.cjk, "manifest.json") {
+		t.Fatal("玩家提示包含內部檔案路徑")
 	}
 }
 

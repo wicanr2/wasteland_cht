@@ -178,8 +178,11 @@ func (s *Scene) updateSettings(in input.Input) (bool, error) {
 		if err := s.SelectArtMode(s.artRoot, next); err != nil {
 			// SelectArtMode 是原子切換：失敗時舊模式仍在。錯誤留在設定面板，
 			// 玩家可以直接關閉或繼續使用現行畫面。
-			s.message = "VISUAL MODE LOAD FAILED: " + err.Error()
-			s.cjk = "美術模式載入失敗：" + err.Error()
+			s.message = "HD2 art pack unavailable.\rKeep current art mode.\rESC close"
+			s.cjk = s.uiText("settings.visualunavailable")
+			if s.cjk != "" {
+				s.message = ""
+			}
 			s.dirty = true
 			return true, nil
 		}

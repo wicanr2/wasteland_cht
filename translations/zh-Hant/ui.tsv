@@ -69,6 +69,7 @@ ui:settings.modern	現代配樂
 ui:settings.on	開
 ui:settings.off	關
 ui:settings.close	ESC 關閉
+ui:settings.visualunavailable	未附完整 HD2 美術包。\x0D繼續使用目前畫面。\x0DESC 關閉
 ui:quit.ask	要離開遊戲嗎？會先自動存檔。　Y 是　N 否
 ui:quit.savefailed	存檔失敗：%s
 ui:quick.saved	已快速存檔。
