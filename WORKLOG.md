@@ -181,3 +181,19 @@
   `cok-osxcross:go1.24.13-sdk15.5-r1`，明確設定兩架構的部署目標為 macOS 11，
   保留原先平台宣告。新版驗證器讀取每個 Mach-O slice 的最低版本與 Go build info；
   舊候選已實測拒收。未把 metadata／交叉編譯當作 macOS 實機通過。
+- 逐張複查 GUI 後，撤回較早「A／B 都通過」的過早結論：當時的腳本只檢查存讀檔
+  與退出，未核對實際模式，部分截圖仍為 original。一次性 `v100-input-probe.go`
+  記錄真正 ui.Game → Scene 輸入，三次 V 各出現一次，排除直接場景規則輪替錯誤。
+  Linux 實際 AppImage 的診斷載入成功；改用 XTest 輸入並等待地圖像素實際變化後，
+  真實畫面可停在 A、B。在單 CPU／ALSA null 的測試環境，首幀完成曾需 16／25 秒，
+  原來固定兩秒取圖不可靠；這不作一般玩家效能量測。
+- Windows 第一張切換圖實際是缺包提示，第二張音樂切換才把錯誤清掉。
+  查到 `filepath.Clean` 在 Windows 把 manifest 的正斜線轉成反斜線，合法圖包因比較
+  不等而被拒收。新增 Windows 可執行回歸，修正前確實拒收存在的
+  `assets/tileset-0/000.png`。改用平台獨立的 slash 路徑驗證，開檔時才轉成本機分隔符號。
+  同時拒收反斜線、磁碟前綴、上層路徑與非正規路徑，不降低原有邊界檢查。
+- 新版 GUI 腳本要求 original、A、B 地圖區域兩兩有大幅像素差異，再由截圖核對模式文字，
+  不再把存讀檔或退出成功單獨當成美術切換通過。較早收據只保留為已被取代的診斷歷史。
+- 路徑修正後：Linux 資產測試 8.766 秒、HD2／設定／目錄場景測試 8.147 秒與完整 vet
+  通過。同一 Wine 前綴的 Windows 測試修正前失敗、修正後合法斜線路徑與九種拒收案例
+  全部通過，原始輸出為 `workplace/art-preview/v100-path-windows-{before,after}.log`。

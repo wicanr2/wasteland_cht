@@ -65,6 +65,31 @@ func TestLoadValidBundle(t *testing.T) {
 	}
 }
 
+func TestLoadPortableSlashPaths(t *testing.T) {
+	dir := writeBundle(t, func(m *Manifest) { m.Assets[0].Path = "assets/tileset-0/000.png" })
+	destination := filepath.Join(dir, "assets", "tileset-0", "000.png")
+	if err := os.MkdirAll(filepath.Dir(destination), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Rename(filepath.Join(dir, "tile.png"), destination); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Load(dir); err != nil {
+		t.Fatalf("跨平台 manifest 的正斜線相對路徑無法載入：%v", err)
+	}
+}
+
+func TestLoadRejectsNonportablePaths(t *testing.T) {
+	for _, name := range []string{"../tile.png", "assets/../tile.png", "assets//tile.png", "./tile.png", "/tile.png", `assets\tile.png`, "C:/tile.png", "C:tile.png", "//server/share/tile.png"} {
+		t.Run(name, func(t *testing.T) {
+			dir := writeBundle(t, func(m *Manifest) { m.Assets[0].Path = name })
+			if _, err := Load(dir); err == nil || !strings.Contains(err.Error(), "乾淨相對路徑") {
+				t.Fatalf("未在讀檔前拒收不可攜路徑 %q：%v", name, err)
+			}
+		})
+	}
+}
+
 func TestLoadRejectsBadHash(t *testing.T) {
 	dir := writeBundle(t, func(m *Manifest) { m.Assets[0].SHA256 = strings.Repeat("0", 64) })
 	if _, err := Load(dir); err == nil || !strings.Contains(err.Error(), "SHA-256 不符") {

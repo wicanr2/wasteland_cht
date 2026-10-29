@@ -10,6 +10,7 @@ import (
 	"image"
 	_ "image/png"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 )
@@ -112,10 +113,13 @@ func validateAsset(dir string, a Asset) error {
 	if a.ID == "" || a.Kind == "" || a.Path == "" {
 		return fmt.Errorf("id、kind 與 path 不得為空")
 	}
-	if filepath.IsAbs(a.Path) || filepath.Clean(a.Path) != a.Path || strings.HasPrefix(a.Path, ".."+string(filepath.Separator)) || a.Path == ".." {
+	// JSON paths use slash-separated portable names on every platform. Native
+	// filepath.Clean rewrites these to backslashes on Windows and rejects valid
+	// generated bundles. Convert only when opening the validated local file.
+	if strings.ContainsAny(a.Path, `\:`) || path.IsAbs(a.Path) || path.Clean(a.Path) != a.Path || strings.HasPrefix(a.Path, "../") || a.Path == ".." {
 		return fmt.Errorf("path 必須是包內的乾淨相對路徑：%q", a.Path)
 	}
-	if strings.ToLower(filepath.Ext(a.Path)) != ".png" {
+	if strings.ToLower(path.Ext(a.Path)) != ".png" {
 		return fmt.Errorf("第一階段只接受 PNG：%q", a.Path)
 	}
 	if a.Width <= 0 || a.Height <= 0 {
@@ -125,7 +129,7 @@ func validateAsset(dir string, a Asset) error {
 	if err != nil || len(want) != sha256.Size {
 		return fmt.Errorf("SHA-256 格式錯誤")
 	}
-	p := filepath.Join(dir, a.Path)
+	p := filepath.Join(dir, filepath.FromSlash(a.Path))
 	raw, err := os.ReadFile(p)
 	if err != nil {
 		return fmt.Errorf("讀取 %s：%w", a.Path, err)
