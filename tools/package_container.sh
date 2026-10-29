@@ -40,6 +40,7 @@ if [ "${MAC:-0}" = 1 ]; then
     [ -n "$SDK" ] || { echo '缺少 macOS SDK' >&2; exit 78; }
     mac_build() { # $1 GOARCH $2 CC $3 輸出 $4 套件
         GOOS=darwin GOARCH="$1" CGO_ENABLED=1 CC="$2" \
+            MACOSX_DEPLOYMENT_TARGET=11.0 CGO_CFLAGS=-mmacosx-version-min=11.0 CGO_LDFLAGS=-mmacosx-version-min=11.0 \
             "$GO" build -trimpath -buildvcs=false -ldflags="-s -w -X main.buildVersion=$VERSION" -o "$3" "$4"
     }
     for pair in "wasteland ./cmd/wasteland" "wl-setup ./cmd/wl-setup"; do

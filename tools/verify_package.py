@@ -34,6 +34,29 @@ def architectures(path):
     return ["darwin-amd64", "darwin-arm64"]
 
 
+def macos_build_versions(path, temp):
+    data = path.read_bytes()
+    builds = {}
+    for i in range(struct.unpack_from(">I", data, 4)[0]):
+        cpu, _, offset, length, _ = struct.unpack_from(">IIIII", data, 8 + i * 20)
+        assert data[offset:offset + 4] == b"\xcf\xfa\xed\xfe"
+        pos = offset + 32
+        minimums = []
+        for _ in range(struct.unpack_from("<I", data, offset + 16)[0]):
+            cmd, size = struct.unpack_from("<II", data, pos)
+            if cmd in (0x24, 0x32):
+                value = struct.unpack_from("<I", data, pos + (12 if cmd == 0x32 else 8))[0]
+                minimums.append((value >> 16, (value >> 8) & 255, value & 255))
+            pos += size
+        assert minimums == [(11, 0, 0)], (path, cpu, minimums)
+        thin = temp / f"{path.name}-{cpu:x}"
+        thin.write_bytes(data[offset:offset + length])
+        go_version = subprocess.check_output(["go", "version", "-m", str(thin)], text=True).splitlines()[0].split()[-1]
+        assert go_version == "go1.24.13", (path, cpu, go_version)
+        builds[f"{cpu:x}"] = {"minimum_macos": "11.0.0", "go_version": go_version}
+    return builds
+
+
 def verify(package, version, mode, platform):
     assert re.fullmatch(r"v\.\d+\.\d+\.\d+-\d{8}", version), version
     pkg = f"wasteland-cht-{version}-{platform}-{mode}"
@@ -67,6 +90,7 @@ def verify(package, version, mode, platform):
                 plist = plistlib.loads((app / "Info.plist").read_bytes())
                 assert plist["WastelandReleaseVersion"] == version
                 assert plist["CFBundleShortVersionString"] == version[2:].rsplit("-", 1)[0]
+                assert plist["LSMinimumSystemVersion"] == "11.0"
                 root = app / "Resources"
             else:
                 batch = (root / "開始遊戲.bat").read_bytes()
@@ -81,6 +105,7 @@ def verify(package, version, mode, platform):
         result["build_manifest"] = manifest
         suffix = ".exe" if platform == "windows-x64" else ""
         result["architectures"] = {}
+        result["macos_builds"] = {}
         for name in ("wasteland", "wl-setup"):
             binary = root / "bin" / (name + suffix)
             result["architectures"][name] = architectures(binary)
@@ -89,6 +114,8 @@ def verify(package, version, mode, platform):
                 "macos-universal": ["darwin-amd64", "darwin-arm64"],
             }[platform]
             assert version.encode() in binary.read_bytes(), binary
+            if platform == "macos-universal":
+                result["macos_builds"][name] = macos_build_versions(binary, temp)
         for name in ("zh-Hant.cat", "paragraphs-zh-Hant.cat"):
             assert sha(root / "translations" / name) == sha(REPO / "translations" / name)
         assert not any((root / "artpacks" / old).exists() for old in ("faithful-hd", "reimagined"))

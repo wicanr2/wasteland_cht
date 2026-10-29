@@ -8,7 +8,7 @@ case "$MODE" in patch|full-local) ;; *) echo '模式必須為 patch 或 full-loc
 case "$PLATFORM" in linux-x64|windows-x64|macos-universal) ;; *) echo '未知平台' >&2; exit 2 ;; esac
 
 BUILD_IMAGE=${WL_GO_IMAGE:-san1-go:1.26.7-ebiten2.9.9-r1}
-[ "$PLATFORM" != macos-universal ] || BUILD_IMAGE=${WL_OSXCROSS_IMAGE:-san1-macos:1.26.7-sdk15.5-r1}
+[ "$PLATFORM" != macos-universal ] || BUILD_IMAGE=${WL_OSXCROSS_IMAGE:-cok-osxcross:go1.24.13-sdk15.5-r1}
 PACK_IMAGE=${WL_PKG_IMAGE:-san1-go:1.26.7-ebiten2.9.9-r1}
 DATA_DIR=${WL_DATA:-$ROOT/workplace/orig/wastland}
 FONT_DIR=${WL_ETEN:-$ROOT/workplace/eten}

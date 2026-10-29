@@ -11,7 +11,7 @@ for mode in patch full-local; do
 done
 PACK_IMAGE=${WL_PKG_IMAGE:-san1-go:1.26.7-ebiten2.9.9-r1}
 GO_IMAGE=${WL_GO_IMAGE:-san1-go:1.26.7-ebiten2.9.9-r1}
-MAC_IMAGE=${WL_OSXCROSS_IMAGE:-san1-macos:1.26.7-sdk15.5-r1}
+MAC_IMAGE=${WL_OSXCROSS_IMAGE:-cok-osxcross:go1.24.13-sdk15.5-r1}
 test -d "$ROOT/dist-all/$VERSION"
 timeout 240s docker run --rm --network none --memory 2g --cpus 2 --pids-limit 128 \
     --log-opt max-size=10m --log-opt max-file=3 --user "$(id -u):$(id -g)" \

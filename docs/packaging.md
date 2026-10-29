@@ -40,7 +40,7 @@ tools/dist.sh v.1.0.0-20261029
 | 用途 | 目前映像 | 內容 |
 |---|---|---|
 | Linux／Windows 建置與封裝 | `san1-go:1.26.7-ebiten2.9.9-r1` | Go 1.26.7、X11／GL、squashfs、Python、Xvfb |
-| macOS 交叉編譯 | `san1-macos:1.26.7-sdk15.5-r1` | Go 1.26.7、osxcross、MacOSX15.5 SDK、lipo |
+| macOS 交叉編譯 | `cok-osxcross:go1.24.13-sdk15.5-r1` | 專案指定的 Go 1.24.13、osxcross、MacOSX15.5 SDK、lipo，明確設定 macOS 11 |
 
 可用 `WL_GO_IMAGE`、`WL_PKG_IMAGE`、`WL_OSXCROSS_IMAGE` 指定相容工具映像。
 包內 manifest 記錄實際建置映像，交付清單另記映像 ID。所有工作均使用
