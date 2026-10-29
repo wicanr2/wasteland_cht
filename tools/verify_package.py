@@ -74,6 +74,9 @@ def verify(package, version, mode, platform):
                 subprocess.run(["python3", str(REPO / "tools/verify_windows_zip.py"), str(package)], check=True)
         manifest = (root / "PACKAGE-MANIFEST.txt").read_text()
         assert f"Version: {version}\n" in manifest and f"Package: {pkg}\n" in manifest
+        commit = re.search(r"^Commit: ([0-9a-f]{40}|[0-9a-f]{64})$", manifest, re.MULTILINE)
+        assert commit, "Missing source commit"
+        result["source_commit"] = commit.group(1)
         assert "LicenseRef-RRSAL-1.0" in (root / "LICENSE").read_text()
         result["build_manifest"] = manifest
         suffix = ".exe" if platform == "windows-x64" else ""

@@ -26,6 +26,7 @@ fi
 RUNTIME="$ROOT/workplace/appimage/runtime-x86_64"
 [ "$PLATFORM" != linux-x64 ] || [ -f "$RUNTIME" ] || { echo '缺少已封存的 AppImage runtime，見 docs/packaging.md' >&2; exit 1; }
 PKG="wasteland-cht-${VERSION}-${PLATFORM}-${MODE}"
+SOURCE_COMMIT=$(git -C "$ROOT" rev-parse HEAD)
 
 # 先在既有工作樹掛載中建立明確輸出目錄，避免 dockerd 以 root 建立缺少的來源。
 timeout 30s docker run --rm --network none --memory 256m --cpus 1 --pids-limit 64 \
@@ -45,7 +46,7 @@ run() {
         --cpus "${WL_GO_CPUS:-2}" --memory "${WL_GO_MEM:-3g}" --pids-limit 512 \
         --user "$(id -u):$(id -g)" -e HOME=/tmp \
         -e GOCACHE=/gocache -e GOMODCACHE=/gomod -e GOPROXY=off -e GOFLAGS=-buildvcs=false \
-        -e WL_RELEASE_VERSION="$VERSION" -e WL_BUILD_IMAGE="$BUILD_IMAGE" \
+        -e WL_RELEASE_VERSION="$VERSION" -e WL_BUILD_IMAGE="$BUILD_IMAGE" -e WL_SOURCE_COMMIT="$SOURCE_COMMIT" \
         -v "$ROOT:/src:ro" -v "$ROOT/workplace/gocache/build:/gocache" -v "$ROOT/workplace/gocache/mod:/gomod" \
         -v "$ROOT/dist-build/$VERSION/$MODE/$PLATFORM:/stage" \
         -v "$ROOT/dist-all/$VERSION/$MODE:/out" "${INPUT_ARGS[@]}" \

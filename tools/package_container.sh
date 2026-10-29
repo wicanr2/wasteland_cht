@@ -8,6 +8,8 @@ MODE=$1; PLATFORM=$2; OUT_ROOT=$3; INPUT=${4:-}; FONT_INPUT=${5:-}; MUSIC_INPUT=
 ROOT=/src
 GO=/usr/local/go/bin/go
 VERSION=${WL_RELEASE_VERSION:?必須指定 WL_RELEASE_VERSION}
+SOURCE_COMMIT=${WL_SOURCE_COMMIT:?必須指定 WL_SOURCE_COMMIT}
+[[ "$SOURCE_COMMIT" =~ ^[0-9a-f]{40}$|^[0-9a-f]{64}$ ]] || { echo '來源提交格式錯誤' >&2; exit 2; }
 [[ "$VERSION" =~ ^v\.[0-9]+\.[0-9]+\.[0-9]+-[0-9]{8}$ ]] || { echo '版號格式錯誤' >&2; exit 2; }
 case "$MODE" in patch|full-local) ;; *) echo '未知封包模式' >&2; exit 2 ;; esac
 
@@ -116,7 +118,7 @@ if [ "$MODE" = full-local ]; then
 fi
 
 printf 'Version: %s\nPackage: %s\nCommit: %s\nMode: %s\nPlatform: %s\nBuild image: %s\n' \
-    "$VERSION" "$PKG" "$(git -C "$ROOT" rev-parse HEAD)" "$MODE" "$PLATFORM" "${WL_BUILD_IMAGE:-unknown}" \
+    "$VERSION" "$PKG" "$SOURCE_COMMIT" "$MODE" "$PLATFORM" "${WL_BUILD_IMAGE:-unknown}" \
     > "$D/PACKAGE-MANIFEST.txt"
 if [ "${MAC:-0}" = 1 ]; then
     printf 'SDK: %s\nArchitectures: x86_64 arm64 (lipo universal)\n' "$SDK" >> "$D/PACKAGE-MANIFEST.txt"

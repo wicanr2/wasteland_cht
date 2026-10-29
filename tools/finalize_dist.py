@@ -21,17 +21,20 @@ def finalize(version):
     smoke = out / "smoke"
     smoke.mkdir(exist_ok=True)
     packages = []
+    source_commits = set()
     for mode in ("patch", "full-local"):
         for platform in ("linux-x64", "windows-x64", "macos-universal"):
             suffix = ".AppImage" if platform == "linux-x64" else ".zip"
             package = out / mode / platform / f"wasteland-cht-{version}-{platform}-{mode}{suffix}"
             result = verify(package, version, mode, platform)
+            source_commits.add(result["source_commit"])
             receipt = smoke / f"{mode}-{platform}-content.json"
             receipt.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
             packages.append({"path": str(package.relative_to(out)), "bytes": result["bytes"],
                              "sha256": result["sha256"], "mode": mode, "platform": platform,
                              "rights": result["rights"], "receipt": str(receipt.relative_to(out))})
             print(f"VERIFIED {mode} {platform}", flush=True)
+    assert len(source_commits) == 1, f"同版封包來源提交不一致：{source_commits}"
     lines = [f"# Wasteland 荒野遊俠 {version}", "", "本機測試交付，未上傳或發布。", "",
              "| 平台 | 引擎與翻譯 | 本機完整版 |", "|---|---|---|"]
     for platform in ("linux-x64", "windows-x64", "macos-universal"):
@@ -50,7 +53,8 @@ def finalize(version):
     inputs += [REPO / "artpacks" / m / "manifest.json" for m in ("hd2-a", "hd2-b")]
     files = [{"path": str(p.relative_to(out)), "bytes": p.stat().st_size, "sha256": sha(p)}
              for p in sorted(out.rglob("*")) if p.is_file() and p.name != "SHA256SUMS.json"]
-    manifest = {"schema": 1, "version": version, "publication": "local-only; no tag or upload",
+    manifest = {"schema": 1, "version": version, "source_commit": next(iter(source_commits)),
+                "publication": "local-only; no tag or upload",
                 "packages": packages, "files": files,
                 "inputs": [{"path": str(p.relative_to(REPO)), "sha256": sha(p)} for p in inputs],
                 "tool_images": {key: os.environ.get(key, "not supplied") for key in
