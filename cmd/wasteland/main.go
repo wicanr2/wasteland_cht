@@ -24,7 +24,11 @@ import (
 	"github.com/wicanr2/wasteland_cht/internal/viewer"
 )
 
+// buildVersion 由版本化封包的 linker 參數注入；直接建置時明示為開發版。
+var buildVersion = "dev"
+
 func main() {
+	showVersion := flag.Bool("version", false, "顯示版本並離開")
 	romDir := flag.String("rom", "workplace/orig/wastland", "原版資料目錄（玩家自備）")
 	imagePath := flag.String("image", "workplace/analysis/unpacked/wl.merged.exe", "解包合成映像")
 	mode := flag.String("mode", "play", "play｜map｜title｜pic")
@@ -54,6 +58,10 @@ func main() {
 	artMode := flag.String("art-mode", "original", "美術模式：original｜hd2-a｜hd2-b，HD2 需完整美術包")
 	artRoot := flag.String("art-root", "artpacks", "新版美術包根目錄")
 	flag.Parse()
+	if *showVersion {
+		fmt.Println(buildVersion)
+		return
+	}
 
 	rom, err := assets.Open(*romDir)
 	if err == nil {
@@ -122,6 +130,9 @@ func main() {
 	}
 	if err == nil {
 		// 檢視器模式沒有 Musical，傳了也不會播；只有 play 需要。
+		if buildVersion != "dev" {
+			title += " " + buildVersion
+		}
 		music := ""
 		if *mode == "play" {
 			music = *musicDir

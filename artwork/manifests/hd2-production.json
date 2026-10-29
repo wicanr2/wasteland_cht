@@ -809,9 +809,11 @@
       "prompt": "Restore and redraw reference 1 as usable indexed game tiles for a faithful 1988 Wasteland remake, post-nuclear America. EXACT GRID FOUR COLUMNS, 4 ROWS, 16 occupied cells row-major; keep final unused black padding cells. Preserve ALL straight solid BRIGHT MAGENTA #FF00FF frame bands around and between cells; these are machine-readable crop guides, not game pixels. Keep precise per-cell silhouette, footprint, orientation, material boundary and edge connection positions. Redraw each source square independently, not a composed scene. Fragmentary walls, roof corners, bridges, shorelines and rubble remain fragments, with matching edge coordinates. Actors retain the original FRONT-FACING pose, stance, hair, clothing colors and attached objects; do not turn them into overhead heads or new characters. Cyan/blue can be clothing, furniture, masonry or water: follow the actual source form, do not turn every cyan area into water. Grey/white checkered regions are literal opaque floor, NEVER transparency. Red/pink structures retain their form; green ground stays green, dark interiors remain dark. Use reference 2 only for the approved style, palette richness and surface density, not its city layout or contents. Style: detailed deliberate PIXEL ART with crisp pixel clusters and contours. Consistent colors and material scale throughout all cells. Terrain is orthographic top-down; preserve each source figure's original view. No invented trees, doors, architecture, items, signs or scenery. Fill every cell up to its technical frame with no internal outline, cell-edge shadow, labels or margin. No UI, text, perspective change or outside shadow. Source identity and geometry take priority over decoration. Same aspect ratio as reference 1. Important for this sheet: brown chairs, consoles, ladders, pipes, geometric floor marks, cropped figures and machinery must retain their source view and silhouette. Preserve original geometric markings literally; do not read them as new text or replace them. Do not convert geometric green/cyan patterns into natural scenery. Do not import trees, plants, architecture or palette areas from the style reference. Keep simple uncertain shapes simple. Painted style B may add smooth internal detail within the source silhouettes; do not trace every low-resolution pixel block as a big painted block.",
       "review": "Grid identity, order and source shapes visually compared. Flat blue planes replaced by grouped material batch; last surface-pattern batch replaced to avoid unconfirmed discrete objects. Scene review pending.",
       "superseded_indices": [
+        16,
         17,
         18,
-        20
+        20,
+        21
       ]
     },
     {
@@ -831,9 +833,11 @@
       "prompt": "Restore and redraw reference 1 as usable indexed game tiles for a faithful 1988 Wasteland remake, post-nuclear America. EXACT GRID FOUR COLUMNS, 4 ROWS, 16 occupied cells row-major; keep final unused black padding cells. Preserve ALL straight solid BRIGHT MAGENTA #FF00FF frame bands around and between cells; these are machine-readable crop guides, not game pixels. Keep precise per-cell silhouette, footprint, orientation, material boundary and edge connection positions. Redraw each source square independently, not a composed scene. Fragmentary walls, roof corners, bridges, shorelines and rubble remain fragments, with matching edge coordinates. Actors retain the original FRONT-FACING pose, stance, hair, clothing colors and attached objects; do not turn them into overhead heads or new characters. Cyan/blue can be clothing, furniture, masonry or water: follow the actual source form, do not turn every cyan area into water. Grey/white checkered regions are literal opaque floor, NEVER transparency. Red/pink structures retain their form; green ground stays green, dark interiors remain dark. Use reference 2 only for the approved style, palette richness and surface density, not its city layout or contents. Style: clean HAND-PAINTED high-resolution game art, subtle smooth shading and restrained brush texture. Consistent colors and material scale throughout all cells. Terrain is orthographic top-down; preserve each source figure's original view. No invented trees, doors, architecture, items, signs or scenery. Fill every cell up to its technical frame with no internal outline, cell-edge shadow, labels or margin. No UI, text, perspective change or outside shadow. Source identity and geometry take priority over decoration. Same aspect ratio as reference 1. Important for this sheet: brown chairs, consoles, ladders, pipes, geometric floor marks, cropped figures and machinery must retain their source view and silhouette. Preserve original geometric markings literally; do not read them as new text or replace them. Do not convert geometric green/cyan patterns into natural scenery. Do not import trees, plants, architecture or palette areas from the style reference. Keep simple uncertain shapes simple. Painted style B may add smooth internal detail within the source silhouettes; do not trace every low-resolution pixel block as a big painted block.",
       "review": "Grid identity, order and source shapes visually compared. Flat blue planes replaced by grouped material batch; last surface-pattern batch replaced to avoid unconfirmed discrete objects. Scene review pending.",
       "superseded_indices": [
+        16,
         17,
         18,
-        20
+        20,
+        21
       ]
     },
     {
@@ -853,7 +857,9 @@
       "prompt": "Restore and redraw reference 1 as usable indexed game tiles for a faithful 1988 Wasteland remake, post-nuclear America. EXACT GRID FOUR COLUMNS, 4 ROWS, 16 occupied cells row-major; keep final unused black padding cells. Preserve ALL straight solid BRIGHT MAGENTA #FF00FF frame bands around and between cells; these are machine-readable crop guides, not game pixels. Keep precise per-cell silhouette, footprint, orientation, material boundary and edge connection positions. Redraw each source square independently, not a composed scene. Fragmentary walls, roof corners, bridges, shorelines and rubble remain fragments, with matching edge coordinates. Actors retain the original FRONT-FACING pose, stance, hair, clothing colors and attached objects; do not turn them into overhead heads or new characters. Cyan/blue can be clothing, furniture, masonry or water: follow the actual source form, do not turn every cyan area into water. Grey/white checkered regions are literal opaque floor, NEVER transparency. Red/pink structures retain their form; green ground stays green, dark interiors remain dark. Use reference 2 only for the approved style, palette richness and surface density, not its city layout or contents. Style: detailed deliberate PIXEL ART with crisp pixel clusters and contours. Consistent colors and material scale throughout all cells. Terrain is orthographic top-down; preserve each source figure's original view. No invented trees, doors, architecture, items, signs or scenery. Fill every cell up to its technical frame with no internal outline, cell-edge shadow, labels or margin. No UI, text, perspective change or outside shadow. Source identity and geometry take priority over decoration. Same aspect ratio as reference 1. Important for this sheet: brown chairs, consoles, ladders, pipes, geometric floor marks, cropped figures and machinery must retain their source view and silhouette. Preserve original geometric markings literally; do not read them as new text or replace them. Do not convert geometric green/cyan patterns into natural scenery. Do not import trees, plants, architecture or palette areas from the style reference. Keep simple uncertain shapes simple. Painted style B may add smooth internal detail within the source silhouettes; do not trace every low-resolution pixel block as a big painted block.",
       "review": "Grid identity, order and source shapes visually compared. Flat blue planes replaced by grouped material batch; last surface-pattern batch replaced to avoid unconfirmed discrete objects. Scene review pending.",
       "superseded_indices": [
-        33
+        32,
+        33,
+        35
       ]
     },
     {
@@ -873,7 +879,9 @@
       "prompt": "Restore and redraw reference 1 as usable indexed game tiles for a faithful 1988 Wasteland remake, post-nuclear America. EXACT GRID FOUR COLUMNS, 4 ROWS, 16 occupied cells row-major; keep final unused black padding cells. Preserve ALL straight solid BRIGHT MAGENTA #FF00FF frame bands around and between cells; these are machine-readable crop guides, not game pixels. Keep precise per-cell silhouette, footprint, orientation, material boundary and edge connection positions. Redraw each source square independently, not a composed scene. Fragmentary walls, roof corners, bridges, shorelines and rubble remain fragments, with matching edge coordinates. Actors retain the original FRONT-FACING pose, stance, hair, clothing colors and attached objects; do not turn them into overhead heads or new characters. Cyan/blue can be clothing, furniture, masonry or water: follow the actual source form, do not turn every cyan area into water. Grey/white checkered regions are literal opaque floor, NEVER transparency. Red/pink structures retain their form; green ground stays green, dark interiors remain dark. Use reference 2 only for the approved style, palette richness and surface density, not its city layout or contents. Style: clean HAND-PAINTED high-resolution game art, subtle smooth shading and restrained brush texture. Consistent colors and material scale throughout all cells. Terrain is orthographic top-down; preserve each source figure's original view. No invented trees, doors, architecture, items, signs or scenery. Fill every cell up to its technical frame with no internal outline, cell-edge shadow, labels or margin. No UI, text, perspective change or outside shadow. Source identity and geometry take priority over decoration. Same aspect ratio as reference 1. Important for this sheet: brown chairs, consoles, ladders, pipes, geometric floor marks, cropped figures and machinery must retain their source view and silhouette. Preserve original geometric markings literally; do not read them as new text or replace them. Do not convert geometric green/cyan patterns into natural scenery. Do not import trees, plants, architecture or palette areas from the style reference. Keep simple uncertain shapes simple. Painted style B may add smooth internal detail within the source silhouettes; do not trace every low-resolution pixel block as a big painted block.",
       "review": "Grid identity, order and source shapes visually compared. Flat blue planes replaced by grouped material batch; last surface-pattern batch replaced to avoid unconfirmed discrete objects. Scene review pending.",
       "superseded_indices": [
-        33
+        32,
+        33,
+        35
       ]
     },
     {
@@ -893,7 +901,8 @@
       "prompt": "Restore and redraw reference 1 as usable indexed game tiles for a faithful 1988 Wasteland remake, post-nuclear America. EXACT GRID FOUR COLUMNS, 4 ROWS, 16 occupied cells row-major; keep final unused black padding cells. Preserve ALL straight solid BRIGHT MAGENTA #FF00FF frame bands around and between cells; these are machine-readable crop guides, not game pixels. Keep precise per-cell silhouette, footprint, orientation, material boundary and edge connection positions. Redraw each source square independently, not a composed scene. Fragmentary walls, roof corners, bridges, shorelines and rubble remain fragments, with matching edge coordinates. Actors retain the original FRONT-FACING pose, stance, hair, clothing colors and attached objects; do not turn them into overhead heads or new characters. Cyan/blue can be clothing, furniture, masonry or water: follow the actual source form, do not turn every cyan area into water. Grey/white checkered regions are literal opaque floor, NEVER transparency. Red/pink structures retain their form; green ground stays green, dark interiors remain dark. Use reference 2 only for the approved style, palette richness and surface density, not its city layout or contents. Style: detailed deliberate PIXEL ART with crisp pixel clusters and contours. Consistent colors and material scale throughout all cells. Terrain is orthographic top-down; preserve each source figure's original view. No invented trees, doors, architecture, items, signs or scenery. Fill every cell up to its technical frame with no internal outline, cell-edge shadow, labels or margin. No UI, text, perspective change or outside shadow. Source identity and geometry take priority over decoration. Same aspect ratio as reference 1. Important for this sheet: brown chairs, consoles, ladders, pipes, geometric floor marks, cropped figures and machinery must retain their source view and silhouette. Preserve original geometric markings literally; do not read them as new text or replace them. Do not convert geometric green/cyan patterns into natural scenery. Do not import trees, plants, architecture or palette areas from the style reference. Keep simple uncertain shapes simple. Painted style B may add smooth internal detail within the source silhouettes; do not trace every low-resolution pixel block as a big painted block.",
       "review": "Grid identity, order and source shapes visually compared. Flat blue planes replaced by grouped material batch; last surface-pattern batch replaced to avoid unconfirmed discrete objects. Scene review pending.",
       "superseded_indices": [
-        52
+        52,
+        53
       ]
     },
     {
@@ -913,7 +922,8 @@
       "prompt": "Restore and redraw reference 1 as usable indexed game tiles for a faithful 1988 Wasteland remake, post-nuclear America. EXACT GRID FOUR COLUMNS, 4 ROWS, 16 occupied cells row-major; keep final unused black padding cells. Preserve ALL straight solid BRIGHT MAGENTA #FF00FF frame bands around and between cells; these are machine-readable crop guides, not game pixels. Keep precise per-cell silhouette, footprint, orientation, material boundary and edge connection positions. Redraw each source square independently, not a composed scene. Fragmentary walls, roof corners, bridges, shorelines and rubble remain fragments, with matching edge coordinates. Actors retain the original FRONT-FACING pose, stance, hair, clothing colors and attached objects; do not turn them into overhead heads or new characters. Cyan/blue can be clothing, furniture, masonry or water: follow the actual source form, do not turn every cyan area into water. Grey/white checkered regions are literal opaque floor, NEVER transparency. Red/pink structures retain their form; green ground stays green, dark interiors remain dark. Use reference 2 only for the approved style, palette richness and surface density, not its city layout or contents. Style: clean HAND-PAINTED high-resolution game art, subtle smooth shading and restrained brush texture. Consistent colors and material scale throughout all cells. Terrain is orthographic top-down; preserve each source figure's original view. No invented trees, doors, architecture, items, signs or scenery. Fill every cell up to its technical frame with no internal outline, cell-edge shadow, labels or margin. No UI, text, perspective change or outside shadow. Source identity and geometry take priority over decoration. Same aspect ratio as reference 1. Important for this sheet: brown chairs, consoles, ladders, pipes, geometric floor marks, cropped figures and machinery must retain their source view and silhouette. Preserve original geometric markings literally; do not read them as new text or replace them. Do not convert geometric green/cyan patterns into natural scenery. Do not import trees, plants, architecture or palette areas from the style reference. Keep simple uncertain shapes simple. Painted style B may add smooth internal detail within the source silhouettes; do not trace every low-resolution pixel block as a big painted block.",
       "review": "Grid identity, order and source shapes visually compared. Flat blue planes replaced by grouped material batch; last surface-pattern batch replaced to avoid unconfirmed discrete objects. Scene review pending.",
       "superseded_indices": [
-        52
+        52,
+        53
       ]
     },
     {
@@ -931,7 +941,10 @@
       "reference": "workplace/art-reference/hd2-guides/tileset-2-064-079.png",
       "reference_sha256": "bbb86f6fe3cddf8c02ee190a17fc21b143e7337cfc695fbd1b728bc99b26795c",
       "prompt": "Restore and redraw reference 1 as usable indexed game tiles for a faithful 1988 Wasteland remake, post-nuclear America. EXACT GRID FOUR COLUMNS, 4 ROWS, 16 occupied cells row-major; keep final unused black padding cells. Preserve ALL straight solid BRIGHT MAGENTA #FF00FF frame bands around and between cells; these are machine-readable crop guides, not game pixels. Keep precise per-cell silhouette, footprint, orientation, material boundary and edge connection positions. Redraw each source square independently, not a composed scene. Fragmentary walls, roof corners, bridges, shorelines and rubble remain fragments, with matching edge coordinates. Actors retain the original FRONT-FACING pose, stance, hair, clothing colors and attached objects; do not turn them into overhead heads or new characters. Cyan/blue can be clothing, furniture, masonry or water: follow the actual source form, do not turn every cyan area into water. Grey/white checkered regions are literal opaque floor, NEVER transparency. Red/pink structures retain their form; green ground stays green, dark interiors remain dark. Use reference 2 only for the approved style, palette richness and surface density, not its city layout or contents. Style: detailed deliberate PIXEL ART with crisp pixel clusters and contours. Consistent colors and material scale throughout all cells. Terrain is orthographic top-down; preserve each source figure's original view. No invented trees, doors, architecture, items, signs or scenery. Fill every cell up to its technical frame with no internal outline, cell-edge shadow, labels or margin. No UI, text, perspective change or outside shadow. Source identity and geometry take priority over decoration. Same aspect ratio as reference 1. Important for this sheet: brown chairs, consoles, ladders, pipes, geometric floor marks, cropped figures and machinery must retain their source view and silhouette. Preserve original geometric markings literally; do not read them as new text or replace them. Do not convert geometric green/cyan patterns into natural scenery. Do not import trees, plants, architecture or palette areas from the style reference. Keep simple uncertain shapes simple. Painted style B may add smooth internal detail within the source silhouettes; do not trace every low-resolution pixel block as a big painted block.",
-      "review": "Grid identity, order and source shapes visually compared. Flat blue planes replaced by grouped material batch; last surface-pattern batch replaced to avoid unconfirmed discrete objects. Scene review pending."
+      "review": "Grid identity, order and source shapes visually compared. Flat blue planes replaced by grouped material batch; last surface-pattern batch replaced to avoid unconfirmed discrete objects. Scene review pending.",
+      "superseded_indices": [
+        71
+      ]
     },
     {
       "id": "hd2-b-tileset-2-064-079",
@@ -948,7 +961,10 @@
       "reference": "workplace/art-reference/hd2-guides/tileset-2-064-079.png",
       "reference_sha256": "bbb86f6fe3cddf8c02ee190a17fc21b143e7337cfc695fbd1b728bc99b26795c",
       "prompt": "Restore and redraw reference 1 as usable indexed game tiles for a faithful 1988 Wasteland remake, post-nuclear America. EXACT GRID FOUR COLUMNS, 4 ROWS, 16 occupied cells row-major; keep final unused black padding cells. Preserve ALL straight solid BRIGHT MAGENTA #FF00FF frame bands around and between cells; these are machine-readable crop guides, not game pixels. Keep precise per-cell silhouette, footprint, orientation, material boundary and edge connection positions. Redraw each source square independently, not a composed scene. Fragmentary walls, roof corners, bridges, shorelines and rubble remain fragments, with matching edge coordinates. Actors retain the original FRONT-FACING pose, stance, hair, clothing colors and attached objects; do not turn them into overhead heads or new characters. Cyan/blue can be clothing, furniture, masonry or water: follow the actual source form, do not turn every cyan area into water. Grey/white checkered regions are literal opaque floor, NEVER transparency. Red/pink structures retain their form; green ground stays green, dark interiors remain dark. Use reference 2 only for the approved style, palette richness and surface density, not its city layout or contents. Style: clean HAND-PAINTED high-resolution game art, subtle smooth shading and restrained brush texture. Consistent colors and material scale throughout all cells. Terrain is orthographic top-down; preserve each source figure's original view. No invented trees, doors, architecture, items, signs or scenery. Fill every cell up to its technical frame with no internal outline, cell-edge shadow, labels or margin. No UI, text, perspective change or outside shadow. Source identity and geometry take priority over decoration. Same aspect ratio as reference 1. Important for this sheet: brown chairs, consoles, ladders, pipes, geometric floor marks, cropped figures and machinery must retain their source view and silhouette. Preserve original geometric markings literally; do not read them as new text or replace them. Do not convert geometric green/cyan patterns into natural scenery. Do not import trees, plants, architecture or palette areas from the style reference. Keep simple uncertain shapes simple. Painted style B may add smooth internal detail within the source silhouettes; do not trace every low-resolution pixel block as a big painted block.",
-      "review": "Grid identity, order and source shapes visually compared. Flat blue planes replaced by grouped material batch; last surface-pattern batch replaced to avoid unconfirmed discrete objects. Scene review pending."
+      "review": "Grid identity, order and source shapes visually compared. Flat blue planes replaced by grouped material batch; last surface-pattern batch replaced to avoid unconfirmed discrete objects. Scene review pending.",
+      "superseded_indices": [
+        71
+      ]
     },
     {
       "id": "hd2-a-tileset-2-080-095",
@@ -1039,7 +1055,11 @@
       "reference": "workplace/art-reference/hd2-guides/tileset-2-112-127.png",
       "reference_sha256": "11a8992d5e917aa25ce4aafe008109dbd85199416f7e9499a3474f2d485d183d",
       "prompt": "Restore and redraw reference 1 as usable indexed game tiles for a faithful 1988 Wasteland remake, post-nuclear America. EXACT GRID FOUR COLUMNS, 4 ROWS, 16 occupied cells row-major; keep final unused black padding cells. Preserve ALL straight solid BRIGHT MAGENTA #FF00FF frame bands around and between cells; these are machine-readable crop guides, not game pixels. Keep precise per-cell silhouette, footprint, orientation, material boundary and edge connection positions. Redraw each source square independently, not a composed scene. Fragmentary walls, roof corners, bridges, shorelines and rubble remain fragments, with matching edge coordinates. Actors retain the original FRONT-FACING pose, stance, hair, clothing colors and attached objects; do not turn them into overhead heads or new characters. Cyan/blue can be clothing, furniture, masonry or water: follow the actual source form, do not turn every cyan area into water. Grey/white checkered regions are literal opaque floor, NEVER transparency. Red/pink structures retain their form; green ground stays green, dark interiors remain dark. Use reference 2 only for the approved style, palette richness and surface density, not its city layout or contents. Style: detailed deliberate PIXEL ART with crisp pixel clusters and contours. Consistent colors and material scale throughout all cells. Terrain is orthographic top-down; preserve each source figure's original view. No invented trees, doors, architecture, items, signs or scenery. Fill every cell up to its technical frame with no internal outline, cell-edge shadow, labels or margin. No UI, text, perspective change or outside shadow. Source identity and geometry take priority over decoration. Same aspect ratio as reference 1. Important for this sheet: brown chairs, consoles, ladders, pipes, geometric floor marks, cropped figures and machinery must retain their source view and silhouette. Preserve original geometric markings literally; do not read them as new text or replace them. Do not convert geometric green/cyan patterns into natural scenery. Do not import trees, plants, architecture or palette areas from the style reference. Keep simple uncertain shapes simple. Painted style B may add smooth internal detail within the source silhouettes; do not trace every low-resolution pixel block as a big painted block.",
-      "review": "Grid identity, order and source shapes visually compared. Flat blue planes replaced by grouped material batch; last surface-pattern batch replaced to avoid unconfirmed discrete objects. Scene review pending."
+      "review": "Grid identity, order and source shapes visually compared. Flat blue planes replaced by grouped material batch; last surface-pattern batch replaced to avoid unconfirmed discrete objects. Scene review pending.",
+      "superseded_indices": [
+        116,
+        117
+      ]
     },
     {
       "id": "hd2-b-tileset-2-112-127",
@@ -1056,7 +1076,11 @@
       "reference": "workplace/art-reference/hd2-guides/tileset-2-112-127.png",
       "reference_sha256": "11a8992d5e917aa25ce4aafe008109dbd85199416f7e9499a3474f2d485d183d",
       "prompt": "Restore and redraw reference 1 as usable indexed game tiles for a faithful 1988 Wasteland remake, post-nuclear America. EXACT GRID FOUR COLUMNS, 4 ROWS, 16 occupied cells row-major; keep final unused black padding cells. Preserve ALL straight solid BRIGHT MAGENTA #FF00FF frame bands around and between cells; these are machine-readable crop guides, not game pixels. Keep precise per-cell silhouette, footprint, orientation, material boundary and edge connection positions. Redraw each source square independently, not a composed scene. Fragmentary walls, roof corners, bridges, shorelines and rubble remain fragments, with matching edge coordinates. Actors retain the original FRONT-FACING pose, stance, hair, clothing colors and attached objects; do not turn them into overhead heads or new characters. Cyan/blue can be clothing, furniture, masonry or water: follow the actual source form, do not turn every cyan area into water. Grey/white checkered regions are literal opaque floor, NEVER transparency. Red/pink structures retain their form; green ground stays green, dark interiors remain dark. Use reference 2 only for the approved style, palette richness and surface density, not its city layout or contents. Style: clean HAND-PAINTED high-resolution game art, subtle smooth shading and restrained brush texture. Consistent colors and material scale throughout all cells. Terrain is orthographic top-down; preserve each source figure's original view. No invented trees, doors, architecture, items, signs or scenery. Fill every cell up to its technical frame with no internal outline, cell-edge shadow, labels or margin. No UI, text, perspective change or outside shadow. Source identity and geometry take priority over decoration. Same aspect ratio as reference 1. Important for this sheet: brown chairs, consoles, ladders, pipes, geometric floor marks, cropped figures and machinery must retain their source view and silhouette. Preserve original geometric markings literally; do not read them as new text or replace them. Do not convert geometric green/cyan patterns into natural scenery. Do not import trees, plants, architecture or palette areas from the style reference. Keep simple uncertain shapes simple. Painted style B may add smooth internal detail within the source silhouettes; do not trace every low-resolution pixel block as a big painted block.",
-      "review": "Grid identity, order and source shapes visually compared. Flat blue planes replaced by grouped material batch; last surface-pattern batch replaced to avoid unconfirmed discrete objects. Scene review pending."
+      "review": "Grid identity, order and source shapes visually compared. Flat blue planes replaced by grouped material batch; last surface-pattern batch replaced to avoid unconfirmed discrete objects. Scene review pending.",
+      "superseded_indices": [
+        116,
+        117
+      ]
     },
     {
       "id": "hd2-a-tileset-2-128-143",
@@ -1147,7 +1171,11 @@
       "reference": "workplace/art-reference/hd2-guides/tileset-2-160-162.png",
       "reference_sha256": "f1f3a782b579b0a738883b28157ff0db7ec723f8d3994402d7ed3890c519fdea",
       "prompt": "Redraw reference 1 as a technical game tilesheet. Exactly FOUR COLUMNS, ONE ROW, THREE real square tiles followed by one black padding cell. Preserve all straight solid MAGENTA #FF00FF technical frames around and between cells. The first two source cells show BLUE patterned surfaces with small red, green, white and cyan PATCHES. Keep those patches as abstract colored surface marks or reflections in their original approximate positions. DO NOT turn them into recognizable fish, animals, rocks, islands, people, debris or other discrete objects: their physical meaning is unconfirmed. Do not invent new shapes or enlarge the patches into objects. The third cell is a cropped cyan diagonal structure beside green ground and a grey/black geometric feature; preserve its exact footprint, angle, endpoints, colors and feature positions. Do not complete the structure or add holes/branches beyond source forms. Keep every cell's composition and orientation, no rearrangement. Crisp fine PIXEL ART with deliberate small pixel clusters. Reference 2 is style only, not its content. Same palette and texture scale across the first two cells, bright source colors. No text, UI, perspective change, internal borders or cell-edge shadows. Keep the final black padding cell and all magenta frames. Same aspect ratio as reference 1.",
-      "review": "Abstract red/green/cyan marks retained without identifiable new fish or rocks. Source physical meaning remains unknown; A stays deliberately conservative. Third-cell crop and frame order checked."
+      "review": "Abstract red/green/cyan marks retained without identifiable new fish or rocks. Source physical meaning remains unknown; A stays deliberately conservative. Third-cell crop and frame order checked.",
+      "superseded_indices": [
+        160,
+        161
+      ]
     },
     {
       "id": "hd2-b-tileset-2-160-162-abstract",
@@ -1164,7 +1192,11 @@
       "reference": "workplace/art-reference/hd2-guides/tileset-2-160-162.png",
       "reference_sha256": "f1f3a782b579b0a738883b28157ff0db7ec723f8d3994402d7ed3890c519fdea",
       "prompt": "Redraw reference 1 as a technical game tilesheet. Exactly FOUR COLUMNS, ONE ROW, THREE real square tiles followed by one black padding cell. Preserve all straight solid MAGENTA #FF00FF technical frames around and between cells. The first two source cells show BLUE patterned surfaces with small red, green, white and cyan PATCHES. Keep those patches as abstract colored surface marks or reflections in their original approximate positions. DO NOT turn them into recognizable fish, animals, rocks, islands, people, debris or other discrete objects: their physical meaning is unconfirmed. Do not invent new shapes or enlarge the patches into objects. The third cell is a cropped cyan diagonal structure beside green ground and a grey/black geometric feature; preserve its exact footprint, angle, endpoints, colors and feature positions. Do not complete the structure or add holes/branches beyond source forms. Keep every cell's composition and orientation, no rearrangement. Clean HAND-PAINTED high-resolution surfaces with subtle brushwork. Reference 2 is style only, not its content. Same palette and texture scale across the first two cells, bright source colors. No text, UI, perspective change, internal borders or cell-edge shadows. Keep the final black padding cell and all magenta frames. Same aspect ratio as reference 1.",
-      "review": "Abstract red/green/cyan marks retained without identifiable new fish or rocks. Source physical meaning remains unknown; A stays deliberately conservative. Third-cell crop and frame order checked."
+      "review": "Abstract red/green/cyan marks retained without identifiable new fish or rocks. Source physical meaning remains unknown; A stays deliberately conservative. Third-cell crop and frame order checked.",
+      "superseded_indices": [
+        160,
+        161
+      ]
     },
     {
       "id": "hd2-a-tileset-2-blue-planes",
@@ -1174,7 +1206,7 @@
       "count": 9,
       "cols": 4,
       "rows": 3,
-      "status": "reviewed",
+      "status": "superseded",
       "framed": true,
       "source": "artwork/source/accepted/hd2-a-tileset-2-blue-planes.png",
       "source_sha256": "a8a75a8dea1387b2c3baff703b1a52ad0c02a11159a461c69c6ac23f9f619cc8",
@@ -1202,7 +1234,7 @@
       "count": 9,
       "cols": 4,
       "rows": 3,
-      "status": "reviewed",
+      "status": "superseded",
       "framed": true,
       "source": "artwork/source/accepted/hd2-b-tileset-2-blue-planes.png",
       "source_sha256": "725feb9faf427b89c765f7abac9a8df0ff56c4ee4011e135f662f9fe16494a26",
@@ -2533,6 +2565,120 @@
       "reference_sha256": "0bb63f8b7e286d5c466aa8d1d5cd5d38763b167552eddcc5d73878b4e84701a8",
       "prompt": "Technical indexed game tile restoration. EXACT FOUR COLUMNS and ONE ROW, FIRST cell contains ONE real tile, final THREE cells are EMPTY SOLID BLACK padding. Preserve all perfectly straight solid BRIGHT MAGENTA #FF00FF separator bands around and between all four cells, including the outer frame. Redraw the FIRST cell only as detailed deliberate PIXEL ART with crisp clean pixel clusters. Keep the original pink-red ground and grey angular linework at their EXACT source coordinates and widths; these are a fragment, not a new complete object. Original cell has NO purple or magenta patches. Do not let technical magenta escape the frame into the first tile. No grass, new objects, extra wall shapes, outside shadow, UI, text or perspective. Use reference 2 for pixel-art surface style only. Fill first cell all the way to the technical frame. Keep the three unused cells black and the machine-readable magenta grid intact. Same wide 592:160 aspect ratio as reference 1.",
       "review": "Single source tile preserves pink/grey geometry; no purple contamination; three black padding cells ignored."
+    },
+    {
+      "id": "hd2-a-tileset-2-pattern-background-fix",
+      "mode": "hd2-a",
+      "tileset": 2,
+      "start": 16,
+      "count": 10,
+      "indices": [
+        16,
+        21,
+        32,
+        35,
+        53,
+        71,
+        116,
+        117,
+        160,
+        161
+      ],
+      "cols": 4,
+      "rows": 3,
+      "framed": true,
+      "status": "reviewed",
+      "source": "artwork/source/accepted/hd2-a-tileset-2-pattern-background-fix.png",
+      "source_sha256": "95b8b3f6522b6ec36b620155e53d342f7706a968f7fd0b20e4e5dece2fec8a2c",
+      "reference": "workplace/art-reference/hd2-guides/tileset-2-pattern-background-fix.png",
+      "reference_sha256": "3367aac734c48a81b3531e73e3775c212d9059692e635a9d30660f04ee476921",
+      "prompt": "Use case: style-transfer. Asset type: a precise 4-column by 3-row RPG tilesheet, 10 real tiles in row-major order followed by TWO pure black padding cells. Image 1 is the ORIGINAL geometry and color-region reference; image 2 is the existing accepted hd2-a blue-plane tilesheet, used ONLY to match its BLUE BASE COLOR and drawing style. Redraw the TEN real cells of image 1 in style A. Keep every original abstract cyan rectangle, dark-blue mark, red dash, white pixel region, black silhouette, orientation, and placement exactly in its own cell. Do not turn these abstract technical marks into water, stone, buildings, fish, plants, or other objects. CRITICAL FIX: ALL regions that are flat periwinkle blue in image 1 must use ONE matching near-flat periwinkle base throughout ALL TEN cells, matching the clean central blue of image 2 (approximately RGB 77,83,251). The previous painted version used darker and more cyan blue behind patterned cells, producing visible patchwork in-game. Remove those blue hue shifts: NO blue vignettes, NO tile lighting, NO background gradients, NO cyan-blue background wash. Match the same base at ALL edges, corners and interior blue regions. Style A: crisp detailed pixel clusters in the original colored marks; base fields remain visually flat and consistent. Preserve the thick PURE MAGENTA #FF00FF separator bars and outer border from image 1; bars must be straight, at least 16 pixels wide, visible across the entire canvas, with exactly four columns and three rows. TWO last cells remain solid black. No text, numbers, captions, shadows outside shapes or added details. Do not copy the layout of image 2; copy ONLY its blue color/style. Output one framed 4x3 tilesheet.",
+      "review": "Original abstract marks, geometry, colors and ten slot identities checked; shared periwinkle base matched to accepted flat blue planes. No invented material semantics."
+    },
+    {
+      "id": "hd2-b-tileset-2-pattern-background-fix",
+      "mode": "hd2-b",
+      "tileset": 2,
+      "start": 16,
+      "count": 10,
+      "indices": [
+        16,
+        21,
+        32,
+        35,
+        53,
+        71,
+        116,
+        117,
+        160,
+        161
+      ],
+      "cols": 4,
+      "rows": 3,
+      "framed": true,
+      "status": "reviewed",
+      "source": "artwork/source/accepted/hd2-b-tileset-2-pattern-background-fix.png",
+      "source_sha256": "0cc5151e41f62b03f12ae51581ee4883f1ba996269bf74b2cc53a62e27560916",
+      "reference": "workplace/art-reference/hd2-guides/tileset-2-pattern-background-fix.png",
+      "reference_sha256": "3367aac734c48a81b3531e73e3775c212d9059692e635a9d30660f04ee476921",
+      "prompt": "Use case: style-transfer. Asset type: a precise 4-column by 3-row RPG tilesheet, 10 real tiles in row-major order followed by TWO pure black padding cells. Image 1 is the ORIGINAL geometry and color-region reference; image 2 is the existing accepted hd2-b blue-plane tilesheet, used ONLY to match its BLUE BASE COLOR and drawing style. Redraw the TEN real cells of image 1 in style B. Keep every original abstract cyan rectangle, dark-blue mark, red dash, white pixel region, black silhouette, orientation, and placement exactly in its own cell. Do not turn these abstract technical marks into water, stone, buildings, fish, plants, or other objects. CRITICAL FIX: ALL regions that are flat periwinkle blue in image 1 must use ONE matching near-flat periwinkle base throughout ALL TEN cells, matching the clean central blue of image 2 (approximately RGB 78,82,250). The previous painted version used darker and more cyan blue behind patterned cells, producing visible patchwork in-game. Remove those blue hue shifts: NO blue vignettes, NO tile lighting, NO background gradients, NO cyan-blue background wash. Match the same base at ALL edges, corners and interior blue regions. Style B: clean high-resolution hand-painted colored marks with controlled edges; the shared blue base remains visually flat and consistent. Preserve the thick PURE MAGENTA #FF00FF separator bars and outer border from image 1; bars must be straight, at least 16 pixels wide, visible across the entire canvas, with exactly four columns and three rows. TWO last cells remain solid black. No text, numbers, captions, shadows outside shapes or added details. Do not copy the layout of image 2; copy ONLY its blue color/style. Output one framed 4x3 tilesheet.",
+      "review": "Original abstract marks, geometry, colors and ten slot identities checked; shared periwinkle base matched to accepted flat blue planes. No invented material semantics."
+    },
+    {
+      "id": "hd2-a-tileset-2-flat-continuity-fix",
+      "mode": "hd2-a",
+      "tileset": 2,
+      "start": 2,
+      "count": 9,
+      "indices": [
+        2,
+        14,
+        17,
+        18,
+        20,
+        33,
+        52,
+        82,
+        136
+      ],
+      "cols": 4,
+      "rows": 3,
+      "framed": true,
+      "status": "reviewed",
+      "source": "artwork/source/accepted/hd2-a-tileset-2-flat-continuity-fix.png",
+      "source_sha256": "955c96d9599cff08539d912dbe823fd955cc035bbca2379973bc127c02e70367",
+      "reference": "workplace/art-reference/hd2-guides/tileset-2-blue-planes.png",
+      "reference_sha256": "689ac1ea733802c60b4c9c89610790a5b06523ef7b9c845b7d274a8da4aca282",
+      "prompt": "Use case: precise-object-edit. Make a technically clean 4-column 3-row tilesheet from image 1. Image 1 is the exact geometry: NINE blue tiles with literal thin white edge stripes, followed by THREE solid black padding cells. Image 2 is the newly corrected patterned tilesheet used ONLY to match its common periwinkle BLUE BASE COLOR, never its pattern or layout. This edit fixes the remaining texture seam: the older plain blue tiles contained brush mottling or pixel grain, forming visible rectangles next to the corrected flat blue patterned tiles. Fill EVERY blue region with ONE perfectly UNIFORM flat periwinkle blue color matching the open blue background of image 2. Absolutely NO grain, noise, brush texture, vignettes, gradients or shading anywhere in the blue. The blue must look like the SAME paint field across all nine tiles. Retain image 1's exact white stripe positions, thickness and corner layout; white stripes are straight pure white. Preserve all pure magenta separator bars and the outside magenta border, exactly four columns and three rows. Nine real tiles in row-major order, three final black padding cells. No text, labels, subjects, additions or material interpretation. This is a utility flat field within the already approved HD2 style A, so prioritize flat color continuity over decoration. Output one 4x3 framed image.",
+      "review": "Nine original blue fields and white edge positions checked; reduced old grain/mottling to match corrected patterned backgrounds. Final in-game seam comparison recorded separately."
+    },
+    {
+      "id": "hd2-b-tileset-2-flat-continuity-fix",
+      "mode": "hd2-b",
+      "tileset": 2,
+      "start": 2,
+      "count": 9,
+      "indices": [
+        2,
+        14,
+        17,
+        18,
+        20,
+        33,
+        52,
+        82,
+        136
+      ],
+      "cols": 4,
+      "rows": 3,
+      "framed": true,
+      "status": "reviewed",
+      "source": "artwork/source/accepted/hd2-b-tileset-2-flat-continuity-fix.png",
+      "source_sha256": "acaf6a301e399592509b8683df19a7697b8931c49c223c70ac0c780a24785dd1",
+      "reference": "workplace/art-reference/hd2-guides/tileset-2-blue-planes.png",
+      "reference_sha256": "689ac1ea733802c60b4c9c89610790a5b06523ef7b9c845b7d274a8da4aca282",
+      "prompt": "Use case: precise-object-edit. Make a technically clean 4-column 3-row tilesheet from image 1. Image 1 is the exact geometry: NINE blue tiles with literal thin white edge stripes, followed by THREE solid black padding cells. Image 2 is the newly corrected patterned tilesheet used ONLY to match its common periwinkle BLUE BASE COLOR, never its pattern or layout. This edit fixes the remaining texture seam: the older plain blue tiles contained brush mottling or pixel grain, forming visible rectangles next to the corrected flat blue patterned tiles. Fill EVERY blue region with ONE perfectly UNIFORM flat periwinkle blue color matching the open blue background of image 2. Absolutely NO grain, noise, brush texture, vignettes, gradients or shading anywhere in the blue. The blue must look like the SAME paint field across all nine tiles. Retain image 1's exact white stripe positions, thickness and corner layout; white stripes are straight pure white. Preserve all pure magenta separator bars and the outside magenta border, exactly four columns and three rows. Nine real tiles in row-major order, three final black padding cells. No text, labels, subjects, additions or material interpretation. This is a utility flat field within the already approved HD2 style B, so prioritize flat color continuity over decoration. Output one 4x3 framed image.",
+      "review": "Nine original blue fields and white edge positions checked; reduced old grain/mottling to match corrected patterned backgrounds. Final in-game seam comparison recorded separately."
     }
   ],
   "rejected": [
@@ -4216,7 +4362,8 @@
   "rights": "Original-derived local candidates; no public distribution permission asserted.",
   "color_diagnostic": "workplace/art-preview/hd2-color-diagnostic.json",
   "prior_renderer_reviews": [
-    "workplace/art-preview/hd2-renderer-review-tile-wip.json"
+    "workplace/art-preview/hd2-renderer-review-tile-wip.json",
+    "workplace/art-preview/hd2-renderer-review-before-seam-fix.json"
   ],
   "frame_diagnostic": "workplace/art-preview/hd2-frame-diagnostic.json",
   "installed_bundles": [
@@ -4225,16 +4372,17 @@
       "path": "artpacks/hd2-a",
       "assets": 1157,
       "availability": "local-only",
-      "remaining": "Optional cross-batch material seam polish; no platform release built."
+      "remaining": "Native Windows/macOS hardware acceptance is outside this Linux session; local package verification recorded in dist-all."
     },
     {
       "mode": "hd2-b",
       "path": "artpacks/hd2-b",
       "assets": 1157,
       "availability": "local-only",
-      "remaining": "Optional cross-batch material seam polish; no platform release built."
+      "remaining": "Native Windows/macOS hardware acceptance is outside this Linux session; local package verification recorded in dist-all."
     }
   ],
   "verification_script": "workplace/art-preview/hd2-final-review.py",
-  "gui_driver": "workplace/art-preview/hd2-gui-driver.sh"
+  "gui_driver": "workplace/art-preview/hd2-gui-driver.sh",
+  "seam_review": "workplace/art-preview/hd2-seam-review.json"
 }

@@ -12,8 +12,13 @@
 set -euo pipefail
 MODE=$1; PLATFORM=$2; STAGE=$3; OUT_ROOT=$4; RUNTIME=${5:-}
 ROOT=/src
+VERSION=${WL_RELEASE_VERSION:?必須指定 WL_RELEASE_VERSION}
+[[ "$VERSION" =~ ^v\.[0-9]+\.[0-9]+\.[0-9]+-[0-9]{8}$ ]] || { echo '版號格式錯誤' >&2; exit 2; }
 PKG=$(basename "$STAGE")
 OUT="$OUT_ROOT/$PLATFORM"; mkdir -p "$OUT"
+for suffix in AppImage zip; do
+    [ ! -e "$OUT/$PKG.$suffix" ] || { echo "拒絕覆寫已存在封包：$OUT/$PKG.$suffix" >&2; exit 1; }
+done
 
 # unix_launcher 產生 Linux 與 macOS 共用的那一段。
 #
@@ -73,9 +78,10 @@ EOF
 # 開始玩.txt：兩種模式講的話不一樣，因為一種要玩家自備原版、一種不用。
 player_readme() { # $1 平台上怎麼啟動
     local howto=$1
-    if [ "$MODE" = local-full ]; then
+    if [ "$MODE" = full-local ]; then
         cat <<EOF
 《荒野遊俠》（WASTELAND, 1988）繁體中文重製版 —— 完整版
+版本：$VERSION
 
 $howto
 
@@ -86,7 +92,7 @@ $howto
 要給別人的是公開版，那一份不含上面任何一項。
 
 按鍵：方向鍵走路，U E O D V S R 是指令列，P 開手札。
-F1 說明、F2 設定（V 切換原版／忠實高清／全面重構）、F5／F9 快速存讀檔、F10 離開（會先問，也會先存檔）。
+F1 說明、F2 設定（V 切換 original／hd2-a／hd2-b，B 切換復古／現代配樂）、F5／F9 快速存讀檔、F10 離開（會先問，也會先存檔）。
 ESC 只取消、退一層，任何一層都不會結束遊戲。
 
 存檔與設定寫在你自己的資料目錄，不會動到包裡的東西。
@@ -94,6 +100,7 @@ EOF
     else
         cat <<EOF
 《荒野遊俠》（WASTELAND, 1988）繁體中文重製版
+版本：$VERSION
 
 $howto
 
@@ -109,7 +116,8 @@ $howto
 放進包旁邊的 eten/ 目錄，或用環境變數 WL_ETEN 指路。
 
 按鍵：方向鍵走路，U E O D V S R 是指令列，P 開手札。
-F1 說明、F2 設定（V 切換原版／忠實高清／全面重構）、F5／F9 快速存讀檔、F10 離開（會先問，也會先存檔）。
+F1 說明、F2 設定、F5／F9 快速存讀檔、F10 離開（會先問，也會先存檔）。
+此包只含原版模式引擎，不附 HD2 圖片或配樂。
 ESC 只取消、退一層，任何一層都不會結束遊戲。
 
 存檔寫的是原版資料目錄的**副本**，你自己那一份不會被動到。
@@ -120,6 +128,7 @@ EOF
 case "$PLATFORM" in
 linux-x64)
     [ -f "$RUNTIME" ] || { echo "缺少 AppImage runtime：$RUNTIME" >&2; exit 1; }
+    printf '%s  %s\n' 1cc49bcf1e2ccd593c379adb17c9f85a36d619088296504de95b1d06215aebbf "$RUNTIME" | sha256sum -c - >/dev/null
     APPDIR=/tmp/AppDir; rm -rf "$APPDIR"; mkdir -p "$APPDIR/usr"
     cp -a "$STAGE/." "$APPDIR/usr/"
     # 動態相依：Ebiten 在 Linux 走 cgo（X11／GL／ALSA），把非 glibc 的那幾支帶著走。
@@ -134,7 +143,7 @@ linux-x64)
     player_readme "把這個 AppImage 加上執行權限（chmod +x）之後雙擊，或在終端機直接執行它。
 第一次可以在命令列給原版資料目錄：./wasteland-cht-*.AppImage /path/to/wasteland-data" \
         > "$APPDIR/usr/開始遊戲.txt"
-    DEFAULT=""; [ "$MODE" = local-full ] && DEFAULT='$APP/data'
+    DEFAULT=""; [ "$MODE" = full-local ] && DEFAULT='$APP/data'
     {
         cat <<'EOF'
 #!/bin/sh
@@ -192,7 +201,7 @@ EOF
 
 windows-x64)
     player_readme "解開之後雙擊 開始遊戲.bat。" > "$STAGE/開始遊戲.txt"
-    if [ "$MODE" = local-full ]; then
+    if [ "$MODE" = full-local ]; then
         WIN_ORIG='if "%~1"=="" (set "ORIG=%ROOT%data") else (set "ORIG=%~1")'
     else
         WIN_ORIG='if "%~1"=="" (if exist "%STATE%\data-dir.txt" (set /p ORIG=<"%STATE%\data-dir.txt") else (set "ORIG=")) else (set "ORIG=%~1")'
@@ -281,7 +290,8 @@ macos-universal)
     BUNDLE="$APPROOT/$PKG/荒野遊俠.app"
     mkdir -p "$BUNDLE/Contents/MacOS" "$BUNDLE/Contents/Resources"
     cp -a "$STAGE/." "$BUNDLE/Contents/Resources/"
-    VER=$(git -C "$ROOT" rev-list --count HEAD)
+    CORE=${VERSION#v.}; CORE=${CORE%-*}
+    BUILD_DATE=${VERSION##*-}
     cat > "$BUNDLE/Contents/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -292,15 +302,16 @@ macos-universal)
   <key>CFBundleIdentifier</key><string>io.github.wicanr2.wastelandcht</string>
   <key>CFBundleExecutable</key><string>wasteland-cht</string>
   <key>CFBundlePackageType</key><string>APPL</string>
-  <key>CFBundleShortVersionString</key><string>0.$VER</string>
-  <key>CFBundleVersion</key><string>$VER</string>
+  <key>CFBundleShortVersionString</key><string>$CORE</string>
+  <key>CFBundleVersion</key><string>$BUILD_DATE</string>
+  <key>WastelandReleaseVersion</key><string>$VERSION</string>
   <key>LSMinimumSystemVersion</key><string>11.0</string>
   <key>LSApplicationCategoryType</key><string>public.app-category.role-playing-games</string>
   <key>NSHighResolutionCapable</key><true/>
 </dict>
 </plist>
 EOF
-    DEFAULT=""; [ "$MODE" = local-full ] && DEFAULT='$APP/data'
+    DEFAULT=""; [ "$MODE" = full-local ] && DEFAULT='$APP/data'
     {
         cat <<'EOF'
 #!/bin/sh

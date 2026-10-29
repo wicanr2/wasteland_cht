@@ -27,11 +27,18 @@ import (
 // 所以只提醒不中止。
 const knownMerged = "cd5b07eaa55f1e1578caa1b05f0bd5331355cd119f387e61b1a8906738e78118"
 
+var buildVersion = "dev"
+
 func main() {
+	showVersion := flag.Bool("version", false, "顯示版本並離開")
 	rom := flag.String("rom", ".", "原版資料目錄（要含 wl.exe 與 wla.bin）")
 	out := flag.String("out", "build/wl.merged.exe", "輸出的合成映像")
 	quiet := flag.Bool("quiet", false, "只在出錯時說話")
 	flag.Parse()
+	if *showVersion {
+		fmt.Println(buildVersion)
+		return
+	}
 
 	if err := run(*rom, *out, *quiet); err != nil {
 		fmt.Fprintln(os.Stderr, "wl-setup:", err)

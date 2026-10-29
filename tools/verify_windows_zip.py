@@ -81,13 +81,17 @@ def main() -> None:
         required = {
             f"{root}/bin/wasteland.exe", f"{root}/bin/wl-setup.exe",
             f"{root}/開始遊戲.bat", f"{root}/Windows-DLL說明.txt",
-            f"{root}/artpacks/faithful-hd/manifest.json",
-            f"{root}/artpacks/reimagined/manifest.json",
         }
+        is_full = "-full-local" in root
+        if is_full:
+            required |= {f"{root}/artpacks/{mode}/manifest.json" for mode in ("hd2-a", "hd2-b")}
         missing = required - names
         if missing:
             raise SystemExit(f"缺少必要檔案：{sorted(missing)}")
-        is_full = "-local-full-" in root
+        if any(f"/artpacks/{mode}/" in n for n in names for mode in ("faithful-hd", "reimagined")):
+            raise SystemExit("封包含有已取消的舊 HD")
+        if not is_full and any("/artpacks/" in n and not n.endswith("/") for n in names):
+            raise SystemExit("patch 含有原版衍生美術")
         for folder in ("data", "eten", "music", "build"):
             prefix = f"{root}/{folder}/"
             present = any(name.startswith(prefix) and not name.endswith("/") for name in names)

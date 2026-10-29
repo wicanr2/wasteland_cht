@@ -1,129 +1,91 @@
-# 三平台封裝：怎麼跑、每個決定為什麼這樣
+# 三平台本機封裝
+
+版號必須完整指定為 `v.<主>.<次>.<修訂>-YYYYMMDD`。使用者已採用
+`v.1.0.0-20261029` 作為本輪本機測試包，不建立 tag，也不上傳或發布。
+舊版交付目錄保留，不作為新版入口。
 
 ```bash
-tools/package.sh <public|local-full> <linux-x64|windows-x64|macos-universal>
+tools/package.sh v.1.0.0-20261029 patch linux-x64
+tools/package.sh v.1.0.0-20261029 full-local windows-x64
+tools/package.sh v.1.0.0-20261029 full-local macos-universal
+# 依序建立全部六包，再驗證並產生交付清單
+tools/dist.sh v.1.0.0-20261029
 ```
 
-產物落在 `dist-all/<模式>/<平台>/`（gitignore）。六個組合各跑一次就是完整一輪，
-而 `tools/dist.sh` 就是「跑滿六個，再把配樂與推廣片收進同一棵樹」的那一支。
+同版本同平台的包已存在時會拒絕覆寫。修正後另定新版號，或在尚未交付前明確保留
+失敗候選；不刪除舊發行物來重跑。主機腳本只組織 Docker 呼叫，分析、編譯、封裝、
+校驗與啟動驗證都在容器內進行。原版、字型、音樂與工作樹輸入採唯讀掛載，
+只有明確的暫存、快取與交付目錄可寫。
 
----
+## 內容與位置
 
-## 1. 兩種模式的差別只有一件事
-
-| 模式 | 內容 | 可以給別人嗎 |
-|---|---|---|
-| `public` | 引擎、`wl-setup`、翻譯、文件 | **可以**——不含任何原版素材 |
-| `local-full` | 上面全部 ＋ 原版資料 ＋ 倚天字型 ＋ 背景音樂 ＋ 合成映像 | **不可以**（`CLAUDE.md` §7）|
-
-`public` 的守門員寫在 `tools/package_container.sh` 結尾：凡是原版素材的形狀
-（`wl*.exe`、`game1`、`allpics*`、`*.fnt`、`*.wlf`、`STDFONT.*`、`*.ogg`…）
-一律拒絕，`data/`／`eten/`／`music/`／`build/` 四個目錄存在就中止。
-**靠自律不夠**——兩種模式的舞台目錄長得幾乎一樣，複製錯一次就散布出去了。
-
-## 2. 玩家不必裝 Python：`wl-setup`
-
-遊戲要的是**合成映像** `wl.merged.exe`（EXEPACK 解包 ＋ 疊 `wla.bin`），
-字型、九張字串表與資源定址常數都在裡面（`docs/re/02`、`docs/re/03` §5）。
-那是原版執行檔的衍生物，公開包不能夾帶，只能玩家自己產生。
-
-原本這一步是兩支 Python 腳本，而 **Windows 預設沒有 Python**。
-所以移植成 Go：`internal/exepack` ＋ `cmd/wl-setup`，跟著包一起走，
-啟動器第一次執行時自己跑一次。
-
-驗收條件是 **byte-exact**：`internal/exepack/exepack_test.go` 拿玩家自己那份
-`wl.exe` 跑一次，SHA-256 必須等於本專案分析用的那份
-（`cd5b07ea…`）。跑不出同一個雜湊就是移植錯了，不是「大概對」。
-
-⚠ 別的發行版本雜湊本來就會不一樣，所以 `wl-setup` 對不上時**只提醒不中止**。
-
-## 3. 三個平台各自的坑
-
-### Linux：AppImage
-
-- runtime 是上游那顆固定的靜態 ELF，**雜湊寫死在 `tools/package.sh`**——
-  換了要有人明確改那一行，不會靜悄悄換掉。
-- Ebiten 在 Linux 走 cgo（X11／GL／ALSA），所以把**非 glibc 的直接相依**
-  一起帶進 `usr/lib`，`AppRun` 設 `LD_LIBRARY_PATH` 優先用私有的那份。
-- 掛載點每次都不一樣，路徑一律由 `AppRun` 自己算。
-
-### Windows：zip，而且 UTF-8 旗標要自己點亮
-
-`zip -r` 不夠：Info-ZIP 只在檔名超出 CP437 時才打開 general purpose bit 11，
-**全 ASCII 的檔名不會標**。沒標的話解壓端只能用系統預設編碼猜——
-在繁中 Windows 上就是 CP950，包裡只要出現一個中文檔名就會變亂碼。
-`tools/pack_zip.py` 對**每一筆**都點亮，寫完再回頭改位元組
-（`ZipFile` 會在寫入時把 `flag_bits` 歸零），中央目錄與區域檔頭兩處都改，
-最後自己驗一次「每一筆都有旗標」，少一筆就當場失敗。
-
-這個包有四個中文檔名（`開始遊戲.bat`、`開始遊戲.txt`、`Windows-DLL說明.txt`…），
-所以這件事不是理論問題。
-
-- 執行檔是 `CGO_ENABLED=0` 編的，**PE 匯入表只有系統 DLL**，
-  清單由 `tools/pe_imports.py` 從包裡那支執行檔實際讀出來，不是抄的。
-- `.bat` 一定要 CRLF，否則 `^` 續行與 `if` 區塊會被吃掉。
-
-### macOS：osxcross 交叉編 ＋ lipo
-
-沒有 Mac 也出得了 macOS 版：`wolong-osxcross-go` 這個 image 裡有
-o64-clang／oa64-clang 與 MacOSX SDK。**兩個架構各編一次再 `lipo` 合成**
-——`GOARCH` 沒有「universal」這個值。
-
-`.app` 的進入點是一支 shell：雙擊時沒有終端機，所以錯誤用 `osascript`
-的對話框講，資料目錄用選擇器問，問過一次就記在設定檔裡。
-
-⚠ **沒有 Apple 簽章也沒有公證**，第一次打開系統會擋；放行方式寫在包裡的
-`開始遊戲.txt`（系統設定放行，或 `xattr -dr com.apple.quarantine`）。
-
-## 4. 啟動器要處理「包是唯讀的」
-
-AppImage 掛起來是唯讀的、`.app` 也不該被寫，而這個遊戲要寫兩樣東西：
-
-| 要寫的 | 放哪 |
+| 目錄 | 內容與邊界 |
 |---|---|
-| 合成映像（`wl-setup` 的產物）| `<資料目錄>/build/wl.merged.exe` |
-| 存檔（**原版資料目錄的可寫副本**）| `<資料目錄>/save-data/` |
+| `dist-all/<版本>/patch/<平台>/` | 引擎、`wl-setup`、翻譯、文件與 RRSAL-1.0；不含原版資料、字型、音樂或 HD2 圖片 |
+| `dist-all/<版本>/full-local/<平台>/` | 另含本機合法原版、倚天字型、兩套十首配樂及完整 HD2 A／B；不散布、不加入 Git |
+| `dist-all/<版本>/smoke/` | 逐包內容／架構收據、啟動畫面與實測限制 |
+| `dist-all/<版本>/SHA256SUMS.json` | 六包與驗證收據的大小、SHA-256、版本及權利分類 |
 
-`<資料目錄>` 是 `$XDG_DATA_HOME/wasteland-cht`（Linux）、
-`~/Library/Application Support/wasteland-cht`（macOS）、
-`%LOCALAPPDATA%\wasteland-cht`（Windows）。
+平台名稱為 `linux-x64`、`windows-x64`、`macos-universal`。
+建置中間資料在 `dist-build/<版本>/`，不是交付入口。舊的
+`dist-all/public/`、`dist-all/local-full/`、音樂與影片目錄只作歷史保留。
+本輪不把歷史影片複製成新版影片，也不改變公開素材的授權範圍。
 
-**存檔寫的是副本，玩家自己那一份原版資料不會被動到**——
-原版的存檔就在 `game1`／`game2` 檔尾（`docs/re/30`），直接寫回去等於改到原版檔案。
+## 工具與重現
 
-## 5. 一輪跑完長這樣
+[主機入口](../tools/package.sh)分兩步呼叫
+[容器建置](../tools/package_container.sh)與[容器封裝](../tools/pack_wrap.sh)。
+沿用本機已有且已驗證的共用工具映像，不另建重複映像：
 
-| 模式 | 平台 | 產物 | 大小 |
-|---|---|---|---:|
-| public | linux-x64 | `.AppImage` | 6.5 MB |
-| public | windows-x64 | `.zip`（76 筆）| 4.2 MB |
-| public | macos-universal | `.zip`（85 筆，內含 `.app`）| 7.8 MB |
-| local-full | linux-x64 | `.AppImage`（含三套美術與雙配樂）| 91 MB |
-| local-full | windows-x64 | `.zip`（3,411 筆、全數 UTF-8）| 107 MB |
-| local-full | macos-universal | `.zip`（3,415 筆、x86_64／arm64）| 111 MB |
+| 用途 | 目前映像 | 內容 |
+|---|---|---|
+| Linux／Windows 建置與封裝 | `san1-go:1.26.7-ebiten2.9.9-r1` | Go 1.26.7、X11／GL、squashfs、Python、Xvfb |
+| macOS 交叉編譯 | `san1-macos:1.26.7-sdk15.5-r1` | Go 1.26.7、osxcross、MacOSX15.5 SDK、lipo |
 
-## 6. 交付物集中在 dist-all
+可用 `WL_GO_IMAGE`、`WL_PKG_IMAGE`、`WL_OSXCROSS_IMAGE` 指定相容工具映像。
+包內 manifest 記錄實際建置映像，交付清單另記映像 ID。所有工作均使用
+`--network none`、UID/GID、資源限制與外層逾時，模組取自既有鎖版快取。
 
-```
-dist-all/
-  public/<平台>/      可散布的三個包
-  local-full/<平台>/  不可散布的三個包
-  music/{retro,modern}/  復古／現代配樂與權利紀錄
-  promo/                 推廣片、兩模式實機來源與 metadata
-  SHA256SUMS          全部檔案的校驗碼
-```
+AppImage runtime 已封存在 `workplace/appimage/runtime-x86_64`，SHA-256 為
+`1cc49bcf1e2ccd593c379adb17c9f85a36d619088296504de95b1d06215aebbf`。
+封裝前在容器驗雜湊，缺少時停止；不在主機下載或自動改用浮動新版。
+原始來源為 AppImage type2-runtime 的歷史 continuous 下載，封存副本是本輪重現輸入。
 
-一次跑完：`tools/dist.sh`。包已經跑過、只想重收音樂與影片：`tools/dist.sh --skip-packages`。
+## 版本與啟動
 
-## 7. 要用到的 image
+兩個執行檔都由 linker 注入同一完整版本，`-version` 可查詢；遊戲視窗標題也會顯示。
+封包檔名、包內 manifest 與交付根目錄使用相同版號。macOS 的數值欄位分別保存
+`1.0.0` 與建置日期，`WastelandReleaseVersion` 保存完整版本字串。
+
+Linux 為 AppImage，非 glibc 的直接相依放入私有 `usr/lib`。Windows ZIP 的每一筆
+中央與區域檔頭都設 UTF-8 旗標，批次檔使用 CRLF。macOS 分別編出 x86_64／arm64，
+再以 lipo 合成，ZIP 保留執行權限；沒有 Apple 簽章或公證。
+
+啟動器從唯讀包定位資源，將原版存檔副本與合成映像放入使用者資料目錄：
+
+| 平台 | 可寫資料目錄 |
+|---|---|
+| Linux | `$XDG_DATA_HOME/wasteland-cht`，未設時為 `~/.local/share/wasteland-cht` |
+| Windows | `%LOCALAPPDATA%\wasteland-cht` |
+| macOS | `~/Library/Application Support/wasteland-cht` |
+
+`patch` 第一次啟動需要玩家的合法原版，透過包內 `wl-setup` 建立合成映像。
+倚天字型與 HD2 衍生圖片不在公開包中。`full-local` 可直接使用包內來源。
+一般 S 與 F5／F9 的存檔入口不同，WLQS v2 的相容性見專案存檔規格。
+
+## 驗證入口
+
+[逐包驗證器](../tools/verify_package.py)直接解開實際產物，核對版本、ELF／PE／
+Mach-O 架構、ZIP CRC／UTF-8／權限、翻譯、授權、原版雜湊、兩包各 1,157 張美術
+及兩套各十首配樂。`patch` 額外拒收原版資料、PNG、音樂與非空美術包。
+[交付清單工具](../tools/finalize_dist.py)重查六包並產生收據與 SHA-256 清單。
 
 ```bash
-docker build --network host -t wasteland-go:1.24-x11  -f docker/wasteland-go.Dockerfile  docker/
-docker build --network host -t wasteland-pkg:1.24-x11 -f docker/wasteland-pkg.Dockerfile docker/
-# macOS 那條路另外要 osxcross ＋ Go 的 image，預設吃
-# wolong-osxcross-go:20260811-event10-r4，可用 WL_OSXCROSS_IMAGE 換
+python3 tools/verify_package.py <封包路徑> --version <版本> --mode <patch或full-local> \
+  --platform <平台> --receipt <收據路徑>
+python3 tools/finalize_dist.py <版本>
 ```
 
-封裝分兩步（`package_container.sh` 排舞台 → `pack_wrap.sh` 封裝）的理由：
-macOS 的編譯要 osxcross 那個 image，而 AppImage 要的 `mksquashfs` 只裝在
-`wasteland-pkg`，兩者不在同一個 image 裡。
+上述 Python 命令在封裝容器內執行。完整建置與檢查不是原生平台試玩的替代品。
+本機 Linux GUI、Wine 的 Windows 補充檢查與 macOS 結構驗證分開記錄，未執行的
+原生 Windows／macOS 實機項目不得標成通過。每輪結果見 [WORKLOG](../WORKLOG.md)。

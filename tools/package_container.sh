@@ -7,6 +7,9 @@ set -euo pipefail
 MODE=$1; PLATFORM=$2; OUT_ROOT=$3; INPUT=${4:-}; FONT_INPUT=${5:-}; MUSIC_INPUT=${6:-}
 ROOT=/src
 GO=/usr/local/go/bin/go
+VERSION=${WL_RELEASE_VERSION:?必須指定 WL_RELEASE_VERSION}
+[[ "$VERSION" =~ ^v\.[0-9]+\.[0-9]+\.[0-9]+-[0-9]{8}$ ]] || { echo '版號格式錯誤' >&2; exit 2; }
+case "$MODE" in patch|full-local) ;; *) echo '未知封包模式' >&2; exit 2 ;; esac
 
 case "$PLATFORM" in
     linux-x64)       GOOS=linux;   GOARCH=amd64; CGO=1; EXE= ;;
@@ -15,15 +18,14 @@ case "$PLATFORM" in
     *) echo "未知平台 $PLATFORM" >&2; exit 2 ;;
 esac
 
-STAMP=$(git -C "$ROOT" rev-parse --short=12 HEAD)
-PKG="wasteland-cht-${PLATFORM}-${MODE}-${STAMP}"
+PKG="wasteland-cht-${VERSION}-${PLATFORM}-${MODE}"
 STAGE="$OUT_ROOT/.stage"; D="$STAGE/$PKG"
 rm -rf "$STAGE"
 mkdir -p "$D/bin" "$D/translations" "$D/docs/re/generated" "$D/artpacks"
 
 build() { # $1 輸出 $2 套件
     GOOS="$GOOS" GOARCH="$GOARCH" CGO_ENABLED="$CGO" \
-        "$GO" build -trimpath -buildvcs=false -ldflags="-s -w" -o "$1" "$2"
+        "$GO" build -trimpath -buildvcs=false -ldflags="-s -w -X main.buildVersion=$VERSION" -o "$1" "$2"
 }
 
 if [ "${MAC:-0}" = 1 ]; then
@@ -36,7 +38,7 @@ if [ "${MAC:-0}" = 1 ]; then
     [ -n "$SDK" ] || { echo '缺少 macOS SDK' >&2; exit 78; }
     mac_build() { # $1 GOARCH $2 CC $3 輸出 $4 套件
         GOOS=darwin GOARCH="$1" CGO_ENABLED=1 CC="$2" \
-            "$GO" build -trimpath -buildvcs=false -ldflags="-s -w" -o "$3" "$4"
+            "$GO" build -trimpath -buildvcs=false -ldflags="-s -w -X main.buildVersion=$VERSION" -o "$3" "$4"
     }
     for pair in "wasteland ./cmd/wasteland" "wl-setup ./cmd/wl-setup"; do
         set -- $pair
@@ -62,17 +64,19 @@ for d in manual manual-cht paragraphs walkthrough; do
     cp -r "$ROOT/docs/$d" "$D/docs/$d"
 done
 cp "$ROOT/README.md" "$D/docs/README-專案.md"
+cp "$ROOT/LICENSE" "$D/LICENSE"
 
 # —— HD2 候選；舊 HD 已取消，不再加入新封包 ———————————————————
-# 正式完整包尚未建立時只交付 original，不借用舊 HD。
-for art in hd2-a hd2-b; do
-    if [ -f "$ROOT/artpacks/$art/manifest.json" ]; then
+# 原版衍生圖只可進本機完整版；patch 必須由玩家匯入合法素材。
+if [ "$MODE" = full-local ]; then
+    for art in hd2-a hd2-b; do
+        [ -f "$ROOT/artpacks/$art/manifest.json" ] || { echo "缺少完整 $art 美術包" >&2; exit 1; }
         cp -a "$ROOT/artpacks/$art" "$D/artpacks/"
-    fi
-done
+    done
+fi
 
 # —— local-full：原版素材 ————————————————————————————————————
-if [ "$MODE" = local-full ]; then
+if [ "$MODE" = full-local ]; then
     [ -n "$INPUT" ] || { echo 'local-full 缺少原版資料掛載' >&2; exit 1; }
     mkdir -p "$D/data"; cp -a "$INPUT/." "$D/data/"
     # 合成映像在容器裡現做：與玩家自己跑 `wl-setup` 走的是同一支程式碼。
@@ -111,8 +115,8 @@ if [ "$MODE" = local-full ]; then
 	fi
 fi
 
-printf 'Package: %s\nCommit: %s\nMode: %s\nPlatform: %s\nBuild image: %s\n' \
-    "$PKG" "$(git -C "$ROOT" rev-parse HEAD)" "$MODE" "$PLATFORM" "${WL_BUILD_IMAGE:-unknown}" \
+printf 'Version: %s\nPackage: %s\nCommit: %s\nMode: %s\nPlatform: %s\nBuild image: %s\n' \
+    "$VERSION" "$PKG" "$(git -C "$ROOT" rev-parse HEAD)" "$MODE" "$PLATFORM" "${WL_BUILD_IMAGE:-unknown}" \
     > "$D/PACKAGE-MANIFEST.txt"
 if [ "${MAC:-0}" = 1 ]; then
     printf 'SDK: %s\nArchitectures: x86_64 arm64 (lipo universal)\n' "$SDK" >> "$D/PACKAGE-MANIFEST.txt"
@@ -122,7 +126,7 @@ fi
 #
 # **靠自律不夠**：兩種模式的舞台目錄長得幾乎一樣，複製錯一次就散布出去了。
 # 這裡不是抽查，是「凡是原版素材的形狀一律拒絕」。
-if [ "$MODE" = public ]; then
+if [ "$MODE" = patch ]; then
     bad=$(find "$D" -type f \( \
         -iname 'wl*.exe' -o -iname 'wla.bin' -o -iname 'game1' -o -iname 'game2' \
         -o -iname 'allpics*' -o -iname 'allhtds*' -o -iname '*.pic' -o -iname '*.cpa' \
@@ -138,5 +142,6 @@ if [ "$MODE" = public ]; then
     for d in data eten music build; do
         [ -e "$D/$d" ] && { echo "公開包不該有 $d/" >&2; exit 1; }
     done
+    [ -z "$(find "$D/artpacks" -type f -print -quit)" ] || { echo 'patch 不得包含原版衍生美術包' >&2; exit 1; }
 fi
 echo "[stage] $D"

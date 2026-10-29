@@ -368,21 +368,22 @@ tools/go.sh test ./...                            # 全部門檻
 ### 三個平台的包
 
 ```bash
-tools/package.sh public linux-x64        # AppImage
-tools/package.sh public windows-x64      # zip（每一筆都標 UTF-8）
-tools/package.sh public macos-universal  # zip，裡面是 universal 的 .app
+tools/package.sh v.1.0.0-20261029 patch linux-x64        # AppImage
+tools/package.sh v.1.0.0-20261029 patch windows-x64      # UTF-8 ZIP
+tools/package.sh v.1.0.0-20261029 patch macos-universal  # universal .app
 ```
 
-`public` 不含任何原版素材：第一次啟動時指到你自己的原版資料目錄，
+`patch` 不含原版資料、字型、配樂或 HD2 衍生圖片：第一次啟動時指到自己的合法原版資料目錄，
 包裡的 `wl-setup` 會把 `wl.exe` 解包並疊上 `wla.bin`，產生遊戲要用的合成映像
 ——**不必裝 Python**，那一步已經移植成 Go（`internal/exepack`，
 與原本的 Python 工具產生 byte-exact 相同的映像）。
 
-`local-full` 是同一套加上原版資料、倚天字型與背景音樂的自留版本，**不可散布**。
+`full-local` 是加上本機原版資料、倚天字型、雙配樂與 HD2 A／B 的自留版本，**不可散布**。
 每個決定的理由在 [`docs/packaging.md`](docs/packaging.md)。
 
-交付物集中在 `dist-all/`（不入版控）：`public/`、`local-full/`、`music/`、`promo/`
-與一份 `SHA256SUMS`。一次跑完六個包再收齊其他東西是 `tools/dist.sh`。
+交付物集中在 `dist-all/<版本>/`，內含 `patch/`、`full-local/`、`smoke/` 與
+`SHA256SUMS.json`，不入版控。`tools/dist.sh <版本>` 依序建立並驗證六個包，
+拒絕覆寫既有封包。建置不會自動上傳或發布，舊交付物保留為歷史。
 
 滑鼠也能玩：點地圖往那個方向走一步、點指令列下指令、點清單選那一項、右鍵取消。
 游標用的是原版 `CURS` 的八個圖，而且**跟著狀態換**——指到可點的字換一個、
