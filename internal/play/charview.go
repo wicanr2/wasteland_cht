@@ -20,24 +20,24 @@ import (
 
 // 角色畫面用到的原版字串編號（都在表 2，docs/re/131 §8）。
 const (
-	strCVUnjam    = 134 // `Unjam?  Yes / No`
-	strCVNoTrade  = 135 // `\x0B doesn't want to trade.`
-	strCVName     = 137 // `NAME: \x0B`
-	strCVSex      = 138 // `SEX: `
-	strCVNation   = 139 // `NATIONALITY: `
-	strCVPoolDiv  = 140 // `P)ool  D)iv cash`
-	strCVReload   = 141 // `Reload?  Yes / No`
-	strCVDoWhat   = 142 // `Do you want to:  Drop  Trade  Equip/unequip`
-	strCVNobody   = 143 // `No one to trade with.`
-	strCVWhoWants = 144 // `Who wants it?`
-	strCVNationT  = 145 // 145–149 ＝ U.S…Chinese；性別 162／163
-	strCVFull     = 150 // `\x0B can't carry any more.`
-	strCVItemHdr  = 151 // `    ITEM`
-	strCVSkillHdr = 153 // `   LVL   SKILL`
+	strCVUnjam      = 134 // `Unjam?  Yes / No`
+	strCVNoTrade    = 135 // `\x0B doesn't want to trade.`
+	strCVName       = 137 // `NAME: \x0B`
+	strCVSex        = 138 // `SEX: `
+	strCVNation     = 139 // `NATIONALITY: `
+	strCVPoolDiv    = 140 // `P)ool  D)iv cash`
+	strCVReload     = 141 // `Reload?  Yes / No`
+	strCVDoWhat     = 142 // `Do you want to:  Drop  Trade  Equip/unequip`
+	strCVNobody     = 143 // `No one to trade with.`
+	strCVWhoWants   = 144 // `Who wants it?`
+	strCVNationT    = 145 // 145–149 ＝ U.S…Chinese；性別 162／163
+	strCVFull       = 150 // `\x0B can't carry any more.`
+	strCVItemHdr    = 151 // `    ITEM`
+	strCVSkillHdr   = 153 // `   LVL   SKILL`
 	strCVReorderHdr = 168 // ` REORDER`
-	strCVGenderT  = 162
-	strCVUnjamOK  = 160 // `\x0B unjammed the weapon.`
-	strCVUnjamNo  = 161 // `\x0B can't unjam the weapon.`
+	strCVGenderT    = 162
+	strCVUnjamOK    = 160 // `\x0B unjammed the weapon.`
+	strCVUnjamNo    = 161 // `\x0B can't unjam the weapon.`
 )
 
 // cvPageSize 是物品頁一頁幾項：訊息視窗只有六行，表頭佔一行。
@@ -109,8 +109,8 @@ func (s *Scene) exePair(n int, name string) (en, zh string) {
 // showCVInfo 畫資料頁：姓名、性別、國籍、階級／等級／經驗、金錢、屬性。
 func (s *Scene) showCVInfo() {
 	c := s.cvChar()
-	sexN := strCVGenderT + int(c.Gender)   // 162／163
-	natN := strCVNationT + int(c.Nation)   // 145–149
+	sexN := strCVGenderT + int(c.Gender) // 162／163
+	natN := strCVNationT + int(c.Nation) // 145–149
 	var en, zh strings.Builder
 	build := func(b *strings.Builder, pick func(n int) string, statsFmt string) {
 		// 137 自帶 `\x0B`（名字佔位），plainExe 已代入，不要再接一次。
@@ -135,7 +135,7 @@ func (s *Scene) showCVInfo() {
 		return z
 	}, s.uiText("roster.stats"))
 	s.message, s.cjk = en.String(), ""
-	if zhOK && s.eten != nil {
+	if zhOK && s.hasCJKFont() {
 		s.message, s.cjk = "", zh.String()
 	}
 	s.dirty = true
@@ -194,7 +194,7 @@ func (s *Scene) showCVItems() {
 		fmt.Fprintf(&zh, "%d)%c%s\r", n+1, mark, name)
 	}
 	s.message, s.cjk = en.String(), ""
-	if s.eten != nil {
+	if s.hasCJKFont() {
 		s.message, s.cjk = "", zh.String()
 	}
 	s.dirty = true
@@ -228,7 +228,7 @@ func (s *Scene) showCVSkills() {
 		fmt.Fprintf(&zh, "%d %s\r", sl.Value, name)
 	}
 	s.message, s.cjk = en.String(), ""
-	if s.eten != nil {
+	if s.hasCJKFont() {
 		s.message, s.cjk = "", zh.String()
 	}
 	s.dirty = true
@@ -303,7 +303,7 @@ func (s *Scene) showCVReorder() {
 		n++
 	}
 	s.message, s.cjk = en.String(), ""
-	if s.eten != nil {
+	if s.hasCJKFont() {
 		s.message, s.cjk = "", zh.String()
 	}
 	s.dirty = true

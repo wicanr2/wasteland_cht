@@ -57,6 +57,7 @@ func main() {
 	musicDir := flag.String("music", "workplace/music", "背景音樂目錄（*.ogg，空 ＝ 不播）")
 	artMode := flag.String("art-mode", "original", "美術模式：original｜hd2-a｜hd2-b，HD2 需完整美術包")
 	artRoot := flag.String("art-root", "artpacks", "新版美術包根目錄")
+	uiStyle := flag.String("ui", "modern", "介面：modern 圓體工具列，classic 舊版驗證畫面")
 	flag.Parse()
 	if *showVersion {
 		fmt.Println(buildVersion)
@@ -76,6 +77,11 @@ func main() {
 			s, err = play.New(rom)
 			scene, title = s, "Wasteland（荒野遊俠）"
 			if err == nil {
+				if *uiStyle == "modern" {
+					err = s.EnableModernUI()
+				} else if *uiStyle != "classic" {
+					err = fmt.Errorf("不支援的介面：%s", *uiStyle)
+				}
 				s.SetSaveDir(*saveDir)
 				s.SetQuickSavePath(*quickSave)
 				s.SetArtRoot(*artRoot)
@@ -103,7 +109,7 @@ func main() {
 						fmt.Fprintln(os.Stderr, "提示：翻譯目錄載不到，顯示英文 —", lerr)
 					}
 				}
-				if ferr := s.LoadFont(*fontDir); ferr != nil {
+				if ferr := s.LoadFont(*fontDir); ferr != nil && !s.ModernEnabled() {
 					fmt.Fprintln(os.Stderr, "提示：倚天字型載不到，中文不顯示 —", ferr)
 				}
 				if jerr := s.LoadJournal(*refsFile, *paraFile); jerr != nil {

@@ -6,6 +6,7 @@ toolchain go1.24.13
 
 require (
 	github.com/hajimehoshi/ebiten/v2 v2.9.9
+	golang.org/x/image v0.31.0
 	golang.org/x/text v0.29.0
 )
 

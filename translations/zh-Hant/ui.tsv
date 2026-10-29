@@ -93,3 +93,32 @@ ui:wound.com	深昏迷
 ui:hire.joins	%s加入了隊伍。
 ui:facility.noheal	不需要治療。
 ui:facility.skillfull	技能欄滿了。
+ui:modern.title	荒野遊俠
+ui:modern.art	畫面
+ui:modern.original	原版美術
+ui:modern.original-short	原版
+ui:modern.art-a	HD2 A · 細緻像素
+ui:modern.art-b	HD2 B · 手繪高解析
+ui:modern.font	字型
+ui:modern.rounded	圓體
+ui:modern.retro	復古
+ui:modern.modern	現代
+ui:modern.score	配樂
+ui:modern.volume-title	音量
+ui:modern.save	存檔 F5
+ui:modern.load	讀檔 F9
+ui:modern.settings	設定 F2
+ui:modern.radiation	輻射
+ui:modern.message	訊息
+ui:modern.group	隊伍 %d
+ui:modern.scroll	PageUp / PageDown  捲動
+ui:modern.start	開始遊戲 [S]
+ui:modern.dialog	操作
+ui:modern.use	使用
+ui:modern.encounter	遭遇
+ui:modern.order	排隊
+ui:modern.split	分隊
+ui:modern.switch	換隊
+ui:modern.save-command	存檔
+ui:modern.radio	無線
+ui:modern.journal	手札

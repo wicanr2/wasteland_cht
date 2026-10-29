@@ -1,0 +1,2 @@
+# 保留第三方授權原文的位元組，包括上游的行尾空白。
+internal/presentation/fonts/*OFL.txt -whitespace

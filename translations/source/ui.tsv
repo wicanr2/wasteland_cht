@@ -100,3 +100,32 @@ ui:wound.com	COM
 ui:hire.joins	%s joins the party.
 ui:facility.noheal	No treatment needed.
 ui:facility.skillfull	No room for another skill.
+ui:modern.title	Wasteland
+ui:modern.art	Art
+ui:modern.original	Original art
+ui:modern.original-short	Orig
+ui:modern.art-a	HD2 A · Fine pixel art
+ui:modern.art-b	HD2 B · Hand-painted
+ui:modern.font	Font
+ui:modern.rounded	Round
+ui:modern.retro	Retro
+ui:modern.modern	Modern
+ui:modern.score	Score
+ui:modern.volume-title	Vol
+ui:modern.save	Save F5
+ui:modern.load	Load F9
+ui:modern.settings	Setup F2
+ui:modern.radiation	RAD
+ui:modern.message	Message
+ui:modern.group	Group %d
+ui:modern.scroll	PageUp / PageDown  Scroll
+ui:modern.start	Start [S]
+ui:modern.dialog	Menu
+ui:modern.use	Use
+ui:modern.encounter	Fight
+ui:modern.order	Order
+ui:modern.split	Split
+ui:modern.switch	Group
+ui:modern.save-command	Save
+ui:modern.radio	Radio
+ui:modern.journal	Journal

@@ -16,7 +16,7 @@
 | 清怪後重刷 | 已實作，場景回歸通過 | 結算寫回、換圖保留、跨場景存讀檔；未做原版動態對拍 |
 | 空地按 E | 原版行為，維持 | `re/105`、`enc_test.go`；確認後執行空回合，不生成敵人 |
 | 門鎖與 NPC | 原回報仍未定位；分隊遭遇接線已修 | 16 筆實際技能／物品閘不能穿過；JACKIE 鍵盤雇用通過，不能代表所有 NPC |
-| 文字、邊框與工具列 | 新需求；可比較草稿已完成，待使用者選定 | 使用者要求較小、圓潤的 Noto 方向與 mm3 類工具列；字型、草稿與未接入項目見下方 §0.3，不算正式遊戲完成 |
+| 文字、邊框與工具列 | B 圓體已定案並接入開發版 | 18 像素內文、細邊框、單列工具列；正常 GUI 與場景回歸通過，詳見 §0.3；舊測試包未重打 |
 | 地圖存檔 | 使用者同意且已實作 | WLQS v2 可讀 v1；一般 S 使用匹配的地圖側車檔；分隊讀回通過 |
 | HD2 | A／B 各 1,157 張，已納入本機測試包 | 九組地形、42 地圖／82 場景整合通過；最終 Linux 與 Windows Wine 正常 GUI 的 original／A／B 實際畫面、存讀檔與退出通過 |
 | 現代配樂振奮版 | 十首已重編並納入本機測試包 | 主題／戰鬥方向已獲採用；十首解碼、定位、接點與 F2 路由通過，復古版保留；未宣稱逐首人耳驗收 |
@@ -53,29 +53,34 @@ macOS 兩架構都核對為 Go 1.24.13／最低 11.0，尚未做原生 Windows�
 版本稱「現代版」。F2 可即時切換，原版 PC 喇叭音效仍是獨立開關；設定不寫進
 原版存檔。檔案契約、退回行為與權利邊界見 [`docs/spec/31-dual-score.md`](docs/spec/31-dual-score.md)。
 
-## 0.3 介面排版草稿（2026-10-29，尚未定案）
+## 0.3 圓體介面（使用者定案 2026-10-29）
 
-使用者要求縮小文字、採 Noto 的圓潤方向，調整邊框並參考 `~/cht/mm33` 的工具列。
-該路徑不存在，同層實際為 `~/cht/mm3`；目前依它的一列深色工具列製作可撤回草稿，
-尚未將來源專案的其他產品決定套用至本作。
+使用者在比較草稿後回覆「ok go」，採用建議 B：源泉圓體 TW R、18 像素內文、
+細邊框、常駐單列工具列。保留 Noto 黑體切換與 16／18／20 字級。工具列參考實際存在的
+`~/cht/mm3`，沒有修改該專案。定版依據見 [規格 33](docs/spec/33-rounded-ui.md)及
+[定版紀錄](artwork/manifests/ui-rounded-approved.json)。原草稿保存於
+`artwork/source/accepted/ui-rounded-18-approved.png`；含遊戲美術，依素材政策留本機。
 
-草稿入口為 [`tools/prototype_ui_redesign.py`](tools/prototype_ui_redesign.py)，產物沿用
-`workplace/art-preview/`。可在本機開啟
-[`ui-redesign-preview.html`](workplace/art-preview/ui-redesign-preview.html)，比較原版／A／B 美術、
-Noto Sans CJK TC／源泉圓體 TW，以及 16／18／20 像素內文。工具列試排 16 像素，
-內文建議 18 像素，細邊框與常駐工具列均仍待使用者確認。
+開發版的正常入口預設使用此介面。畫布為 960×720，地圖仍為 864×384 @ (24,84)。
+工具列直接切美術、字型、字級、配樂與音量，存讀檔沿用 F5／F9；點擊不落入地圖。
+人物／物品／技能、手札與設定使用可讀的展開面板，戰鬥與設施用固定欄位名單。
+原始文字、熱鍵與分頁語意沿用；視窗空輪詢不再反覆追加戰鬥選單。
+字型內建，不依賴倚天。`-ui classic` 保留舊版驗證路徑。
 
-- [前後對照](workplace/art-preview/ui-redesign-before-after.png)與
-  [字型樣本](workplace/art-preview/ui-redesign-font-samples.png)只證明排版方向。
-- [字型來源](workplace/art-preview/ui-redesign-font-inputs.json)保存固定上游提交、SHA-256
-  與 SIL OFL 1.1 原文；圓體如實標示為源泉圓體，不冒稱 Noto 原生圓體。
-- [草稿收據](workplace/art-preview/ui-redesign-review.json)驗證 702 個文字安全範圍，
-  864×384 地圖與已驗 GUI 來源逐像素一致。字體、字級及美術獨立比較。
-- [瀏覽器收據](workplace/art-preview/ui-redesign-browser-check.json)記錄 Chromium 的實際滑鼠
-  點擊、字型切換、16／20 上下限與原版／A／B 預覽；存讀檔及音訊按鈕尚未接入。
+來源與權利見 [內建字型](docs/font-licenses.md)。正式程式在
+`internal/presentation`、`internal/play/presentation.go`、`internal/ui`；
+[正常 GUI 腳本](tools/check_rounded_ui_gui.sh)沿用既有 Docker 工具鏈，收據在
+`workplace/art-preview/ui-gui/result.json`，純場景圖在 `workplace/art-preview/ui-runtime/`。
+草稿重建工具為 [prototype_ui_redesign.py](tools/prototype_ui_redesign.py)。
+定版對照與輸入核對工具為 [verify_rounded_ui.py](tools/verify_rounded_ui.py)，結果在
+`workplace/art-preview/ui-implementation-review.json`，圖片為
+`workplace/art-preview/ui-implemented-vs-approved.png`。
 
-正式遊戲、存檔、既有六個交付包均未變更。下一步是取得草稿選擇，收攏 READY 規格後
-再實作字型、版面與工具列，並補正常玩家路徑驗證。
+完整 Go 測試與靜態檢查通過；字型涵蓋全目錄，四種實際設施、七人名單及十三列選單
+有受控抽樣。正常 GUI 包含標題、三種美術、字型／字級、人物頁、手札、遊俠中心往返、
+存讀檔與退出確認；空遭遇用於戰鬥介面抽測，不冒稱打贏有敵人的戰鬥。
+Windows／macOS 雙架構交叉編譯通過，原生 Windows／macOS 尚未實機驗收。
+先前 `v.1.0.0-20261029` 六個本機包未重打，本輪不定新版號、不發布。
 
 ---
 
@@ -199,8 +204,8 @@ Noto Sans CJK TC／源泉圓體 TW，以及 16／18／20 像素內文。工具�
 | **`internal/textlayout`** | **已實作**：18 個控制碼含**變形機制與巢狀**（單複數／性別／三選一／數量）、組行與分頁。4,889 條語料全部排得過，未解碼只剩 `0x08` 的 7 次 |
 | **`internal/render`** | **已實作**：合成 320 × 200 索引畫面。地圖視窗逐像素驗過剛好 288 × 128 @ (8,8)、捲動一格 ＝ 位移 16 像素 |
 | **`internal/game/rng`** | **已實作**：進位鏈與四支擲骰 ＋ 5d6 取三。驗收數列（前七項 ＝ 二項式係數）、分佈、300 萬次不重複全過 |
-| **翻譯目錄** | **管線已通**：`tools/extract_strings.py` 抽出 **4,827 條原文**（426 ＋ 4,401，與 `docs/re/17`／`18` 吻合）→ 人翻的 UTF-8 TSV → `tools/build_lang.py` 編成 **UTF-8 `.cat`**（v2）。**編譯時擋五種錯**：格數超過原文、控制碼數量不符、Big5 缺字（倚天畫不出來的字，這關沒放鬆）、`\x10` 後的按鍵被翻掉、不可翻的槽被翻了。Go 只讀 `.cat`，**整條管線 UTF-8，只在畫字那一刻轉 Big5**（`render.DrawRune`，唯一一處；`docs/utf8-experiment.md`）。端到端驗過：踩到有翻譯的格子畫面上出現中文。**已全部翻完：5,251／5,251 可翻條目**（原版語料 4,827 槽扣掉 21 個不可翻的槽——未用槽的解碼雜訊與純控制碼，清單在 `translations/untranslatable.tsv`，build 會擋「不該有譯文的 key 被翻了」）。**另外三類不在字串表裡**：`ui:` 介面文字、`place:` 店家招牌、`monster:` 敵人名字（328 條，`tools/extract_monster_names.py` 抽出來，`docs/re/114` §6）。共用文本層 `_shared.tsv` 的 185 條涵蓋 1,425 個 key |
-| **中文排版** | **已決策並實作**：內部畫布 **960 × 600**（原解析乾淨 3×），原版素材 nearest 放大、倚天直繪不縮字（`rulebook/81`）。一個中文字剛好佔原版一個字元格，所以 `docs/re/25` 的座標完全不用重算、訊息視窗仍是 6 行 × 38 格。字型優先 24 點（`STDFONT.24` ＋ `SPCFONT.24` ＋ 半形 `ASCFONT.24`），只有 15 點時照原尺寸畫在格子中央；Big5 分區索引已過 oracle（「一」是一條橫線、「中」「猴」可辨識、全形標點不落 fallback）。**字型檔玩家自備，沒有時遊戲照跑英文**（`docs/spec/10`）。**行距 0（使用者定案 2026-08-20）**：24 點漢字的墨跡填滿整格，而字元格就是 24 px，所以要有行距只能換 15 點字或加高畫布——兩條都會動到別的東西，定案是維持整三倍的關係|
+| **翻譯目錄** | **管線已通**：`tools/extract_strings.py` 抽出 **4,827 條原文**（426 ＋ 4,401，與 `docs/re/17`／`18` 吻合）→ 人翻的 UTF-8 TSV → `tools/build_lang.py` 編成 **UTF-8 `.cat`**（v2）。**編譯時擋五種錯**：格數超過原文、控制碼數量不符、Big5 缺字（倚天畫不出來的字，這關沒放鬆）、`\x10` 後的按鍵被翻掉、不可翻的槽被翻了。Go 只讀 `.cat`，**新版介面直接使用 UTF-8；只有 classic 點陣字路徑在畫字時轉 Big5**（`render.DrawRune`，唯一一處；`docs/utf8-experiment.md`）。端到端驗過：踩到有翻譯的格子畫面上出現中文。**已全部翻完：5,280／5,280 可翻條目**（原版語料 4,827 槽扣掉 21 個不可翻的槽——未用槽的解碼雜訊與純控制碼，清單在 `translations/untranslatable.tsv`，build 會擋「不該有譯文的 key 被翻了」）。**另外三類不在字串表裡**：`ui:` 介面文字、`place:` 店家招牌、`monster:` 敵人名字（328 條，`tools/extract_monster_names.py` 抽出來，`docs/re/114` §6）。共用文本層 `_shared.tsv` 的 185 條涵蓋 1,425 個 key |
+| **中文排版** | 預設採 [規格 33](docs/spec/33-rounded-ui.md) 的內建源泉圓體／Noto、16／18／20 像素及細邊框工具列，960×720 畫布與既有地圖可視範圍。原版幾何基準仍為 `-ui classic`：960×600、倚天 24 點與原來的六行三十八格，詳見規格 10。新介面不需要倚天，classic 字型由玩家自備 |
 | **`internal/play`** | **可以走的遊戲場景**：從出廠存檔開場（四個 Ranger、時鐘 01:00、座標 (55, 62)），方向鍵走規則層。**存檔寫回也通過**：什麼都沒改就寫回是零差異，走 40 步之後只有座標／視窗原點／時鐘那 10 個 byte 變動。`cmd/wasteland -mode play` 開視窗、`cmd/wl-shot -mode play` 無頭輸出 PNG。與 `internal/viewer`（純檢視器、零規則）分開兩個套件 |
 | **`internal/input`／`ui`／`viewer`** | **已實作**：與函式庫無關的按鍵模型（ESC 取消、F10 離開）、Ebiten 上色與送圖、資產檢視器場景。`cmd/wl-shot` 無頭輸出 PNG（對拍用）、`cmd/wasteland` 開視窗 |
 | Go 建置環境 | `docker/wasteland-go.Dockerfile`（golang 1.24 ＋ X11／GL 標頭，Ebiten 走 cgo 需要）。相依從**唯讀掛載的本機模組快取**當 file proxy 取得，`tools/go.sh` 仍 `--network none` |
@@ -452,10 +457,10 @@ Noto Sans CJK TC／源泉圓體 TW，以及 16／18／20 像素內文。工具�
 遇敵進戰鬥（名單畫面下指令、逐回合打完）、踩進設施買賣、治療、學技能、在 Ranger Center 建角色（名字可打中文）、存檔，設施圖上的局部動畫會動。
 **結局玩得到**：科奇斯基地反應爐層的四根圓柱（四把鑰匙）→ 按鈕 → 紅黃綠藍四站 →
 自毀倒數 240 刻 → 結局。觸發點不在資料裡而在主迴圈（`docs/re/100`）。
-**中文化完成**：目錄 **5,251／5,251** 條 ＋ 段落書 162 段，**而且畫面上真的是中文**——
+**中文化完成**：目錄 **5,280／5,280** 條 ＋ 段落書 162 段，**而且畫面上真的是中文**——
 戰鬥全程、設施選單與清單、角色管理、指令列訊息都走目錄（`docs/re/98` §2）。
-那 5,251 條 ＝ 原版語料 4,827 條扣掉 21 個不可翻的槽（4,806）
-＋ 重製版自己的 `ui:` 與店家招牌 `place:` 共 117 條
+那 5,280 條 ＝ 原版語料 4,827 條扣掉 21 個不可翻的槽（4,806）
+＋ 重製版自己的 `ui:` 與店家招牌 `place:` 共 146 條
 ＋ **明文敵人名字 `monster:` 328 條**（`docs/re/114` §6）。**`tools/build_lang.py` 的輸出是權威數字**——
 `README.md`、`tools/promo/make_promo.sh`、`tools/dist.sh` 裡的字面值都要跟著它改。
 
@@ -490,10 +495,10 @@ Noto Sans CJK TC／源泉圓體 TW，以及 16／18／20 像素內文。工具�
 下面兩條是已經結案的紀錄，留著是因為它們是驗收數字的來源。
 
 
-1. ~~翻譯本體~~ —— **已完成（5,251／5,251 可翻條目，`build_lang.py` 的輸出是權威數字）**。
+1. ~~翻譯本體~~ —— **已完成（5,280／5,280 可翻條目，`build_lang.py` 的輸出是權威數字）**。
    原版語料 4,827 個槽扣掉 21 個**不可翻**的槽（未用槽的解碼雜訊與純控制碼，
-   `docs/re/17` §1）＝ 4,806 條，加上重製版自己的 `ui:` 與 `places:` 共 117 條
-   ＋ 328 條明文敵人名字 ＝ 目錄裡的 5,251 條，全部翻完。
+   `docs/re/17` §1）＝ 4,806 條，加上重製版自己的 `ui:` 與 `places:` 共 146 條
+   ＋ 328 條明文敵人名字 ＝ 目錄裡的 5,280 條，全部翻完。
    清單在 `translations/untranslatable.tsv`，`tools/build_lang.py` 會擋
    「不該有譯文的 key 被翻了」，`tools/untranslated.py` 也扣掉它們——
    **這個數字有結論，不留永遠減不掉的餘數。**

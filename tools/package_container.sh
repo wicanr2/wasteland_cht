@@ -68,6 +68,12 @@ for d in manual manual-cht paragraphs walkthrough; do
 done
 cp "$ROOT/README.md" "$D/docs/README-專案.md"
 cp "$ROOT/LICENSE" "$D/LICENSE"
+sed -e 's|../internal/presentation/fonts/GenSen-OFL.txt|GenSen-OFL.txt|g' \
+    -e 's|../internal/presentation/fonts/Noto-OFL.txt|Noto-OFL.txt|g' \
+    -e 's|../internal/presentation/fonts/sources.json|font-sources.json|g' \
+    "$ROOT/docs/font-licenses.md" > "$D/docs/font-licenses.md"
+cp "$ROOT/internal/presentation/fonts/GenSen-OFL.txt" "$ROOT/internal/presentation/fonts/Noto-OFL.txt" "$D/docs/"
+cp "$ROOT/internal/presentation/fonts/sources.json" "$D/docs/font-sources.json"
 
 # —— HD2 候選；舊 HD 已取消，不再加入新封包 ———————————————————
 # 原版衍生圖只可進本機完整版；patch 必須由玩家匯入合法素材。

@@ -34,6 +34,27 @@ const (
 // HiFrame 是 640 × 400 的索引畫面。
 type HiFrame struct {
 	Pix [HiScreenWidth * HiScreenHeight]byte
+	// CaptureText exposes the existing text semantics to the modern compositor.
+	// The legacy indexed renderer and its original-layout tests keep this false.
+	CaptureText bool
+	TextCells   map[[2]int]TextCell
+}
+
+type TextCell struct {
+	Col, Row int
+	Rune     rune
+	Inverse  bool
+}
+
+func (h *HiFrame) capture(r rune, col, row int, inverse bool) bool {
+	if !h.CaptureText {
+		return false
+	}
+	if h.TextCells == nil {
+		h.TextCells = make(map[[2]int]TextCell)
+	}
+	h.TextCells[[2]int{col, row}] = TextCell{Col: col, Row: row, Rune: r, Inverse: inverse}
+	return true
 }
 
 // NewHiFrame 建一張空的高解畫布。
@@ -95,6 +116,9 @@ func (h *HiFrame) DrawCJK(font *assets.ETenFont, hi, lo byte, col, row int, fg b
 // 編譯期 `tools/build_lang.py` 已經擋過一次，執行期這條是給
 // 玩家自己打的名字用的。
 func (h *HiFrame) DrawRune(font *assets.ETenFont, r rune, col, row int, fg byte) bool {
+	if h.capture(r, col, row, fg == 0) {
+		return true
+	}
 	// 走快取版——這是每幀每字都會跑到的熱路徑（）。
 	b, ok := lang.CachedRuneToBig5(r)
 	if !ok {
@@ -109,6 +133,9 @@ func (h *HiFrame) DrawRune(font *assets.ETenFont, r rune, col, row int, fg byte)
 // 也就是前景與背景對調。高解這條路的字模沒有背景像素可以取反，
 // 所以拆成兩步：先塗滿整格，再用背景色畫字。
 func (h *HiFrame) FillCell(col, row int, c byte) {
+	if h.CaptureText {
+		return
+	}
 	x0, y0 := col*HiCellWidth, row*HiCellHeight
 	for y := 0; y < HiCellHeight; y++ {
 		for x := 0; x < HiCellWidth; x++ {
@@ -152,6 +179,9 @@ func (h *HiFrame) blit(g []byte, col, row, w, ht int, fg byte) bool {
 // 而遊戲原版的 8 × 8 字模放大三倍之後筆劃有三像素寬，擺在中文旁邊
 // 像另一種字型。沒有 `ASCFONT.*` 時回 false，呼叫端退回 DrawASCIIAt。
 func (h *HiFrame) DrawETenASCII(font *assets.ETenFont, c byte, col, row int, fg byte) bool {
+	if h.capture(rune(c), col, row, fg == 0) {
+		return true
+	}
 	g := font.ASCIIGlyph(c)
 	if g == nil {
 		return false
@@ -166,6 +196,9 @@ func (h *HiFrame) DrawETenASCII(font *assets.ETenFont, c byte, col, row int, fg 
 // 中文譯文裡會夾英文與標點（人名、數字、`%s` 之後接的東西），
 // **不能整串當成 Big5 兩兩配對**——錯一個 byte 之後整行都會變亂碼。
 func (h *HiFrame) DrawASCIIAt(font *assets.Font, c byte, col, row int, fg byte) bool {
+	if h.capture(rune(c), col, row, fg == 0) {
+		return true
+	}
 	if font == nil || c < font.FirstASCII {
 		return false
 	}

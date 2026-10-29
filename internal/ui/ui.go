@@ -100,6 +100,11 @@ type ArtScene interface {
 
 type ArtViewport interface{ SetArtViewport(width, height int) }
 
+type ModernScene interface {
+	ModernEnabled() bool
+	ModernFrame() (*image.RGBA, error)
+}
+
 // Sounder 是會發出 PC 喇叭音效的場景。
 //
 // TakeSound 回這一幀要播的音效編號（0–8，`docs/re/44` §6），−1 表示沒有；
@@ -126,8 +131,9 @@ type Game struct {
 	img   *ebiten.Image
 	synth *wlaudio.Synth
 	// hi 非 nil 就走 640 × 400 的中文畫面。
-	hi  HiScene
-	art ArtScene
+	hi     HiScene
+	art    ArtScene
+	modern ModernScene
 	// pix 是上色後那一幀，**重複用不重配**（見 Draw）。
 	pix   []byte
 	keys  []ebiten.Key
@@ -159,6 +165,9 @@ func New(scene Scene) *Game {
 	}
 	if a, ok := scene.(ArtScene); ok {
 		g.art = a
+	}
+	if m, ok := scene.(ModernScene); ok && m.ModernEnabled() {
+		g.modern = m
 	}
 	return g
 }
@@ -217,7 +226,7 @@ func (g *Game) Update() error {
 	mx, my := ebiten.CursorPosition()
 	// faithful-hd 把既有 960×600 合成置中於 960×720；遊戲規則仍使用
 	// 原本的內容座標，因此先扣掉上下各 60 像素的黑邊。
-	if g.art != nil && g.art.ArtMode() != "reimagined" {
+	if g.modern == nil && g.art != nil && g.art.ArtMode() != "reimagined" {
 		my -= 60
 	}
 	g.mouse = input.Mouse{
@@ -290,6 +299,17 @@ func withoutASCII(in []rune, ch byte) []rune {
 // 一秒 60 幀就是 138 MB 的垃圾。畫面每一幀整張重畫，
 // 所以緩衝區裡的舊內容一定會被蓋掉，留著沒有風險。
 func (g *Game) Draw(screen *ebiten.Image) {
+	if g.modern != nil {
+		frame, err := g.modern.ModernFrame()
+		if err == nil && frame != nil {
+			if g.img.Bounds().Size() != frame.Bounds().Size() {
+				g.img = ebiten.NewImage(frame.Bounds().Dx(), frame.Bounds().Dy())
+			}
+			g.img.WritePixels(frame.Pix)
+			screen.DrawImage(g.img, nil)
+			return
+		}
+	}
 	if g.art != nil && g.art.ArtMode() != "original" {
 		frame, err := g.art.ArtFrame()
 		if err == nil && frame != nil {
@@ -344,6 +364,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 // ⚠ 滑鼠座標跟著這個走：`ebiten.CursorPosition` 回的就是這裡的座標系，
 // 所以 `internal/play` 收到的是高解畫布的像素，不是視窗像素。
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
+	if g.modern != nil {
+		return 960, 720
+	}
 	if g.art != nil && g.art.ArtMode() == "reimagined" {
 		w, h := outsideWidth, outsideHeight
 		if w <= 0 || h <= 0 {

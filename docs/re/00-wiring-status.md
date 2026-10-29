@@ -42,6 +42,7 @@ RE 沒解出來、程式碼裡先用一個值頂著的地方。**每一處在程
 |---|---|---|
 | `internal/textlayout/textlayout.go` | 自動換行硬斷，不退到前一個空白 | 排版是重製版自己的事；中文為主的譯文本來就逐字斷行。⚠ 要改成英文不切字的話，`Events` 的 Line／Col 要一起搬 |
 | `internal/render/render.go` | 單色字型畫成 EGA 15（亮白） | 16 色裡與訊息視窗底色對比最高；原版取哪個顏色沒查也不打算查 |
+| `internal/presentation`、`internal/play/presentation.go`、`internal/ui` | 使用者於 2026-10-29 採用圓體、細邊框與單列工具列；沿原有文字與輸入語意重排，保留 classic 驗證路徑 | [規格 33](../spec/33-rounded-ui.md) 是重製版產品決定，不當作原版逆向證據 |
 
 （使用者定案 2026-08-15。）
 

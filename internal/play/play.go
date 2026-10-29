@@ -195,6 +195,7 @@ type Scene struct {
 	artWidth        int
 	artHeight       int
 	artAnimFrame    int
+	modern          *modernView
 }
 
 // LoadJournal 載入段落手札：引用表（編譯期產物）與中文正文目錄。
@@ -272,7 +273,8 @@ func (s *Scene) SetCJK(text string) {
 //
 // 一個中文字剛好佔原版一個字元格，所以訊息視窗仍然是 6 行 × 38 格。
 // cjkVisible 回報這一幀會不會畫中文（有字型 ＋ 有內容）。
-func (s *Scene) cjkVisible() bool { return s.eten != nil && len(s.cjk) > 0 }
+func (s *Scene) hasCJKFont() bool { return s.eten != nil || s.modern != nil }
+func (s *Scene) cjkVisible() bool { return s.hasCJKFont() && len(s.cjk) > 0 }
 
 // hiText 回報「文字層要不要整層改走高解畫布」。
 //
@@ -282,7 +284,7 @@ func (s *Scene) cjkVisible() bool { return s.eten != nil && len(s.cjk) > 0 }
 //
 // ⚠ 開了這個之後，低解那張 **不可以再畫同一批字**：先畫再蓋會留殘影
 // （8 × 8 放大的筆劃比 24 點的粗，蓋不乾淨）。
-func (s *Scene) hiText() bool { return s.eten != nil && s.eten.HasASCII() }
+func (s *Scene) hiText() bool { return s.modern != nil || (s.eten != nil && s.eten.HasASCII()) }
 
 // mapRosterShown 回報地圖畫面的名單現在有沒有展開著（`ds:46B9h` ＝ 1 那一種）。
 // 名單框蓋著訊息視窗，這個狀態下訊息不畫（實機 `91-roster-on.png`）。
@@ -302,8 +304,9 @@ func (s *Scene) drawASCIILine(h *render.HiFrame, text string, col, row int) {
 
 func (s *Scene) HiFrame() *render.HiFrame {
 	h := render.NewHiFrame()
+	h.CaptureText = s.modern != nil
 	h.Upscale(s.Frame())
-	if s.eten == nil {
+	if s.eten == nil && s.modern == nil {
 		return h
 	}
 	// ⚠ 這一行要與 `Frame` 的條件一致，**再加上標題畫面**：`Frame` 在標題那一支
@@ -917,8 +920,15 @@ func (s *Scene) Invalidate() { s.dirty = true }
 // （`sub_17FEE` 在旗標非 0 時擋住地圖繪製，docs/re/25 §2.5）——
 // 轉下去會變成「在戰鬥裡走路」。
 func (s *Scene) Update(in input.Input) (bool, error) {
+	if s.modern != nil {
+		var consumed bool
+		in, consumed = s.modernInput(in)
+		if consumed {
+			return true, nil
+		}
+	}
 	// 滑鼠先翻成與鍵盤等價的輸入，再走同一條路（`docs/spec/29` §2）。
-	if in.Mouse.X != 0 || in.Mouse.Y != 0 {
+	if (in.Mouse.X != 0 || in.Mouse.Y != 0) && in.Mouse != s.mouse {
 		s.mouse = in.Mouse
 		s.dirty = true
 	}
@@ -1045,6 +1055,12 @@ func (s *Scene) updateFacility(in input.Input) (bool, error) {
 // updateCombat 是戰鬥模式：逐人問指令，問完就結算一回合。
 func (s *Scene) updateCombat(in input.Input) (bool, error) {
 	c := s.combat
+	// The window polls every frame. An idle poll must not append the same
+	// command menu again; a completed command phase still resolves below.
+	if in.Char == 0 && in.Action == input.ActionNone && in.Dir == input.DirNone &&
+		in.Scroll == input.ScrollNone && in.Fn == input.FnNone && !c.Done() {
+		return true, nil
+	}
 	if in.Action == input.ActionCancel && s.use.stage != useStageOff {
 		return s.updateUse(in)
 	}
@@ -1930,7 +1946,7 @@ func (s *Scene) Frame() *render.Frame {
 	// 的列 24 就寫著「指令列照常在」）；只有結局與轉場才蓋掉。
 	// **有中文字型時這一行改由 HiFrame 畫**（見 drawCommandBarCJK）：
 	// 8 × 8 的字模畫不出中文，先畫英文再蓋會留下殘影。
-	if !s.ending.active && !s.wipe.active && s.eten == nil {
+	if !s.ending.active && !s.wipe.active && !s.hasCJKFont() {
 		_ = f.DrawLineAt(s.font, commandBar(), 0, render.CmdRow)
 	}
 
@@ -1984,7 +2000,7 @@ func (s *Scene) drawMapRoster(f *render.Frame) {
 		}
 	}
 	if s.colorFont != nil {
-		cjk := s.eten != nil && len(rosterHeaderCJK(s.uiText)) > 0
+		cjk := s.hasCJKFont() && len(rosterHeaderCJK(s.uiText)) > 0
 		_ = f.DrawRosterBox(s.colorFont, cjk)
 		if !cjk {
 			total := s.groupCount() - 1
@@ -2009,7 +2025,7 @@ func (s *Scene) drawRosterBox(f *render.Frame) {
 	if s.colorFont == nil {
 		return
 	}
-	cjk := s.eten != nil && len(rosterHeaderCJK(s.uiText)) > 0
+	cjk := s.hasCJKFont() && len(rosterHeaderCJK(s.uiText)) > 0
 	_ = f.DrawRosterBox(s.colorFont, cjk)
 	// 上半那兩圈：左邊肖像、右邊選單區（`docs/re/127`）。
 	_ = f.DrawPortraitBox(s.colorFont)
@@ -2194,7 +2210,7 @@ func (s *Scene) drawRoster(f *render.Frame) {
 	row := render.RosterHeaderRow
 	// 有倚天字型與譯文時表頭由 HiFrame 畫中文——先畫英文再蓋會留殘影
 	// （與指令列同一條，`docs/spec/10` §5）。
-	if s.eten == nil || len(rosterHeaderCJK(s.uiText)) == 0 {
+	if !s.hasCJKFont() || len(rosterHeaderCJK(s.uiText)) == 0 {
 		_ = f.DrawLineAt(s.font, RosterHeader, 0, row)
 	}
 	if s.hiText() {
@@ -2254,7 +2270,7 @@ func (s *Scene) drawFacility(f *render.Frame) {
 		l = facilityDisplayLine(i, l)
 		// 有中文的那一行交給 HiFrame 畫——8 × 8 的字模畫不出中文，
 		// 先畫英文再蓋會留下殘影（與指令列同一條）。
-		if s.eten != nil && i < len(fs.CJKLines) && len(fs.CJKLines[i]) > 0 {
+		if s.hasCJKFont() && i < len(fs.CJKLines) && len(fs.CJKLines[i]) > 0 {
 			continue
 		}
 		if s.hiText() {

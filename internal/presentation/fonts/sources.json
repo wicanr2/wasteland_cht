@@ -1,0 +1,45 @@
+{
+  "purpose": "Approved rounded UI runtime fonts; fixed sources, full OFL licenses; embedded compressed without changing font names",
+  "sources": [
+    {
+      "file": "workplace/art-preview/ui-redesign-NotoSansCJKtc-Regular.otf",
+      "url": "https://raw.githubusercontent.com/notofonts/noto-cjk/523d033d6cb47f4a80c58a35753646f5c3608a78/Sans/OTF/TraditionalChinese/NotoSansCJKtc-Regular.otf",
+      "upstream_commit": "523d033d6cb47f4a80c58a35753646f5c3608a78",
+      "bytes": 16435884,
+      "sha256": "dce08bd4fd91aa8aa76ed8fea4b694c2dfb8550f67871e326843212ddbeb88b4",
+      "label": "Noto Sans CJK TC",
+      "embedded_path": "internal/presentation/fonts/NotoSansCJKtc-Regular.otf.gz",
+      "embedded_sha256": "94631062aaed6135814e2711d14b7e3a13af500a8ada1f90049f5994f4401643"
+    },
+    {
+      "file": "workplace/art-preview/ui-redesign-Noto-OFL.txt",
+      "url": "https://raw.githubusercontent.com/notofonts/noto-cjk/523d033d6cb47f4a80c58a35753646f5c3608a78/LICENSE",
+      "upstream_commit": "523d033d6cb47f4a80c58a35753646f5c3608a78",
+      "bytes": 4301,
+      "sha256": "6a73f9541c2de74158c0e7cf6b0a58ef774f5a780bf191f2d7ec9cc53efe2bf2",
+      "label": "Noto license",
+      "embedded_path": "internal/presentation/fonts/Noto-OFL.txt",
+      "embedded_sha256": "6a73f9541c2de74158c0e7cf6b0a58ef774f5a780bf191f2d7ec9cc53efe2bf2"
+    },
+    {
+      "file": "workplace/art-preview/ui-redesign-GenSenRounded-TW-Regular.otf",
+      "url": "https://raw.githubusercontent.com/ButTaiwan/gensen-font/d347d3fffcb45e08857052433a0b432ed4f7ace8/otf/TW/GenSenRounded2TW-R.otf",
+      "upstream_commit": "d347d3fffcb45e08857052433a0b432ed4f7ace8",
+      "bytes": 16177104,
+      "sha256": "092285878f1d9441c790e5d6a98e806bd508602ad0a8a55511b6fb0a71a25fed",
+      "label": "GenSen Rounded TW",
+      "embedded_path": "internal/presentation/fonts/GenSenRounded-TW-Regular.otf.gz",
+      "embedded_sha256": "aa8acc68e56c5a51d9deba2f67b7285ba049c994282c4d1334c76241380c14b2"
+    },
+    {
+      "file": "workplace/art-preview/ui-redesign-GenSen-OFL.txt",
+      "url": "https://raw.githubusercontent.com/ButTaiwan/gensen-font/d347d3fffcb45e08857052433a0b432ed4f7ace8/SIL_Open_Font_License_1.1.txt",
+      "upstream_commit": "d347d3fffcb45e08857052433a0b432ed4f7ace8",
+      "bytes": 4464,
+      "sha256": "d84b652ca46586043946969a33c1dbf5a43028440825ae744a325965bec4c8fb",
+      "label": "GenSen license",
+      "embedded_path": "internal/presentation/fonts/GenSen-OFL.txt",
+      "embedded_sha256": "d84b652ca46586043946969a33c1dbf5a43028440825ae744a325965bec4c8fb"
+    }
+  ]
+}
