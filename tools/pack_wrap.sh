@@ -191,7 +191,7 @@ EOF
 EOF
     ln -sf wasteland-cht.svg "$APPDIR/.DirIcon"
     SFS=/tmp/wasteland.squashfs; rm -f "$SFS"
-    mksquashfs "$APPDIR" "$SFS" -root-owned -noappend -no-progress -quiet \
+    mksquashfs "$APPDIR" "$SFS" -processors 2 -root-owned -noappend -no-progress -quiet \
         -comp gzip -b 128K -mkfs-time 0 -all-time 0
     cat "$RUNTIME" "$SFS" > "$OUT/$PKG.AppImage"
     chmod +x "$OUT/$PKG.AppImage"
