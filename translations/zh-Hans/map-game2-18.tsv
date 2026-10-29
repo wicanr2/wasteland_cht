@@ -1,0 +1,44 @@
+# game2 資源 18：科奇斯基地的環境測試設施與金庫門
+#
+# ⚠ 按鍵不翻：O／C。
+#
+# ⚠ 8／17／33／37 的原文少了動詞（`Do you want to with vault door #1?`），
+# 是原版就有的瑕疵。中文用刪節號保留那個沒說完的感覺，
+# 不補一個原文沒有的動詞進去。
+blk:game2:18:1	\x0D一片巨大而推不动的钢板挡住走廊。正中央是科奇斯基地的标志。\x0D
+blk:game2:18:2	\x0D你看见沾满油的管线沿著房间延伸到一处岩架，那里有某种控制板。管线底下是滚烫冒泡的油。看起来没办法所有人一次过去。\x0D
+blk:game2:18:3	\x0D你踏出一步。\x0D
+blk:game2:18:4	\x0D这根管子真滑。\x0D
+blk:game2:18:5	\x0D你们全都失手，被油烫伤。\x0D
+blk:game2:18:6	\x0D你滑进油里，但勉强撑住了。\x0D
+blk:game2:18:7	不知从哪里冒出来\x0D
+blk:game2:18:8	你要对 1 号金库门……？\x0D\x0D\x11\x10O 开\x0D\x10C 关\x0D
+blk:game2:18:9	O
+blk:game2:18:10	C
+blk:game2:18:11	\x0D这里有一面控制板。\x0D
+blk:game2:18:12	\x0D冰冷的钢墙非常平滑。\x0D
+blk:game2:18:13	\x0D这个房间相当单调，只有地板铺著十呎见方的钢板。\x0D
+blk:game2:18:14	\x0D那些钢板很滑。\x0D
+blk:game2:18:15	\x0D你发现几颗地雷。\x0D
+blk:game2:18:16	\x0D你踩到一颗地雷，把它引爆了。\x0D
+blk:game2:18:17	你要对 2 号金库门……？\x0D\x0D\x11\x10O 开\x0D\x10C 关\x0D
+blk:game2:18:18	\x0D你被一个小坑绊了一下。\x0D
+blk:game2:18:19	那边墙里是什么东西？\x0D
+blk:game2:18:20	\x0D进入环境测试设施。\x0D
+blk:game2:18:21	\x0D你听见雷电。\x0D
+blk:game2:18:22	\x0D滋！滋！\x0D
+blk:game2:18:23	\x0D呼！好险。\x0D
+blk:game2:18:24	\x0D你被打中，头发烧得焦脆。\x0D
+blk:game2:18:25	\x0D这里风很大。\x0D
+blk:game2:18:26	\x0D呼——！呼——！\x0D
+blk:game2:18:27	\x0D你的衣服差点被撕掉。\x0D
+blk:game2:18:28	\x0D你被吹得站不住脚。\x0D
+blk:game2:18:29	\x0D这里非常冷。\x0D
+blk:game2:18:30	\x0D冷！冷！\x0D
+blk:game2:18:31	\x0D你身上那几层脂肪替你挡住了冰冷的空气。\x0D
+blk:game2:18:32	\x0D冷到你开始冻伤。\x0D
+blk:game2:18:33	你要对 3 号金库门……？\x0D\x0D\x11\x10O 开\x0D\x10C 关\x0D
+blk:game2:18:35	\x0D进入战斗模拟器。\x0D
+blk:game2:18:36	\x0D别去撞那些障碍。\x0D
+blk:game2:18:37	你要对 4 号金库门……？\x0D\x0D\x11\x10O 开\x0D\x10C 关\x0D
+blk:game2:18:38	\x0D这些墙烫得吓人。\x0D

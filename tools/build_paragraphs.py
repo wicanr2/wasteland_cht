@@ -2,7 +2,7 @@
 
     translations/zh-Hant/paragraphs/*.md  →  translations/paragraphs-zh-Hant.cat
 
-沿用 `tools/build_lang.py` 的 `.cat` 格式與 Big5 編碼，key 是 `para:<編號>`，
+沿用 `tools/build_lang.py` 的 UTF-8 `.cat` 格式，key 是 `para:<編號>`，
 所以 Go 那邊不必多一種讀檔器（`internal/lang` 直接讀）。
 
 來源是 markdown 而不是 TSV：段落是好幾百字的散文，塞進單行 TSV 沒辦法審閱。
@@ -24,10 +24,11 @@ from __future__ import annotations
 import re
 import struct
 import sys
+import argparse
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from build_lang import MAGIC, VERSION, to_big5  # noqa: E402
+from build_lang import MAGIC, VERSION, to_big5, read_tsv  # noqa: E402
 
 TOTAL = 162
 HEADING = re.compile(r"^##\s*段落\s*(\d+)\s*$")
@@ -69,6 +70,22 @@ def to_text(body: str) -> str:
 
 
 def main() -> None:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--locale", choices=("zh-Hant", "zh-Hans"), default="zh-Hant")
+    args = ap.parse_args()
+    if args.locale == "zh-Hans":
+        rows = read_tsv(ROOT / "translations" / "zh-Hans" / "paragraphs.tsv")
+        expected = {f"para:{n}" for n in range(1, TOTAL + 1)}
+        if set(rows) != expected or any(not t.strip() for t in rows.values()):
+            raise SystemExit("簡體手札必須完整包含 162 段且每段非空")
+        out = bytearray(MAGIC) + struct.pack("<HI", VERSION, len(rows))
+        for key, text in sorted(rows.items(), key=lambda item: int(item[0].split(":")[1])):
+            for data in (key.encode("utf-8"), text.encode("utf-8")):
+                out += struct.pack("<H", len(data)) + data
+        dest = ROOT / "translations" / "paragraphs-zh-Hans.cat"
+        dest.write_bytes(out)
+        print(f"162 段 → {dest}（{len(out)} bytes）")
+        return
     if not SRC.is_dir():
         raise SystemExit(f"{SRC} 不存在——段落書的中文翻譯還沒開始")
 

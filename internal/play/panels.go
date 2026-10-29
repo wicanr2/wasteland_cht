@@ -124,12 +124,19 @@ func (s *Scene) showSettings() {
 	var zh string
 	if t := s.uiText("settings.title"); len(t) > 0 {
 		zh += t
+		if s.LanguagesAvailable() {
+			if s.CanSwitchLocale() {
+				zh += "  L " + s.uiText("settings.language") + s.uiText("language."+s.locale)
+			} else {
+				zh += "  " + s.uiText("language.busy")
+			}
+		}
 		zh += "\r"
 		zh = appendUILine(zh, s.uiText("settings.music"), "M", s.uiText(mUI)+"　B "+s.uiText(variantUI))
 		zh = appendUILine(zh, s.uiText("settings.volume"), "- +",
 			fmt.Sprintf("%d", s.settings.MusicVol))
 		zh = appendUILine(zh, s.uiText("settings.sfx"), "X", s.uiText(xUI))
-		zh = appendUILine(zh, "美術：", "V", s.ArtMode())
+		zh = appendUILine(zh, s.uiText("settings.art"), "V", s.ArtMode())
 		zh += s.uiText("settings.close")
 		s.message = ""
 	}
@@ -158,6 +165,18 @@ func (s *Scene) updateSettings(in input.Input) (bool, error) {
 		return true, nil
 	}
 	switch input.Upper(in.Char) {
+	case 'L':
+		if s.CanSwitchLocale() {
+			next := "zh-Hans"
+			if s.locale == next {
+				next = "zh-Hant"
+			}
+			if err := s.SelectLocale(next); err != nil {
+				return true, err
+			}
+		}
+		s.showSettings()
+		return true, nil
 	case 'M':
 		s.settings.MusicOn = !s.settings.MusicOn
 	case 'B':

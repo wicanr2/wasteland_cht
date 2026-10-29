@@ -196,6 +196,8 @@ type Scene struct {
 	artHeight       int
 	artAnimFrame    int
 	modern          *modernView
+	locale          string
+	locales         map[string]localeBundle
 }
 
 // LoadJournal 載入段落手札：引用表（編譯期產物）與中文正文目錄。

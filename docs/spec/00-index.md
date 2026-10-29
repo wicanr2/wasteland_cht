@@ -13,6 +13,7 @@
 
 | 規格 | 狀態 | 對應的 `internal/` | 擋住它的東西 |
 |---|---|---|---|
+| [34-zh-hans-and-language-switch.md](34-zh-hans-and-language-switch.md) | **READY** | `internal/lang`、`internal/play`、語料與封裝／影片工具 | 使用者已確認簡體與沿用新版介面；實作與抽測中 |
 | [33-rounded-ui.md](33-rounded-ui.md) | **CONFORMED，限定已列抽測** | `internal/presentation`、`internal/play`、`internal/render`、`internal/ui` | Linux 正常 GUI、字型與場景回歸通過；Windows／Mac 交叉編譯，未原生實機驗收 |
 | [32-hd2.md](32-hd2.md) | READY，本機包已驗證 | `internal/play`、`artpacks` | A／B、跨平台路徑與六包內容通過；Linux／Wine 實際 GUI 通過，Mac 未實機驗收 |
 | [`01-assets-and-formats.md`](01-assets-and-formats.md) | **READY**（已實作） | `internal/assets` ✅ | — |

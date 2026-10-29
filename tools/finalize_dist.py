@@ -52,6 +52,7 @@ def finalize(version):
             assert data.get("load_restores_exact_crop"), receipt
             assert data["package_sha256"] == package["sha256"], receipt
             assert data.get("modern_ui_verified") is True, receipt
+            assert data.get("languages_verified") == ["zh-Hant", "zh-Hans"], receipt
             driver = receipt.parent / ("check_package_gui.sh" if platform == "windows-x64" else "driver.sh")
             assert sha(driver) == data["driver_sha256"], driver
             if needs_visual:
@@ -71,6 +72,7 @@ def finalize(version):
     lines += ["", "full-local 含原版、倚天字型、HD2 衍生圖片與本機配樂，只供本機使用，不可散布。",
               "patch 內建已授權圓體與 Noto，不含原版、倚天、HD2 圖片或配樂，玩家須自備合法原版。",
               "預設使用 18 像素圓體、細邊框與工具列；美術與字型可獨立切換。舊 HD 已移除。",
+              "內含繁體與簡體中文；由工具列設定 F2 的語言按鈕或 L 切換。未完成的指令須先關閉。",
               "", "六包均完成內容、架構、版本與雜湊驗證。實際啟動檢查與畫面見 smoke/。",
               "Linux 容器／Wine 與原生 Windows／macOS 實機驗收分開記錄，不把交叉建置當成實機通過。",
               "", "| 實際啟動檢查 | 狀態 |", "|---|---|"]
@@ -92,6 +94,9 @@ def finalize(version):
     inputs += [REPO / p for p in ("internal/play/presentation.go", "internal/presentation/canvas.go",
                "internal/render/hires.go", "internal/ui/ui.go", "artwork/manifests/ui-rounded-approved.json",
                "tools/check_package_gui.sh", "tools/check_package_wine_server.sh")]
+    inputs += [REPO / p for p in ("internal/play/locales.go", "tools/build_lang.py", "tools/build_paragraphs.py",
+               "tools/make_zh_hans.py", "tools/localization-inputs.json", "translations/zh-Hans.cat",
+               "translations/paragraphs-zh-Hant.cat", "translations/paragraphs-zh-Hans.cat")]
     inputs += sorted((REPO / "internal/presentation/fonts").iterdir())
     inputs += [REPO / "artpacks" / m / "manifest.json" for m in ("hd2-a", "hd2-b")]
     files = [{"path": str(p.relative_to(out)), "bytes": p.stat().st_size, "sha256": sha(p)}

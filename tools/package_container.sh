@@ -61,6 +61,7 @@ fi
 
 # —— 翻譯與文件（兩種模式都帶）——————————————————————————————
 cp "$ROOT/translations/zh-Hant.cat" "$ROOT/translations/paragraphs-zh-Hant.cat" "$D/translations/"
+cp "$ROOT/translations/zh-Hans.cat" "$ROOT/translations/paragraphs-zh-Hans.cat" "$D/translations/"
 cp "$ROOT/translations/glossary.md" "$ROOT/translations/README.md" "$D/translations/"
 cp "$ROOT/docs/re/generated/paragraph-refs.tsv" "$D/docs/re/generated/"
 for d in manual manual-cht paragraphs walkthrough; do
@@ -129,6 +130,7 @@ printf 'Version: %s\nPackage: %s\nCommit: %s\nMode: %s\nPlatform: %s\nBuild imag
     "$VERSION" "$PKG" "$SOURCE_COMMIT" "$MODE" "$PLATFORM" "${WL_BUILD_IMAGE:-unknown}" \
     > "$D/PACKAGE-MANIFEST.txt"
 printf 'UI: rounded-v1\nLicensed fonts: GenSen Rounded TW R; Noto Sans CJK TC Regular\n' >> "$D/PACKAGE-MANIFEST.txt"
+printf 'Locales: zh-Hant zh-Hans\n' >> "$D/PACKAGE-MANIFEST.txt"
 if [ "${MAC:-0}" = 1 ]; then
     printf 'SDK: %s\nArchitectures: x86_64 arm64 (lipo universal)\n' "$SDK" >> "$D/PACKAGE-MANIFEST.txt"
 fi

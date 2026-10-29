@@ -128,7 +128,9 @@ def verify(package, version, mode, platform):
             assert version.encode() in binary.read_bytes(), binary
             if platform == "macos-universal":
                 result["macos_builds"][name] = macos_build_versions(binary, temp)
-        for name in ("zh-Hant.cat", "paragraphs-zh-Hant.cat"):
+        assert "Locales: zh-Hant zh-Hans\n" in manifest
+        result["locales"] = ["zh-Hant", "zh-Hans"]
+        for name in ("zh-Hant.cat", "paragraphs-zh-Hant.cat", "zh-Hans.cat", "paragraphs-zh-Hans.cat"):
             assert sha(root / "translations" / name) == sha(REPO / "translations" / name)
         assert not any((root / "artpacks" / old).exists() for old in ("faithful-hd", "reimagined"))
         if mode == "patch":

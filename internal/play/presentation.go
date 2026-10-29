@@ -172,6 +172,18 @@ func (s *Scene) ModernFrame() (*image.RGBA, error) {
 		rect := s.msgRect()
 		s.modernRows(c, s.modernMessageCells(), rect.Row, rect.LastRow(), rect.Col, rect.Col+rect.Width-1, image.Rect(32, 222, 924, 626), 28, false)
 		v.hits = append(v.hits, modernHit{rect: image.Rect(852, 162, 936, 204), key: 0x1b})
+		if s.settingsOpen && s.LanguagesAvailable() {
+			r := image.Rect(612, 162, 844, 204)
+			col := presentation.Text
+			if !s.CanSwitchLocale() {
+				col = presentation.Muted
+			}
+			c.Box(r, presentation.Panel, presentation.Edge, 4)
+			c.Label("L "+s.uiText("settings.language")+s.uiText("language."+s.locale), r.Inset(8), 16, col, true)
+			if s.CanSwitchLocale() {
+				v.hits = append(v.hits, modernHit{rect: r, key: 'L'})
+			}
+		}
 	}
 	v.fields = c.Fields
 	v.frame, v.last = c.Image, low

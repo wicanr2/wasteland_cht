@@ -1,0 +1,9 @@
+{
+  "package": "opencc-python-reimplemented",
+  "version": "0.1.7",
+  "filename": "opencc_python_reimplemented-0.1.7-py2.py3-none-any.whl",
+  "url": "https://files.pythonhosted.org/packages/30/6b/055b7806f320cc8f2cdf23c5f70221c0dc1683fca9ffaf76dfc2ad4b91b6/opencc_python_reimplemented-0.1.7-py2.py3-none-any.whl",
+  "sha256": "41b3b92943c7bed291f448e9c7fad4b577c8c2eae30fcfe5a74edf8818493aa6",
+  "configuration": "t2s",
+  "purpose": "derive editable zh-Hans TSV; no game runtime dependency"
+}

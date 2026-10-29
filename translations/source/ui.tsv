@@ -1,4 +1,9 @@
 # 重製版自己的介面文字（**不是原版的字串**）。
+ui:settings.art	Art:
+ui:settings.language	Language:
+ui:language.zh-Hant	Traditional Chinese
+ui:language.zh-Hans	Simplified Chinese
+ui:language.busy	Close other menus before switching language.
 #
 # 原版把指令列與清單直接寫成 ASCII 字面值（`ds:A9CCh` 那一串），
 # 不走字串表，所以抽不出 key。這些字玩家看得到，照 `CLAUDE.md` §3.3

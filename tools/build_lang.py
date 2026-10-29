@@ -1,8 +1,8 @@
-"""把 UTF-8 的翻譯 TSV 編譯成 Go 讀得動的 Big5 目錄（`docs/spec/11`）。
+"""把 UTF-8 的翻譯 TSV 編譯成 WLCAT v2 的 UTF-8 目錄（規格 11、34）。
 
     translations/zh-Hant/*.tsv  →  translations/zh-Hant.cat
 
-**Big5 編碼的知識放在這裡，Go 不需要依賴任何編碼函式庫。**
+繁體保留倚天 Big5 覆蓋檢查；簡體由內建 Unicode 字型覆蓋測試把關。
 
 除了逐 key 的翻譯檔，還吃一份**文本層**的共用翻譯 `_shared.tsv`
 （`<原文>\t<譯文>`）：42 個地圖區塊各自帶一份戰鬥動詞與開門訊息，
@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import struct
 import sys
+import argparse
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -135,8 +136,12 @@ def read_tsv(path: Path) -> dict[str, str]:
 
 
 def main() -> None:
-    root = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("translations")
-    src_dir, zh_dir = root / "source", root / "zh-Hant"
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("root", type=Path, nargs="?", default=Path("translations"))
+    ap.add_argument("--locale", choices=("zh-Hant", "zh-Hans"), default="zh-Hant")
+    args = ap.parse_args()
+    root = args.root
+    src_dir, zh_dir = root / "source", root / args.locale
     if not zh_dir.is_dir():
         raise SystemExit(f"{zh_dir} 不存在——還沒有任何翻譯")
 
@@ -167,7 +172,7 @@ def main() -> None:
     owner: dict[str, str] = {}
     dupes: list[str] = []
     for p in sorted(zh_dir.glob("*.tsv")):
-        if p.name.startswith("_"):
+        if p.name.startswith("_") or p.name == "paragraphs.tsv":
             continue  # 底線開頭的是文本層，不是逐 key 的翻譯檔
         for key, text in read_tsv(p).items():
             if key in zh:
@@ -255,7 +260,7 @@ def main() -> None:
         # ⚠ **Big5 檢查留著，但存進 .cat 的是 UTF-8。**
         # 倚天字型是 Big5 排列，編不出來的字畫不出來——這一關要在編譯期擋掉，
         # 不能等到執行期 fallback。轉換本身在 Go 那一側（畫的那一刻）做。
-        _, missing = to_big5(text)
+        _, missing = to_big5(text) if args.locale == "zh-Hant" else (b"", [])
         if missing:
             errors.append(f"{key}：Big5 編不出 {''.join(sorted(set(missing)))}")
             continue
@@ -273,7 +278,7 @@ def main() -> None:
         out += struct.pack("<H", len(kb)) + kb
         out += struct.pack("<H", len(data)) + data
 
-    dest = root / "zh-Hant.cat"
+    dest = root / f"{args.locale}.cat"
     dest.write_bytes(bytes(out))
     translatable = len(source) - len(untranslatable)
     left = translatable - len(entries)

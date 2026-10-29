@@ -1,4 +1,9 @@
 # 重製版介面文字。⚠ 開頭那個熱鍵字母不能改（`docs/re/40` §4）。
+ui:settings.art	美術：
+ui:settings.language	語言：
+ui:language.zh-Hant	繁體中文
+ui:language.zh-Hans	簡體中文
+ui:language.busy	請先回到標題或一般地圖再切換語言。
 ui:cmd.bar	U使用 E遭遇 O排隊 D分隊 V換隊 S存檔 R無線
 ui:journal.header	手札 %d/%d%s
 ui:journal.hint	I／K 換段  PgUp／PgDn 捲動

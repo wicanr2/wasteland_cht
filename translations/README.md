@@ -1,6 +1,15 @@
 # 翻譯目錄
 
 規格見 [`docs/spec/11`](../docs/spec/11-translation-catalogue.md)。
+繁簡切換見 [規格 34](../docs/spec/34-zh-hans-and-language-switch.md)。
+簡體來源為 `zh-Hans/*.tsv`，其中 `paragraphs.tsv` 保存 162 段正文。
+兩語 `.cat` 均使用 UTF-8；Big5 只限制倚天驗證路徑，不代表簡體編碼。
+
+簡體初稿工具為 [make_zh_hans.py](../tools/make_zh_hans.py)，固定工具來源與 SHA-256
+見 [localization-inputs.json](../tools/localization-inputs.json)。在 Docker 內使用該 wheel，
+產出的 TSV 可直接維護；遊戲執行時不依賴轉換工具。編譯命令：
+`python3 tools/build_lang.py --locale zh-Hans` 與
+`python3 tools/build_paragraphs.py --locale zh-Hans`，均須在既有 Docker 工具映像內執行。
 
 ```
 source/       原文（機器產生，**不入版控**——原版資料不散布）

@@ -1,0 +1,31 @@
+# 地點招牌。**這些字不在字串表裡**——它們是地圖記錄與存檔裡的明文 ASCII
+# （`docs/re/29` §5.4、`docs/re/30`），所以翻譯走「顯示時查表」，
+# 一個 byte 都不改玩家的存檔（`CLAUDE.md` §4 的存檔策略）。
+#
+# 體例：**地名與專有名詞寫成「中文（英文）」**（使用者定案 2026-08-18）——
+# 保留英文讓玩家對得上原版畫面、官方手冊與當年的攻略。
+# 代價是比原文長，所以 `build_lang.py` 對 `place:`／`monster:` 兩類
+# 把格數上限放寬成「一行 38 格」，而不是「不超過原文」。
+place:AG. store	农业杂货（AG. store）
+place:Blackmarket	黑市（Blackmarket）
+place:Books	书店（Books）
+place:Chopper Sim.	直升机模拟（Chopper Sim.）
+place:Clone prep.	复制准备室（Clone prep.）
+place:HOLY KNOWING	圣知识中心（HOLY KNOWING）
+place:Infirmary	医护室（Infirmary）
+place:Library	图书馆（Library）
+place:LV Infirmary	维加斯医护室（LV Infirmary）
+place:Market	市场（Market）
+place:New Thoughts	新思想（New Thoughts）
+place:NUCLEAR AID	核子救护（NUCLEAR AID）
+place:Old Doc Bobs	老鲍伯医生（Old Doc Bobs）
+place:Patch em' up	补一补诊所（Patch em' up）
+place:Q. Emergency	石英城急诊（Q. Emergency）
+place:Q. Emporium	石英城商场（Q. Emporium）
+place:Ranger Ctr.	游侠中心（Ranger Ctr.）
+place:Sickbay	医务室（Sickbay）
+place:Store	商店（Store）
+place:Tech section	技术部门（Tech section）
+place:Thrift store	二手商店（Thrift store）
+place:Trading car	交易车厢（Trading car）
+place:Vegas Lib.	赌城图书馆（Vegas Lib.）

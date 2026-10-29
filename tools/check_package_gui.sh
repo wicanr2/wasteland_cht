@@ -181,6 +181,28 @@ send Escape
 wait_frame 14-map-return 15-journal-return equal 24,84,888,468
 click 908 22
 wait_frame 15-journal-return 16-settings different 16,154,948,654
+click 728 183
+wait_frame 16-settings 20-hans-settings different 20,54,220,76
+send Escape
+wait_frame 14-map-return 21-hans-map equal 24,84,888,468
+send 1
+wait_frame 21-hans-map 22-hans-character different 16,154,948,654
+send Return
+wait_frame 22-hans-character 23-hans-items different 32,222,924,626
+click 38 264
+wait_frame 23-hans-items 24-hans-item-action different 32,222,924,626
+send Escape
+wait_frame 24-hans-item-action 24-hans-item-return different 32,222,924,626
+send Escape
+wait_frame 14-map-return 24-hans-map-return equal 24,84,888,468
+send p
+wait_frame 24-hans-map-return 25-hans-journal different 16,154,948,654
+send Escape
+wait_frame 14-map-return 25-hans-journal-return equal 24,84,888,468
+click 908 22
+wait_frame 25-hans-journal-return 26-hans-settings different 16,154,948,654
+send l
+wait_frame 16-settings 27-hant-restored equal 20,54,220,76
 send Escape
 wait_frame 14-map-return 16-settings-return equal 24,84,888,468
 send F10
@@ -214,6 +236,8 @@ assert ImageChops.difference(images['07-saved'].crop(crop),images['08-moved'].cr
 assert images['17-quit'].tobytes()==images['18-quit-owned'].tobytes()
 assert images['02-noto'].crop((212,6,316,38)).tobytes()!=images['01-original'].crop((212,6,316,38)).tobytes()
 assert images['03-noto-16'].crop((324,6,436,38)).tobytes()!=images['04-noto-20'].crop((324,6,436,38)).tobytes()
+assert images['16-settings'].crop((20,54,220,76)).tobytes()!=images['20-hans-settings'].crop((20,54,220,76)).tobytes()
+assert images['16-settings'].crop((20,54,220,76)).tobytes()==images['27-hant-restored'].crop((20,54,220,76)).tobytes()
 assert sum(sum(px)>30 for px in images['00-title'].crop((12,6,948,38)).getdata())/(936*32)>.5
 visual=False
 if mode=='full-local':
@@ -233,7 +257,7 @@ suffix='AppImage' if platform=='linux-x64' else 'zip'
 package=Path(f'/src/dist-all/{version}/{mode}/{platform}/wasteland-cht-{version}-{platform}-{mode}.{suffix}')
 result={'schema':1,'status':'passed','version':version,'platform':platform,'environment':'Wine supplementary' if platform=='windows-x64' else 'Linux Xvfb',
  'entry':'actual packaged launcher; normal title; no forced map or art mode','exit_code':0,
- 'modern_ui_verified':True,'visual_modes_verified':visual,'load_restores_exact_crop':crop,
+ 'modern_ui_verified':True,'languages_verified':['zh-Hant','zh-Hans'],'visual_modes_verified':visual,'load_restores_exact_crop':crop,
  'window_size':[int(x) for x in sys.argv[5:7]],'screenshot_scale':'nearest to logical 960x720; full-size window captures retained',
  'quick_save':{'version':2,'original_path':str(save),'sha256':hashlib.sha256(b).hexdigest()},
  'package_sha256':hashlib.sha256(package.read_bytes()).hexdigest(),

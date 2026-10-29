@@ -1,0 +1,129 @@
+# 重製版介面文字。⚠ 開頭那個熱鍵字母不能改（`docs/re/40` §4）。
+ui:settings.art	美术：
+ui:settings.language	语言：
+ui:language.zh-Hant	繁体中文
+ui:language.zh-Hans	简体中文
+ui:language.busy	请先回到标题或一般地图再切换语言。
+ui:cmd.bar	U使用 E遭遇 O排队 D分队 V换队 S存档 R无线
+ui:journal.header	手札 %d/%d%s
+ui:journal.hint	I／K 换段  PgUp／PgDn 卷动
+ui:journal.decoy	（诱饵）
+ui:journal.appendix	（附录）
+ui:journal.epilogue	（后日谈）
+ui:journal.untranslated	（尚未翻译）
+ui:use.which	要哪一位？
+ui:use.kind	使用：物品／技能／属性　（I／S／A，ESC 取消）
+ui:use.whichway	往哪个方向？ I K J L 或方向键，空白 ＝ 原地
+ui:use.nothing	没有东西可以用。
+ui:use.nobody	没有人做得到。
+ui:gate.party	全队
+ui:gate.damage	 点伤害。
+ui:use.nothinghappens	%s 使用%s，没有任何反应。
+ui:use.works	%s 使用%s，成功了！
+ui:use.fails	%s 使用%s，失败了。
+ui:combat.attacked	你们遭到攻击！
+ui:combat.hit	%s 命中 %s，%d 点伤害
+ui:combat.fallen	全队倒下了。
+ui:combat.over	战斗结束。
+ui:combat.which	，换哪一件？
+ui:combat.partyxp	全队获得 %d 点经验值。
+ui:enc.inside	这里面不行。
+ui:enc.none	这里没有可打的敌人。
+ui:enc.groupnone	第 %d 队：没有可打的敌人。
+ui:save.none	没有可用的存档。
+ui:save.done	已存档。
+ui:save.donenonames	已存档（长名字没写进去）。
+ui:save.memoryonly	状态已更新（没有写进档案）。
+ui:save.nodata	状态已更新（没有载入资料档）。
+ui:radio.nothing	总部：没有事情要回报。
+ui:view.none	没有别的队伍。
+ui:view.switched	第 %d 队。
+ui:disband.single	只剩一个人，不能分队。
+ui:disband.left	%s 离开了队伍。
+ui:order.nothing	没有人可以重排。
+ui:order.done	队伍顺序：
+ui:roster.menu	C建立  D删除  P开始游戏
+ui:roster.name	名字：
+ui:roster.nobody	没有人可以删除。
+ui:roster.joined	%s 加入了游侠。
+ui:loot.take	%s，拿一件物品
+ui:roster.stats	力量%d 智力%d 幸运%d 速度%d\x0D敏捷%d 灵巧%d 魅力%d 体力%d
+ui:roster.gone	%s 已经离开。
+ui:facility.examined	检查完毕。
+ui:facility.cured	已经治好。
+ui:facility.bought	以 $%d 买下。
+ui:facility.sold	以 $%d 卖出。
+ui:facility.learned	学会了%s。
+ui:facility.row	%d> %s
+ui:facility.more	还有更多
+ui:facility.skillrow	%d> %2d %3d %3d  %s
+ui:facility.sellrow	%d>%s %s
+ui:facility.buyrow	%d> %8d  %s
+ui:help.title	按键说明
+ui:help.move	移动（方向键也可以）
+ui:help.cmdbar	指令列与手札
+ui:help.panels	说明／设定
+ui:help.f5f9	快速存档／快速读档
+ui:help.quit	离开（先问先存）／取消
+ui:settings.title	设定
+ui:settings.music	音乐：
+ui:settings.volume	音量：
+ui:settings.sfx	音效：
+ui:settings.retro	复古配乐
+ui:settings.modern	现代配乐
+ui:settings.on	开
+ui:settings.off	关
+ui:settings.close	ESC 关闭
+ui:settings.visualunavailable	未附完整 HD2 美术包。\x0D继续使用目前画面。\x0DESC 关闭
+ui:quit.ask	要离开游戏吗？会先自动存档。　Y 是　N 否
+ui:quit.savefailed	存档失败：%s
+ui:quick.saved	已快速存档。
+ui:quick.loaded	已读取快速存档。
+ui:quick.savefailed	快速存档失败：%s
+ui:quick.loadfailed	快速读档失败：%s
+ui:combat.hdrname	姓名
+ui:combat.hdrac	防护
+ui:combat.hdrammo	弹药
+ui:combat.hdrmax	上限
+ui:combat.hdrcon	体力
+ui:combat.hdrweapon	武器
+ui:wipe.place	死神
+ui:wipe.message	你在荒野的生命到此为止。
+ui:use.morepage	0 翻页
+ui:wound.unc	昏迷
+ui:wound.ser	重伤
+ui:wound.crt	危急
+ui:wound.mrt	濒死
+ui:wound.com	深昏迷
+ui:hire.joins	%s加入了队伍。
+ui:facility.noheal	不需要治疗。
+ui:facility.skillfull	技能栏满了。
+ui:modern.title	荒野游侠
+ui:modern.art	画面
+ui:modern.original	原版美术
+ui:modern.original-short	原版
+ui:modern.art-a	HD2 A · 细致像素
+ui:modern.art-b	HD2 B · 手绘高解析
+ui:modern.font	字型
+ui:modern.rounded	圆体
+ui:modern.retro	复古
+ui:modern.modern	现代
+ui:modern.score	配乐
+ui:modern.volume-title	音量
+ui:modern.save	存档 F5
+ui:modern.load	读档 F9
+ui:modern.settings	设定 F2
+ui:modern.radiation	辐射
+ui:modern.message	讯息
+ui:modern.group	队伍 %d
+ui:modern.scroll	PageUp / PageDown  卷动
+ui:modern.start	开始游戏 [S]
+ui:modern.dialog	操作
+ui:modern.use	使用
+ui:modern.encounter	遭遇
+ui:modern.order	排队
+ui:modern.split	分队
+ui:modern.switch	换队
+ui:modern.save-command	存档
+ui:modern.radio	无线
+ui:modern.journal	手札

@@ -1,0 +1,82 @@
+# game2 資源 21：達爾文村（黑基爾瓦酒館、黑市、傑奇醫生的改造工坊、圖書館）
+#
+# ⚠ 玩家要輸入的關鍵字不翻：CHAT／PLAGUE／ISOLATE／FINSTER／BASE／DRINK／
+# METAL MANIAC／BRIAN THE FIST／PASSWORD／CRETIAN，以及選項前綴的數字。
+#
+# 7／8 是街名的方向前綴（「N-S 」＋ 街名），格數必須一樣寬才不會把街名擠掉。
+blk:game2:21:1	\x07杰奇医生的改造工坊。\x0D
+blk:game2:21:2	\x07达尔文杂货店。\x0D
+blk:game2:21:3	\x07黑市。\x0D
+blk:game2:21:4	\x07达尔文分馆图书馆。\x0D
+blk:game2:21:5	\x0D啪！\x0D
+blk:game2:21:6	「喂，你们这些人渣。」\x0D
+blk:game2:21:7	\x0D南北向
+blk:game2:21:8	东西向
+blk:game2:21:9	军曹街\x0D
+blk:game2:21:10	查尔斯大道\x0D
+blk:game2:21:11	大道\x0D
+blk:game2:21:12	达尔文小径\x0D
+blk:game2:21:13	基地路\x0D
+blk:game2:21:14	老尼克路\x0D
+blk:game2:21:15	罗伯斯路\x0D
+blk:game2:21:16	\x0D别站到吧台上！\x0D
+blk:game2:21:17	\x0D进入黑基尔瓦酒馆。\x0D
+blk:game2:21:18	「一杯七十五块。要点什么？」\x0D\x0D\x11\x101) 长岛冰茶\x0D\x102) 神风\x0D\x103) 可乐娜\x0D\x104) 麦克特调\x0D
+blk:game2:21:19	1
+blk:game2:21:20	2
+blk:game2:21:21	3
+blk:game2:21:22	4
+blk:game2:21:23	\x0D离开达尔文村。\x0D
+blk:game2:21:24	酒保塞西尔没走开，等著看你还要不要点什么。\x0D
+blk:game2:21:25	CHAT
+blk:game2:21:26	PLAGUE
+blk:game2:21:27	ISOLATE
+blk:game2:21:28	FINSTER
+blk:game2:21:29	BASE
+blk:game2:21:30	DRINK
+blk:game2:21:31	\x0D进入达尔文杂货店。\x0D
+blk:game2:21:32	\x0D进入黑市。\x0D
+blk:game2:21:33	\x0D进入杰奇医生的改造工坊。\x0D
+blk:game2:21:34	\x0D进入达尔文分馆图书馆。\x0D
+blk:game2:21:35	\x0D请看第 146 段。\x0D
+blk:game2:21:36	\x0D「这个嘛，我什么都不知道。」\x0D
+blk:game2:21:37	「一杯十块。要点什么？」\x0D\x0D\x11\x101) 长岛冰茶\x0D\x102) 神风\x0D\x103) 可乐娜\x0D\x104) 麦克特调\x0D
+blk:game2:21:38	「我觉得你们该去查查基地那边的问题。有什么我帮得上忙的？」\x0D
+blk:game2:21:39	METAL MANIAC
+blk:game2:21:40	BRIAN THE FIST
+blk:game2:21:41	PASSWORD
+blk:game2:21:42	\x0D「抱歉老兄，那个我们没有。就这些了。」\x0D
+blk:game2:21:43	\x0D请看第 41 段。\x0D
+blk:game2:21:44	\x0D请看第 137 段。\x0D
+blk:game2:21:45	\x0D请看第 140 段。\x0D
+blk:game2:21:46	\x0D请看第 114 段。\x0D
+blk:game2:21:47	\x0D请看第 34 段。\x0D
+blk:game2:21:48	\x0D请看第 53 段。\x0D
+blk:game2:21:49	\x0D请看第 69 段。\x0D
+blk:game2:21:50	\x0D请看第 32 段。\x0D
+blk:game2:21:51	\x0D这个人神智不清，满脸通红，汗一直往下流。\x0D
+blk:game2:21:52	\x0D你让他很快就好了起来。\x0D
+blk:game2:21:53	\x0D他看起来越来越糟。\x0D
+blk:game2:21:54	「谢谢你救了我。我想加入你们。」\x0D
+blk:game2:21:55	\x0D「日安，伙伴。」\x0D
+blk:game2:21:56	\x0D「走，去踹几个屁股！」\x0D
+blk:game2:21:57	\x0D你看见两个病得快死的人躺在这里。\x0D
+blk:game2:21:58	\x0D有种感觉告诉你，与其说他们是病了，不如说是中毒了。\x0D
+blk:game2:21:59	「把暗号说出来。」\x0D
+blk:game2:21:60	\x0D「滚出去。」\x0D
+blk:game2:21:61	CRETIAN
+blk:game2:21:62	\x0D「好，你们可以过去。」\x0D
+blk:game2:21:63	「你们几个又回来干嘛？这次最好拿得出正确的暗号。」\x0D
+blk:game2:21:64	\x0D「你说什么？」\x0D
+blk:game2:21:65	\x0D「不是这个。」\x0D
+blk:game2:21:66	「我来教教你们别想硬闯进来。」\x0D
+blk:game2:21:67	\x0D这里有一张工作台，上面放著试管。\x0D
+blk:game2:21:68	\x0D看样子你可以在这里用药剂和水果做出解毒剂。\x0D
+blk:game2:21:69	\x0D这是一张工作台。\x0D
+blk:game2:21:70	\x0D有意思。\x0D
+blk:game2:21:71	\x0D啊！你真是个天才。\x0D
+blk:game2:21:72	\x0D实验室。\x0D
+blk:game2:21:74	\x0D请看第 121 段。\x0D
+blk:game2:21:75	\x0D请看第 11 段。\x0D
+blk:game2:21:76	\x0D请看第 88 段。\x0D
+blk:game2:21:77	\x0D请看第 80 段。\x0D

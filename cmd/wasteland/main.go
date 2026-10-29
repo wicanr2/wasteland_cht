@@ -16,6 +16,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/wicanr2/wasteland_cht/internal/assets"
 	"github.com/wicanr2/wasteland_cht/internal/audio"
@@ -34,6 +35,7 @@ func main() {
 	mode := flag.String("mode", "play", "play｜map｜title｜pic")
 	skipTitle := flag.Bool("skip-title", false, "跳過標題畫面直接進地圖（測試與截圖用）")
 	langFile := flag.String("lang", "translations/zh-Hant.cat", "翻譯目錄（空字串 ＝ 英文）")
+	locale := flag.String("locale", "zh-Hant", "顯示語言：zh-Hant｜zh-Hans；簡體需 modern 介面")
 	fontDir := flag.String("font", "workplace/eten", "倚天點陣字目錄（玩家自備）")
 	refsFile := flag.String("refs", "docs/re/generated/paragraph-refs.tsv", "段落引用表")
 	paraFile := flag.String("paragraphs", "translations/paragraphs-zh-Hant.cat", "段落正文")
@@ -59,9 +61,23 @@ func main() {
 	artRoot := flag.String("art-root", "artpacks", "新版美術包根目錄")
 	uiStyle := flag.String("ui", "modern", "介面：modern 圓體工具列，classic 舊版驗證畫面")
 	flag.Parse()
+	explicitLocale := false
+	flag.Visit(func(f *flag.Flag) {
+		if f.Name == "locale" {
+			explicitLocale = true
+		}
+	})
+	standardCatalogue := filepath.Base(*langFile) == "zh-Hant.cat" || filepath.Base(*langFile) == "zh-Hans.cat"
+	if !explicitLocale && filepath.Base(*langFile) == "zh-Hans.cat" {
+		*locale = "zh-Hans"
+	}
 	if *showVersion {
 		fmt.Println(buildVersion)
 		return
+	}
+	if (*locale != "zh-Hant" && *locale != "zh-Hans") || (*locale == "zh-Hans" && (*uiStyle != "modern" || !standardCatalogue)) {
+		fmt.Fprintln(os.Stderr, "不支援的語言／介面組合：", *locale, *uiStyle)
+		os.Exit(2)
 	}
 
 	rom, err := assets.Open(*romDir)
@@ -114,6 +130,15 @@ func main() {
 				}
 				if jerr := s.LoadJournal(*refsFile, *paraFile); jerr != nil {
 					fmt.Fprintln(os.Stderr, "提示：段落手札載不到 —", jerr)
+				}
+				if standardCatalogue {
+					if lerr := s.LoadLanguages(filepath.Dir(*langFile), filepath.Dir(*paraFile), *locale); lerr != nil {
+						if *locale == "zh-Hans" {
+							err = lerr
+						} else {
+							fmt.Fprintln(os.Stderr, "提示：繁簡切換不可用 —", lerr)
+						}
+					}
 				}
 				// 滑鼠游標（原版的 `CURS`）。載不到就沒有游標圖，
 				// 滑鼠照樣能點（`docs/spec/29` §6）。

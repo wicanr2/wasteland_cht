@@ -175,6 +175,7 @@ func TestWalkShowsTranslatedMessage(t *testing.T) {
 //
 // 這一份與 tsv 是兩份要一起改的東西——**多一條會被當成孤兒、少一條會漏檢**。
 var uiCatalogueKeys = []string{
+	"settings.art", "settings.language", "language.zh-Hant", "language.zh-Hans", "language.busy",
 	"settings.visualunavailable",
 	"modern.title", "modern.art", "modern.original", "modern.original-short", "modern.art-a", "modern.art-b",
 	"modern.font", "modern.rounded", "modern.retro", "modern.modern", "modern.score", "modern.volume-title",

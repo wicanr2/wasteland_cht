@@ -1,0 +1,130 @@
+# 表 2：技能（1–35）與物品（36–130）
+# 物品名帶單複數分段（\x0A）：字根\x0A單數字尾\x0A複數字尾。
+# 中文沒有複數，字尾留空但**分段數量必須與原文相同**（build_lang.py 會擋）。
+exe:2:1	斗殴
+exe:2:2	攀爬
+exe:2:3	手枪
+exe:2:4	刀斗
+exe:2:5	拳击
+exe:2:6	步枪
+exe:2:7	游泳
+exe:2:8	掷刀
+exe:2:9	观察
+exe:2:10	突击步枪
+exe:2:11	反战车武器
+exe:2:12	冲锋枪
+exe:2:13	特技
+exe:2:14	赌博
+exe:2:15	开锁
+exe:2:16	潜行
+exe:2:17	速射
+exe:2:18	威信
+exe:2:19	手法
+exe:2:20	爆破
+exe:2:21	伪造
+exe:2:22	解除警报
+exe:2:23	官僚
+exe:2:24	拆弹
+exe:2:25	医护
+exe:2:26	开保险箱
+exe:2:27	密码学
+exe:2:28	冶金
+exe:2:29	驾驶直升机
+exe:2:30	电子学
+exe:2:31	修烤面包机
+exe:2:32	医术
+exe:2:33	复制人技术
+exe:2:34	能量武器
+exe:2:35	生化技术
+exe:2:36	拳头
+exe:2:37	斧\x0A\x0A\x0A
+exe:2:38	棍棒\x0A\x0A\x0A
+exe:2:39	链锯\x0A\x0A\x0A
+exe:2:40	刀\x0A\x0A\x0A
+exe:2:41	质子斧\x0A\x0A\x0A
+exe:2:42	手榴弹\x0A\x0A\x0A
+exe:2:43	塑胶炸药\x0A\x0A\x0A
+exe:2:44	TNT
+exe:2:45	绞碎机\x0A\x0A\x0A
+exe:2:46	穿甲火箭\x0A\x0A\x0A
+exe:2:47	反战车火箭\x0A\x0A\x0A
+exe:2:48	RPG-7\x0A\x0A\x0A
+exe:2:49	M1911A1 点四五手枪\x0A\x0A\x0A
+exe:2:50	长矛\x0A\x0A\x0A
+exe:2:51	飞刀\x0A\x0A\x0A
+exe:2:52	VP91Z 九厘米手枪\x0A\x0A\x0A
+exe:2:53	火焰喷射器\x0A\x0A\x0A
+exe:2:54	M17 卡宾枪\x0A\x0A\x0A
+exe:2:55	M19 步枪\x0A\x0A\x0A
+exe:2:56	红骑士气枪\x0A\x0A\x0A
+exe:2:57	Mac 17 冲锋枪\x0A\x0A\x0A
+exe:2:58	乌兹冲锋枪 27 型\x0A\x0A\x0A
+exe:2:59	AK 97 突击步枪\x0A\x0A\x0A
+exe:2:60	M1989A1 北约突击步枪\x0A\x0A\x0A
+exe:2:61	雷射手枪\x0A\x0A\x0A
+exe:2:62	离子光束枪\x0A\x0A\x0A
+exe:2:63	雷射卡宾枪\x0A\x0A\x0A
+exe:2:64	雷射步枪\x0A\x0A\x0A
+exe:2:65	介子砲\x0A\x0A\x0A
+exe:2:66	点四五弹匣\x0A\x0A\x0A
+exe:2:67	7.62 公厘弹匣\x0A\x0A\x0A
+exe:2:68	九厘米弹匣\x0A\x0A\x0A
+exe:2:69	榴弹砲弹\x0A\x0A\x0A
+exe:2:70	能量电池\x0A\x0A\x0A
+exe:2:71	动力装甲\x0A\x0A\x0A
+exe:2:72	防弹衣\x0A\x0A\x0A
+exe:2:73	凯夫勒背心\x0A\x0A\x0A
+exe:2:74	皮夹克\x0A\x0A\x0A
+exe:2:75	凯夫勒套装\x0A\x0A\x0A
+exe:2:76	仿甲壳护甲\x0A\x0A\x0A
+exe:2:77	防辐射衣\x0A\x0A\x0A
+exe:2:78	长袍\x0A\x0A\x0A
+exe:2:79	书\x0A\x0A\x0A
+exe:2:80	水壶\x0A\x0A\x0A
+exe:2:81	撬棍\x0A\x0A\x0A
+exe:2:82	引擎\x0A\x0A\x0A
+exe:2:83	防毒面具\x0A\x0A\x0A
+exe:2:84	盖革计数器\x0A\x0A\x0A
+exe:2:85	手镜\x0A\x0A\x0A
+exe:2:86	水罐\x0A\x0A\x0A
+exe:2:87	地图\x0A\x0A\x0A
+exe:2:88	火柴\x0A\x0A\x0A
+exe:2:89	鹤嘴锄\x0A\x0A\x0A
+exe:2:90	绳索\x0A\x0A\x0A
+exe:2:91	铲子\x0A\x0A\x0A
+exe:2:92	大锤\x0A\x0A\x0A
+exe:2:93	蛇汁\x0A\x0A\x0A
+exe:2:94	机器人头颅\x0A\x0A\x0A
+exe:2:95	解毒剂\x0A\x0A\x0A
+exe:2:96	芬斯特的头颅\x0A\x0A\x0A
+exe:2:97	黑星钥匙\x0A\x0A\x0A
+exe:2:98	血杖\x0A\x0A\x0A
+exe:2:99	血杖\x0A\x0A\x0A
+exe:2:100	坏掉的烤面包机\x0A\x0A\x0A
+exe:2:101	化学药剂\x0A\x0A\x0A
+exe:2:102	复制人培养液\x0A\x0A\x0A
+exe:2:103	签帐卡\x0A\x0A\x0A
+exe:2:104	融合电池\x0A\x0A\x0A
+exe:2:105	食草蝠护符\x0A\x0A\x0A
+exe:2:109	新星钥匙\x0A\x0A\x0A
+exe:2:110	缟玛瑙戒指\x0A\x0A\x0A
+exe:2:111	万能钥匙\x0A\x0A\x0A
+exe:2:112	电浆耦合器\x0A\x0A\x0A
+exe:2:113	能量转换器\x0A\x0A\x0A
+exe:2:114	脉冲星钥匙\x0A\x0A\x0A
+exe:2:115	类星体钥匙\x0A\x0A\x0A
+exe:2:116	唯读记忆体板\x0A\x0A\x0A
+exe:2:117	十八号房钥匙\x0A\x0A\x0A
+exe:2:118	红宝石戒指\x0A\x0A\x0A
+exe:2:119	一号安全通行证\x0A\x0A\x0A
+exe:2:120	三号安全通行证\x0A\x0A\x0A
+exe:2:121	七号安全通行证\x0A\x0A\x0A
+exe:2:122	A 号安全通行证\x0A\x0A\x0A
+exe:2:123	B 号安全通行证\x0A\x0A\x0A
+exe:2:124	伺服马达\x0A\x0A\x0A
+exe:2:125	音波钥匙\x0A\x0A\x0A
+exe:2:126	烤面包机\x0A\x0A\x0A
+exe:2:127	陶罐\x0A\x0A\x0A
+exe:2:128	水果\x0A\x0A\x0A
+exe:2:129	珠宝
+exe:2:130	现金

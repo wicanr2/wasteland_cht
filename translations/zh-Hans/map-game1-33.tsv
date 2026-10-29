@@ -1,0 +1,108 @@
+# game1 資源 33：針岩城的商業區（Hobo Dogs、神祕小舖、榴彈砲、電影海報牆）
+#
+# ⚠ 選項字母 A–F 與 Y 不翻，那是玩家按的鍵。
+#
+# 這張圖是整個遊戲的惡搞集中區：電影海報牆全是當年的片名戲仿
+# （《亂世佳人》→ Gone With the Nuke Storm、《法櫃奇兵》→ Crater Raider），
+# 水晶球裡那個巫師在罵「你以為這是 Bard's Tale 嗎」——那是 Interplay 自家的另一款遊戲。
+# 片名照戲仿的方式翻，讓中文讀者也接得到梗；製作人員名單裡的人名一律保留原文。
+blk:game1:33:1	\x0D你听见「喀」一声。\x0D
+blk:game1:33:2	天花板打开，煤渣砖砸在你身上！\x0D
+blk:game1:33:4	\x0D这栋建筑好像没有任何入口。\x0D
+blk:game1:33:5	\x0D这是一间整齐、还算干净的房间（除了你在入口留下的那摊血）。\x0D
+blk:game1:33:6	一个警卫挡住入口。\x0D
+blk:game1:33:7	\x0D这是一门还能用的榴弹砲。不过你没看到附近有砲弹。\x0D
+blk:game1:33:8	\x0D一辆完全报废的卡车。\x0D
+blk:game1:33:9	\x0D曾经是跑车，被榴弹砲轰烂了。\x0D
+blk:game1:33:10	\x0D榴弹砲轰出来的洞。\x0D
+blk:game1:33:11	\x0D「你不在这里上班！退开！」\x0D
+blk:game1:33:12	这是一家速食摊。柜台后的女孩说：「欢迎光临游民热狗。每样五块。要点餐吗？\x0D\x0D\x11\x10Y 是\x0D\x10N 否\x0D
+blk:game1:33:13	Y
+blk:game1:33:14	请选：\x0D\x0D\x11\x10A) 游民热狗\x0D\x10B) 炸手指\x0D\x10C) 烤脑花\x0D\x10D) 半熟头皮\x0D\x10E) 流浪汉臀肉\x0D\x10F) 血肠\x0D
+blk:game1:33:15	A
+blk:game1:33:16	B
+blk:game1:33:17	C
+blk:game1:33:18	D
+blk:game1:33:19	E
+blk:game1:33:20	F
+blk:game1:33:21	\x0D嗯——游民热狗就是靠这一味出名的。\x0D
+blk:game1:33:22	\x0D呃！太咸了！\x0D
+blk:game1:33:23	\x0D清爽香甜——而且对你很好！\x0D
+blk:game1:33:24	\x0D有点水，但真的很好吃！\x0D
+blk:game1:33:25	\x0D这块肉又硬又没味道，牙齿都快撑不住。\x0D
+blk:game1:33:26	\x0D赞！这是你吃过最棒的点心！\x0D
+blk:game1:33:27	\x0D入口内侧的牌子写著「比尔·杜根，血之神殿代表」。\x0D
+blk:game1:33:28	\x0D这里放著一叠小册子，说明入教的严格条件。\x0D
+blk:game1:33:29	\x0D一张空荡的书桌。看样子有人在休假。\x0D
+blk:game1:33:31	\x0D打不开。\x0D
+blk:game1:33:32	\x0D这道门锁著。门上画著一根杖叠在一个凸面圆盘上。\x0D
+blk:game1:33:33	\x0D你走下地下室。\x0D
+blk:game1:33:36	\x0D你造成了巨大的破坏。\x0D
+blk:game1:33:37	\x0D这是一棵树。别撞太多次。\x0D
+blk:game1:33:38	\x0D一个手风琴手冲过来开始演奏〈闯入者〉。他不要钱，只想练习。\x0D
+blk:game1:33:39	\x0D这张桌子的桌面上刻满了涂鸦。\x0D
+blk:game1:33:40	\x0D你的钱不够！\x0D
+blk:game1:33:41	\x0D你爬上楼梯。\x0D
+blk:game1:33:42	\x0D这是一座大型木造平台，摆满了桌椅，给附近餐馆的客人用。\x0D
+blk:game1:33:43	\x0D一个可怜的流浪汉瞇眼看著你讨道：「分我一点蛇酒？」\x0D
+blk:game1:33:44	\x0D他把整瓶喝干，然后睡著了。\x0D
+blk:game1:33:45	\x0D他把整瓶喝干。\x0D
+blk:game1:33:46	\x0D他喝完睡著了，嘴里念著：「该死的阿卡波可俱乐部……把我的钱都输光了……」\x0D
+blk:game1:33:47	\x0D流浪汉哀求道：「再给我一点蛇酒？」\x0D
+blk:game1:33:48	\x0D栏杆挡著，爬不过去。\x0D
+blk:game1:33:49	你不知怎么搞砸了，砲弹就地爆炸！\x0D
+blk:game1:33:50	一个小贩胸前的弹带上挂满瓶子。「要蛇酒吗？这附近最好的，十五块！」\x0D\x0D\x11\x10Y 是\x0D\x10N 否\x0D
+blk:game1:33:51	\x0D你站在一条破败街区的宽阔柏油路中央。\x0D
+blk:game1:33:52	\x0D楼梯往上。\x0D
+blk:game1:33:53	\x0D楼梯往下。\x0D
+blk:game1:33:54	\x0D这面曾经是墙的东西，属于一栋被爆炸完全炸碎的建筑。\x0D
+blk:game1:33:55	\x0D一个空架子。\x0D
+blk:game1:33:56	\x0D「克劳利神秘小舖」。角落有个留著一呎长胡子的店员在睡觉。架上摆著各种神秘物品。\x0D
+blk:game1:33:57	\x0D这个架子上放著塔罗牌。\x0D
+blk:game1:33:58	\x0D线香和香座。\x0D
+blk:game1:33:59	\x0D几根上等的探测杖。\x0D
+blk:game1:33:60	\x0D算命、看手相与寻水术的入门书。\x0D
+blk:game1:33:61	\x0D魔法书。不，那些咒语没有用。\x0D
+blk:game1:33:62	\x0D你望进水晶球，看见……你看见……你看见一个愤怒的巫师站在山上大吼：「你以为这是《冰城传奇》吗？！」\x0D
+blk:game1:33:63	\x0D想叫醒老板是白费力气。他好像已经睡了好几个星期。\x0D
+blk:game1:33:64	\x0D你翻过栏杆。\x0D
+blk:game1:33:65	\x0D你翻不过栏杆。\x0D
+blk:game1:33:67	\x0D砲弹「喀」一声滑进定位！\x0D
+blk:game1:33:68	\x0D天花板打开，煤渣砖从上面砸下来，但奇迹似地一块都没打中你！\x0D
+blk:game1:33:69	\x0D这个架子上放著一颗水晶球。\x0D
+blk:game1:33:71	\x0D喂，别踩桌子。这里以前是个好地方。\x0D
+blk:game1:33:72	\x0D对音乐家放尊重一点！\x0D
+blk:game1:33:73	\x0D你这么想弄到酒，怎么不干脆买一点？\x0D
+blk:game1:33:74	\x0D这个弹坑有十呎深，你得爬下去。\x0D
+blk:game1:33:75	\x0D你开始下滑，但在摔下去之前撑住了。\x0D
+blk:game1:33:76	\x0D柜台后的女孩扭动著流血，喘著气说：「要不要……加点薯条？」然后就死了。\x0D
+blk:game1:33:77	\x0D自从某个无名人渣把建筑炸掉之后，这里就买不到热狗了。\x0D
+blk:game1:33:78	\x0D爆炸让平台这一段整个塌了。你得试著从瓦砾堆里爬过去。\x0D
+blk:game1:33:79	\x0D墙塌成一堆过不去的瓦砾。\x0D
+blk:game1:33:80	\x0D这间废弃的画廊现在是游民的收容所——那些不想变成游民热狗的游民。\x0D
+blk:game1:33:81	\x0D你不能穿过、踩上或践踏那个流浪汉。\x0D
+blk:game1:33:82	\x0D一张破旧的老书桌。\x0D
+blk:game1:33:83	\x0D这家好莱坞风格的店以前卖电影剧照、海报、宣传资料和剧本，但东西全被撕光了。只剩几张封在塑胶膜后、贴死在墙上的海报。\x0D
+blk:game1:33:84	\x0D你成功穿了过去。\x0D
+blk:game1:33:85	\x0D密实的瓦砾堆挡住了你。\x0D
+blk:game1:33:86	\x0D一门榴弹砲，因为装填砲弹失误而炸成碎片！\x0D
+blk:game1:33:87	你可以这样发射砲弹：\x0D\x0D\x11\x10A) 西方，低伸\x0D\x10B) 西方，高吊\x0D\x10C) 西南，低伸\x0D\x10D) 西南，高吊\x0D\x10E) 南方，低伸\x0D\x10F) 南方，高吊\x0D
+blk:game1:33:88	\x0D你走过弹坑。\x0D
+blk:game1:33:89	\x0D你另一队人被爆炸的瓦砾淹没了！\x0D
+blk:game1:33:90	\x0D轰！砲弹划出高高的弧线，落地爆炸！\x0D
+blk:game1:33:91	\x0D即将上映：《辐射头》！\x0D
+blk:game1:33:92	\x0D一张电脑软体海报写著：\x0D             「荒野游侠！」\x0D\x0DIBM 版：Michael Quarles\x0D原始程式：Alan "T.J." Pavlish\x0D设计：\x0DBrian Fargo........Alan "T.J." Pavlish\x0DKen St. Andre.....Michael A. Stackpole\x0D地图：\x0DBruce Balfour....Elizabeth T. Danforth\x0DChris Christensen...Jeff "T.G." Berman\x0DBill "Weez" Dugan.....Nishan Hossepian\x0DStance Nixon.......Alan "T.J." Pavlish\x0DKen St. Andre.....Michael A. Stackpole\x0DMike Williams............Daniel Carver\x0D美术：\x0DTodd J. Camasta........Charles Weidman\x0DBruce Schlickbernd\x0D导演：\x0DTroy P. Worrell\x0D测试与开发：\x0DBruce "Redbeard" Schlickbernd\x0DTom Decker\x0D精神支持：\x0DSusan Quarles\x0D\x0D辅导级。\x0D即将在你家附近的戏院上映。\x0D\x0D
+blk:game1:33:93	\x0D下周：《巨无霸与变种人》！\x0D
+blk:game1:33:94	\x0D下个月：《马利欧、路易吉与火球》！\x0D
+blk:game1:33:95	\x0D一张海报写著：「你玩过游戏了，现在来看电影：《弹坑奇兵》」。\x0D
+blk:game1:33:96	\x0D一张海报写著：《核爆随风而逝》。\x0D
+blk:game1:33:97	\x0D一个牌子写著：「变种人不得进入」。\x0D
+blk:game1:33:98	\x0D他不理你。\x0D
+blk:game1:33:99	\x0D你踩过粉碎的瓦砾。\x0D
+blk:game1:33:100	\x0D瓦砾挡住了你。\x0D
+blk:game1:33:101	\x0D南墙上有一块布告栏。\x0D
+blk:game1:33:102	\x0D你过不了这座毁坏平台的破烂边缘。\x0D
+blk:game1:33:103	\x0D桌子上方的牌子写著：「血杖验证台。请将待验的血杖放在台上。」\x0D
+blk:game1:33:104	\x0D验证通过。请取回血杖。\x0D
+blk:game1:33:105	\x0D只限血杖，谢谢。\x0D
+blk:game1:33:106	\x0D喀啦喀啦。验证失败。\x0D
