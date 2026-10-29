@@ -75,6 +75,12 @@ def finalize(version):
         assert sha(promo_receipt.parent / "render-driver.py") == p["renderer_sha256"]
         capture = json.loads((promo_receipt.parent / "capture.json").read_text())
         assert sha(promo_receipt.parent / "record-driver.sh") == capture["driver_sha256"]
+        if capture.get("metadata_writer_sha256", capture["driver_sha256"]) != capture["driver_sha256"]:
+            assert sha(promo_receipt.parent / "capture-metadata-writer.sh") == capture["metadata_writer_sha256"]
+        assert p["source_music"] == capture["music"]
+        assert len(p["reviewed_frames"]) >= 8
+        for frame in p["reviewed_frames"]:
+            assert sha(promo_receipt.parent / frame["path"]) == frame["sha256"]
         promo = {"status": "passed", "receipt": "promo/metadata.json", "sha256": sha(promo_receipt), "file": "promo/"+p["file"]}
     lines = [f"# Wasteland 荒野遊俠 {version}", "", "本機測試交付，未上傳或發布。", "",
              "| 平台 | 引擎與翻譯 | 本機完整版 |", "|---|---|---|"]

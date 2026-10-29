@@ -67,8 +67,8 @@ def main():
         {"kind":"live", "name":"original-live", "seconds":8, "left":["原版", "美術"], "right":["v2.0", "繁體中文"]},
         {"kind":"live", "name":"hd2-a-live", "seconds":9, "left":["HD2 A", "細緻像素"], "right":["同一世界", "自由行走"]},
         {"kind":"live", "name":"hd2-b-live", "seconds":9, "left":["HD2 B", "手繪高解析"], "right":["原版素材", "重新繪製"]},
-        {"kind":"live", "name":"language-live", "seconds":12, "left":["繁體中文", "／", "简体中文"], "right":["工具列", "直接切換"]},
-        {"kind":"live", "name":"toolbar-live", "seconds":12, "left":["圓體", "Noto", "16／18／20"], "right":["細邊框", "單列工具列"]},
+        {"kind":"live", "name":"language-live", "offset":4, "seconds":12, "left":["繁體中文", "／", "简体中文"], "right":["工具列", "直接切換"]},
+        {"kind":"live", "name":"toolbar-live", "offset":8, "seconds":12, "left":["圓體", "Noto", "16／18／20"], "right":["細邊框", "單列工具列"]},
         {"kind":"live", "name":"facility-live", "seconds":11, "left":["遊俠中心", "隊伍管理"], "right":["完整畫面", "實際操作"]},
         {"kind":"card", "name":"outro", "seconds":7},
     ]
@@ -103,6 +103,7 @@ def main():
                      "-vf",f"fade=t=in:st=0:d=0.2,fade=t=out:st={item['seconds']-.2}:d=0.2,format=yuv420p",
                      "-threads","2","-c:v","libx264","-preset","veryfast","-crf","20",str(segment)])
             else:
+                assert float(probe(raw/(item["name"]+".mp4"))["format"]["duration"]) >= item.get("offset",0)+item["seconds"]
                 overlay = Image.new("RGBA",(1280,720),(0,0,0,0))
                 d=ImageDraw.Draw(overlay)
                 d.rectangle((0,0,159,719),fill=(16,24,32,255))
@@ -113,7 +114,7 @@ def main():
                         label(overlay,text,(x,270+n*62,x+144,324+n*62),28,(226,197,140) if n==0 else (231,235,237))
                 label(overlay,"v2.0",(1130,654,1270,704),22,(157,170,181))
                 overlay.save(png)
-                run(["ffmpeg","-v","error","-y","-i",str(raw/(item["name"]+".mp4")),"-i",str(png),
+                run(["ffmpeg","-v","error","-y","-ss",str(item.get("offset",0)),"-i",str(raw/(item["name"]+".mp4")),"-i",str(png),
                      "-filter_complex","[0:v]fps=25,pad=1280:720:160:0:color=0x101820[v];[v][1:v]overlay=0:0,format=yuv420p",
                      "-t",str(item["seconds"]),"-an","-threads","2","-c:v","libx264","-preset","veryfast","-crf","20",str(segment)])
             segments.append(segment)
@@ -154,9 +155,39 @@ def main():
             if m: started=float(m[1])
             m=re.search(r"freeze_end: ([\d.]+)",line)
             if m and started is not None:
-                end=float(m[1]); live=max(0,min(end,66)-max(started,5))
-                assert live<=6,(started,end)
-                freezes.append({"start":started,"end":end,"live_overlap":live}); started=None
+                end=float(m[1])
+                movement=max((max(0,min(end,b)-max(started,a)) for a,b in [(5,13),(13,22),(22,31),(55,66)]),default=0)
+                assert movement<=6,(started,end)
+                freezes.append({"start":started,"end":end,"movement_overlap":movement}); started=None
+        # Whole-frame average difference dilutes small, valid text changes over
+        # a largely static map. Recognize the actual language/size glyph regions
+        # against the recorded PNG states instead. The mask comes from reference
+        # differences; half the nearest reference separation gives disjoint sets.
+        def ui_states(start, duration, crop, refs):
+            x0,y0,x1,y1=crop; w,h=x1-x0,y1-y0
+            templates=[Image.open(raw/(name+'.png')).convert('RGB').crop(crop).tobytes() for name in refs.values()]
+            mask=[i for i in range(w*h*3) if len({t[i] for t in templates})>1]
+            assert mask
+            def distance(a,b): return sum(abs(a[i]-b[i]) for i in mask)/len(mask)
+            separation=min(distance(a,b) for i,a in enumerate(templates) for b in templates[i+1:])
+            assert separation>0
+            b=subprocess.check_output(['ffmpeg','-v','error','-ss',str(start),'-i',str(candidate),'-t',str(duration),
+                '-vf',f'crop={w}:{h}:{x0+160}:{y0},fps=2,format=rgb24','-f','rawvideo','-'],timeout=60)
+            stride=w*h*3; assert len(b)%stride==0
+            counts={key:0 for key in refs}; sequence=[]; best_errors={key:[] for key in refs}
+            for i in range(0,len(b),stride):
+                frame=b[i:i+stride]; errors=[distance(frame,t) for t in templates]
+                best=min(range(len(errors)),key=errors.__getitem__)
+                if errors[best] < separation/2:
+                    key=list(refs)[best]; counts[key]+=1; best_errors[key].append(round(errors[best],3))
+                    if not sequence or sequence[-1]!=key: sequence.append(key)
+            print('UI STATES',counts,'sequence',sequence,'reference separation',separation,flush=True)
+            return {'samples':counts,'sequence':sequence,'reference_separation':separation,'errors':best_errors}
+        language_states=ui_states(31,12,(612,162,844,204),{'zh-Hant':'lang-hant','zh-Hans':'lang-hans'})
+        assert all(n>=4 for n in language_states['samples'].values()),language_states
+        assert language_states['sequence']==['zh-Hant','zh-Hans'],language_states
+        size_states=ui_states(43,12,(354,10,406,34),{'16':'font-16','18':'font-18','20':'font-20'})
+        assert all(n>=2 for n in size_states['samples'].values()),size_states
         samples=[]
         for i,item in enumerate(board):
             t=item["start"]+item["seconds"]/2
@@ -172,14 +203,16 @@ def main():
         shutil.copyfile(candidate,movie)
         shutil.copyfile(raw/"capture.json",out/"capture.json")
         shutil.copyfile(raw/"driver.sh",out/"record-driver.sh")
+        if (raw/"metadata-writer.sh").is_file(): shutil.copyfile(raw/"metadata-writer.sh",out/"capture-metadata-writer.sh")
         shutil.copyfile(Path(__file__),out/"render-driver.py")
         (out/"ffprobe.json").write_text(json.dumps(info,ensure_ascii=False,indent=2)+"\n")
         (out/"analysis.log").write_text(volume+"\n"+scan)
         receipt={"schema":1,"status":"passed","manual_frame_review":False,"version":version,"file":movie.name,"sha256":sha(movie),"bytes":movie.stat().st_size,
           "duration":73,"video":{"width":1280,"height":720,"codec":"h264","fps":25},
           "audio":{"codec":"aac","mean_db":mean,"peak_db":peak,"mix":"modern theme 28s + combat 30s + theme 17s; two 1s crossfades"},
-          "validation":["whole-file-decode","duration-match","non-silent","peak-below-zero","black-frame-scan","live-freeze-scan","caption-ink-bounds"],
-          "intentional_stills":[[0,5],[66,73]],"freeze_intervals":freezes,"text_fields":fields,"storyboard":board,
+          "validation":["whole-file-decode","duration-match","non-silent","peak-below-zero","black-frame-scan","movement-freeze-scan","language-glyph-states","size-glyph-states","caption-ink-bounds"],
+          "intentional_stills":[[0,5],[66,73]],"small_ui_change_intervals":[[31,43],[43,55]],
+          "language_states":language_states,"size_states":size_states,"freeze_intervals":freezes,"text_fields":fields,"storyboard":board,
           "capture_manifest_sha256":sha(raw/"capture.json"),"package_sha256":capture["package_sha256"],
           "renderer_sha256":sha(Path(__file__)),"source_music":capture["music"],
           "rights":"LOCAL ONLY: original/derived game visuals, existing approved project score; not uploaded or publicly licensed",
