@@ -2635,6 +2635,14 @@
         1968,
         844
       ]
+    },
+    {
+      "path": "docs/images/v2.0.0/promo-preview.png",
+      "sha256": "0f08c9060b8d0b7f389185964653c5a3eee246e8b746605f82243a294c020a4f",
+      "size": [
+        1328,
+        920
+      ]
     }
   ],
   "labels": [
@@ -42029,6 +42037,102 @@
         834
       ],
       "size": 24
+    },
+    {
+      "text": "V2.0.0 · 重錄推廣影片 · 75 秒",
+      "safe": [
+        24,
+        16,
+        1304,
+        64
+      ],
+      "ink": [
+        24,
+        24,
+        501,
+        56
+      ],
+      "size": 34
+    },
+    {
+      "text": "HD2 A · HD 原版框線",
+      "safe": [
+        16,
+        80,
+        656,
+        112
+      ],
+      "ink": [
+        16,
+        83,
+        273,
+        108
+      ],
+      "size": 26
+    },
+    {
+      "text": "HD2 B · HD 原版框線",
+      "safe": [
+        672,
+        80,
+        1312,
+        112
+      ],
+      "ink": [
+        672,
+        83,
+        930,
+        108
+      ],
+      "size": 26
+    },
+    {
+      "text": "F2／C 關閉框線 · 27 秒",
+      "safe": [
+        16,
+        480,
+        656,
+        512
+      ],
+      "ink": [
+        16,
+        483,
+        296,
+        508
+      ],
+      "size": 26
+    },
+    {
+      "text": "F2／C 恢復框線 · 37 秒",
+      "safe": [
+        672,
+        480,
+        1312,
+        512
+      ],
+      "ink": [
+        672,
+        483,
+        952,
+        508
+      ],
+      "size": 26
+    },
+    {
+      "text": "成片擷取影格拼圖；影片另含繁簡、字型／字級與遊俠中心操作。",
+      "safe": [
+        24,
+        884,
+        1304,
+        912
+      ],
+      "ink": [
+        24,
+        886,
+        691,
+        909
+      ],
+      "size": 23
     }
   ],
   "package": {
@@ -43846,9 +43950,33 @@
     ],
     "status": "all-hd-no-original-upscale-fallback"
   },
+  "promo": {
+    "version": "v.2.0.0-20261030",
+    "file": "dist-all/v.2.0.0-20261030/promo/wasteland-cht-v.2.0.0-20261030-promo.mp4",
+    "sha256": "6571187343fc3612645b54e252cccf7cb95112fe304687e59a3de2ed7b44c91b",
+    "metadata_sha256": "c467ffdf54e5bc0354f1fa2e20ac75640f9ee0e53a02ea649f1d90cfdb370b9f",
+    "frames": [
+      {
+        "path": "dist-all/v.2.0.0-20261030/promo/frames/02-hd2-a-live.png",
+        "sha256": "b6530133c5791be065c5d36109389a26709b99a827074b92759e52bb9fac6eda"
+      },
+      {
+        "path": "dist-all/v.2.0.0-20261030/promo/frames/03-hd2-b-live.png",
+        "sha256": "789e113a69abfab67ecd58111ed8843aa28aed252b2b511b0be96a25aad673eb"
+      },
+      {
+        "path": "dist-all/v.2.0.0-20261030/promo/frames/09-chrome-off-map.png",
+        "sha256": "ad2df011a0637f4a7ac9a22eb1cb71d297e5c00e0d888c0168c1853c9cd676f8"
+      },
+      {
+        "path": "dist-all/v.2.0.0-20261030/promo/frames/10-chrome-restored-map.png",
+        "sha256": "51056ff4880743346a208a1ef732ef991a14a9becf7bda7827c03d6e1070409f"
+      }
+    ]
+  },
   "generator": {
     "path": "tools/make_readme_gallery.py",
-    "sha256": "6263e437925f339249bc495610c3f91f66b69da783f6080c93c95b94d677383b"
+    "sha256": "8783ab7e4fb37899af8dd80d62f9fc696bbbb3c878bff638e63016539c21eec4"
   },
   "limits": "Runtime views show actual packages, not full-playthrough or original parity evidence. Asset sheets are labelled compositions, not gameplay."
 }

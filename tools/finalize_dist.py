@@ -82,7 +82,7 @@ def finalize(version):
         assert len(p["reviewed_frames"]) >= 8
         for frame in p["reviewed_frames"]:
             assert sha(promo_receipt.parent / frame["path"]) == frame["sha256"]
-        promo = {"status": "passed", "receipt": "promo/metadata.json", "sha256": sha(promo_receipt), "file": "promo/"+p["file"]}
+        promo = {"status": "passed", "receipt": "promo/metadata.json", "sha256": sha(promo_receipt), "file": "promo/"+p["file"], "duration":p["duration"]}
     lines = [f"# Wasteland 荒野遊俠 {version}", "", "本機測試交付，未上傳或發布。", "",
              "| 平台 | 引擎與翻譯 | 本機完整版 |", "|---|---|---|"]
     for platform in ("linux-x64", "windows-x64", "macos-universal"):
@@ -108,7 +108,7 @@ def finalize(version):
     if (smoke / "rounded-ui-review.png").is_file():
         lines += ["", "[新介面實際操作截圖](smoke/rounded-ui-review.png)", ""]
     if promo["status"] == "passed":
-        lines += ["", f"[新版推廣影片]({promo['file']})，73 秒，僅供本機使用。", ""]
+        lines += ["", f"[新版推廣影片]({promo['file']})，{promo['duration']} 秒，僅供本機使用。", ""]
     (out / "README.md").write_text("\n".join(lines))
     inputs = [REPO / p for p in ("tools/package.sh", "tools/package_container.sh", "tools/pack_wrap.sh",
               "tools/verify_package.py", "tools/finalize_dist.py", "cmd/wasteland/main.go",

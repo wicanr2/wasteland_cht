@@ -248,6 +248,43 @@ def chrome_comparison():
     save(im,"v2.0.0/frame-on-off.png")
 
 
+def promo_preview():
+    """Use reviewed final-video frames, retaining their provenance."""
+    source = ROOT / "dist-all" / V2 / "promo"
+    receipt = source / "metadata.json"
+    if not receipt.is_file():
+        return
+    data = json.loads(receipt.read_text())
+    if "hd-chrome-on-off-on" not in data.get("validation", []):
+        return
+    assert data["status"] == "passed" and data["manual_frame_review"] is True
+    assert data["version"] == V2 and sha((source / data["file"]).read_bytes()) == data["sha256"]
+    reviewed = {frame["path"]: frame["sha256"] for frame in data["reviewed_frames"]}
+    samples = [
+        ("02-hd2-a-live.png", "HD2 A · HD 原版框線"),
+        ("03-hd2-b-live.png", "HD2 B · HD 原版框線"),
+        ("09-chrome-off-map.png", "F2／C 關閉框線 · 27 秒"),
+        ("10-chrome-restored-map.png", "F2／C 恢復框線 · 37 秒"),
+    ]
+    im = Image.new("RGB", (1328, 920), BG)
+    label(im, "V2.0.0 · 重錄推廣影片 · 75 秒", (24, 16, 1304, 64), 34, GOLD)
+    frames = []
+    for i, (name, title) in enumerate(samples):
+        path = "frames/" + name
+        content = (source / path).read_bytes()
+        assert sha(content) == reviewed[path], path
+        x, y = 16 + (i % 2) * 656, 80 + (i // 2) * 400
+        label(im, title, (x, y, x+640, y+32), 26, GOLD)
+        with Image.open(io.BytesIO(content)) as frame:
+            assert frame.size == (1280, 720)
+            paste(im, frame, (x, y+36, x+640, y+396))
+        frames.append({"path":str((source/path).relative_to(ROOT)), "sha256":sha(content)})
+    label(im, "成片擷取影格拼圖；影片另含繁簡、字型／字級與遊俠中心操作。", (24, 884, 1304, 912), 23, MUTED)
+    RECEIPT["promo"] = {"version": V2, "file": str((source/data["file"]).relative_to(ROOT)),
+        "sha256":data["sha256"], "metadata_sha256":sha(receipt.read_bytes()), "frames":frames}
+    save(im, "v2.0.0/promo-preview.png")
+
+
 def main():
     assert OUT.is_dir()
     for directory in (OUT, ROOT/"tools"):
@@ -295,6 +332,7 @@ def main():
     overview(packs)
     events_sheet(packs)
     comparison()
+    promo_preview()
     RECEIPT["generator"] = {"path": "tools/make_readme_gallery.py", "sha256": sha(Path(__file__).read_bytes())}
     RECEIPT["limits"] = "Runtime views show actual packages, not full-playthrough or original parity evidence. Asset sheets are labelled compositions, not gameplay."
     output_path(OUT / "gallery.json").write_text(json.dumps(RECEIPT, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")

@@ -55,6 +55,17 @@ def ui_states(video, raw, start, duration, crop, refs, pad_x=0):
             'reference_separation':separation,'errors':best_errors}
 
 
+def edit_offset(source_duration, seconds, checks):
+    """Earliest half-second cut retaining the required real UI states."""
+    for half in range(int((source_duration-seconds)*2)+1):
+        start=half/2
+        if all(all(sum(start<=p['seconds']<start+seconds and p['state']==state
+                       for p in timeline)>=count for state,count in required.items())
+               for timeline,required in checks):
+            return start
+    raise AssertionError(f"No {seconds}s cut contains the required visible UI states")
+
+
 def main():
     version = sys.argv[1]
     assert re.fullmatch(r"v\.\d+\.\d+\.\d+-\d{8}", version)
@@ -97,23 +108,48 @@ def main():
     assert source_chrome_states['sequence']==['on','off','on'],source_chrome_states
     off_start=source_chrome_states['runs'][1]['start']
     on_start=source_chrome_states['runs'][2]['start']
-    assert on_start-off_start<=12,source_chrome_states
-    # Center the acknowledged off/on transition; preserve at least one second
-    # of both on states. This is deterministic editing of real footage.
-    chrome_offset=max(0,round((off_start+on_start-14)/2*2)/2)
-    assert chrome_offset+14<=chrome_duration
+    source_chrome_views=ui_states(raw/'chrome-live.mp4',raw,0,chrome_duration,(356,162,600,204),
+                                 {'map':'chrome-restored','settings':'chrome-settings-restored'})
+    views={p['seconds']:p['state'] for p in source_chrome_views['timeline']}
+    chrome_world=[]
+    for p in source_chrome_states['timeline']:
+        t,state=p['seconds'],p['state']
+        if state=='on' and t<off_start: state='initial-on'
+        elif state=='off' and views.get(t)=='map': state='off-map'
+        elif state=='on' and t>=on_start and views.get(t)=='map': state='restored-map'
+        else: continue
+        chrome_world.append({'seconds':t,'state':state})
+    chrome_offset=edit_offset(chrome_duration,20,[(chrome_world,{'initial-on':2,'off-map':4,'restored-map':4})])
+    language_duration=float(probe(raw/'language-live.mp4')['format']['duration'])
+    source_language=ui_states(raw/'language-live.mp4',raw,0,language_duration,(612,162,844,204),
+                              {'zh-Hant':'lang-hant','zh-Hans':'lang-hans'})
+    language_offset=edit_offset(language_duration,12,[(source_language['timeline'],{'zh-Hant':4,'zh-Hans':4})])
+    toolbar_duration=float(probe(raw/'toolbar-live.mp4')['format']['duration'])
+    source_sizes=ui_states(raw/'toolbar-live.mp4',raw,0,toolbar_duration,(354,10,406,34),
+                           {'16':'font-16','18':'font-18','20':'font-20'})
+    source_fonts=ui_states(raw/'toolbar-live.mp4',raw,0,toolbar_duration,(212,6,316,38),
+                           {'rounded':'font-rounded','noto':'font-noto'})
+    toolbar_offset=edit_offset(toolbar_duration,12,[(source_sizes['timeline'],{'16':2,'18':2,'20':2}),
+                                                   (source_fonts['timeline'],{'rounded':2,'noto':2})])
+    facility_duration=float(probe(raw/'facility-live.mp4')['format']['duration'])
+    source_facility=ui_states(raw/'facility-live.mp4',raw,0,facility_duration,(24,84,312,336),
+                              {'map':'facility-before','center':'facility-center'})
+    entered=min(p['seconds'] for p in source_facility['timeline'] if p['state']=='center')
+    returned=[p for p in source_facility['timeline'] if p['state']=='map' and p['seconds']>entered]
+    facility_offset=edit_offset(facility_duration,8,[(source_facility['timeline'],{'center':4}),
+                                                   (returned,{'map':2})])
     board = [
-        {"kind":"card", "name":"intro", "seconds":5},
+        {"kind":"card", "name":"intro", "seconds":4},
         {"kind":"live", "name":"original-live", "seconds":4, "left":["原版", "美術"], "right":["v2.0", "繁體中文"]},
-        {"kind":"live", "name":"hd2-a-live", "seconds":6, "left":["HD2 A", "細緻像素"], "right":["HD 原版", "框線"]},
+        {"kind":"live", "name":"hd2-a-live", "seconds":5, "left":["HD2 A", "細緻像素"], "right":["HD 原版", "框線"]},
         {"kind":"live", "name":"hd2-b-live", "seconds":5, "left":["HD2 B", "手繪高解析"], "right":["HD 原版", "框線"]},
-        {"kind":"live", "name":"chrome-live", "offset":chrome_offset, "seconds":14, "left":["HD 框線", "開啟／關閉"], "right":["設定 F2", "C 即時切換"]},
-        {"kind":"live", "name":"language-live", "offset":4, "seconds":12, "left":["繁體中文", "／", "简体中文"], "right":["工具列", "直接切換"]},
-        {"kind":"live", "name":"toolbar-live", "offset":8, "seconds":12, "left":["圓體", "Noto", "16／18／20"], "right":["HD 框線", "單列工具列"]},
-        {"kind":"live", "name":"facility-live", "seconds":9, "left":["遊俠中心", "隊伍管理"], "right":["HD 框線", "實際操作"]},
-        {"kind":"card", "name":"outro", "seconds":6},
+        {"kind":"live", "name":"chrome-live", "offset":chrome_offset, "seconds":20, "left":["HD 框線", "開啟／關閉"], "right":["設定 F2", "C 即時切換"]},
+        {"kind":"live", "name":"language-live", "offset":language_offset, "seconds":12, "left":["繁體中文", "／", "简体中文"], "right":["工具列", "直接切換"]},
+        {"kind":"live", "name":"toolbar-live", "offset":toolbar_offset, "seconds":12, "left":["圓體", "Noto", "16／18／20"], "right":["HD 框線", "單列工具列"]},
+        {"kind":"live", "name":"facility-live", "offset":facility_offset, "seconds":8, "left":["遊俠中心", "隊伍管理"], "right":["HD 框線", "實際操作"]},
+        {"kind":"card", "name":"outro", "seconds":5},
     ]
-    assert sum(x["seconds"] for x in board) == 73
+    assert sum(x["seconds"] for x in board) == 75
     with tempfile.TemporaryDirectory(prefix="wl-promo-") as temporary:
         temp = Path(temporary)
         segments = []
@@ -164,22 +200,22 @@ def main():
         playlist.write_text("\n".join(f"file '{p}'" for p in segments)+"\n")
         silent=temp/"silent.mp4"
         run(["ffmpeg","-v","error","-y","-f","concat","-safe","0","-i",str(playlist),"-c","copy",str(silent)])
-        assert abs(float(probe(silent)["format"]["duration"])-73)<.1
+        assert abs(float(probe(silent)["format"]["duration"])-75)<.1
         theme,combat=raw/"music/theme.ogg",raw/"music/combat.ogg"
         assert float(probe(theme)["format"]["duration"])>=45
         assert float(probe(combat)["format"]["duration"])>=30
         candidate=temp/"candidate.mp4"
-        audio=("[1:a]asplit=2[t0][t1];[t0]atrim=0:28,asetpts=PTS-STARTPTS[a0];"
+        audio=("[1:a]asplit=2[t0][t1];[t0]atrim=0:30,asetpts=PTS-STARTPTS[a0];"
                "[2:a]atrim=0:30,asetpts=PTS-STARTPTS[a1];[t1]atrim=28:45,asetpts=PTS-STARTPTS[a2];"
                "[a0][a1]acrossfade=d=1:c1=tri:c2=tri[a01];[a01][a2]acrossfade=d=1:c1=tri:c2=tri,"
-               "volume=0.9,afade=t=in:st=0:d=0.8,afade=t=out:st=71:d=2,aresample=48000[a]")
+               "volume=0.9,afade=t=in:st=0:d=0.8,afade=t=out:st=73:d=2,aresample=48000[a]")
         run(["ffmpeg","-v","error","-y","-i",str(silent),"-i",str(theme),"-i",str(combat),"-filter_complex",audio,
              "-map","0:v:0","-map","[a]","-c:v","copy","-c:a","aac","-b:a","192k","-movflags","+faststart",str(candidate)])
         info=probe(candidate)
         v=next(x for x in info["streams"] if x["codec_type"]=="video")
         a=next(x for x in info["streams"] if x["codec_type"]=="audio")
         assert (v["width"],v["height"],v["codec_name"],a["codec_name"])==(1280,720,"h264","aac")
-        assert abs(float(v["duration"])-73)<.1 and abs(float(a["duration"])-73)<.1
+        assert abs(float(v["duration"])-75)<.1 and abs(float(a["duration"])-75)<.1
         run(["ffmpeg","-v","error","-xerror","-i",str(candidate),"-threads","2","-f","null","-"],stdout=subprocess.DEVNULL)
         volume=run(["ffmpeg","-hide_banner","-nostats","-i",str(candidate),"-vn","-af","volumedetect","-f","null","-"],capture_output=True,text=True).stderr
         mean=float(re.search(r"mean_volume: ([-\d.]+) dB",volume)[1])
@@ -205,14 +241,27 @@ def main():
         # a largely static map. Recognize the actual language/size glyph regions
         # against the recorded PNG states instead. The mask comes from reference
         # differences; half the nearest reference separation gives disjoint sets.
-        chrome_states=ui_states(candidate,raw,20,14,(16,76,896,84),{'on':'chrome-on','off':'chrome-off'},160)
+        chrome_states=ui_states(candidate,raw,18,20,(16,76,896,84),{'on':'chrome-on','off':'chrome-off'},160)
         assert chrome_states['sequence']==['on','off','on'],chrome_states
         assert all(run['samples']>=2 for run in chrome_states['runs']),chrome_states
-        language_states=ui_states(candidate,raw,34,12,(612,162,844,204),{'zh-Hant':'lang-hant','zh-Hans':'lang-hans'},160)
+        chrome_views=ui_states(candidate,raw,18,20,(356,162,600,204),{'map':'chrome-restored','settings':'chrome-settings-restored'},160)
+        candidate_views={p['seconds']:p['state'] for p in chrome_views['timeline']}
+        restored_start=chrome_states['runs'][-1]['start']
+        off_map=sum(p['state']=='off' and candidate_views.get(p['seconds'])=='map' for p in chrome_states['timeline'])
+        restored_map=sum(p['seconds']>=restored_start and p['state']=='on' and candidate_views.get(p['seconds'])=='map'
+                         for p in chrome_states['timeline'])
+        assert off_map>=4 and restored_map>=4,(off_map,restored_map)
+        language_states=ui_states(candidate,raw,38,12,(612,162,844,204),{'zh-Hant':'lang-hant','zh-Hans':'lang-hans'},160)
         assert all(n>=4 for n in language_states['samples'].values()),language_states
         assert language_states['sequence']==['zh-Hant','zh-Hans'],language_states
-        size_states=ui_states(candidate,raw,46,12,(354,10,406,34),{'16':'font-16','18':'font-18','20':'font-20'},160)
+        size_states=ui_states(candidate,raw,50,12,(354,10,406,34),{'16':'font-16','18':'font-18','20':'font-20'},160)
         assert all(n>=2 for n in size_states['samples'].values()),size_states
+        font_states=ui_states(candidate,raw,50,12,(212,6,316,38),{'rounded':'font-rounded','noto':'font-noto'},160)
+        assert all(n>=2 for n in font_states['samples'].values()),font_states
+        facility_states=ui_states(candidate,raw,62,8,(24,84,312,336),{'map':'facility-before','center':'facility-center'},160)
+        assert facility_states['samples']['center']>=4,facility_states
+        entered=min(p['seconds'] for p in facility_states['timeline'] if p['state']=='center')
+        assert sum(p['state']=='map' and p['seconds']>entered for p in facility_states['timeline'])>=2,facility_states
         samples=[]
         for i,item in enumerate(board):
             t=item["start"]+item["seconds"]/2
@@ -233,18 +282,22 @@ def main():
         (out/"ffprobe.json").write_text(json.dumps(info,ensure_ascii=False,indent=2)+"\n")
         (out/"analysis.log").write_text(volume+"\n"+scan)
         receipt={"schema":1,"status":"passed","manual_frame_review":False,"version":version,"file":movie.name,"sha256":sha(movie),"bytes":movie.stat().st_size,
-          "duration":73,"video":{"width":1280,"height":720,"codec":"h264","fps":25},
-          "audio":{"codec":"aac","mean_db":mean,"peak_db":peak,"mix":"modern theme 28s + combat 30s + theme 17s; two 1s crossfades"},
-          "validation":["whole-file-decode","duration-match","non-silent","peak-below-zero","black-frame-scan","movement-freeze-scan","hd-chrome-on-off-on","language-glyph-states","size-glyph-states","caption-ink-bounds"],
-          "intentional_stills":[[0,5],[67,73]],"small_ui_change_intervals":[[20,34],[34,46],[46,58]],
+          "duration":75,"video":{"width":1280,"height":720,"codec":"h264","fps":25},
+          "audio":{"codec":"aac","mean_db":mean,"peak_db":peak,"mix":"modern theme 30s + combat 30s + theme 17s; two 1s crossfades"},
+          "validation":["whole-file-decode","duration-match","non-silent","peak-below-zero","black-frame-scan","movement-freeze-scan","hd-chrome-on-off-on","chrome-world-on-off","language-glyph-states","size-glyph-states","font-family-states","facility-enter-return","caption-ink-bounds"],
+          "intentional_stills":[[0,4],[70,75]],"small_ui_change_intervals":[[18,38],[38,50],[50,62]],
           "chrome_states":chrome_states,"source_chrome_states":source_chrome_states,"chrome_source_offset":chrome_offset,
-          "language_states":language_states,"size_states":size_states,"freeze_intervals":freezes,"text_fields":fields,"storyboard":board,
+          "chrome_views":chrome_views,"off_map_samples":off_map,"restored_map_samples":restored_map,
+          "language_states":language_states,"size_states":size_states,"font_states":font_states,
+          "language_source_offset":language_offset,"toolbar_source_offset":toolbar_offset,
+          "facility_states":facility_states,"facility_source_offset":facility_offset,
+          "freeze_intervals":freezes,"text_fields":fields,"storyboard":board,
           "capture_manifest_sha256":sha(raw/"capture.json"),"package_sha256":capture["package_sha256"],
           "renderer_sha256":sha(Path(__file__)),"source_music":capture["music"],
           "rights":"LOCAL ONLY: original/derived game visuals, existing approved project score; not uploaded or publicly licensed",
           "limits":"Technical audio checks only; no new human listening acceptance or native Windows/macOS validation."}
         (out/"metadata.json").write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+"\n")
-        print("PASS",movie.name,"73 seconds",mean,"dB",peak,"dB",flush=True)
+        print("PASS",movie.name,"75 seconds",mean,"dB",peak,"dB",flush=True)
 
 
 if __name__=="__main__": main()
