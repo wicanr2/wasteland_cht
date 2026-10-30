@@ -1,0 +1,248 @@
+#!/usr/bin/env python3
+"""Build the versioned README gallery from verified packages, in Docker.
+
+Run tools/readme_shots.sh. Runtime PNGs are copied byte for byte; the asset
+contact sheets read the final v2 Windows ZIP, not a draft art directory.
+"""
+import gzip
+import hashlib
+import io
+import json
+from collections import Counter
+from pathlib import Path
+import zipfile
+
+from PIL import Image, ImageDraw, ImageFont, ImageOps
+
+
+ROOT = Path(__file__).resolve().parents[1]
+OUT = ROOT / "docs/images"
+V1 = "v.1.0.0-20261029"
+V2 = "v.2.0.0-20261029"
+BG = "#101921"
+PANEL = "#1b2833"
+INK = "#edf0ec"
+MUTED = "#a8b9c4"
+GOLD = "#e8c579"
+FONTS = {}
+FONT_BYTES = gzip.decompress(
+    (ROOT / "internal/presentation/fonts/GenSenRounded-TW-Regular.otf.gz").read_bytes()
+)
+RECEIPT = {"schema": 1, "purpose": "README versioned runtime and asset gallery",
+           "runtime": [], "assets": {}, "outputs": [], "labels": []}
+
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def output_path(path):
+    path.parent.mkdir(exist_ok=True)
+    for target in (path.parent, path):
+        if target.exists():
+            assert target.stat().st_uid == 1000 and target.stat().st_gid == 1000, target
+    return path
+
+
+def font(size):
+    if size not in FONTS:
+        FONTS[size] = ImageFont.truetype(io.BytesIO(FONT_BYTES), size)
+    return FONTS[size]
+
+
+def label(im, text, rect, size=28, fill=INK, center=False):
+    """Every caption must fit its explicit rectangle without clipping."""
+    x0, y0, x1, y1 = rect
+    draw = ImageDraw.Draw(im)
+    for px in range(size, 9, -1):
+        face = font(px)
+        b = draw.textbbox((0, 0), text, font=face)
+        if b[2] - b[0] <= x1 - x0 and b[3] - b[1] <= y1 - y0:
+            break
+    else:
+        raise ValueError(f"Caption does not fit: {text}")
+    x = x0 - b[0] + ((x1 - x0 - (b[2] - b[0])) // 2 if center else 0)
+    y = y0 - b[1] + (y1 - y0 - (b[3] - b[1])) // 2
+    box = draw.textbbox((x, y), text, font=face)
+    assert x0 <= box[0] <= box[2] <= x1 and y0 <= box[1] <= box[3] <= y1
+    draw.text((x, y), text, font=face, fill=fill)
+    RECEIPT["labels"].append({"text": text, "safe": rect, "ink": box, "size": px})
+
+
+def paste(im, source, rect, pixel=False):
+    x0, y0, x1, y1 = rect
+    resample = Image.Resampling.NEAREST if pixel else Image.Resampling.LANCZOS
+    preview = ImageOps.contain(source.convert("RGBA"), (x1-x0, y1-y0), resample)
+    xy = (x0 + (x1-x0-preview.width)//2, y0 + (y1-y0-preview.height)//2)
+    im.paste(preview, xy, preview)
+
+
+def save(im, name):
+    target = output_path(OUT / name)
+    im.save(target, optimize=True)
+    RECEIPT["outputs"].append({"path": str(target.relative_to(ROOT)),
+        "sha256": sha(target.read_bytes()), "size": list(im.size)})
+
+
+def runtime(version, shots):
+    source = ROOT / "dist-all" / version / "smoke/full-local-linux-gui"
+    receipt = json.loads((source / "result.json").read_text())
+    delivery = json.loads((source.parents[1] / "SHA256SUMS.json").read_text())
+    assert receipt["status"] == "passed" and receipt["version"] == version
+    assert receipt["exit_code"] == 0
+    assert any(f["sha256"] == receipt["package_sha256"] for f in delivery["files"])
+    hashes = {x["path"]: x["sha256"] for x in receipt["screenshots"]}
+    for name, original in shots.items():
+        data = (source / original).read_bytes()
+        assert sha(data) == hashes[original], original
+        with Image.open(io.BytesIO(data)) as image:
+            assert image.size == (960, 720)
+        destination = output_path(OUT / version.split("-", 1)[0].replace("v.", "v") / name)
+        destination.write_bytes(data)
+        RECEIPT["runtime"].append({"path": str(destination.relative_to(ROOT)),
+            "sha256": sha(data), "source": str((source / original).relative_to(ROOT)),
+            "version": version, "source_commit": delivery["source_commit"],
+            "package_sha256": receipt["package_sha256"],
+            "entry": receipt["entry"], "platform": "Linux Xvfb",
+            "capture": "normal packaged launcher; no debug entry; uncropped logical 960x720"})
+
+
+def overview(packs):
+    im = Image.new("RGB", (1920, 1908), BG)
+    label(im, "WASTELAND 荒野遊俠 · V2.0.0 素材總覽", (32, 24, 1888, 82), 44, GOLD)
+    label(im, "兩種重繪風格，每版 1,157 張；以下為精選，完整清單另附總表。",
+          (32, 90, 1888, 132), 28)
+    for col, (mode, pack) in enumerate(packs.items()):
+        x = 32 + col * 944
+        title = "A 細緻像素" if col == 0 else "B 手繪高解析"
+        ImageDraw.Draw(im).rounded_rectangle((x, 154, x+912, 1836), 12, fill=PANEL)
+        label(im, title, (x+24, 172, x+888, 220), 36, GOLD)
+        paste(im, pack["images"]["fullscreen.title"], (x+24, 232, x+888, 616), col == 0)
+        label(im, "場景與人物 · 82 張", (x+24, 632, x+888, 672), 27, GOLD)
+        for i, index in enumerate((0, 2, 13, 31, 49, 75)):
+            px, py = x+24+(i % 3)*288, 688+(i // 3)*272
+            paste(im, pack["images"][f"scene.{index:03}"], (px, py, px+276, py+242), col == 0)
+            label(im, f"場景 {index:03}", (px, py+244, px+276, py+266), 17, MUTED, True)
+        label(im, "地形 · 九組共 1,051 張，精選 72 張", (x+24, 1240, x+888, 1280), 27, GOLD)
+        # Fixed index sampling, shared by A and B; no visual cherry-picking.
+        tiles = [a for a in pack["assets"] if a["kind"] == "tile"]
+        selected = []
+        for group in range(9):
+            part = [a for a in tiles if a["path"].split("/")[1] == f"tileset-{group}"]
+            selected.extend(part[i*(len(part)-1)//7] for i in range(8))
+        for i, asset in enumerate(selected):
+            px, py = x+24+(i % 16)*54, 1292+(i // 16)*54
+            paste(im, pack["images"][asset["id"]], (px, py, px+48, py+48), col == 0)
+        label(im, "隊伍動畫 · 12 格", (x+24, 1584, x+888, 1624), 27, GOLD)
+        for i, asset in enumerate(a for a in pack["assets"] if a["kind"] == "party-sprite"):
+            px = x+24+i*64
+            paste(im, pack["images"][asset["id"]], (px, 1636, px+56, 1692), col == 0)
+        label(im, "圖示 · 10 張", (x+24, 1708, x+888, 1748), 27, GOLD)
+        for i, asset in enumerate(a for a in pack["assets"] if a["kind"] == "icon"):
+            px = x+24+i*64
+            paste(im, pack["images"][asset["id"]], (px, 1760, px+56, 1816), col == 0)
+    label(im, "最終 v.2.0.0-20261029 封包素材展示拼圖；不是遊戲截圖或可匯入的圖包。",
+          (32, 1852, 1888, 1892), 24, MUTED)
+    save(im, "v2.0.0/assets-overview.png")
+
+
+def full_sheet(mode, pack):
+    """Place every manifest asset exactly once, with a searchable index."""
+    groups = []
+    for n in range(9):
+        group = [a for a in pack["assets"] if a["path"].startswith(f"assets/tileset-{n}/")]
+        groups.append((f"地形組 {n} · {len(group)} 張", group, 32, 54, 70, 48, 48))
+    groups += [
+        ("隊伍動畫 · 12 格", [a for a in pack["assets"] if a["kind"] == "party-sprite"], 24, 72, 86, 64, 64),
+        ("圖示 · 10 張", [a for a in pack["assets"] if a["kind"] == "icon"], 24, 72, 86, 64, 64),
+        ("場景與人物 · 82 張", [a for a in pack["assets"] if a["kind"] == "scene"], 8, 216, 208, 204, 178),
+        ("標題與結局 · 2 張", [a for a in pack["assets"] if a["kind"] in ("title", "ending")], 2, 876, 418, 864, 384),
+    ]
+    height = 150 + sum(54 + ((len(group)+cols-1)//cols)*cell_h + 20
+                       for _, group, cols, _, cell_h, _, _ in groups) + 64
+    im = Image.new("RGB", (1824, height), BG)
+    title = "HD2 A 細緻像素" if mode == "hd2-a" else "HD2 B 手繪高解析"
+    label(im, f"V2.0.0 · {title} · 全 1,157 張", (32, 24, 1792, 82), 40, GOLD)
+    label(im, "依封包 manifest 索引排列；所有地形、場景、隊伍、圖示、標題與結局均列入。",
+          (32, 92, 1792, 132), 26, MUTED)
+    y, included = 150, []
+    for title, group, cols, cell_w, cell_h, width, height in groups:
+        label(im, title, (32, y, 1792, y+44), 28, GOLD)
+        y += 54
+        for i, asset in enumerate(group):
+            x, py = 32+(i % cols)*cell_w, y+(i // cols)*cell_h
+            paste(im, pack["images"][asset["id"]], (x, py, x+width, py+height), mode == "hd2-a")
+            text = asset["id"].split(".")[-1]
+            label(im, text, (x, py+height+2, x+width, py+cell_h-2), 13, MUTED, True)
+            included.append(asset["id"])
+        y += ((len(group)+cols-1)//cols)*cell_h+20
+    assert len(included) == len(set(included)) == 1157
+    assert set(included) == set(pack["images"])
+    RECEIPT["assets"][mode]["sheet_ids"] = included
+    label(im, "來源：v.2.0.0-20261029 正式本機完整包。此圖僅展示素材，完整圖包留在本機。",
+          (32, y+4, 1792, y+44), 23, MUTED)
+    save(im, f"v2.0.0/assets-{mode}-all.png")
+
+
+def comparison():
+    im = Image.new("RGB", (1968, 844), BG)
+    label(im, "V1.0.0 舊版", (16, 16, 976, 66), 36, GOLD)
+    label(im, "V2.0.0 新版", (992, 16, 1952, 66), 36, GOLD)
+    for i, name in enumerate(("v1.0.0/map-hd2-b.png", "v2.0.0/map-hd2-b.png")):
+        with Image.open(OUT / name) as screenshot:
+            im.paste(screenshot, (16+i*976, 80))
+    label(im, "同為 HD2 B，地圖視窗相同；呈現字型、邊框與工具列差異。訊息與動畫影格不同。",
+          (16, 808, 1952, 836), 24, MUTED)
+    save(im, "v2.0.0/ui-before-after.png")
+
+
+def main():
+    assert OUT.is_dir()
+    for directory in (OUT, ROOT/"tools"):
+        assert directory.stat().st_uid == 1000 and directory.stat().st_gid == 1000
+    runtime(V1, {"title.png": "00-title.png", "map-original.png": "01-map-original.png",
+                 "map-hd2-b.png": "05-saved.png", "settings.png": "03-settings-b-modern.png"})
+    runtime(V2, {"title.png": "00-title.png", "map-original.png": "01-original.png",
+        "map-hd2-a.png": "05-art-a.png", "map-hd2-b.png": "06-art-b-modern.png",
+        "character.png": "12-character.png", "items-hant.png": "13-items.png",
+        "journal-hant.png": "15-journal.png", "settings-hant.png": "16-settings.png",
+        "settings-hans.png": "20-hans-settings.png", "map-hans.png": "21-hans-map.png",
+        "items-hans.png": "23-hans-items.png", "journal-hans.png": "25-hans-journal.png",
+        "ranger-center.png": "10-ranger-center.png", "font-noto-16.png": "03-noto-16.png",
+        "font-noto-18.png": "03-noto-18.png", "font-noto-20.png": "04-noto-20.png"})
+    archive = ROOT / f"dist-all/{V2}/full-local/windows-x64/wasteland-cht-{V2}-windows-x64-full-local.zip"
+    delivery = json.loads((ROOT / f"dist-all/{V2}/SHA256SUMS.json").read_text())
+    archive_sha = sha(archive.read_bytes())
+    assert any(f["sha256"] == archive_sha for f in delivery["files"])
+    RECEIPT["package"] = {"path": str(archive.relative_to(ROOT)), "sha256": archive_sha,
+                          "source_commit": delivery["source_commit"]}
+    packs = {}
+    with zipfile.ZipFile(archive) as z:
+        for mode in ("hd2-a", "hd2-b"):
+            paths = [p for p in z.namelist() if p.endswith(f"/{mode}/manifest.json")]
+            assert len(paths) == 1
+            manifest_path = paths[0]
+            data = z.read(manifest_path)
+            manifest = json.loads(data)
+            counts = Counter(a["kind"] for a in manifest["assets"])
+            assert counts == {"tile":1051, "scene":82, "party-sprite":12, "icon":10, "title":1, "ending":1}
+            images = {}
+            for asset in manifest["assets"]:
+                content = z.read(manifest_path.removesuffix("manifest.json") + asset["path"])
+                assert sha(content) == asset["sha256"], asset["id"]
+                with Image.open(io.BytesIO(content)) as source:
+                    assert source.size == (asset["width"], asset["height"])
+                    images[asset["id"]] = source.convert("RGBA")
+            packs[mode] = {"assets":manifest["assets"], "images":images}
+            RECEIPT["assets"][mode] = {"manifest_sha256":sha(data), "counts":dict(counts)}
+            full_sheet(mode, packs[mode])
+    overview(packs)
+    comparison()
+    RECEIPT["generator"] = {"path": "tools/make_readme_gallery.py", "sha256": sha(Path(__file__).read_bytes())}
+    RECEIPT["limits"] = "Runtime views show actual packages, not full-playthrough or original parity evidence. Asset sheets are labelled compositions, not gameplay."
+    output_path(OUT / "gallery.json").write_text(json.dumps(RECEIPT, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
+    print(f"PASS: {len(RECEIPT['runtime'])} verified runtime screenshots; 2 x 1157 assets; 4 compositions")
+
+
+if __name__ == "__main__":
+    main()
