@@ -196,6 +196,43 @@ def comparison():
     save(im, "v2.0.0/ui-before-after.png")
 
 
+def events_sheet(packs):
+    """Every one of the original 82 scene indices, with both HD styles."""
+    inventory = json.loads((ROOT / "artwork/manifests/original-art-inventory.json").read_text())
+    assert inventory["scenes"] == {"count":82, "width":96, "height":84}
+    expected = {f"scene.{i:03}" for i in range(82)}
+    for pack in packs.values():
+        assert {a["id"] for a in pack["assets"] if a["kind"]=="scene"} == expected
+    im = Image.new("RGB", (2400, 3196), BG)
+    label(im, "V2.0.0 · 全部 82 張事件／人物場景 · HD2 A／B 對照", (32,20,2368,78), 40, GOLD)
+    label(im, "每個編號左側為 A 細緻像素，右側為 B 手繪高解析；000–081 全數列入，共 164 張。",
+          (32,86,2368,126), 26, MUTED)
+    entries=[]
+    for i in range(82):
+        x, y = 32+(i%6)*390, 148+(i//6)*212
+        label(im, f"{i:03}    A                        B", (x,y,x+374,y+30), 19, GOLD, True)
+        row={"index":i,"styles":{}}
+        for offset,(mode,pack) in enumerate(packs.items()):
+            asset=next(a for a in pack["assets"] if a["id"]==f"scene.{i:03}")
+            hd=pack["images"][asset["id"]]
+            assert hd.size==(288,252)
+            source=ROOT/f"workplace/art-reference/scenes/{i:03}.png"
+            with Image.open(source) as original:
+                assert original.size==(96,84)
+                original=original.convert("RGBA")
+                nearest=original.resize(hd.size,Image.Resampling.NEAREST)
+                assert hd.tobytes()!=nearest.tobytes(), (mode,i,"original upscale fallback")
+                row["original_sha256"]=sha(source.read_bytes())
+            px=x+offset*190
+            paste(im,hd,(px,y+36,px+184,y+197),mode=="hd2-a")
+            row["styles"][mode]={"sha256":asset["sha256"],"size":[288,252],
+                                      "is_original_nearest_upscale":False}
+        entries.append(row)
+    label(im,"來源：最終 v.2.0.0-20261029 本機封包；素材展示拼圖，非遊戲截圖。",(32,3136,2368,3180),25,MUTED)
+    RECEIPT["events"]={"count_per_style":82,"indices":entries,"status":"all-hd-no-original-upscale-fallback"}
+    save(im,"v2.0.0/events-hd2-all.png")
+
+
 def main():
     assert OUT.is_dir()
     for directory in (OUT, ROOT/"tools"):
@@ -237,11 +274,12 @@ def main():
             RECEIPT["assets"][mode] = {"manifest_sha256":sha(data), "counts":dict(counts)}
             full_sheet(mode, packs[mode])
     overview(packs)
+    events_sheet(packs)
     comparison()
     RECEIPT["generator"] = {"path": "tools/make_readme_gallery.py", "sha256": sha(Path(__file__).read_bytes())}
     RECEIPT["limits"] = "Runtime views show actual packages, not full-playthrough or original parity evidence. Asset sheets are labelled compositions, not gameplay."
     output_path(OUT / "gallery.json").write_text(json.dumps(RECEIPT, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
-    print(f"PASS: {len(RECEIPT['runtime'])} verified runtime screenshots; 2 x 1157 assets; 4 compositions")
+    print(f"PASS: {len(RECEIPT['runtime'])} verified runtime screenshots; 2 x 1157 assets; 164 HD events; 5 compositions")
 
 
 if __name__ == "__main__":

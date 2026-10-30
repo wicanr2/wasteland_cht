@@ -439,3 +439,26 @@
   UID/GID 與 Git 空白檢查。解衝突後 `internal/`、`cmd/`、`translations/`、`artpacks/`、
   `artwork/`、`tools/` 相對原 HEAD 無差異；不重跑未變更引擎的測試。
   推送目標為 `origin/master`；未包含使用者未追蹤文字檔或本機完整包。
+
+## 2026-10-30：發布前追加 HD 框線、事件總覽與歷史介紹恢復
+
+- 使用者先要求發布 Release，後立即改為先補 A／B 的 HD 原版框線，並要求有顯示開關、
+  更新 README 實機截圖及完整事件圖總覽。本輪沒有建立 tag／Release 或上傳封包。
+  發布規則與素材邊界已核對；GitHub 連接工具沒有 Release API，實際發布方式尚待處理。
+- 先前重整首頁移除的故事與玩法介紹不符合使用者期待。從 `d40e072^:README.md`
+  逐字恢復 222 行，涵蓋故事背景、角色、時鐘、戰鬥、段落書、台灣攻略史及當年譯法。
+  使用者明確要求歷史介紹永久留在 README，已記入 CONTEXT 與 WORKLIST，並補導覽連結。
+- 兩個最終 HD2 圖包的事件索引均為 000–081，各有 82 張 288×252 圖。逐張核對封包
+  manifest 雜湊與尺寸，對照原始 96×84 參考圖的最近鄰放大結果，沒有原圖放大替代項。
+  `events-hd2-all.png` 以每個編號左 A、右 B 列出全部 164 張，直接內嵌 README。
+  來源及逐張雜湊記入既有 `docs/images/gallery.json`，重建入口仍為 `tools/readme_shots.sh`。
+- 原版框線證據沿用 `docs/re/124-screen-border-and-right-column.md` 的銀灰斜框、
+  直排 WASTELAND、右側計量表；不另開原版逆向切片。`tools/prototype_hd_chrome.py`
+  製作可丟棄的 A／B 開啟、開關對照與 F2「C 框線」按鈕樣稿，保存於
+  `workplace/art-preview/hd-frame-proposal-*.png`，地圖區域像素維持相同。
+  已展示樣稿並依 grilling 詢問樣式與預設開關，尚待使用者確認，未接到正式程式。
+- 驗證通過：恢復原文逐字相同、88 個 README 連結／錨點、82 組事件完整且無重複、
+  25 張圖庫雜湊與解碼、Python 語法及 UID/GID。已檢視完整事件總覽與三份框線樣稿。
+  README 目前仍放已驗證封包的真正截圖，沒有把框線樣稿當成實機圖。
+- 本輪先提交並推送歷史恢復、完整事件總覽及框線樣稿工具；正式框線、更新後的實機圖、
+  新候選包與 Release 等樣式確認後繼續。使用者未追蹤文字檔與既有交付包維持。
