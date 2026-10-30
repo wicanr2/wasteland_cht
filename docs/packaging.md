@@ -10,11 +10,11 @@ full-local 與含本機素材的影片維持本機；正式發布需另核對遠
 舊版交付目錄保留，不作為新版入口。
 
 ```bash
-tools/package.sh v.2.0.0-20261029 patch linux-x64
-tools/package.sh v.2.0.0-20261029 full-local windows-x64
-tools/package.sh v.2.0.0-20261029 full-local macos-universal
+tools/package.sh v.2.0.0-20261030 patch linux-x64
+tools/package.sh v.2.0.0-20261030 full-local windows-x64
+tools/package.sh v.2.0.0-20261030 full-local macos-universal
 # 依序建立全部六包，再驗證並產生交付清單
-tools/dist.sh v.2.0.0-20261029
+tools/dist.sh v.2.0.0-20261030
 ```
 
 同版本同平台的包已存在時會拒絕覆寫。修正後另定新版號，或在尚未交付前明確保留
@@ -37,6 +37,15 @@ tools/dist.sh v.2.0.0-20261029
 本輪不把歷史影片複製成新版影片，也不改變公開素材的授權範圍。
 
 ## 工具與重現
+
+GitHub Release 的公開附件由 [prepare_public_release.py](../tools/prepare_public_release.py)準備。
+在既有 Go Docker 映像內執行 `python3 tools/prepare_public_release.py <完整版本>`，
+來源樹唯讀，僅該版本的 `patch/` 目錄可寫。工具要求三組正常 GUI 收據通過，
+逐包驗雜湊，並確認 tag 的程式與語料和建置提交相同；只列三個 patch 封包，
+寫入 `patch/RELEASE-NOTES.md`、`patch/SHA256SUMS.txt`、`patch/release-manifest.json`。
+工具不建立 tag、不上傳附件，發布仍須使用者授權及符合主機執行邊界的 GitHub 操作。
+`.gitattributes` 的 `artpacks/*/assets export-ignore` 排除歷史圖包原始圖片，
+供 `git archive` 與 GitHub 自動產生的來源封包使用；Git 內的歷史定位保留。
 
 [主機入口](../tools/package.sh)分兩步呼叫
 [容器建置](../tools/package_container.sh)與[容器封裝](../tools/pack_wrap.sh)。

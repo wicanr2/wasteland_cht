@@ -1,2 +1,5 @@
 # 保留第三方授權原文的位元組，包括上游的行尾空白。
 internal/presentation/fonts/*OFL.txt -whitespace
+
+# 原版衍生圖包保留歷史定位，不放進 git archive／GitHub 自動來源封包。
+artpacks/*/assets export-ignore

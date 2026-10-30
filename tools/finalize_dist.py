@@ -122,6 +122,7 @@ def finalize(version):
                "translations/paragraphs-zh-Hant.cat", "translations/paragraphs-zh-Hans.cat")]
     inputs += [REPO / p for p in ("internal/presentation/chrome.go", "internal/play/chrome_test.go",
                "artwork/manifests/ui-hd-chrome-approved.json", "docs/spec/35-hd-original-chrome.md")]
+    inputs += [REPO / p for p in ("tools/prepare_public_release.py", ".gitattributes")]
     inputs += [REPO / p for p in ("tools/promo.sh", "tools/promo/record_packaged.sh",
                "tools/promo/record_packaged_container.sh", "tools/promo/render_packaged.py")]
     inputs += sorted((REPO / "internal/presentation/fonts").iterdir())

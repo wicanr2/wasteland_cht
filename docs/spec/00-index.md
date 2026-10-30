@@ -13,7 +13,7 @@
 
 | 規格 | 狀態 | 對應的 `internal/` | 擋住它的東西 |
 |---|---|---|---|
-| [35-hd-original-chrome.md](35-hd-original-chrome.md) | **READY，樣式已確認** | `internal/presentation`、`internal/play` | A／B 預設開啟與 F2／C 開關；待實作、GUI 與新版截圖 |
+| [35-hd-original-chrome.md](35-hd-original-chrome.md) | **CONFORMED，限定已列抽測** | `internal/presentation`、`internal/play` | 六包、場景回歸、Linux／Wine 正常 GUI 與新版實機圖通過；原生 Windows／Mac 未驗收 |
 | [34-zh-hans-and-language-switch.md](34-zh-hans-and-language-switch.md) | **CONFORMED，限定已列抽測** | `internal/lang`、`internal/play`、語料與封裝／影片工具 | 六包、Linux／Wine GUI 與重錄影片通過；原生 Windows／Mac 未驗收 |
 | [33-rounded-ui.md](33-rounded-ui.md) | **CONFORMED，限定已列抽測** | `internal/presentation`、`internal/play`、`internal/render`、`internal/ui` | Linux 正常 GUI、字型與場景回歸通過；Windows／Mac 交叉編譯，未原生實機驗收 |
 | [32-hd2.md](32-hd2.md) | READY，本機包已驗證 | `internal/play`、`artpacks` | A／B、跨平台路徑與六包內容通過；Linux／Wine 實際 GUI 通過，Mac 未實機驗收 |

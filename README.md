@@ -13,7 +13,7 @@
 HD2 A／B 預設開啟 HD 原版框線，可隨時切回簡約細框。
 支援繁體中文與簡體中文。下圖為最終完整測試包的實際遊戲畫面。
 
-![V2.0.0 實機：HD2 B 手繪高解析、18 像素圓體、細邊框與上下工具列](docs/images/v2.0.0/map-hd2-b.png)
+![V2.0.0 實機：HD2 B 手繪高解析、HD 原版框線、18 像素圓體與工具列](docs/images/v2.0.0/map-hd2-b.png)
 
 ### 優化了哪些事情
 
@@ -58,6 +58,11 @@ A／B 預設使用原版風格的 HD 銀灰斜面框、直排 WASTELAND 與藍�
 兩種美術共用這個開關；原版美術模式維持原有介面。切換不改變地圖、隊伍或存檔內容。
 契約與定版來源見 [HD 框線規格](docs/spec/35-hd-original-chrome.md)。
 
+![實際 V2.0.0 封包的 HD 框線開關對照：左為簡約細框，右為 HD 原版框線](docs/images/v2.0.0/frame-on-off.png)
+
+A 的關閉效果可看 [細緻像素搭配簡約框](docs/images/v2.0.0/map-hd2-a-off.png)，
+B 的關閉效果可看 [手繪高解析搭配簡約框](docs/images/v2.0.0/map-hd2-b-off.png)。
+
 ### 遊戲截圖
 
 以下都是最終 Linux 完整測試包從正常標題進入後擷取的畫面，沒有注入地圖或角色。
@@ -75,7 +80,7 @@ A／B 預設使用原版風格的 HD 銀灰斜面框、直排 WASTELAND 與藍�
 |---|---|
 | [![V2.0.0 繁體中文手札正文與分頁](docs/images/v2.0.0/journal-hant.png)](docs/images/v2.0.0/journal-hant.png) | [![V2.0.0 簡體中文手札正文與分頁](docs/images/v2.0.0/journal-hans.png)](docs/images/v2.0.0/journal-hans.png) |
 
-| 繁體設定與語言按鈕 | 切換為簡體中文 |
+| 繁體設定、框線與語言按鈕 | 簡體設定、框線與語言按鈕 |
 |---|---|
 | [![V2.0.0 繁體設定面板中的語言按鈕](docs/images/v2.0.0/settings-hant.png)](docs/images/v2.0.0/settings-hant.png) | [![V2.0.0 簡體設定面板與簡體工具列](docs/images/v2.0.0/settings-hans.png)](docs/images/v2.0.0/settings-hans.png) |
 

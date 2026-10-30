@@ -48,176 +48,198 @@
     },
     {
       "path": "docs/images/v2.0.0/title.png",
-      "sha256": "358acc3c2fb261e53a6ffb17f19783a7db922d18a09a30ff107a6e790e3517bf",
-      "source": "dist-all/v.2.0.0-20261029/smoke/full-local-linux-gui/00-title.png",
-      "version": "v.2.0.0-20261029",
-      "source_commit": "0a0b97c299432a5a294af384222e86779fad1349",
-      "package_sha256": "e831ab9d896bdb3c7d2f3bd6b18029c5313696f1ddfeaf5e3116559a6761c184",
+      "sha256": "88a3e809f6c42ba0e2dbf50fa0dccf429c30bb060b3a3a972bc22b41ca157254",
+      "source": "dist-all/v.2.0.0-20261030/smoke/full-local-linux-gui/00-title.png",
+      "version": "v.2.0.0-20261030",
+      "source_commit": "48f58c40889b007a227fc3c005e6a233da8ba1e8",
+      "package_sha256": "1a63d082c0330deabe5ddd09f3b25c767130384af375ce6f9eccb21d3dfdd327",
       "entry": "actual packaged launcher; normal title; no forced map or art mode",
       "platform": "Linux Xvfb",
       "capture": "normal packaged launcher; no debug entry; uncropped logical 960x720"
     },
     {
       "path": "docs/images/v2.0.0/map-original.png",
-      "sha256": "7b7376b34a301d0a6e95637373aa84ca3e685cc675dd0ea1085d497e3c35723d",
-      "source": "dist-all/v.2.0.0-20261029/smoke/full-local-linux-gui/01-original.png",
-      "version": "v.2.0.0-20261029",
-      "source_commit": "0a0b97c299432a5a294af384222e86779fad1349",
-      "package_sha256": "e831ab9d896bdb3c7d2f3bd6b18029c5313696f1ddfeaf5e3116559a6761c184",
+      "sha256": "10a5c4423d8fced51ad93c0233ef972031bcb2de5ca40a9852d3d23d76b51ff5",
+      "source": "dist-all/v.2.0.0-20261030/smoke/full-local-linux-gui/01-original.png",
+      "version": "v.2.0.0-20261030",
+      "source_commit": "48f58c40889b007a227fc3c005e6a233da8ba1e8",
+      "package_sha256": "1a63d082c0330deabe5ddd09f3b25c767130384af375ce6f9eccb21d3dfdd327",
       "entry": "actual packaged launcher; normal title; no forced map or art mode",
       "platform": "Linux Xvfb",
       "capture": "normal packaged launcher; no debug entry; uncropped logical 960x720"
     },
     {
       "path": "docs/images/v2.0.0/map-hd2-a.png",
-      "sha256": "df9b93d997f496489ddb366efa7dfc09cbbb6637db913d9a2f334e69b0800d8e",
-      "source": "dist-all/v.2.0.0-20261029/smoke/full-local-linux-gui/05-art-a.png",
-      "version": "v.2.0.0-20261029",
-      "source_commit": "0a0b97c299432a5a294af384222e86779fad1349",
-      "package_sha256": "e831ab9d896bdb3c7d2f3bd6b18029c5313696f1ddfeaf5e3116559a6761c184",
+      "sha256": "1f2d9ce2c89943b05e4db5ed3e338e8d5123dac63faaf559b3d4fa2d1e0debf7",
+      "source": "dist-all/v.2.0.0-20261030/smoke/full-local-linux-gui/05-art-a.png",
+      "version": "v.2.0.0-20261030",
+      "source_commit": "48f58c40889b007a227fc3c005e6a233da8ba1e8",
+      "package_sha256": "1a63d082c0330deabe5ddd09f3b25c767130384af375ce6f9eccb21d3dfdd327",
       "entry": "actual packaged launcher; normal title; no forced map or art mode",
       "platform": "Linux Xvfb",
       "capture": "normal packaged launcher; no debug entry; uncropped logical 960x720"
     },
     {
       "path": "docs/images/v2.0.0/map-hd2-b.png",
-      "sha256": "b5a8c16cab751d33974b02619292bac7bde64018e7c25f174ffd89a25586ef6f",
-      "source": "dist-all/v.2.0.0-20261029/smoke/full-local-linux-gui/06-art-b-modern.png",
-      "version": "v.2.0.0-20261029",
-      "source_commit": "0a0b97c299432a5a294af384222e86779fad1349",
-      "package_sha256": "e831ab9d896bdb3c7d2f3bd6b18029c5313696f1ddfeaf5e3116559a6761c184",
+      "sha256": "aa13e22a127d7854b24336341fce9ea32930b52a65dbc39137799314eb221eb5",
+      "source": "dist-all/v.2.0.0-20261030/smoke/full-local-linux-gui/06-art-b-modern.png",
+      "version": "v.2.0.0-20261030",
+      "source_commit": "48f58c40889b007a227fc3c005e6a233da8ba1e8",
+      "package_sha256": "1a63d082c0330deabe5ddd09f3b25c767130384af375ce6f9eccb21d3dfdd327",
       "entry": "actual packaged launcher; normal title; no forced map or art mode",
       "platform": "Linux Xvfb",
       "capture": "normal packaged launcher; no debug entry; uncropped logical 960x720"
     },
     {
       "path": "docs/images/v2.0.0/character.png",
-      "sha256": "bac454aae9d6ea71204f78ac6dd09880970de3aedc0b65c6380f3bfac70e0ef7",
-      "source": "dist-all/v.2.0.0-20261029/smoke/full-local-linux-gui/12-character.png",
-      "version": "v.2.0.0-20261029",
-      "source_commit": "0a0b97c299432a5a294af384222e86779fad1349",
-      "package_sha256": "e831ab9d896bdb3c7d2f3bd6b18029c5313696f1ddfeaf5e3116559a6761c184",
+      "sha256": "f664247bf159e0cc29462d801dd7017a6f1861ad87d9c3ecc2fccfc9e11bd515",
+      "source": "dist-all/v.2.0.0-20261030/smoke/full-local-linux-gui/12-character.png",
+      "version": "v.2.0.0-20261030",
+      "source_commit": "48f58c40889b007a227fc3c005e6a233da8ba1e8",
+      "package_sha256": "1a63d082c0330deabe5ddd09f3b25c767130384af375ce6f9eccb21d3dfdd327",
       "entry": "actual packaged launcher; normal title; no forced map or art mode",
       "platform": "Linux Xvfb",
       "capture": "normal packaged launcher; no debug entry; uncropped logical 960x720"
     },
     {
       "path": "docs/images/v2.0.0/items-hant.png",
-      "sha256": "9258826004eb02ce1a813a9b074e65a12b81c8adbcf0e0d31f7426a47ce01013",
-      "source": "dist-all/v.2.0.0-20261029/smoke/full-local-linux-gui/13-items.png",
-      "version": "v.2.0.0-20261029",
-      "source_commit": "0a0b97c299432a5a294af384222e86779fad1349",
-      "package_sha256": "e831ab9d896bdb3c7d2f3bd6b18029c5313696f1ddfeaf5e3116559a6761c184",
+      "sha256": "6adc7096fe2531e06c13b1cf5429097a15113d63c7fa2224e2537743c6091013",
+      "source": "dist-all/v.2.0.0-20261030/smoke/full-local-linux-gui/13-items.png",
+      "version": "v.2.0.0-20261030",
+      "source_commit": "48f58c40889b007a227fc3c005e6a233da8ba1e8",
+      "package_sha256": "1a63d082c0330deabe5ddd09f3b25c767130384af375ce6f9eccb21d3dfdd327",
       "entry": "actual packaged launcher; normal title; no forced map or art mode",
       "platform": "Linux Xvfb",
       "capture": "normal packaged launcher; no debug entry; uncropped logical 960x720"
     },
     {
       "path": "docs/images/v2.0.0/journal-hant.png",
-      "sha256": "71dba15539ebc376882220735139b4c6df7726d9428a7119eb645a9c8fa487da",
-      "source": "dist-all/v.2.0.0-20261029/smoke/full-local-linux-gui/15-journal.png",
-      "version": "v.2.0.0-20261029",
-      "source_commit": "0a0b97c299432a5a294af384222e86779fad1349",
-      "package_sha256": "e831ab9d896bdb3c7d2f3bd6b18029c5313696f1ddfeaf5e3116559a6761c184",
+      "sha256": "4a09f4dcea9d20aa35964e3aa1f3594d7612dddc9b177b9488a2377f6134b1b9",
+      "source": "dist-all/v.2.0.0-20261030/smoke/full-local-linux-gui/15-journal.png",
+      "version": "v.2.0.0-20261030",
+      "source_commit": "48f58c40889b007a227fc3c005e6a233da8ba1e8",
+      "package_sha256": "1a63d082c0330deabe5ddd09f3b25c767130384af375ce6f9eccb21d3dfdd327",
       "entry": "actual packaged launcher; normal title; no forced map or art mode",
       "platform": "Linux Xvfb",
       "capture": "normal packaged launcher; no debug entry; uncropped logical 960x720"
     },
     {
       "path": "docs/images/v2.0.0/settings-hant.png",
-      "sha256": "e714f47dbdfae9d18eea47b8a601feb8578bf72b21f2e8448e1f2ec2515c2274",
-      "source": "dist-all/v.2.0.0-20261029/smoke/full-local-linux-gui/16-settings.png",
-      "version": "v.2.0.0-20261029",
-      "source_commit": "0a0b97c299432a5a294af384222e86779fad1349",
-      "package_sha256": "e831ab9d896bdb3c7d2f3bd6b18029c5313696f1ddfeaf5e3116559a6761c184",
+      "sha256": "92fe187727c4081d647852f4a36ee70121961801fbbd518cf49fcd3d02302265",
+      "source": "dist-all/v.2.0.0-20261030/smoke/full-local-linux-gui/16-settings.png",
+      "version": "v.2.0.0-20261030",
+      "source_commit": "48f58c40889b007a227fc3c005e6a233da8ba1e8",
+      "package_sha256": "1a63d082c0330deabe5ddd09f3b25c767130384af375ce6f9eccb21d3dfdd327",
       "entry": "actual packaged launcher; normal title; no forced map or art mode",
       "platform": "Linux Xvfb",
       "capture": "normal packaged launcher; no debug entry; uncropped logical 960x720"
     },
     {
       "path": "docs/images/v2.0.0/settings-hans.png",
-      "sha256": "4876ebb670a30dbfef0e46b6e0dc266058279386583f8ed1e3c4d5795209ccfe",
-      "source": "dist-all/v.2.0.0-20261029/smoke/full-local-linux-gui/20-hans-settings.png",
-      "version": "v.2.0.0-20261029",
-      "source_commit": "0a0b97c299432a5a294af384222e86779fad1349",
-      "package_sha256": "e831ab9d896bdb3c7d2f3bd6b18029c5313696f1ddfeaf5e3116559a6761c184",
+      "sha256": "caa09638b0699fe2d85d7053f461b6438112f2cb8e937c366a666c6343d02614",
+      "source": "dist-all/v.2.0.0-20261030/smoke/full-local-linux-gui/20-hans-settings.png",
+      "version": "v.2.0.0-20261030",
+      "source_commit": "48f58c40889b007a227fc3c005e6a233da8ba1e8",
+      "package_sha256": "1a63d082c0330deabe5ddd09f3b25c767130384af375ce6f9eccb21d3dfdd327",
       "entry": "actual packaged launcher; normal title; no forced map or art mode",
       "platform": "Linux Xvfb",
       "capture": "normal packaged launcher; no debug entry; uncropped logical 960x720"
     },
     {
       "path": "docs/images/v2.0.0/map-hans.png",
-      "sha256": "b8ba9a07fad59e5326d1cb47d1c992c26e03ebcffe826db0a0f8325f6bc44e02",
-      "source": "dist-all/v.2.0.0-20261029/smoke/full-local-linux-gui/21-hans-map.png",
-      "version": "v.2.0.0-20261029",
-      "source_commit": "0a0b97c299432a5a294af384222e86779fad1349",
-      "package_sha256": "e831ab9d896bdb3c7d2f3bd6b18029c5313696f1ddfeaf5e3116559a6761c184",
+      "sha256": "51915cc48efeabcf962d0f56fdb1e685ca728e7a3ef5a515b4287085a4d29194",
+      "source": "dist-all/v.2.0.0-20261030/smoke/full-local-linux-gui/21-hans-map.png",
+      "version": "v.2.0.0-20261030",
+      "source_commit": "48f58c40889b007a227fc3c005e6a233da8ba1e8",
+      "package_sha256": "1a63d082c0330deabe5ddd09f3b25c767130384af375ce6f9eccb21d3dfdd327",
       "entry": "actual packaged launcher; normal title; no forced map or art mode",
       "platform": "Linux Xvfb",
       "capture": "normal packaged launcher; no debug entry; uncropped logical 960x720"
     },
     {
       "path": "docs/images/v2.0.0/items-hans.png",
-      "sha256": "17f5a30899e7734c9e77013057e5b6dd4adc1f4951b5ba5c61d33c961eb21f72",
-      "source": "dist-all/v.2.0.0-20261029/smoke/full-local-linux-gui/23-hans-items.png",
-      "version": "v.2.0.0-20261029",
-      "source_commit": "0a0b97c299432a5a294af384222e86779fad1349",
-      "package_sha256": "e831ab9d896bdb3c7d2f3bd6b18029c5313696f1ddfeaf5e3116559a6761c184",
+      "sha256": "a99ed6eb79617e41922f2f1b0becb57966bb4528bd212e18f46b78a6a3dc57bb",
+      "source": "dist-all/v.2.0.0-20261030/smoke/full-local-linux-gui/23-hans-items.png",
+      "version": "v.2.0.0-20261030",
+      "source_commit": "48f58c40889b007a227fc3c005e6a233da8ba1e8",
+      "package_sha256": "1a63d082c0330deabe5ddd09f3b25c767130384af375ce6f9eccb21d3dfdd327",
       "entry": "actual packaged launcher; normal title; no forced map or art mode",
       "platform": "Linux Xvfb",
       "capture": "normal packaged launcher; no debug entry; uncropped logical 960x720"
     },
     {
       "path": "docs/images/v2.0.0/journal-hans.png",
-      "sha256": "3d0de6fa339f3908acc2a83b31c978ce6c2ca78531ed650ffc22af666d0593cb",
-      "source": "dist-all/v.2.0.0-20261029/smoke/full-local-linux-gui/25-hans-journal.png",
-      "version": "v.2.0.0-20261029",
-      "source_commit": "0a0b97c299432a5a294af384222e86779fad1349",
-      "package_sha256": "e831ab9d896bdb3c7d2f3bd6b18029c5313696f1ddfeaf5e3116559a6761c184",
+      "sha256": "eec89533072b3a0612951ad00e4d2add689bf8e13d8ed263226d0fe86bac81da",
+      "source": "dist-all/v.2.0.0-20261030/smoke/full-local-linux-gui/25-hans-journal.png",
+      "version": "v.2.0.0-20261030",
+      "source_commit": "48f58c40889b007a227fc3c005e6a233da8ba1e8",
+      "package_sha256": "1a63d082c0330deabe5ddd09f3b25c767130384af375ce6f9eccb21d3dfdd327",
       "entry": "actual packaged launcher; normal title; no forced map or art mode",
       "platform": "Linux Xvfb",
       "capture": "normal packaged launcher; no debug entry; uncropped logical 960x720"
     },
     {
       "path": "docs/images/v2.0.0/ranger-center.png",
-      "sha256": "a83dbb3df9300f01c7e3ad99452de301655f8051b4fbbd75e30273c5fa8d89e7",
-      "source": "dist-all/v.2.0.0-20261029/smoke/full-local-linux-gui/10-ranger-center.png",
-      "version": "v.2.0.0-20261029",
-      "source_commit": "0a0b97c299432a5a294af384222e86779fad1349",
-      "package_sha256": "e831ab9d896bdb3c7d2f3bd6b18029c5313696f1ddfeaf5e3116559a6761c184",
+      "sha256": "7c738b379bfc02501a4bb4ec4e81b6bb961dbdcb99f4a0cee79e5779dde5221b",
+      "source": "dist-all/v.2.0.0-20261030/smoke/full-local-linux-gui/10-ranger-center.png",
+      "version": "v.2.0.0-20261030",
+      "source_commit": "48f58c40889b007a227fc3c005e6a233da8ba1e8",
+      "package_sha256": "1a63d082c0330deabe5ddd09f3b25c767130384af375ce6f9eccb21d3dfdd327",
       "entry": "actual packaged launcher; normal title; no forced map or art mode",
       "platform": "Linux Xvfb",
       "capture": "normal packaged launcher; no debug entry; uncropped logical 960x720"
     },
     {
       "path": "docs/images/v2.0.0/font-noto-16.png",
-      "sha256": "350a73b5cdc682be50e05c3f21bf612f38c0c0d5586723cf8e142cc639b7d106",
-      "source": "dist-all/v.2.0.0-20261029/smoke/full-local-linux-gui/03-noto-16.png",
-      "version": "v.2.0.0-20261029",
-      "source_commit": "0a0b97c299432a5a294af384222e86779fad1349",
-      "package_sha256": "e831ab9d896bdb3c7d2f3bd6b18029c5313696f1ddfeaf5e3116559a6761c184",
+      "sha256": "01d9db720ce1e95e1bc790a0d292da4b801ea6ed8ec352ce05dd19a3e89cdfbb",
+      "source": "dist-all/v.2.0.0-20261030/smoke/full-local-linux-gui/03-noto-16.png",
+      "version": "v.2.0.0-20261030",
+      "source_commit": "48f58c40889b007a227fc3c005e6a233da8ba1e8",
+      "package_sha256": "1a63d082c0330deabe5ddd09f3b25c767130384af375ce6f9eccb21d3dfdd327",
       "entry": "actual packaged launcher; normal title; no forced map or art mode",
       "platform": "Linux Xvfb",
       "capture": "normal packaged launcher; no debug entry; uncropped logical 960x720"
     },
     {
       "path": "docs/images/v2.0.0/font-noto-18.png",
-      "sha256": "25f3016a37b8ced4be0bc2ca3dc4a1205e1d2ac71d887239866082cb2d57fbb0",
-      "source": "dist-all/v.2.0.0-20261029/smoke/full-local-linux-gui/03-noto-18.png",
-      "version": "v.2.0.0-20261029",
-      "source_commit": "0a0b97c299432a5a294af384222e86779fad1349",
-      "package_sha256": "e831ab9d896bdb3c7d2f3bd6b18029c5313696f1ddfeaf5e3116559a6761c184",
+      "sha256": "cacc24c8136dc8217ce9f195e543d28be83b2d1a8d0180a31bc2d56f4345bd94",
+      "source": "dist-all/v.2.0.0-20261030/smoke/full-local-linux-gui/03-noto-18.png",
+      "version": "v.2.0.0-20261030",
+      "source_commit": "48f58c40889b007a227fc3c005e6a233da8ba1e8",
+      "package_sha256": "1a63d082c0330deabe5ddd09f3b25c767130384af375ce6f9eccb21d3dfdd327",
       "entry": "actual packaged launcher; normal title; no forced map or art mode",
       "platform": "Linux Xvfb",
       "capture": "normal packaged launcher; no debug entry; uncropped logical 960x720"
     },
     {
       "path": "docs/images/v2.0.0/font-noto-20.png",
-      "sha256": "49e785c898f6bfab96df77aa9daf0e7fc365efb22cafd4cceeb7496d2decf50f",
-      "source": "dist-all/v.2.0.0-20261029/smoke/full-local-linux-gui/04-noto-20.png",
-      "version": "v.2.0.0-20261029",
-      "source_commit": "0a0b97c299432a5a294af384222e86779fad1349",
-      "package_sha256": "e831ab9d896bdb3c7d2f3bd6b18029c5313696f1ddfeaf5e3116559a6761c184",
+      "sha256": "3df18fc9aad377055e5de658d8e72572ea4d2dbedcb896b5d72b1127c0d8a0b1",
+      "source": "dist-all/v.2.0.0-20261030/smoke/full-local-linux-gui/04-noto-20.png",
+      "version": "v.2.0.0-20261030",
+      "source_commit": "48f58c40889b007a227fc3c005e6a233da8ba1e8",
+      "package_sha256": "1a63d082c0330deabe5ddd09f3b25c767130384af375ce6f9eccb21d3dfdd327",
+      "entry": "actual packaged launcher; normal title; no forced map or art mode",
+      "platform": "Linux Xvfb",
+      "capture": "normal packaged launcher; no debug entry; uncropped logical 960x720"
+    },
+    {
+      "path": "docs/images/v2.0.0/map-hd2-a-off.png",
+      "sha256": "a35de84ad02ea514040c4ddeb80f35e2f7e785901776f2bfc62660d59ea4ec11",
+      "source": "dist-all/v.2.0.0-20261030/smoke/full-local-linux-gui/05-art-a-off.png",
+      "version": "v.2.0.0-20261030",
+      "source_commit": "48f58c40889b007a227fc3c005e6a233da8ba1e8",
+      "package_sha256": "1a63d082c0330deabe5ddd09f3b25c767130384af375ce6f9eccb21d3dfdd327",
+      "entry": "actual packaged launcher; normal title; no forced map or art mode",
+      "platform": "Linux Xvfb",
+      "capture": "normal packaged launcher; no debug entry; uncropped logical 960x720"
+    },
+    {
+      "path": "docs/images/v2.0.0/map-hd2-b-off.png",
+      "sha256": "624ca6ddc7ebeafb9df5b86806265fca17d1eb147d93aba64f230305d6298870",
+      "source": "dist-all/v.2.0.0-20261030/smoke/full-local-linux-gui/06-art-b-modern-off.png",
+      "version": "v.2.0.0-20261030",
+      "source_commit": "48f58c40889b007a227fc3c005e6a233da8ba1e8",
+      "package_sha256": "1a63d082c0330deabe5ddd09f3b25c767130384af375ce6f9eccb21d3dfdd327",
       "entry": "actual packaged launcher; normal title; no forced map or art mode",
       "platform": "Linux Xvfb",
       "capture": "normal packaged launcher; no debug entry; uncropped logical 960x720"
@@ -2567,8 +2589,16 @@
   },
   "outputs": [
     {
+      "path": "docs/images/v2.0.0/frame-on-off.png",
+      "sha256": "50c230153fbb8259ff48baeedc68def335f86f022e22fa9f5458a60fc151e495",
+      "size": [
+        1968,
+        844
+      ]
+    },
+    {
       "path": "docs/images/v2.0.0/assets-hd2-a-all.png",
-      "sha256": "0b898ae446ab1ef99f4d1809fab33aa008546ee2b1f7f64c9741866c1444d788",
+      "sha256": "a45879618639eabd8a5f9fe86e1aa9345834dd325f6119235c09f6766e52d800",
       "size": [
         1824,
         6714
@@ -2576,7 +2606,7 @@
     },
     {
       "path": "docs/images/v2.0.0/assets-hd2-b-all.png",
-      "sha256": "c0c6e64efc48a7b87aa6123cf783a5639c40ec39b904288c0636a09ff36c488f",
+      "sha256": "71fe5b2c4efc9b278dfb64fd8425ce07480e1eb6ea1ce09007e9ae528f9c09fe",
       "size": [
         1824,
         6714
@@ -2584,7 +2614,7 @@
     },
     {
       "path": "docs/images/v2.0.0/assets-overview.png",
-      "sha256": "59b8833d1ef264e3f50d0d93e6e939921932f1d9016f70b3c1eef312ad47e700",
+      "sha256": "5c4111c74c25d2dc108170e06f366ab30ed804f1fd6b261cf048b13c6fc8a74a",
       "size": [
         1920,
         1908
@@ -2592,7 +2622,7 @@
     },
     {
       "path": "docs/images/v2.0.0/events-hd2-all.png",
-      "sha256": "b3971c34fb1a8023c9fec7bb91d517afbbbcfee62c2acbd92ff24dc663f9f0ce",
+      "sha256": "7ac5f69076ee49bfd7e15bb850a61ea4fae9b0c2c069b8c7da20ebce2434ee45",
       "size": [
         2400,
         3196
@@ -2600,7 +2630,7 @@
     },
     {
       "path": "docs/images/v2.0.0/ui-before-after.png",
-      "sha256": "b56518ce2a5c7c077b4732b71e29e6ff24ee0aeb3d081c335930c68a3f7f2278",
+      "sha256": "0f846bc2719832aeee2971a41dec05bbf6440f913aa899a374509fe6ad431db4",
       "size": [
         1968,
         844
@@ -2608,6 +2638,54 @@
     }
   ],
   "labels": [
+    {
+      "text": "HD 框線關閉 · 簡約細框",
+      "safe": [
+        16,
+        16,
+        976,
+        66
+      ],
+      "ink": [
+        16,
+        24,
+        415,
+        58
+      ],
+      "size": 36
+    },
+    {
+      "text": "HD 原版框線開啟 · A／B 預設",
+      "safe": [
+        992,
+        16,
+        1952,
+        66
+      ],
+      "ink": [
+        992,
+        24,
+        1481,
+        58
+      ],
+      "size": 36
+    },
+    {
+      "text": "最終封包實機截圖；F2 的 C 框線可開關，地圖區域像素相同。",
+      "safe": [
+        16,
+        808,
+        1952,
+        836
+      ],
+      "ink": [
+        16,
+        810,
+        674,
+        834
+      ],
+      "size": 24
+    },
     {
       "text": "V2.0.0 · HD2 A 細緻像素 · 全 1,157 張",
       "safe": [
@@ -21361,7 +21439,7 @@
       "size": 13
     },
     {
-      "text": "來源：v.2.0.0-20261029 正式本機完整包。此圖僅展示素材，完整圖包留在本機。",
+      "text": "來源：v.2.0.0-20261030 正式本機完整包。此圖僅展示素材，完整圖包留在本機。",
       "safe": [
         32,
         6654,
@@ -40129,7 +40207,7 @@
       "size": 13
     },
     {
-      "text": "來源：v.2.0.0-20261029 正式本機完整包。此圖僅展示素材，完整圖包留在本機。",
+      "text": "來源：v.2.0.0-20261030 正式本機完整包。此圖僅展示素材，完整圖包留在本機。",
       "safe": [
         32,
         6654,
@@ -40529,7 +40607,7 @@
       "size": 27
     },
     {
-      "text": "最終 v.2.0.0-20261029 封包素材展示拼圖；不是遊戲截圖或可匯入的圖包。",
+      "text": "最終 v.2.0.0-20261030 封包素材展示拼圖；不是遊戲截圖或可匯入的圖包。",
       "safe": [
         32,
         1852,
@@ -41889,7 +41967,7 @@
       "size": 19
     },
     {
-      "text": "來源：最終 v.2.0.0-20261029 本機封包；素材展示拼圖，非遊戲截圖。",
+      "text": "來源：最終 v.2.0.0-20261030 本機封包；素材展示拼圖，非遊戲截圖。",
       "safe": [
         32,
         3136,
@@ -41954,9 +42032,9 @@
     }
   ],
   "package": {
-    "path": "dist-all/v.2.0.0-20261029/full-local/windows-x64/wasteland-cht-v.2.0.0-20261029-windows-x64-full-local.zip",
-    "sha256": "9e65448a9eb84d27787baadaa0be3f3acb8ea55f59982d192489bd0ad7fac770",
-    "source_commit": "0a0b97c299432a5a294af384222e86779fad1349"
+    "path": "dist-all/v.2.0.0-20261030/full-local/windows-x64/wasteland-cht-v.2.0.0-20261030-windows-x64-full-local.zip",
+    "sha256": "bb761afaab055a8a6016458a366b8006aa9f7365373ddd05058fcab37e0a5e8f",
+    "source_commit": "48f58c40889b007a227fc3c005e6a233da8ba1e8"
   },
   "events": {
     "count_per_style": 82,
@@ -43770,7 +43848,7 @@
   },
   "generator": {
     "path": "tools/make_readme_gallery.py",
-    "sha256": "ed97abed9c64bb02b166bf214daeb7593ecdd435e81050afa95de79a72b25394"
+    "sha256": "6263e437925f339249bc495610c3f91f66b69da783f6080c93c95b94d677383b"
   },
   "limits": "Runtime views show actual packages, not full-playthrough or original parity evidence. Asset sheets are labelled compositions, not gameplay."
 }
