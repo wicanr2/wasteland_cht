@@ -8,6 +8,8 @@ import gzip
 import hashlib
 import io
 import json
+import re
+import sys
 from collections import Counter
 from pathlib import Path
 import zipfile
@@ -18,7 +20,9 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "docs/images"
 V1 = "v.1.0.0-20261029"
-V2 = "v.2.0.0-20261029"
+V2 = sys.argv[1] if len(sys.argv)>1 else "v.2.0.0-20261030"
+if not re.fullmatch(r"v\.\d+\.\d+\.\d+-\d{8}",V2):
+    raise SystemExit("A complete release version is required")
 BG = "#101921"
 PANEL = "#1b2833"
 INK = "#edf0ec"
@@ -141,7 +145,7 @@ def overview(packs):
         for i, asset in enumerate(a for a in pack["assets"] if a["kind"] == "icon"):
             px = x+24+i*64
             paste(im, pack["images"][asset["id"]], (px, 1760, px+56, 1816), col == 0)
-    label(im, "最終 v.2.0.0-20261029 封包素材展示拼圖；不是遊戲截圖或可匯入的圖包。",
+    label(im, f"最終 {V2} 封包素材展示拼圖；不是遊戲截圖或可匯入的圖包。",
           (32, 1852, 1888, 1892), 24, MUTED)
     save(im, "v2.0.0/assets-overview.png")
 
@@ -179,7 +183,7 @@ def full_sheet(mode, pack):
     assert len(included) == len(set(included)) == 1157
     assert set(included) == set(pack["images"])
     RECEIPT["assets"][mode]["sheet_ids"] = included
-    label(im, "來源：v.2.0.0-20261029 正式本機完整包。此圖僅展示素材，完整圖包留在本機。",
+    label(im, f"來源：{V2} 正式本機完整包。此圖僅展示素材，完整圖包留在本機。",
           (32, y+4, 1792, y+44), 23, MUTED)
     save(im, f"v2.0.0/assets-{mode}-all.png")
 
@@ -228,9 +232,20 @@ def events_sheet(packs):
             row["styles"][mode]={"sha256":asset["sha256"],"size":[288,252],
                                       "is_original_nearest_upscale":False}
         entries.append(row)
-    label(im,"來源：最終 v.2.0.0-20261029 本機封包；素材展示拼圖，非遊戲截圖。",(32,3136,2368,3180),25,MUTED)
+    label(im,f"來源：最終 {V2} 本機封包；素材展示拼圖，非遊戲截圖。",(32,3136,2368,3180),25,MUTED)
     RECEIPT["events"]={"count_per_style":82,"indices":entries,"status":"all-hd-no-original-upscale-fallback"}
     save(im,"v2.0.0/events-hd2-all.png")
+
+
+def chrome_comparison():
+    im=Image.new("RGB",(1968,844),BG)
+    label(im,"HD 框線關閉 · 簡約細框",(16,16,976,66),36,GOLD)
+    label(im,"HD 原版框線開啟 · A／B 預設",(992,16,1952,66),36,GOLD)
+    for i,name in enumerate(("map-hd2-b-off.png","map-hd2-b.png")):
+        with Image.open(OUT/"v2.0.0"/name) as screenshot:
+            im.paste(screenshot,(16+i*976,80))
+    label(im,"最終封包實機截圖；F2 的 C 框線可開關，地圖區域像素相同。",(16,808,1952,836),24,MUTED)
+    save(im,"v2.0.0/frame-on-off.png")
 
 
 def main():
@@ -247,6 +262,10 @@ def main():
         "items-hans.png": "23-hans-items.png", "journal-hans.png": "25-hans-journal.png",
         "ranger-center.png": "10-ranger-center.png", "font-noto-16.png": "03-noto-16.png",
         "font-noto-18.png": "03-noto-18.png", "font-noto-20.png": "04-noto-20.png"})
+    if V2 != "v.2.0.0-20261029":
+        runtime(V2,{"map-hd2-a-off.png":"05-art-a-off.png",
+                    "map-hd2-b-off.png":"06-art-b-modern-off.png"})
+        chrome_comparison()
     archive = ROOT / f"dist-all/{V2}/full-local/windows-x64/wasteland-cht-{V2}-windows-x64-full-local.zip"
     delivery = json.loads((ROOT / f"dist-all/{V2}/SHA256SUMS.json").read_text())
     archive_sha = sha(archive.read_bytes())
@@ -279,7 +298,7 @@ def main():
     RECEIPT["generator"] = {"path": "tools/make_readme_gallery.py", "sha256": sha(Path(__file__).read_bytes())}
     RECEIPT["limits"] = "Runtime views show actual packages, not full-playthrough or original parity evidence. Asset sheets are labelled compositions, not gameplay."
     output_path(OUT / "gallery.json").write_text(json.dumps(RECEIPT, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
-    print(f"PASS: {len(RECEIPT['runtime'])} verified runtime screenshots; 2 x 1157 assets; 164 HD events; 5 compositions")
+    print(f"PASS: {len(RECEIPT['runtime'])} verified runtime screenshots; 2 x 1157 assets; 164 HD events; {len(RECEIPT['outputs'])} compositions")
 
 
 if __name__ == "__main__":

@@ -92,6 +92,21 @@ PY
     printf '%(%s)T frame %s %s %s attempts=%s\n' -1 "$reference" "$relation" "$current" "$n" >> "$evidence/input.log"
     test "$ready" = 1
 }
+check_chrome() {
+    local prefix=$1 toggle=$2
+    click 908 22
+    wait_frame "$prefix" "$prefix-frame-settings" different 16,154,948,654
+    if [ "$toggle" = mouse ]; then click 478 183; else send c; fi
+    wait_frame "$prefix-frame-settings" "$prefix-frame-settings-off" different 356,162,600,204
+    send Escape
+    wait_frame "$prefix" "$prefix-off" equal 24,84,888,468
+    click 908 22
+    wait_frame "$prefix-off" "$prefix-frame-settings-off-again" different 16,154,948,654
+    if [ "$toggle" = mouse ]; then send c; else click 478 183; fi
+    wait_frame "$prefix-frame-settings-off-again" "$prefix-frame-settings-restored" different 356,162,600,204
+    send Escape
+    wait_frame "$prefix" "$prefix-frame-restored" equal 24,84,888,468
+}
 for n in $(seq 1 120); do
     shot 00-title
     ready=$(convert "$evidence/00-title.png" -format '%[fx:mean>0.002]' info:)
@@ -133,10 +148,12 @@ wait_frame 01-original 04-rounded-18 equal 212,6,316,38
 click 140 22
 if [ "$mode" = full-local ]; then
     wait_art 01-original 05-art-a
+    check_chrome 05-art-a mouse
     click 178 22
     wait_art 05-art-a 06-art-b-modern
     click 500 22
     wait_frame 05-art-a 06-art-b-modern different 444,6,564,38
+    check_chrome 06-art-b-modern keyboard
 else
     wait_frame 04-rounded-18 05-missing-hd2 different 16,486,948,654
     send Escape
@@ -245,6 +262,12 @@ if mode=='full-local':
         h=ImageChops.difference(images[a].crop(crop),images[b].crop(crop)).convert('L').point(lambda v:255 if v>3 else 0).histogram()
         assert h[255]/(864*384)>.25,(a,b)
     visual=True
+    for name in ('05-art-a','06-art-b-modern'):
+        assert images[name].crop(crop).tobytes()==images[name+'-off'].crop(crop).tobytes()
+        assert images[name].crop(crop).tobytes()==images[name+'-frame-restored'].crop(crop).tobytes()
+        bezel=(16,76,896,84)
+        assert images[name].crop(bezel).tobytes()!=images[name+'-off'].crop(bezel).tobytes()
+        assert images[name].crop(bezel).tobytes()==images[name+'-frame-restored'].crop(bezel).tobytes()
 if platform=='windows-x64':
     for name in ['wasteland','wl-setup']: assert (p/f'{name}-version.txt').read_text().strip()==version
     paths=list(Path('/wine').rglob('quicksave.wlq'));assert len(paths)==1,paths
@@ -257,7 +280,7 @@ suffix='AppImage' if platform=='linux-x64' else 'zip'
 package=Path(f'/src/dist-all/{version}/{mode}/{platform}/wasteland-cht-{version}-{platform}-{mode}.{suffix}')
 result={'schema':1,'status':'passed','version':version,'platform':platform,'environment':'Wine supplementary' if platform=='windows-x64' else 'Linux Xvfb',
  'entry':'actual packaged launcher; normal title; no forced map or art mode','exit_code':0,
- 'modern_ui_verified':True,'languages_verified':['zh-Hant','zh-Hans'],'visual_modes_verified':visual,'load_restores_exact_crop':crop,
+ 'modern_ui_verified':True,'languages_verified':['zh-Hant','zh-Hans'],'visual_modes_verified':visual,'hd_chrome_verified':visual,'load_restores_exact_crop':crop,
  'window_size':[int(x) for x in sys.argv[5:7]],'screenshot_scale':'nearest to logical 960x720; full-size window captures retained',
  'quick_save':{'version':2,'original_path':str(save),'sha256':hashlib.sha256(b).hexdigest()},
  'package_sha256':hashlib.sha256(package.read_bytes()).hexdigest(),

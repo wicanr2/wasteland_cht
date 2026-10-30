@@ -1,0 +1,37 @@
+{
+  "decision": "2026-10-30 user: 採用，A／B 預設開啟",
+  "a_b_default": true,
+  "original_art_unchanged": true,
+  "control": "F2: C / click (356,162)-(600,204)",
+  "map_rect": [
+    24,
+    84,
+    888,
+    468
+  ],
+  "recipe": "tools/prototype_hd_chrome.py",
+  "recipe_sha256": "f1eae3e87d46a965b5d6f9527d3c044055f1669634052640a096ef6f57452930",
+  "references": [
+    {
+      "path": "artwork/source/accepted/hd-frame-approved-a-on.png",
+      "sha256": "09c60a2c20870eee88d35d6ca03cb6e7ac163355e6c837330ace2282ef70dd6b"
+    },
+    {
+      "path": "artwork/source/accepted/hd-frame-approved-b-on.png",
+      "sha256": "a87aae37a642c95d05c745865da8abfd536b64761c4ed9e55df35f478deccece"
+    },
+    {
+      "path": "artwork/source/accepted/hd-frame-approved-ab.png",
+      "sha256": "914293b79ea5e71dbfc1773555038293a832229a23d346d182a9d692ede2140b"
+    },
+    {
+      "path": "artwork/source/accepted/hd-frame-approved-on-off.png",
+      "sha256": "8bd963652927ae973d5b4f54c06830dcad5d7b6285c405b471d3f1cc29eee935"
+    },
+    {
+      "path": "artwork/source/accepted/hd-frame-approved-settings.png",
+      "sha256": "907905aa9f8d4bc3d58faa1a71e347bb84a230c8079aa40324f6ccd28b9b1094"
+    }
+  ],
+  "rights": "local-only game-art screenshots; source PNGs ignored"
+}

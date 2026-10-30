@@ -9,13 +9,15 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 OUT="$ROOT/docs/images"
 IMAGE="san1-go:1.26.7-ebiten2.9.9-r1"
+VERSION=${1:-v.2.0.0-20261030}
+[[ "$VERSION" =~ ^v\.[0-9]+\.[0-9]+\.[0-9]+-[0-9]{8}$ ]] || { echo '必須指定完整版本' >&2; exit 2; }
 test -d "$OUT"
 test -f "$ROOT/tools/make_readme_gallery.py"
 test -d "$ROOT/dist-all/v.1.0.0-20261029"
-test -d "$ROOT/dist-all/v.2.0.0-20261029"
+test -d "$ROOT/dist-all/$VERSION"
 docker image inspect "$IMAGE" >/dev/null
 timeout 180s docker run --rm --network none --user "$(id -u):$(id -g)" \
     --memory 2g --cpus 2 --pids-limit 128 \
     --log-opt max-size=10m --log-opt max-file=1 \
     -v "$ROOT:/src:ro" -v "$OUT:/src/docs/images:rw" -w /src \
-    "$IMAGE" timeout 150s python3 tools/make_readme_gallery.py
+    "$IMAGE" timeout 150s python3 tools/make_readme_gallery.py "$VERSION"

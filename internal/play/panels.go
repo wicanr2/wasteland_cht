@@ -165,6 +165,10 @@ func (s *Scene) updateSettings(in input.Input) (bool, error) {
 		return true, nil
 	}
 	switch input.Upper(in.Char) {
+	case 'C':
+		if s.modern != nil && s.modernHDArt() {
+			s.modern.hdChrome = !s.modern.hdChrome
+		}
 	case 'L':
 		if s.CanSwitchLocale() {
 			next := "zh-Hans"

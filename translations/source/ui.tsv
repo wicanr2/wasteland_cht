@@ -134,3 +134,7 @@ ui:modern.switch	Group
 ui:modern.save-command	Save
 ui:modern.radio	Radio
 ui:modern.journal	Journal
+ui:modern.chrome	Frame
+ui:modern.chrome-hd	HD original
+ui:modern.chrome-off	Minimal
+ui:modern.chrome-badge	HD original frame

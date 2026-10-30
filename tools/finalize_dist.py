@@ -57,6 +57,7 @@ def finalize(version):
             assert sha(driver) == data["driver_sha256"], driver
             if needs_visual:
                 assert data.get("visual_modes_verified") is True, receipt
+                assert data.get("hd_chrome_verified") is True, receipt
             for screenshot in data["screenshots"]:
                 assert sha(receipt.parent / screenshot["path"]) == screenshot["sha256"]
             check = {"status": "passed", "receipt": str(receipt.relative_to(out)), "sha256": sha(receipt)}
@@ -92,6 +93,7 @@ def finalize(version):
               "patch 內建已授權圓體與 Noto，不含原版、倚天、HD2 圖片或配樂，玩家須自備合法原版。",
               "預設使用 18 像素圓體、細邊框與工具列；美術與字型可獨立切換。舊 HD 已移除。",
               "內含繁體與簡體中文；由工具列設定 F2 的語言按鈕或 L 切換。未完成的指令須先關閉。",
+              "A／B 預設開啟 HD 原版框線；設定 F2 的框線按鈕或 C 可關閉，原版美術介面維持。",
               "", "六包均完成內容、架構、版本與雜湊驗證。實際啟動檢查與畫面見 smoke/。",
               "Linux 容器／Wine 與原生 Windows／macOS 實機驗收分開記錄，不把交叉建置當成實機通過。",
               "", "| 實際啟動檢查 | 狀態 |", "|---|---|"]
@@ -118,6 +120,8 @@ def finalize(version):
     inputs += [REPO / p for p in ("internal/play/locales.go", "tools/build_lang.py", "tools/build_paragraphs.py",
                "tools/make_zh_hans.py", "tools/localization-inputs.json", "translations/zh-Hans.cat",
                "translations/paragraphs-zh-Hant.cat", "translations/paragraphs-zh-Hans.cat")]
+    inputs += [REPO / p for p in ("internal/presentation/chrome.go", "internal/play/chrome_test.go",
+               "artwork/manifests/ui-hd-chrome-approved.json", "docs/spec/35-hd-original-chrome.md")]
     inputs += [REPO / p for p in ("tools/promo.sh", "tools/promo/record_packaged.sh",
                "tools/promo/record_packaged_container.sh", "tools/promo/render_packaged.py")]
     inputs += sorted((REPO / "internal/presentation/fonts").iterdir())

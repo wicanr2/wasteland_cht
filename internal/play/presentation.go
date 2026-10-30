@@ -31,6 +31,7 @@ type modernView struct {
 	fields         []presentation.Field
 	scroll         int
 	scrollKey      string
+	hdChrome       bool
 }
 
 func (s *Scene) EnableModernUI() error {
@@ -38,12 +39,21 @@ func (s *Scene) EnableModernUI() error {
 	if err != nil {
 		return err
 	}
-	s.modern = &modernView{fonts: f, pixels: 18}
+	s.modern = &modernView{fonts: f, pixels: 18, hdChrome: true}
 	s.dirty = true
 	return nil
 }
 
 func (s *Scene) ModernEnabled() bool { return s.modern != nil }
+
+// Spec 35: the approved chrome is shared by A/B; original art stays unchanged.
+func (s *Scene) modernHDArt() bool {
+	return s.ArtMode() == "hd2-a" || s.ArtMode() == "hd2-b"
+}
+
+func (s *Scene) modernHDChrome() bool {
+	return s.modern != nil && s.modern.hdChrome && s.modernHDArt()
+}
 
 func (s *Scene) modernText(key, fallback string) string {
 	if v := s.uiText("modern." + key); v != "" {
@@ -85,6 +95,9 @@ func (s *Scene) ModernFrame() (*image.RGBA, error) {
 	c.Label(s.modernText("title", "Wasteland"), image.Rect(20, 54, 220, 76), 20, presentation.Accent, false)
 	mode := map[string]string{"original": s.modernText("original", "Original art"), "hd2-a": s.modernText("art-a", "HD2 A"), "hd2-b": s.modernText("art-b", "HD2 B")}[s.ArtMode()]
 	c.Label(mode, image.Rect(232, 54, 560, 76), 14, presentation.Muted, false)
+	if s.modernHDChrome() {
+		c.Label(s.modernText("chrome-badge", "HD original frame"), image.Rect(578, 54, 788, 76), 14, presentation.Accent, true)
+	}
 	c.Label(fmt.Sprintf("%02d:%02d", s.world.Clock.Hour, s.world.Clock.Minute), image.Rect(806, 54, 892, 76), 16, presentation.Muted, true)
 	content := h.ToImage()
 	offset := 0
@@ -99,8 +112,14 @@ func (s *Scene) ModernFrame() (*image.RGBA, error) {
 	portrait := s.combat != nil || s.facility != nil
 	if portrait {
 		c.Box(image.Rect(20, 80, 316, 406), presentation.Panel, presentation.Edge, 5)
+		if s.modernHDChrome() {
+			c.MetalBorder(image.Rect(16, 76, 320, 410), 8)
+		}
 		draw.Draw(c.Image, image.Rect(24, 84, 312, 372), content, image.Pt(24, 24+offset), draw.Src)
 		c.Box(image.Rect(332, 80, 948, 406), presentation.Panel, presentation.Edge, 5)
+		if s.modernHDChrome() {
+			c.MetalBorder(image.Rect(328, 76, 952, 410), 8)
+		}
 		menuCells := h.TextCells
 		if current := s.modernMessageCells(); len(current) != 0 {
 			menuCells = current
@@ -127,6 +146,9 @@ func (s *Scene) ModernFrame() (*image.RGBA, error) {
 		}
 	} else {
 		c.Box(image.Rect(20, 80, 892, 472), presentation.RGB(0x090f14), presentation.RGB(0x667078), 5)
+		if s.modernHDChrome() {
+			c.MetalBorder(image.Rect(16, 76, 896, 476), 8)
+		}
 		draw.Draw(c.Image, presentation.MapRect, content, image.Pt(24, 24+offset), draw.Src)
 		if s.attract.active {
 			c.Fill(presentation.MapRect, presentation.Background)
@@ -136,9 +158,15 @@ func (s *Scene) ModernFrame() (*image.RGBA, error) {
 	}
 	if portrait || s.mapRosterShown() {
 		c.Box(image.Rect(16, 420, 948, 654), presentation.Panel, presentation.Edge, 6)
+		if s.modernHDChrome() {
+			c.MetalBorder(image.Rect(16, 420, 948, 654), 8)
+		}
 		s.modernRoster(c)
 	} else {
 		c.Box(image.Rect(16, 486, 948, 654), presentation.Panel, presentation.Edge, 6)
+		if s.modernHDChrome() {
+			c.MetalBorder(image.Rect(16, 486, 948, 654), 8)
+		}
 		c.Label(s.modernText("message", "Message"), image.Rect(32, 498, 140, 520), 14, presentation.Accent, false)
 		c.Label(fmt.Sprintf(s.modernText("group", "Group %d"), s.groupID+1), image.Rect(816, 498, 932, 520), 14, presentation.Muted, true)
 		c.Fill(image.Rect(32, 528, 932, 529), presentation.RGB(0x31414e))
@@ -165,6 +193,9 @@ func (s *Scene) ModernFrame() (*image.RGBA, error) {
 	if s.modernPopup() {
 		// Expand interactive text instead of hiding half of the six-line menus.
 		c.Box(image.Rect(16, 154, 948, 654), presentation.Panel, presentation.Accent, 6)
+		if s.modernHDChrome() {
+			c.MetalBorder(image.Rect(16, 154, 948, 654), 8)
+		}
 		c.Label(s.modernText("dialog", "Menu"), image.Rect(32, 170, 780, 198), 16, presentation.Accent, false)
 		c.Label("ESC", image.Rect(864, 170, 924, 198), 14, presentation.Muted, true)
 		c.Fill(image.Rect(32, 208, 924, 209), presentation.Edge)
@@ -172,6 +203,16 @@ func (s *Scene) ModernFrame() (*image.RGBA, error) {
 		rect := s.msgRect()
 		s.modernRows(c, s.modernMessageCells(), rect.Row, rect.LastRow(), rect.Col, rect.Col+rect.Width-1, image.Rect(32, 222, 924, 626), 28, false)
 		v.hits = append(v.hits, modernHit{rect: image.Rect(852, 162, 936, 204), key: 0x1b})
+		if s.settingsOpen && s.modernHDArt() {
+			r := image.Rect(356, 162, 600, 204)
+			value := s.modernText("chrome-off", "Minimal")
+			if v.hdChrome {
+				value = s.modernText("chrome-hd", "HD original")
+			}
+			c.Box(r, presentation.RGB(0x253747), presentation.Accent, 4)
+			c.Label("C "+s.modernText("chrome", "Frame")+": "+value, r.Inset(8), 16, presentation.Accent, true)
+			v.hits = append(v.hits, modernHit{rect: r, key: 'C'})
+		}
 		if s.settingsOpen && s.LanguagesAvailable() {
 			r := image.Rect(612, 162, 844, 204)
 			col := presentation.Text
@@ -289,6 +330,10 @@ func (s *Scene) modernToolbar(c *presentation.Canvas) {
 }
 
 func (s *Scene) modernMeter(c *presentation.Canvas) {
+	if s.modernHDChrome() {
+		s.modernHDMeter(c)
+		return
+	}
 	c.Box(image.Rect(904, 80, 948, 472), presentation.Panel, presentation.Edge, 5)
 	c.Label(s.modernText("radiation", "RAD"), image.Rect(908, 96, 944, 120), 12, presentation.Muted, true)
 	reading := s.geigerReading()
@@ -306,6 +351,34 @@ func (s *Scene) modernMeter(c *presentation.Canvas) {
 		c.Box(image.Rect(917, 144+i*20, 935, 156+i*20), col, presentation.RGB(0x3a4c58), 2)
 	}
 	c.Label(value, image.Rect(908, 416, 944, 452), 18, presentation.Muted, true)
+}
+
+func (s *Scene) modernHDMeter(c *presentation.Canvas) {
+	c.Fill(image.Rect(904, 80, 948, 472), presentation.RGB(0x111b25))
+	c.MetalBorder(image.Rect(904, 80, 948, 472), 4)
+	family := c.Family
+	c.Family = 0 // The logo keeps its approved face when the body font changes.
+	for i, letter := range "WASTELAND" {
+		c.Label(string(letter), image.Rect(910, 88+i*22, 942, 110+i*22), 24, presentation.RGB(0xd8dee3), true)
+	}
+	c.Family = family
+	c.Fill(image.Rect(912, 292, 940, 416), presentation.RGB(0x152744))
+	c.MetalBorder(image.Rect(912, 292, 940, 416), 3)
+	reading, active, value := s.geigerReading(), 0, "—"
+	if s.partyHasGeiger() && reading != render.MeterNoReading {
+		active, value = max(0, 12-int(reading)), fmt.Sprint(reading)
+	}
+	for i := 0; i < 12; i++ {
+		y := 298 + i*9
+		col := presentation.RGB(0x102a54)
+		if 11-i < active {
+			col = presentation.RGB(0x387ce0)
+		}
+		c.Fill(image.Rect(918, y, 934, y+5), col)
+		c.Fill(image.Rect(918, y, 934, y+1), presentation.RGB(0x315c9a))
+	}
+	c.Label(s.modernText("radiation", "RAD"), image.Rect(908, 424, 944, 444), 12, presentation.RGB(0xa8b8c5), true)
+	c.Label(value, image.Rect(908, 446, 944, 464), 14, presentation.RGB(0xa8b8c5), true)
 }
 
 func (s *Scene) modernCommands(c *presentation.Canvas) {

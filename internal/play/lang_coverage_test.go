@@ -182,6 +182,7 @@ var uiCatalogueKeys = []string{
 	"modern.save", "modern.load", "modern.settings", "modern.radiation", "modern.message", "modern.group",
 	"modern.scroll", "modern.start", "modern.dialog", "modern.use", "modern.encounter", "modern.order",
 	"modern.split", "modern.switch", "modern.save-command", "modern.radio", "modern.journal",
+	"modern.chrome", "modern.chrome-hd", "modern.chrome-off", "modern.chrome-badge",
 	"cmd.bar",
 	"journal.header", "journal.hint",
 	"journal.decoy", "journal.appendix", "journal.epilogue",
