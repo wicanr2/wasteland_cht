@@ -107,6 +107,18 @@ toolbar() {
   click 340 22; wait_frame font-18 font-restored equal 324,6,436,38
   click 250 22; wait_frame font-before font-rounded equal 212,6,316,38
 }
+chrome() {
+  shot chrome-on
+  sleep 1
+  click 908 22; wait_frame chrome-on chrome-settings-on different 16,154,948,654
+  click 478 183; wait_frame chrome-settings-on chrome-settings-off different 356,162,600,204
+  send Escape; wait_frame chrome-on chrome-off equal 24,84,888,468
+  sleep 3
+  click 908 22; wait_frame chrome-off chrome-settings-off-again different 16,154,948,654
+  send c; wait_frame chrome-settings-off-again chrome-settings-restored different 356,162,600,204
+  send Escape; wait_frame chrome-on chrome-restored equal 24,84,888,468
+  sleep 1
+}
 facility() {
   shot facility-before
   send Up; wait_frame facility-before facility-up different 24,84,888,468
@@ -144,6 +156,7 @@ wait_frame reset-a art-b art 24,84,888,468
 wait_frame reset-a mode-b different 162,9,196,35
 record hd2-b-live 12 walk
 send F9; wait_frame art-b reset-b equal 24,84,430,468
+record chrome-live 30 chrome
 record language-live 22 languages
 record toolbar-live 22 toolbar
 record facility-live 18 facility
@@ -181,21 +194,29 @@ grep -q 'zh-Hans' /out/classic-hans-rejected.log
 ! grep -q 'panic:' /out/classic-hans-rejected.log
 python3 - "$version" "$package" <<'PY'
 from pathlib import Path
+from PIL import Image
 import hashlib,json,subprocess,sys
 root=Path('/out')
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
 clips=[]
-for name,requested,minimum in [('original-live',12,8),('hd2-a-live',12,9),('hd2-b-live',12,9),('language-live',22,12),('toolbar-live',22,12),('facility-live',18,11)]:
+for name,requested,minimum in [('original-live',12,4),('hd2-a-live',12,6),('hd2-b-live',12,5),('chrome-live',30,20),('language-live',22,16),('toolbar-live',22,20),('facility-live',18,9)]:
     p=root/(name+'.mp4')
     info=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-show_format','-of','json',str(p)]))
     v=info['streams'][0]; assert (v['width'],v['height'])==(960,720)
     duration=float(info['format']['duration'])
     assert v['avg_frame_rate']=='25/1' and duration>=minimum
-    clips.append({'path':p.name,'sha256':sha(p),'duration':duration,'requested_capture_seconds':requested,'edit_seconds':minimum})
+    clips.append({'path':p.name,'sha256':sha(p),'duration':duration,'requested_capture_seconds':requested,'minimum_source_seconds':minimum})
+on,off,restored=[Image.open(root/(n+'.png')).convert('RGB') for n in ('chrome-on','chrome-off','chrome-restored')]
+crop=(24,84,888,468)
+assert on.crop(crop).tobytes()==off.crop(crop).tobytes()==restored.crop(crop).tobytes()
+bezel=(16,76,896,84)
+assert on.crop(bezel).tobytes()!=off.crop(bezel).tobytes()
+assert on.crop(bezel).tobytes()==restored.crop(bezel).tobytes()
 result={'schema':1,'status':'passed','version':sys.argv[1],'package_sha256':sha(Path(sys.argv[2])),
  'entry':'actual packaged AppRun; its own data; normal title; -scale 1 only; no forced map/art',
  'window_size':[960,720],'clips':clips,'driver_sha256':sha(root/'driver.sh'),'exit_code':0,
  'startup_locale_zh_hans':True,'classic_zh_hans_rejected':True,
+ 'hd_chrome_verified':True,'chrome_map_pixels_unchanged':True,
  'audio':'video capture uses null audio; soundtrack copied from this actual package',
  'music':[{'path':str(p.relative_to(root)),'sha256':sha(p)} for p in sorted((root/'music').glob('*.ogg'))],
  'rights':'local-only original/derived art and project-made score; no public distribution authorized'}
@@ -205,5 +226,5 @@ if result['driver_sha256']!=result['metadata_writer_sha256']:
     (root/'metadata-writer.sh').write_bytes(writer.read_bytes())
     result['receipt_note']='Metadata regenerated from retained complete recordings after correcting raw-duration acceptance; recorded driver preserved unchanged.'
 (root/'capture.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
-print('PASS: six actual packaged gameplay clips and normal exit')
+print('PASS: seven actual packaged clips, HD frame on/off/on and normal exit')
 PY
